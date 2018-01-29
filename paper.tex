@@ -18,6 +18,8 @@
 % Attempt to make hyperref and algorithmic work together better:
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
+\newcommand{\system}{EC2.0~}
+
 % Use the following line for the initial blind version submitted for review:
 \usepackage{icml2018}
 
@@ -161,35 +163,43 @@ Imagine an agent faced with a suite of new problems totally different
 from anything it has seen before. It has at its disposal a basic set
 of primitive actions it can compose to build solutions to these problems, but
 it is no idea what kinds of primitives are appropriate for which
-problems nor does it know the higher-level domain-specific language in
+problems nor does it know the higher-level vocabulary in
 which solutions are best expressed.
 How can our agent get off the ground?
 
 The AI and machine learning literature contains two broad takes on this problem.
 The first take is that the agent should come up with a better representation of the space of solutions,
 for example, by inventing new primitive actions: see \emph{options} in reinforcement learning~\cite{stolle2002learning}, the EC algorithm in program synthesis~\cite{Dechter:2013:BLV:2540128.2540316}, or predicate invention in inductive logic programming~\cite{muggleton2015meta}.
-The second take is that the agent should learn a discriminative model mapping problems to a distribution over solutions: for example, policy gradient methods in reinforcement learning or neural models of program synthesis~\cite{devlin2017robustfill}.
+The second take is that the agent should learn a discriminative model mapping problems to a distribution over solutions: for example, policy gradient methods in reinforcement learning or neural models of program synthesis~\cite{devlin2017robustfill,balog2016deepcoder}.
+Our contribution is a general algorithm for fusing these two takes on the problem:
+we propose jointly inducing a representation language, called a \emph{Domain Specific Language} (DSL),
+alongside a bottom-up discriminative model that regresses from problems to solutions.
+We evaluate our algorithm on four domains:
+building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and Lisp-style programming problems.
+We show that \system can construct a set of basis primitives suitable for discovering solutions in each of these domains
 
+We cast these problems as \emph{Bayesian Program
+  Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}),
+where the goal is to infer from an observation $x$ a posterior distribution over programs, $\probability[p|x]$.
+A DSL $\mathcal{D}$ specifies the vocabulary in which programs $p$ are written.
+We equip our DSLs with a \emph{weight vector} $\theta$; together, $(\mathcal{D},\theta)$
+define a probabilistic generative model over programs, $\probability[p|\mathcal{D},\theta]$.
+In this BPL setting, $\probability[p|x]\propto \probability[x|p]\probability[p|\mathcal{D},\theta]$,
+where the likelihood $\probability[x|p]$ is domain-dependent.
+The solid lines in Fig.~\ref{graphicalModel} the diagram this generative model.
+Alongside this generative model,
+we infer a bottom-up recognition model, $q(x)$, which is a neural network that regresses from observations to a distribution over programs.
 
+Our key observation is that the generative and recognition models can bootstrap off of each other,
+greatly increasing the tractability of BPL.
 
-
-Our algorithm accomplishes the following:
-\begin{itemize}
-\item Learns from relatively small amounts of data and with weak supervision. We do not use ground truth programs -- weak supervision. Our DSL learner does not need huge amounts of data -- tens of examples suffice.
-  \item Jointly infers a \emph{generative model} along with a \emph{recognition model}. The \emph{generative model} is a probabilistic context-sensitive grammar over programs, and includes a DSL. The \emph{recognition model} is a neural network that guides the agents use of the DSL.
-\end{itemize}
-The generative model and the recognition model bootstrap off of each other:
-\begin{itemize}
-\item The recognition model works by upweighting the probability of program components likely to be useful for a given problem. By learning a DSL, the recognition model gets more power because it can upweight new more powerful primitives that are better suited for the domain.
-\item The generative model (DSL) is learned from programs that the agent has found so far. Because the recognition model speeds up search, it generates more training data for the generative model.
-\end{itemize}
 
 \begin{figure}
   \begin{tikzpicture}
   
   \node[latent] at (1,3) (d){$\mathcal{D}$};
   \node[latent] at (2.5,3) (t){$\theta$};
-  \node[latent] at (1,1.5) (z){$z$};
+  \node[latent] at (1,1.5) (z){$p$};
   \node[latent] at (2.5,1.5) (tx){$\theta_x$};
   \node[obs] at (1,0) (x) {$x$};
   \edge {z}{x};
@@ -199,7 +209,7 @@ The generative model and the recognition model bootstrap off of each other:
   \draw [->,dashed] (d.west) to[out = 180,in = 180] (z.west);
   \draw [->,dashed] (tx.west) -- (z.east);
   \end{tikzpicture}
-  \caption{DSL $\mathcal{D}$ generates programs $z$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe program outputs $x$. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from program outputs to a distribution over programs ($\theta_x = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}
+  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe program outputs $x$. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from program outputs to a distribution over programs ($\theta_x = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
 
 \section{Program Representation}
