@@ -1,0 +1,329 @@
+%%%%%%%% ICML 2018 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2018} with \usepackage[nohyperref]{icml2018} above.
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+\usepackage{icml2018}
+
+
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+\usepackage{listings}
+\usepackage{amsthm}
+% use Times
+\usepackage{times}
+% For figures
+\usepackage{graphicx} % more modern
+%\usepackage{epsfig} % less modern
+\usepackage{subfig} 
+\usepackage{fancyvrb}
+
+
+\usepackage{caption}
+\usepackage{subcaption}
+
+\fvset{fontsize=\footnotesize}
+
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+
+
+\usepackage{verbatim}
+ \usepackage{booktabs}
+ % For algorithms
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{tikz}
+\usetikzlibrary{fit,bayesnet}
+%\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+%\usetikzlibrary{decorations.text,decorations.pathreplacing}
+%\usetikzlibrary{decorations.pathmorphing}
+\usepackage{dsfont}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\DeclareMathOperator*{\argmin}{arg\,min} % thin space, limits underneath in displays
+\DeclareMathOperator*{\argmax}{arg\,max} % thin space, limits underneath in displays
+\DeclareMathOperator{\argmin}{argmin} % no space, limits underneath in displays
+
+
+
+% Packages hyperref and algorithmic misbehave sometimes.  We can fix
+% this with the following command.
+
+\newcommand{\Expect}{\mathds{E}} %{{\rm I\kern-.3em E}}
+\newcommand{\indicator}{\mathds{1}} %{{\rm I\kern-.3em E}}
+\newcommand{\expect}{\mathds{E}} %{{\rm I\kern-.3em E}}
+\newcommand{\probability}{\mathds{P}} %{{\rm I\kern-.3em P}}
+
+
+
+% If accepted, instead use the following line for the camera-ready submission:
+%\usepackage[accepted]{icml2018}
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\icmltitlerunning{Inducing Domain Specific Languages for Bayesian Program Learning}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{Inducing Domain Specific Languages for Bayesian Program Learning}
+
+% It is OKAY to include author information, even for blind
+% submissions: the style file will automatically remove it for you
+% unless you've provided the [accepted] option to the icml2018
+% package.
+
+% List of affiliations: The first argument should be a (short)
+% identifier you will use later to specify author affiliations
+% Academic affiliations should list Department, University, City, Region, Country
+% Industry affiliations should list Company, City, Region, Country
+
+% You can specify symbols, otherwise they are numbered in order.
+% Ideally, you should not use this facility. Affiliations will be numbered
+% in order of appearance and this is the preferred way.
+\icmlsetsymbol{equal}{*}
+
+\begin{icmlauthorlist}
+\icmlauthor{Aeiau Zzzz}{equal,to}
+\icmlauthor{Bauiu C.~Yyyy}{equal,to,goo}
+\icmlauthor{Cieua Vvvvv}{goo}
+\icmlauthor{Iaesut Saoeu}{ed}
+\icmlauthor{Fiuea Rrrr}{to}
+\icmlauthor{Tateu H.~Yasehe}{ed,to,goo}
+\icmlauthor{Aaoeu Iasoh}{goo}
+\icmlauthor{Buiui Eueu}{ed}
+\icmlauthor{Aeuia Zzzz}{ed}
+\icmlauthor{Bieea C.~Yyyy}{to,goo}
+\icmlauthor{Teoau Xxxx}{ed}
+\icmlauthor{Eee Pppp}{ed}
+\end{icmlauthorlist}
+
+\icmlaffiliation{to}{Department of Computation, University of Torontoland, Torontoland, Canada}
+\icmlaffiliation{goo}{Googol ShallowMind, New London, Michigan, USA}
+\icmlaffiliation{ed}{School of Computation, University of Edenborrow, Edenborrow, United Kingdom}
+
+\icmlcorrespondingauthor{Cieua Vvvvv}{c.vvvvv@googol.com}
+\icmlcorrespondingauthor{Eee Pppp}{ep@eden.co.uk}
+
+% You may provide any keywords that you
+% find helpful for describing your paper; these are used to populate
+% the "keywords" metadata in the PDF but will not be shown in the document
+\icmlkeywords{Machine Learning, ICML}
+
+\vskip 0.3in
+]
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column
+% listing the affiliations and the copyright notice.
+% The command takes one argument, which is text to display at the start of the footnote.
+% The \icmlEqualContribution command is standard text for equal contribution.
+% Remove it (just {}) if you do not need this facility.
+
+%\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
+
+\begin{abstract}
+This document provides a basic paper template and submission guidelines.
+Abstracts must be a single paragraph, ideally between 4--6 sentences long.
+Gross violations will trigger corrections at the camera-ready phase.
+\end{abstract}
+
+\section{Introduction}
+
+Imagine an agent faced with a suite of new problems totally different
+from anything it has seen before. It has at its disposal a basic set
+of primitives it can compose to build solutions to these problems, but
+it is no idea what kinds of primitives are appropriate for which
+problems nor does it know the higher-level domain-specific language in
+which solutions are best expressed.
+
+Our algorithm accomplishes the following:
+\begin{itemize}
+\item Learns from relatively small amounts of data and with weak supervision. We do not use ground truth programs -- weak supervision. Our DSL learner does not need huge amounts of data -- tens of examples suffice.
+  \item Jointly infers a \emph{generative model} along with a \emph{recognition model}. The \emph{generative model} is a probabilistic context-sensitive grammar over programs, and includes a DSL. The \emph{recognition model} is a neural network that guides the agents use of the DSL.
+\end{itemize}
+The generative model and the recognition model bootstrap off of each other:
+\begin{itemize}
+\item The recognition model works by upweighting the probability of program components likely to be useful for a given problem. By learning a DSL, the recognition model gets more power because it can upweight new more powerful primitives that are better suited for the domain.
+\item The generative model (DSL) is learned from programs that the agent has found so far. Because the recognition model speeds up search, it generates more training data for the generative model.
+\end{itemize}
+
+
+\section{Experiments}
+
+\begin{figure}
+  \includegraphics[width = 9cm]{figures/polynomial.png}
+  \includegraphics[width = 9cm]{figures/text.png}
+  \includegraphics[width = \columnwidth]{figures/circuit.png} 
+\end{figure}
+
+\section{Model}
+
+\begin{figure}
+  \begin{tikzpicture}
+  
+  \node[latent] at (1,3) (d){$\mathcal{D}$};
+  \node[latent] at (2.5,3) (t){$\theta$};
+  \node[latent] at (1,1.5) (z){$z$};
+  \node[latent] at (2.5,1.5) (tx){$\theta_x$};
+  \node[obs] at (1,0) (x) {$x$};
+  \edge {z}{x};
+  \edge {d,t}{z};
+  \plate {}{(tx)(z)(x)}{$N$};
+  \draw [->,dashed] (x.east) to[out = 0,in = -90] node[fill = white]{$q(x)$} (tx.south);
+  \draw [->,dashed] (tx.west) -- (z.east);
+  \end{tikzpicture}
+  \caption{DSL $\mathcal{D}$ generates programs $z$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe program outputs $x$. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from program outputs to a distribution over programs ($\theta_x = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}
+  \end{figure}
+
+\section{Implementation}
+
+\begin{algorithm}[tb]
+   \caption{Generative model over programs}
+   \label{programGenerativeModel}
+   \begin{algorithmic}
+     \STATE \textbf{function} sample$(\mathcal{D}, \theta, \mathcal{E}, \tau)$:
+  \STATE {\bfseries Input:} DSL $\mathcal{D}$, weight vector $\theta$, environment $\mathcal{E}$, type $\tau$
+  \STATE \textbf{Output:} a program whose type unifies with $\tau$
+  \IF{$\tau = \alpha\to\beta$}
+  \STATE var $\gets$ an unused variable name
+  \STATE body $\sim$ sample$(\mathcal{D},\theta,[\text{var}:\alpha]+\mathcal{E},\beta)$
+   \STATE \textbf{return} $\lambda \text{var}.$ body
+   \ENDIF
+   %   \ELSE
+   \STATE\begin{align*}     \text{primitives} \gets\{p | &p:\alpha\to\cdots\to\beta \in \mathcal{D}\cup\mathcal{E}\\     &\text{if canUnify}(\tau,\beta) \}     \end{align*}
+   
+   \STATE Sample $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$ and w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
+   \STATE Let $e:\alpha_1\to\alpha_2\to\cdots\to \alpha_K\to\beta$. Unify $\tau$ with $\beta$.
+%   \STATE unify$(\tau,\beta)$
+   \FOR{$k=1$ {\bfseries to} $K$}
+ \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
+ \ENDFOR
+ \STATE \textbf{return} $e(a_1, a_2, \cdots, a_K)$
+ %  \UNTIL{$noChange$ is $true$}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[tb]
+   \caption{DSL Learner}
+   \label{mainAlgorithm}
+   \begin{algorithmic}
+     \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
+     \STATE \textbf{Hyperparameters:} Frontier size $F$
+     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, bottom-up recognition model $q(\cdot)$
+     \STATE Initialize $\mathcal{D}_0\gets \mathcal{D}$, $\theta_0\gets \text{uniform}$, $q_0(\cdot ) = \theta_0$
+     \FOR{$i=1$ {\bfseries to} $I$}
+     \FOR{$x:\tau\in X$}
+     \STATE  $\mathcal{F}_x\gets \{z| z\in \text{enumerate}(\mathcal{D}_{i - 1},q_{i - 1}(x),F)\cup\text{enumerate}(\mathcal{D}_{i - 1},\theta_{i - 1},F) \text{ if }\probability[x|z] > 0\}$
+     \ENDFOR
+     \STATE $\mathcal{D}_i,\theta_i\gets $induceGrammar$(\{\mathcal{F}_x\}_{x\in X})$
+     \STATE Define $Q_x(z) \propto \begin{cases}
+       \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
+       0&x\not \in \mathcal{F}_x
+     \end{cases}$
+     \STATE $q_i\gets \argmin_q \sum_{x\in X}\text{KL}(Q_x(\cdot )||\probability[\cdot |\mathcal{D}_i,q(x)])$
+      \ENDFOR
+ \STATE \textbf{return} $\mathcal{D}^I,\theta^I,q^I$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[tb]
+   \caption{Grammar Induction Algorithm}
+   \label{grammarInductionAlgorithm}
+   \begin{algorithmic}
+     \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
+     \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$, AIC coefficient $a$
+     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+     \STATE Define $\log \probability[\mathcal{D}]\stackrel{+}{ = } -\lambda\sum_{p\in \mathcal{D}} \text{size}(p)$
+     \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{z\in \mathcal{F}_x} \probability[z|\mathcal{D},\theta]$
+     \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
+     \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - a|\mathcal{D}|$
+     \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
+     \WHILE {true}
+     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ a subtree of }z\}$
+     \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
+     \IF{$\text{score}(\mathcal{D}') > \text{score}(\mathcal{D})$}
+     \STATE $\mathcal{D}\gets\mathcal{D}'$
+     \ELSE
+     \STATE\textbf{return} $\mathcal{D},\theta^*(\mathcal{D})$
+     \ENDIF
+     \ENDWHILE
+   \end{algorithmic}
+\end{algorithm}
+
+\section{Estimating the grammar parameters}
+
+I justify this estimator by proving that it maximizes a lower bound on the log likelihood of the data. Writing $L$ for the log likelihood, $\theta$ for the parameters of the grammar, $N$ for the number of random choices, $A$ to range over the alternative choices for a random variable, $c(x)$ to mean the number of times that primitive $x$ was used, and $a(x) = \sum_A \indicator [x\in A]$ to mean the number of times that primitive $x$ could have been used:
+\begin{align}
+  L& = \sum_x c(x)\log \theta_x - \sum_A \log \sum_{x\in A}\theta_x\\
+  & = \sum_x c(x)\log \theta_x - N\expect_A \log \sum_{x\in A}\theta_x\\
+  &\geq\sum_x c(x)\log \theta_x - N \log \expect_A \sum_{x\in A}\theta_x\text{, Jensen's inequality}\\
+  & = \sum_x c(x)\log \theta_x - N \log \frac{1}{N}\sum_A \sum_{x} \indicator [x\in A]\theta_x\\
+  & \stackrel{+}{=} \sum_x c(x)\log \theta_x - N \log \sum_x a(x)\theta_x.
+\end{align}
+Differentiate with respect to $\theta_x$ and set to zero:
+\begin{align}
+  \frac{c(x)}{\theta_x} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
+\end{align}
+This equality holds if $\theta_x = c(x)/a(x)$:
+\begin{align}
+  \frac{c(x)}{\theta_x} &= a(x).\\
+N\frac{a(x)}{\sum_y a(y)\theta_y}& = N\frac{a(x)}{\sum_y c(y)}   = N\frac{a(x)}{N} = a(x).
+\end{align}
+If this equality holds then $\theta_x \propto c(x)/a(x)$:
+\begin{align}
+  \theta_x = \frac{c(x)}{a(x)}\times \underbrace{\frac{\sum_y a(y)\theta_y}{N}}_{\text{Independent of $x$}}.
+\end{align}
+
+Now what we are actually after is the parameters that maximize the joint log probability of the data+parameters, which I will write $J$:
+\begin{align}
+  J& = L + \log \text{D}(\theta|\alpha)\\
+  &\stackrel{+}{\geq } \sum_x c(x)\log \theta_x - N \log \sum_x a(x)\theta_x  + \sum_x(\alpha_x - 1)\log \theta_x\\
+  & = \sum_x (c(x) + \alpha_x - 1)\log \theta_x -  N \log \sum_x a(x)\theta_x
+\end{align}
+So you add the pseudocounts to the \emph{counts} ($c(x)$), but not to the \emph{possible counts} ($a(x)$).
+
+
+\bibliography{example_paper}
+\bibliographystyle{icml2018}
+
+\end{document}
+
+
+% This document was modified from the file originally made available by
+% Pat Langley and Andrea Danyluk for ICML-2K. This version was created
+% by Iain Murray in 2018. It was modified from a version from Dan Roy in
+% 2017, which was based on a version from Lise Getoor and Tobias
+% Scheffer, which was slightly modified from the 2010 version by
+% Thorsten Joachims & Johannes Fuernkranz, slightly modified from the
+% 2009 version by Kiri Wagstaff and Sam Roweis's 2008 version, which is
+% slightly modified from Prasad Tadepalli's 2007 version which is a
+% lightly changed version of the previous year's version by Andrew
+% Moore, which was in turn edited from those of Kristian Kersting and
+% Codrina Lauth. Alex Smola contributed to the algorithmic style files.
