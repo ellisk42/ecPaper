@@ -253,14 +253,52 @@ pedagogical example; easy domain
 \end{figure}
 
 \subsection{Symbolic Regression}
-Here, we show how to use \system to infer programs with continuous, real-valued parameters.
+We show how to use \system to infer programs containing both discrete
+structure and continuous parameters. The high-level idea is to synthesize programs with unspecified-real-valued parameters, and to fit those parameters using gradient descent.
+Concretely, we ask the algorithm to
+solve a set of 1000 symbolic regression problems, each a polynomial of
+degree 0, 1, or 2, where our observations $x$ take the form of $N$
+input/output examples, which we write as $x = \left\{(i_n,o_n)
+\right\}_{n\leq N}$. For example, one task is to infer a program
+calculating $3x + 2$, and the observations are the input-output
+examples $\left\{(-1,-1),(0,2),(1,5) \right\}$.
 
-Demonstrates how to integrate continuous parameters into a program using our framework.
-$p:\mathbb{R}\to\mathbb{R}$
+We initially equip our DSL learner with addition and multiplication,
+along with the possibility of introducing real-valued parameters, which we write as $\mathcal{R}$.
+We define the likelihood of an observation $x$ by assuming a Gaussian noise model for the input/output examples and integrate over the real-valued parameters, which we collectively write as $\vec{\mathcal{R}}$:
 \begin{align*}
-&\log   \probability\left[\{(x_i,y_i)\}_{i\leq N}|p\right]\stackrel{+}{ = }\log \int \mathrm{d}C\; p_C(C)\prod_{i\leq N}\text{Normal}(p(x_i)|y_i)\\
-\text{\emph{BIC:}} &\approx \sum_{i\leq N}\log \text{Normal}(p(x_i)|y_i) - \frac{|C|\log N}{2}
-  \end{align}
+\log   \probability\left[\{(i_n,o_n)\}|p\right] = \log \int \mathrm{d}\vec{\mathcal{R}}\; P_{\vec{\mathcal{R}}}(\vec{\mathcal{R}})\prod_{n\leq N}\mathcal{N}(p(i_n,\vec{\mathcal{R}})|o_n)
+%\text{\emph{BIC:}} &\approx 
+\end{align}
+where $\mathcal{N}(\cdot |\cdot )$ is the normal density  and $P_{\vec{\mathcal{R}}}(\cdot )$ is a prior over $\vec{\mathcal{R}}$. We approximate this marginal using the BIC~\cite{Bishop:2006:PRM:1162264}:
+\begin{align*}
+  \log \probability[x|p]  \approx& \sum_{n\leq N}\log \mathcal{N}(p(i_n,\vec{\mathcal{R}}^*)|o_n) - \frac{D\log N}{2}
+\end{align}
+where $\vec{\mathcal{R}}^*$ is an assignment to $\vec{\mathcal{R}}$ found by performing gradient ascent on the likelihood of the observations w.r.t. $\vec{\mathcal{R}}$.
+
+
+\begin{tabular}{ll}
+  \toprule
+  Primitives& $+,\times:\mathbb{R}\to \mathbb{R}\to \mathbb{R}$\\
+  & $\mathcal{R}:\mathbb{R}$ (real valued parameter)\\\midrule
+  Observation $x$& $N$ input/output examples: $\left\{(i_n,o_n) \right\}_{n\leq N}$\\
+  \midrule
+  Likelihood $\probability[x|p]$& $\propto\exp\left( - D\log N \right)\prod_{n\leq N}\mathcal{N}(p(i_n)|o_n)$
+  \\\midrule
+  \begin{tabular}{l}
+    Subset of \\Learned DSL
+    \end{tabular}&
+  \begin{tabular}{ll}
+    $\lambda x. \mathcal{R}\times x + \mathcal{R}$ &linear\\
+    $\lambda x. \mathcal{R} + x$ &increment\\
+    $\lambda x. x\times (\text{linear } x)$&$\text{quadratic}_0$\\
+    $\lambda x. \text{increment }(\text{quadratic}_0\; x)$&quadratic\\
+  \end{tabular}
+
+  
+  \\\bottomrule
+  \end{tabular}
+
 \begin{figure}
       \includegraphics[width = 9cm]{figures/polynomial.png}
 \end{figure}
@@ -362,7 +400,7 @@ $p:\mathbb{R}\to\mathbb{R}$
 
 
 
-I justify this estimator by proving that it maximizes a lower bound on the log likelihood of the data. Writing $L$ for the log likelihood, $\theta$ for the parameters of the grammar, $N$ for the number of random choices, $A$ to range over the alternative choices for a random variable, $c(x)$ to mean the number of times that primitive $x$ was used, and $a(x) = \sum_A \indicator [x\in A]$ to mean the number of times that primitive $x$ could have been used:
+We write $c(e,p)$ to mean the number of times that primitive $e$ was used in program $p$;  $R(p)$ to mean the sequence of types input to sample in Alg.\ref{programGenerativeModel}. Jensen's inequality gives an intuitive lower bound on the likelihood of a program $p$:
 \begin{align*}
   \log \probability[p|\theta]&\stackrel{+}{ = }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - \sum_{\tau\in R(p)} \log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
   &\stackrel{+}{\geq }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \sum_{\tau\in R(p)} \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
