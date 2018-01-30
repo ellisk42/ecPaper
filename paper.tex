@@ -246,17 +246,42 @@ A detailed exposition of Hindley-Milner is beyond the scope of this work.
 
 \section{Experiments}
 
+\subsection{Boolean circuits}
+pedagogical example; easy domain
 \begin{figure}
-  \includegraphics[width = 9cm]{figures/polynomial.png}
-  \includegraphics[width = 9cm]{figures/text.png}
   \includegraphics[width = \columnwidth]{figures/circuit.png} 
 \end{figure}
 
+\subsection{Symbolic Regression}
+Here, we show how to use \system to infer programs with continuous, real-valued parameters.
+
+Demonstrates how to integrate continuous parameters into a program using our framework.
+$p:\mathbb{R}\to\mathbb{R}$
+\begin{align*}
+&\log   \probability\left[\{(x_i,y_i)\}_{i\leq N}|p\right]\stackrel{+}{ = }\log \int \mathrm{d}C\; p_C(C)\prod_{i\leq N}\text{Normal}(p(x_i)|y_i)\\
+\text{\emph{BIC:}} &\approx \sum_{i\leq N}\log \text{Normal}(p(x_i)|y_i) - \frac{|C|\log N}{2}
+  \end{align}
+\begin{figure}
+      \includegraphics[width = 9cm]{figures/polynomial.png}
+\end{figure}
+\subsection{String editing}
+\begin{figure}
+
+  \includegraphics[width = 9cm]{figures/text.png}
+
+\end{figure}
+
+\subsection{List problems}
+
 \section{Model}
 
+\begin{align}
+  \mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
+  \mathcal{L}_{\text{AE}}& = \expect_{x\sim X}\left[\sum_p Q_x(p)\log \probability [p|\mathcal{D},q(x)]\right]\nonumber\\
+    \mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log \probability[p|\mathcal{D},q(x)]\right],\text{ $p$ evaluates to $x$}\nonumber
+  \end{align}
 
 
-\section{Implementation}
 
 \begin{algorithm}[tb]
    \caption{Generative model over programs}
@@ -267,19 +292,21 @@ A detailed exposition of Hindley-Milner is beyond the scope of this work.
   \STATE \textbf{Output:} a program whose type unifies with $\tau$
   \IF{$\tau = \alpha\to\beta$}
   \STATE var $\gets$ an unused variable name
-  \STATE body $\sim$ sample$(\mathcal{D},\theta,[\text{var}:\alpha]+\mathcal{E},\beta)$
+  \STATE body $\sim$ sample$(\mathcal{D},\theta,\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$
    \STATE \textbf{return} $\lambda \text{var}.$ body
    \ENDIF
    %   \ELSE
-   \STATE\begin{align*}     \text{primitives} \gets\{p | &p:\alpha\to\cdots\to\beta \in \mathcal{D}\cup\mathcal{E}\\     &\text{if canUnify}(\tau,\beta) \}     \end{align*}
+   \STATE $\text{primitives} \gets\{p | &p:\alpha\to\cdots\to\beta \in \mathcal{D}\cup\mathcal{E}$
+   \STATE \hspace{2.5cm}$\text{if canUnify}(\tau,\beta) \} $
    
-   \STATE Sample $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$ and w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
+   \STATE Sample $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$
+   \STATE \hspace{3.35cm}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
    \STATE Let $e:\alpha_1\to\alpha_2\to\cdots\to \alpha_K\to\beta$. Unify $\tau$ with $\beta$.
 %   \STATE unify$(\tau,\beta)$
    \FOR{$k=1$ {\bfseries to} $K$}
  \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
  \ENDFOR
- \STATE \textbf{return} $e(a_1, a_2, \cdots, a_K)$
+ \STATE \textbf{return} $e\;a_1\; a_2\; \cdots\; a_K$
  %  \UNTIL{$noChange$ is $true$}
 \end{algorithmic}
 \end{algorithm}
@@ -331,17 +358,19 @@ A detailed exposition of Hindley-Milner is beyond the scope of this work.
    \end{algorithmic}
 \end{algorithm}
 
-\section{Estimating the grammar parameters}
+\section{Estimating $\theta$}
+
+
 
 I justify this estimator by proving that it maximizes a lower bound on the log likelihood of the data. Writing $L$ for the log likelihood, $\theta$ for the parameters of the grammar, $N$ for the number of random choices, $A$ to range over the alternative choices for a random variable, $c(x)$ to mean the number of times that primitive $x$ was used, and $a(x) = \sum_A \indicator [x\in A]$ to mean the number of times that primitive $x$ could have been used:
-\begin{align}
-  L& = \sum_x c(x)\log \theta_x - \sum_A \log \sum_{x\in A}\theta_x\\
-  & = \sum_x c(x)\log \theta_x - N\expect_A \log \sum_{x\in A}\theta_x\\
-  &\geq\sum_x c(x)\log \theta_x - N \log \expect_A \sum_{x\in A}\theta_x\text{, Jensen's inequality}\\
-  & = \sum_x c(x)\log \theta_x - N \log \frac{1}{N}\sum_A \sum_{x} \indicator [x\in A]\theta_x\\
-  & \stackrel{+}{=} \sum_x c(x)\log \theta_x - N \log \sum_x a(x)\theta_x.
+\begin{align*}
+  \log \probability[p|\theta]&\stackrel{+}{ = }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - \sum_{\tau\in R(p)} \log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
+  &\stackrel{+}{\geq }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \sum_{\tau\in R(p)} \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
+  & = \sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \sum_{e\in \mathcal{D}} r(e,p)\theta_e
 \end{align}
-Differentiate with respect to $\theta_x$ and set to zero:
+where $c(p) = \sum_{e\in \mathcal{D}}c(e,p)$ and $r(e:\tau',p) = \sum_{\tau\in R(p)} \indicator[\text{canUnify}(\tau,\tau')]$.
+
+Differentiate with respect to $\theta_e$ and set to zero 
 \begin{align}
   \frac{c(x)}{\theta_x} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
 \end{align}
