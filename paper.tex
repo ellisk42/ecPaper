@@ -244,43 +244,152 @@ It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, w
 Its goal is to solve each of the tasks by writing a program,
 and also to infer a DSL $\mathcal{D}$ that distills the commonalities across all of the programs that solve the tasks.
 
-We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Fig.~\ref{graphicalModel}. From Fig.~\ref{graphicalModel}, the MAP probability of $(\mathcal{D},\theta)$ is
-\begin{equation}
-  \probability[\mathcal{D},\theta|X]\propto \probability[\mathcal{D},\theta] \prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\label{probabilityDSL}
-\end{equation}
-If we had a $(\mathcal{D},\theta)$ maximizing Eq.~\ref{probabilityDSL}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
-Through this lens we now take as our goal to maximize Eq.~\ref{probabilityDSL}.
-But even \emph{evaluating} Eq.~\ref{probabilityDSL} is intractable because it involves summing over the infinite set of all possible programs. In general, programs are hard-won: finding even a single program that explains a given observation presents a daunting combinatorial search problem.
+We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Fig.~\ref{graphicalModel}. We wish to maximize the MAP probability of $\mathcal{D}$:
+\begin{equation*}
+  \probability[\mathcal{D}|X]\propto \probability[\mathcal{D}] \int \mathrm{d}\theta P(\theta|\mathcal{D})\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]
+\end{equation*}
+In general this marginalization over $\theta$ is intractable, so we make an AIC-style approximation\footnote{Sec.~\ref{grammarInductionSection} explains that $\mathcal{D}$ is a context-sensitive grammar.
+Conventional NLP approaches to using variational inference to lower bound the marginal over $\theta$ do not apply in our setting.}, $A\approx \log\probability[\mathcal{D}|X] $:
+\begin{align}
+  A =   \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_p\probability[x|p]\probability[p|\mathcal{D},\theta]\nonumber\\
+&+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
+  \end{align}
 
-With this fact in mind, we will instead maximize the following tractable lower bound on Eq.~\ref{probabilityDSL},
+
+If we had a $(\mathcal{D},\theta)$ maximizing Eq.~\ref{AIC}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
+Through this lens we now take as our goal to maximize Eq.~\ref{AIC}.
+But even \emph{evaluating} Eq.~\ref{AIC} is intractable because it involves summing over the infinite set of all possible programs. In general, programs are hard-won: finding even a single program that explains a given observation presents a daunting combinatorial search problem.
+With this fact in mind, we will instead maximize the following tractable lower bound on Eq.~\ref{AIC},
 which we call $J$:
 \begin{equation}
-J = \probability[\mathcal{D},\theta]\prod_{x\in X}\log \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]\label{lowerBound}
+J = \log \probability[\mathcal{D},\theta] + \sum_{x\in X}\log \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]\label{lowerBound}
 \end{equation}
 This lower bound depends on sets of programs, $\left\{\mathcal{F}_x \right\}_{x\in X}$:
 
 \noindent\textbf{Definition.} The \emph{frontier of task $x$}, written $\mathcal{F}_x$,
-is the set of programs discovered by \system where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
+is a set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
 
 We maximize $J$ by alternatingly maximizing it w.r.t. the DSL and the frontiers:
-\\\noindent \textbf{Program Synthesis: Maximizing $J$ w.r.t. the frontiers.} Here we
+%So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
+%explains how \system synthesizes new programs and given a DSL.
+\\\noindent \textbf{DSL Induction: Maxing $J$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed and so we can evaluate $J$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $J$.
+\\\noindent \textbf{Program Search: Maxing $J$ w.r.t. the frontiers.} Here we
 want to find new programs to add to  the frontiers so that $J$ increases the most.
-Adding new programs to the frontiers means attempting to synthesize new programs for each of the tasks.
-So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
-explains how \system synthesizes new programs and given a DSL.
-\\\noindent \textbf{DSL Induction: Maximizing $J$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed and so we can evaluate $J$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $J$.  Section~\ref{grammarInductionSection} explains this step of the algorithm.
+Adding new programs to the frontiers means searching for new programs $p$ for task $x$
+where $\probability[x,p|\mathcal{D},\theta]$ is large.
 
-In practice, synthesizing programs is extremely difficult because
-of how large the search space is. Learning the DSL eases the difficulty of synthesis
-by exposing a domain-specific basis for constructing programs.
-Another complementary means of meeting search is to learn a
-bottom-up \emph{recognition model}
+Searching for programs is extremely difficult because
+of how large the search space is. We ease the difficulty of the search by learning a neural recognition model:
 
-\subsection{Synthesizing Programs from a DSL}\label{explorationSection}
+\textbf{Neural recognition model: tractably maxing $J$ w.r.t. the
+  frontiers.}  Here we train a neural network, $q$, to predict a
+distribution over programs conditioned on a task. The objective of $q$
+is to assign high probability to programs $p$ where
+$\probability[x,p|\mathcal{D},\theta]$ is large.  With $q$ in hand we can find programs for
+frontier $\mathcal{F}_x$ by searching for programs maximizing
+$q(p|x)$.
+The network $q$ exploits the structure of the DSL $\mathcal{D}$:
+rather than directly predicting a distribution over $p$ conditioned on $x$,
+it predicts a weight vector, $\theta_x$, and we define $q(p|x)\triangleq \probability[p|\mathcal{D},\theta = q(x)]$.
+This approach implements an amortized
+inference scheme~\cite{ritchie2016deep} for the generative model in
+Fig.~\ref{graphicalModel}.
 
-Describe the enumerator, depth first search on the random choices made by the generative model with iterative deepening
 
-Limitation: has a hard time learning arbitrary constants. Solution: solve those constants using specialized solvers.
+
+%% Learning the DSL eases the difficulty of synthesis
+%% by exposing a domain-specific basis for constructing programs.
+%% Another complementary means of meeting search is to learn a
+%% bottom-up \emph{recognition model}
+
+\subsection{Searching for Programs}\label{explorationSection}
+
+Now our goal is to search for programs that solve the tasks.  In this
+work we use the simple search strategy of enumerating programs from
+the DSL  in decreasing order of their probability,
+and then checking if an enumerated program $p$ assigns positive
+probability to a task ($\probability[x|p] > 0$); if so, we include $p$ in
+the frontier $\mathcal{F}_x$.
+
+To make this concrete we need to define what programs actually are and
+what form $\probability[p |\mathcal{D},\theta]$ takes.
+In this work, we represent programs as \emph{polymorphicly-type $\lambda$-calculus expressions}.
+$\lambda$-calculus is a formalism for expressing functional programs.
+It includes variables, function application, and the ability to create new functions using ...
+
+TODO: summarize lambda calculus and types in one paragraph
+
+\noindent\textbf{Definition: $\mathcal{D}$.}
+A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
+\\\noindent\textbf{Definition: $\theta$.}
+A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| + 1$ real numbers:
+one number for each DSL primitive $e:\tau\in \mathcal{D}$, written $\theta_e$,
+and a weight controlling the probability of a variable occurring in a program, written $\theta_{\text{var}}$.
+
+Algorithm~\ref{programGenerativeModel} is a procedure for drawing
+samples from $\probability[p|\mathcal{D},\theta]$.  In practice, we
+enumerate programs rather than sampling them.  Enumeration proceeds by
+a depth-first search over the random choices made by
+Algorithm~\ref{programGenerativeModel}; we wrap the depth-first search
+in iterative deepening to (approximately) build $\lambda$-calculus
+expressions in order of their probability.
+
+
+
+\begin{algorithm}[tb]
+   \caption{Generative model over programs}
+   \label{programGenerativeModel}
+   \begin{algorithmic}
+     \STATE \textbf{function} sampleProgramFromDSL$(\mathcal{D}, \theta, \tau)$:
+  \STATE {\bfseries Input:} DSL $\mathcal{D}$, weight vector $\theta$, type $\tau$
+  \STATE \textbf{Output:} a program whose type unifies with $\tau$
+  \STATE \textbf{return} sample$(\mathcal{D}, \theta, \varnothing, \tau)$
+\STATE
+     \STATE \textbf{function} sample$(\mathcal{D}, \theta, \mathcal{E}, \tau)$:
+  \STATE {\bfseries Input:} DSL $\mathcal{D}$, weight vector $\theta$, environment $\mathcal{E}$, type $\tau$
+  \STATE \textbf{Output:} a program whose type unifies with $\tau$
+  \IF{$\tau = \alpha\to\beta$}
+  \STATE var $\gets$ an unused variable name
+  \STATE body $\sim$ sample$(\mathcal{D},\theta,\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$
+   \STATE \textbf{return} $\lambda \text{var}.$ body
+   \ENDIF
+   %   \ELSE
+   \STATE $\text{primitives} \gets\{p | &p:\alpha\to\cdots\to\beta \in \mathcal{D}\cup\mathcal{E}$
+   \STATE \hspace{2.5cm}$\text{if canUnify}(\tau,\beta) \} $
+   
+   \STATE Draw $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$
+   \STATE \hspace{3.1cm}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
+   \STATE Let $e:\alpha_1\to\alpha_2\to\cdots\to \alpha_K\to\beta$. Unify $\tau$ with $\beta$.
+%   \STATE unify$(\tau,\beta)$
+   \FOR{$k=1$ {\bfseries to} $K$}
+ \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
+ \ENDFOR
+ \STATE \textbf{return} $e\;a_1\; a_2\; \cdots\; a_K$
+ %  \UNTIL{$noChange$ is $true$}
+\end{algorithmic}
+\end{algorithm}
+
+Why enumerate, when the program synthesis community has invented many
+sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
+We have two reasons:% for using the simple strategy of enumerating programs:
+\begin{itemize}
+\item Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
+  the space of of programs.
+\item A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the
+  search algorithm is very simple.  
+\end{itemize}
+A main drawback of an enumerative search algorithm is that we have no
+efficient means of solving for arbitrary constants that might occur in the
+program. In Section~\ref{regressionSection},
+we will show how to find programs with real-valued constants
+by automatically differentiating through the program and setting the constants using gradient descent.
+
+
+
+
+
+
+
 
 \subsection{Learning a Neural Recognition Model}\label{recognitionSection}
 The key idea here is that if the DSL is suitably fit to the domain then
@@ -300,12 +409,12 @@ we can get away with a simple, low-capacity model.
    \label{grammarInductionAlgorithm}
    \begin{algorithmic}
      \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
-     \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$, AIC coefficient $a$
+     \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
      \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
      \STATE Define $\log \probability[\mathcal{D}]\stackrel{+}{ = } -\lambda\sum_{p\in \mathcal{D}} \text{size}(p)$
      \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{z\in \mathcal{F}_x} \probability[z|\mathcal{D},\theta]$
      \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
-     \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - a|\mathcal{D}|$
+     \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - ||\theta||_0$
      \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
      \WHILE {true}
      \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ a subtree of }z\}$
@@ -358,7 +467,7 @@ pedagogical example; easy domain
   \includegraphics[width = \columnwidth]{figures/circuit.png} 
 \end{figure}
 
-\subsection{Symbolic Regression}
+\subsection{Symbolic Regression}\label{regressionSection}
 We show how to use \system to infer programs containing both discrete
 structure and continuous parameters. The high-level idea is to synthesize programs with unspecified-real-valued parameters, and to fit those parameters using gradient descent.
 Concretely, we ask the algorithm to
@@ -427,33 +536,7 @@ for example, it represents the polynomial $8x^2+8x$
 
 
 
-\begin{algorithm}[tb]
-   \caption{Generative model over programs}
-   \label{programGenerativeModel}
-   \begin{algorithmic}
-     \STATE \textbf{function} sample$(\mathcal{D}, \theta, \mathcal{E}, \tau)$:
-  \STATE {\bfseries Input:} DSL $\mathcal{D}$, weight vector $\theta$, environment $\mathcal{E}$, type $\tau$
-  \STATE \textbf{Output:} a program whose type unifies with $\tau$
-  \IF{$\tau = \alpha\to\beta$}
-  \STATE var $\gets$ an unused variable name
-  \STATE body $\sim$ sample$(\mathcal{D},\theta,\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$
-   \STATE \textbf{return} $\lambda \text{var}.$ body
-   \ENDIF
-   %   \ELSE
-   \STATE $\text{primitives} \gets\{p | &p:\alpha\to\cdots\to\beta \in \mathcal{D}\cup\mathcal{E}$
-   \STATE \hspace{2.5cm}$\text{if canUnify}(\tau,\beta) \} $
-   
-   \STATE Sample $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$
-   \STATE \hspace{3.35cm}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
-   \STATE Let $e:\alpha_1\to\alpha_2\to\cdots\to \alpha_K\to\beta$. Unify $\tau$ with $\beta$.
-%   \STATE unify$(\tau,\beta)$
-   \FOR{$k=1$ {\bfseries to} $K$}
- \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
- \ENDFOR
- \STATE \textbf{return} $e\;a_1\; a_2\; \cdots\; a_K$
- %  \UNTIL{$noChange$ is $true$}
-\end{algorithmic}
-\end{algorithm}
+
 
 \begin{algorithm}[tb]
    \caption{DSL Learner}
