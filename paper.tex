@@ -200,7 +200,7 @@ greatly increasing the tractability of BPL.
   \node[latent] at (1,3) (d){$\mathcal{D}$};
   \node[latent] at (2.5,3) (t){$\theta$};
   \node[latent] at (1,1.5) (z){$p$};
-  \node[latent] at (3.5,1.5) (tx){$\theta_x$};
+  \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
   \node[obs] at (1,-0.5) (x) {$x$};
   \edge {z}{x};
   \edge {d,t}{z};
@@ -212,7 +212,7 @@ greatly increasing the tractability of BPL.
   \draw [->,dashed] (d.west) to[out = 180,in = 180] (z.west);
   \draw [->,dashed] (tx.west) -- (z.east);
   \end{tikzpicture}
-  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe program outputs $x$. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from program outputs to a distribution over programs ($\theta_x = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
+  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe program outputs $x$. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from program outputs to a distribution over programs ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
 
 \section{The \system Algorithm}
@@ -290,7 +290,7 @@ frontier $\mathcal{F}_x$ by searching for programs maximizing
 $q(p|x)$.
 The network $q$ exploits the structure of the DSL $\mathcal{D}$:
 rather than directly predicting a distribution over $p$ conditioned on $x$,
-it predicts a weight vector, $\theta_x$, and we define $q(p|x)\triangleq \probability[p|\mathcal{D},\theta = q(x)]$.
+it predicts a weight vector, $\theta^{(x)}$, and we define $q(p|x)\triangleq \probability[p|\mathcal{D},\theta = q(x)]$.
 This approach implements an amortized
 inference scheme~\cite{ritchie2016deep} for the generative model in
 Fig.~\ref{graphicalModel}.
@@ -383,7 +383,9 @@ efficient means of solving for arbitrary constants that might occur in the
 program. In Section~\ref{regressionSection},
 we will show how to find programs with real-valued constants
 by automatically differentiating through the program and setting the constants using gradient descent.
-
+In Section~\ref{textSection}
+we will show that the bottom-up neural recognition model can learn
+which discrete constants should be included in a program.
 
 
 
@@ -392,14 +394,51 @@ by automatically differentiating through the program and setting the constants u
 
 
 \subsection{Learning a Neural Recognition Model}\label{recognitionSection}
-The key idea here is that if the DSL is suitably fit to the domain then
-we can get away with a simple, low-capacity model.
 
-\begin{align}
+The purpose of the recognition model is to accelerate the search over
+programs.  It does this by learning to predict which programs both 
+assign high likelihood to a task, and at the same time 
+have high prior probability under the prior $\probability[\cdot |\mathcal{D},\theta]$.
+
+The recognition model $q$ is a neural network that predicts,
+for each task $x\in X$, a weight vector $q(x) = \theta^{(x)}\in \mathbb{R}^{|\mathcal{D}| + 1}$.
+Together with the DSL, this defines a distribution over programs,
+$\probability[p|\mathcal{D},\theta = q(x)]$.
+We abbreviate this distribution as $q(p|x)$.
+The crucial aspect of this framing is that the neural network
+can leverage the structure of the DSL,
+and is \emph{not} responsible for
+generating programs wholesale.
+We will show that this lets us get away with a simple, low-capacity neural network.
+
+
+
+We want a recognition model that closely approximates the true posteriors over programs, and so aim to minimize the following KL-divergence:
+\begin{equation*}
+  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]||q(p|x) \right) \right]
+\end{equation*}
+which is equivalent to maximizing
+$$
+  \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
+$$
+  where the expectation is taken over tasks. One could take this expectation
+  over the empirical distribution of the observations,
+  like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
+  We found it useful to maximize both an autoencoder-style objective (written $\mathcal{L}_{\text{AE}}$) and a Helmholtz-style objective ($\mathcal{L}_{\text{HM}}$), giving the \system objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
+  \begin{align}
   \mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
-  \mathcal{L}_{\text{AE}}& = \expect_{x\sim X}\left[\sum_p Q_x(p)\log \probability [p|\mathcal{D},q(x)]\right]\nonumber\\
-    \mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log \probability[p|\mathcal{D},q(x)]\right],\text{ $p$ evaluates to $x$}\nonumber
-\end{align}
+  \mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right],\text{ $p$ evaluates to $x$}\nonumber\\
+  \mathcal{L}_{\text{AE}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
+    \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p|\mathcal{D},\theta \right]}\log q(p|x)\right]\nonumber
+  \end{align}
+
+  Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
+  the current DSL, running them to get their outputs,
+  and then training $q$ to regress from the outputs to the program.
+  If these programs map inputs to outputs,
+  then we need some way of sampling these inputs as well.
+  Our solution to this problem is to sample the inputs
+  from the empirical observed distribution of inputs in $X$.
 
 \subsection{Inducing the DSL from the Frontiers}\label{grammarInductionSection}
 
@@ -521,7 +560,7 @@ for example, it represents the polynomial $8x^2+8x$
 \begin{figure}
       \includegraphics[width = 9cm]{figures/polynomial.png}
 \end{figure}
-\subsection{String editing}
+\subsection{String editing}\label{textSection}
 \begin{figure}
 
   \includegraphics[width = 9cm]{figures/text.png}
@@ -577,9 +616,9 @@ where $c(p) = \sum_{e\in \mathcal{D}}c(e,p)$ and $r(e:\tau',p) = \sum_{\tau\in R
 
 Differentiate with respect to $\theta_e$ and set to zero 
 \begin{align}
-  \frac{c(x)}{\theta_x} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
+  \frac{c(x)}{\theta^{(x)}} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
 \end{align}
-This equality holds if $\theta_x = c(x)/a(x)$:
+This equality holds if $\theta^{(x)} = c(x)/a(x)$:
 \begin{align}
   \frac{c(x)}{\theta_x} &= a(x).\\
 N\frac{a(x)}{\sum_y a(y)\theta_y}& = N\frac{a(x)}{\sum_y c(y)}   = N\frac{a(x)}{N} = a(x).
