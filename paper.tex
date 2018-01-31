@@ -272,11 +272,11 @@ is a set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
 We maximize $J$ by alternatingly maximizing it w.r.t. the DSL and the frontiers:
 %So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
 %explains how \system synthesizes new programs and given a DSL.
-\\\noindent \textbf{DSL Induction: Maxing $J$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed and so we can evaluate $J$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $J$.
 \\\noindent \textbf{Program Search: Maxing $J$ w.r.t. the frontiers.} Here we
 want to find new programs to add to  the frontiers so that $J$ increases the most.
 Adding new programs to the frontiers means searching for new programs $p$ for task $x$
 where $\probability[x,p|\mathcal{D},\theta]$ is large.
+\\\noindent \textbf{DSL Induction: Maxing $J$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed and so we can evaluate $J$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $J$.
 
 Searching for programs is extremely difficult because
 of how large the search space is. We ease the difficulty of the search by learning a neural recognition model:
