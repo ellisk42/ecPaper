@@ -523,11 +523,11 @@ We define the likelihood of an observation $x$ by assuming a Gaussian noise mode
 \begin{align*}
 \log   \probability\left[\{(i_n,o_n)\}|p\right] = \log \int \mathrm{d}\vec{\mathcal{R}}\; P_{\vec{\mathcal{R}}}(\vec{\mathcal{R}})\prod_{n\leq N}\mathcal{N}(p(i_n,\vec{\mathcal{R}})|o_n)
 %\text{\emph{BIC:}} &\approx 
-\end{align}
+\end{align*}
 where $\mathcal{N}(\cdot |\cdot )$ is the normal density  and $P_{\vec{\mathcal{R}}}(\cdot )$ is a prior over $\vec{\mathcal{R}}$. We approximate this marginal using the BIC~\cite{Bishop:2006:PRM:1162264}:
 \begin{align*}
   \log \probability[x|p]  \approx& \sum_{n\leq N}\log \mathcal{N}(p(i_n,\vec{\mathcal{R}}^*)|o_n) - \frac{D\log N}{2}
-\end{align}
+\end{align*}
 where $\vec{\mathcal{R}}^*$ is an assignment to $\vec{\mathcal{R}}$ found by performing gradient ascent on the likelihood of the observations w.r.t. $\vec{\mathcal{R}}$.
 
 What DSL does \system learn?
@@ -567,7 +567,87 @@ for example, it represents the polynomial $8x^2+8x$
 
 \end{figure}
 
-\subsection{List problems}
+\subsection{List functions}
+Our list function domain consists of tasks which are solved by functions
+that take as input an integer or a list of integers, and have as output
+either a Boolean, an integer, or a list of integers. Examples of these
+functions are in Table~\ref{listexamples}. For each function, we create a
+task $x$ by generating 15 input/output examples used for testing whether a
+program produces the correct output. Supplying many examples reduces
+ambiguity in the task's function, ensuring solutions achieve the desired
+concept.
+
+\begin{table}
+\centering
+\begin{tabular}{| l | l | l |}
+  \hline
+  \emph{name} & \emph{input} & \emph{output} \\
+  \hline
+  add-3 & [1\, 2\, 3\, 4] & [4\, 5\, 6\, 7] \\
+  append-4 & [7\, 0\, 2] & [7\, 0\, 2\, 4] \\
+  len & [3\, 5\, 12\, 1] & 4 \\
+  range & 3 & [1\, 2\, 3] \\
+  has-2 & [4\, 5\, 7\, 4] & \texttt{false} \\
+  has-4 & [4\, 5\, 7\, 4] & \texttt{true} \\
+  repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
+  drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
+  \hline
+\end{tabular}
+\caption{Examples from the domain of list functions.}
+\label{listexamples}
+\end{table}
+
+We supply \system with the DSL outlined in Table~\ref{listdsl}.
+
+\begin{table}
+\centering
+\begin{tabular}{| l | l |}
+  \hline
+  \emph{name} & \emph{type} \\
+  \hline
+    empty & \texttt{tlist($\alpha$)} \\
+    singleton & \texttt{arrow($\alpha$, tlist($\alpha$))} \\
+    range & \texttt{int $\rightarrow$ tlist(int)} \\
+    concat & \texttt{tlist($\alpha$) $\rightarrow$ tlist($\alpha$) $\rightarrow$ tlist($\alpha$)} \\
+    map & \texttt{($\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ tlist($\alpha$) $\rightarrow$ tlist($\beta$)} \\
+    reduce & \texttt{($\beta$ $\rightarrow$ $\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ $\beta$ $\rightarrow$ tlist($\alpha$) $\rightarrow$ $\beta$} \\
+    \hline
+    true & \texttt{bool} \\
+    not & \texttt{bool $\rightarrow$ bool} \\
+    and & \texttt{bool $\rightarrow$ bool $\rightarrow$ bool} \\
+    or & \texttt{bool $\rightarrow$ bool $\rightarrow$ bool} \\
+    \hline
+    0, $\ldots$, 9 & \texttt{int} \\
+    + & \texttt{int $\rightarrow$ int $\rightarrow$ int} \\
+    * & \texttt{int $\rightarrow$ int $\rightarrow$ int} \\
+    negate & \texttt{int $\rightarrow$ int} \\
+    mod & \texttt{int $\rightarrow$ int $\rightarrow$ int} \\
+    eq? & \texttt{int $\rightarrow$ int $\rightarrow$ bool} \\
+    gt? & \texttt{int $\rightarrow$ int $\rightarrow$ bool} \\
+    is-prime & \texttt{int $\rightarrow$ bool} \\
+    is-square & \texttt{int $\rightarrow$ bool} \\
+    sort & \texttt{tlist(int) $\rightarrow$ tlist(int)} \\
+    \hline
+    sum & \texttt{tlist(int) $\rightarrow$ int} \\
+    reverse & \texttt{tlist($\alpha$) $\rightarrow$ tlist($\alpha$)} \\
+    all & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ tlist($\alpha$) $\rightarrow$ bool} \\
+    any & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ tlist($\alpha$) $\rightarrow$ bool} \\
+    index & \texttt{int $\rightarrow$ tlist($\alpha$) $\rightarrow$ $\alpha$} \\
+    filter & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ tlist($\alpha$) $\rightarrow$ tlist($\alpha$)} \\
+    slice & \texttt{int $\rightarrow$ int $\rightarrow$ tlist($\alpha$) $\rightarrow$ tlist($\alpha$)} \\
+  \hline
+\end{tabular}
+\caption{DSL for the domain of list function.}
+\label{listdsl}
+\end{table}
+
+\begin{figure}
+  \includegraphics[width=\columnwidth]{figures/list.eps}
+\end{figure}
+
+We found that using a less sophisticated but equally-capable DSL made common
+patterns, such as summation, unlikely and unlearnable in a small enumeration
+bound.
 
 \section{Model}
 
