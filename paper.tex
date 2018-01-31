@@ -217,8 +217,87 @@ greatly increasing the tractability of BPL.
 
 \section{The \system Algorithm}
 
+\subsection{Motivation and Overview}
+
+\system takes as input a set of \emph{tasks}, written $X$, each of which is a program induction problem.
+It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$.
+Its goal is to solve each of the tasks by writing a program,
+and also to infer a DSL $\mathcal{D}$ that distills the commonalities across all of the programs that solve the tasks.
+
+We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Fig.~\ref{graphicalModel}. From Fig.~\ref{graphicalModel}, the MAP probability of $(\mathcal{D},\theta)$ is
+\begin{equation}
+  \probability[\mathcal{D},\theta|X]\propto \probability[\mathcal{D},\theta] \prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\label{probabilityDSL}
+\end{equation}
+If we had a $(\mathcal{D},\theta)$ maximizing Eq.~\ref{probabilityDSL}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
+Through this lens we now take as our goal to maximize Eq.~\ref{probabilityDSL}.
+But even \emph{evaluating} Eq.~\ref{probabilityDSL} is intractable because it involves summing over the infinite set of all possible programs. In general, programs are hard-won: finding even a single program that explains a given observation presents a daunting combinatorial search problem.
+
+With this fact in mind, we will instead maximize the following tractable lower bound on Eq.~\ref{probabilityDSL},
+which we call $J$:
+\begin{equation}
+J = \probability[\mathcal{D},\theta]\prod_{x\in X}\log \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]\label{lowerBound}
+\end{equation}
+This lower bound depends on sets of programs, $\left\{\mathcal{F}_x \right\}_{x\in X}$:
+
+\noindent\textbf{Definition.} The \emph{frontier of task $x$}, written $\mathcal{F}_x$,
+is the set of programs discovered by \system where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
+
+We maximize $J$ by alternatingly maximizing it w.r.t. the DSL and the frontiers:
+\\\noindent \textbf{Program Synthesis: Maximizing $J$ w.r.t. the frontiers.} Here we
+want to find new programs to add to  the frontiers so that $J$ increases the most.
+Adding new programs to the frontiers means attempting to synthesize new programs for each of the tasks.
+So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
+explains how \system synthesizes new programs and given a DSL.
+\\\noindent \textbf{DSL Induction: Maximizing $J$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed and so we can evaluate $J$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $J$.  Section~\ref{grammarInductionSection} explains this step of the algorithm.
+
+In practice, synthesizing programs is extremely difficult because
+of how large the search space is. Learning the DSL eases the difficulty of synthesis
+by exposing a domain-specific basis for constructing programs.
+Another complementary means of meeting search is to learn a
+bottom-up \emph{recognition model}
+
+\subsection{Synthesizing Programs from a DSL}\label{explorationSection}
+
+Describe the enumerator, depth first search on the random choices made by the generative model with iterative deepening
+
+Limitation: has a hard time learning arbitrary constants. Solution: solve those constants using specialized solvers.
+
+\subsection{Learning a Neural Recognition Model}
+The key idea here is that if the DSL is suitably fit to the domain then
+we can get away with a simple, low-capacity model.
+
+\begin{align}
+  \mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
+  \mathcal{L}_{\text{AE}}& = \expect_{x\sim X}\left[\sum_p Q_x(p)\log \probability [p|\mathcal{D},q(x)]\right]\nonumber\\
+    \mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log \probability[p|\mathcal{D},q(x)]\right],\text{ $p$ evaluates to $x$}\nonumber
+\end{align}
+
+\subsection{Inducing the DSL from the Frontiers}\label{grammarInductionSection}
 
 
+\begin{algorithm}[tb]
+   \caption{Grammar Induction Algorithm}
+   \label{grammarInductionAlgorithm}
+   \begin{algorithmic}
+     \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
+     \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$, AIC coefficient $a$
+     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+     \STATE Define $\log \probability[\mathcal{D}]\stackrel{+}{ = } -\lambda\sum_{p\in \mathcal{D}} \text{size}(p)$
+     \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{z\in \mathcal{F}_x} \probability[z|\mathcal{D},\theta]$
+     \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
+     \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - a|\mathcal{D}|$
+     \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
+     \WHILE {true}
+     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ a subtree of }z\}$
+     \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
+     \IF{$\text{score}(\mathcal{D}') > \text{score}(\mathcal{D})$}
+     \STATE $\mathcal{D}\gets\mathcal{D}'$
+     \ELSE
+     \STATE\textbf{return} $\mathcal{D},\theta^*(\mathcal{D})$
+     \ENDIF
+     \ENDWHILE
+   \end{algorithmic}
+\end{algorithm}
 \section{Program Representation}
 We choose to represent programs using $\lambda$-calculus~\cite{pierce}.
 A $\lambda$-calculus expression is either:
@@ -324,11 +403,7 @@ for example, it represents the polynomial $8x^2+8x$
 
 \section{Model}
 
-\begin{align}
-  \mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
-  \mathcal{L}_{\text{AE}}& = \expect_{x\sim X}\left[\sum_p Q_x(p)\log \probability [p|\mathcal{D},q(x)]\right]\nonumber\\
-    \mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log \probability[p|\mathcal{D},q(x)]\right],\text{ $p$ evaluates to $x$}\nonumber
-  \end{align}
+
 
 
 
@@ -383,29 +458,7 @@ for example, it represents the polynomial $8x^2+8x$
 \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}[tb]
-   \caption{Grammar Induction Algorithm}
-   \label{grammarInductionAlgorithm}
-   \begin{algorithmic}
-     \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
-     \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$, AIC coefficient $a$
-     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
-     \STATE Define $\log \probability[\mathcal{D}]\stackrel{+}{ = } -\lambda\sum_{p\in \mathcal{D}} \text{size}(p)$
-     \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{z\in \mathcal{F}_x} \probability[z|\mathcal{D},\theta]$
-     \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
-     \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - a|\mathcal{D}|$
-     \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
-     \WHILE {true}
-     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ a subtree of }z\}$
-     \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
-     \IF{$\text{score}(\mathcal{D}') > \text{score}(\mathcal{D})$}
-     \STATE $\mathcal{D}\gets\mathcal{D}'$
-     \ELSE
-     \STATE\textbf{return} $\mathcal{D},\theta^*(\mathcal{D})$
-     \ENDIF
-     \ENDWHILE
-   \end{algorithmic}
-\end{algorithm}
+
 
 \section{Estimating $\theta$}
 
