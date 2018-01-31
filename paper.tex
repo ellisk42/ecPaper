@@ -175,7 +175,7 @@ Our contribution is a general algorithm for fusing these two takes on the proble
 we propose jointly inducing a representation language, called a \emph{Domain Specific Language} (DSL),
 alongside a bottom-up discriminative model that regresses from problems to solutions.
 We evaluate our algorithm on four domains:
-building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and Lisp-style programming problems.
+building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and functions on lists.
 We show that \system can construct a set of basis primitives suitable for discovering solutions in each of these domains
 
 We cast these problems as \emph{Bayesian Program
@@ -218,24 +218,24 @@ greatly increasing the tractability of BPL.
 \section{The \system Algorithm}
 
 The goal of \system is to both induce a DSL and find good programs solving each of the tasks.
-Our strategy is to
-alternate between 3 different steps: (1) improving the DSL, (2) searching for programs that solve the tasks, and (3) learning a
-better neural recognition model, which we use to accelerate the search over programs.
+Our strategy is to iterate through three steps: (1) searching for programs that
+solve the tasks, (2) learning a better neural recognition model -- which we use
+to accelerate the search over programs -- and (3) improving the DSL.
 The key observation here is that each of these three steps can bootstrap off of each other:
 
 \begin{itemize}
-\item Improving the DSL: We induce a DSL from the programs we have found so far which solve the tasks;
-  as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
-\item Searching for programs: Searching for programs is done using the neural recognition model --
+  \item Searching for programs: Program search uses a distribution determined by the neural recognition model --
   so the recognition model bootstraps the search process.
   \item Learning a recognition model: The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and we find more programs, the recognition model gets both more data to train on and better data.
+  \item Improving the DSL: We induce a DSL from the programs we have found so far which solve the tasks;
+  as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
 \end{itemize}
 
 Section~\ref{mathematicalFraming} frames this 3-step procedure as
 a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
-Section~\ref{grammarInductionSection} explains how \system induces a DSL from programs;
-Section~\ref{explorationSection} explains how we search for programs that solve the tasks; and Section~\ref{recognitionSection}
-explains how we train a neural network to accelerate the search over programs.
+Section~\ref{explorationSection} explains how we search for programs that solve the tasks;
+Section~\ref{recognitionSection} explains how we train a neural network to accelerate the search over programs; and
+Section~\ref{grammarInductionSection} explains how \system induces a DSL from programs.
 
 \subsection{Probabilistic Framing}\label{mathematicalFraming}
 
