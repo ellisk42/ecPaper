@@ -354,8 +354,8 @@ expressions in order of their probability.
    \STATE \textbf{return} $\lambda \text{var}.$ body
    \ENDIF
    %   \ELSE
-   \STATE $\text{primitives} \gets\{p | &p:\alpha\to\cdots\to\beta \in \mathcal{D}\cup\mathcal{E}$
-   \STATE \hspace{2.5cm}$\text{if canUnify}(\tau,\beta) \} $
+   \STATE $\text{primitives} \gets\{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
+   \STATE \hspace{2.5cm}$\text{if }\tau\text{ can unify with yield}(\tau')) \} $
    
    \STATE Draw $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$
    \STATE \hspace{3.1cm}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
@@ -365,7 +365,11 @@ expressions in order of their probability.
  \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
  \ENDFOR
  \STATE \textbf{return} $e\;a_1\; a_2\; \cdots\; a_K$
- %  \UNTIL{$noChange$ is $true$}
+ \STATE
+ \STATE \textbf{function} yield$(\tau)$:
+ \STATE \textbf{Input:} type $\tau$
+ \STATE \textbf{Output:} the return type of $\tau$
+ \STATE \textbf{if} $\tau = \alpha\to \beta$ \textbf{then return }yield$(\beta)$ \textbf{else return }$\tau$
 \end{algorithmic}
 \end{algorithm}
 
@@ -442,30 +446,95 @@ $$
 
 \subsection{Inducing the DSL from the Frontiers}\label{grammarInductionSection}
 
+The purpose of the DSL is to
+offer a set of abstractions
+that allow an agent to easily express solutions to the tasks at hand.
+In the \system algorithm we infer the DSL from a collection of frontiers.
+Intuitively, we want the algorithm to
+look at the programs in the frontiers and
+generalize beyond them; 
+not only so the DSL can better express the current solutions,
+but also so that the DSL might expose new abstractions
+which will later used to
+discover even better programs.
+
+Exact maximization of $J$ (Eq.\ref{lowerBound}) w.r.t. $(\mathcal{D},\theta)$
+is intractable,
+so we take a more heuristic approach.
+The strategy is to search locally through the space of DSLs,
+proposing small local changes to $\mathcal{D}$ until $J$ fails to increase.
+The search moves work by introducing new
+$\lambda$-expressions into the DSL.
+We propose these new expressions by extracting subexpressions from
+programs already in the frontier.
+These extracted subexpressions
+are fragments of the original programs, and can introduce new variables (Figure~\ref{fragmentExample}),
+which then become new functions in the DSL.
+
+Closely related to Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing},
+but context-sensitive
+
+We define a prior distribution over DSLs which penalizes the sizes of the $\lambda$-calculus expressions in the DSL, and put a Dirichlet prior over the weight vector:
+\begin{align*}
+  \probability[\mathcal{D}]&\propto\exp\left(\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)\\
+  P(\theta|\mathcal{D})& = \text{Dir}(\theta|\alpha)
+\end{align*}
+where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
+$\lambda$ is a hyperparameter that acts as a regularizer on the size of the DSL,
+and $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
+Algorithm~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
+
+Additionally, for each proposed $\mathcal{D}$ we have to reestimate $\theta$.
+Although this problem may seem 
+very similar to estimating the parameters of a probabilistic context free grammar (PCFG: see~\cite{}),
+for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
+$\mathcal{D}$
+ is actually context-sensitive
+due to the presence of variables in the programs and also due to the
+polymorphic typing system.
+In the Appendix we derive an efficient MAP estimator for $\theta$.
 
 \begin{algorithm}[tb]
-   \caption{Grammar Induction Algorithm}
+   \caption{DSL Induction Algorithm}
    \label{grammarInductionAlgorithm}
    \begin{algorithmic}
      \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
      \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
      \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
-     \STATE Define $\log \probability[\mathcal{D}]\stackrel{+}{ = } -\lambda\sum_{p\in \mathcal{D}} \text{size}(p)$
      \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{z\in \mathcal{F}_x} \probability[z|\mathcal{D},\theta]$
      \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
      \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - ||\theta||_0$
      \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
      \WHILE {true}
-     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ a subtree of }z\}$
+     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ subexpression of }z\}$
      \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
-     \IF{$\text{score}(\mathcal{D}') > \text{score}(\mathcal{D})$}
+     \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$
      \STATE $\mathcal{D}\gets\mathcal{D}'$
-     \ELSE
-     \STATE\textbf{return} $\mathcal{D},\theta^*(\mathcal{D})$
-     \ENDIF
      \ENDWHILE
    \end{algorithmic}
 \end{algorithm}
+
+\begin{figure*}
+  \begin{tabular}{lll}
+    \toprule
+    Domain&Example programs in frontiers&Example proposed subexpression\\\midrule
+    Boolean circuits&
+    \begin{tabular}{l}
+      \texttt{(lambda x (nand x x))}\\
+      \texttt{(lambda x (lambda y (nand x (nand y y))}
+    \end{tabular}&
+    \texttt{(nand z z)}\\\midrule
+    String editing&
+    \begin{tabular}{l}
+      \texttt{(lambda s (+ ',' (index 0 (split ',' s))))}\\
+      \texttt{(lambda s (index 0 (split ' ' s)))}
+    \end{tabular}&
+    \texttt{(index 0 (split z s))}\\\bottomrule
+  \end{tabular}
+  \caption{The DSL induction algorithm works by proposing subexpressions of programs to add to the DSL.
+    These subexpressions are taken from programs in the frontiers (middle column), and can introduce new variables (\texttt{z} in the right column).}
+  \label{fragmentExample}
+  \end{figure*}
 \section{Program Representation}
 We choose to represent programs using $\lambda$-calculus~\cite{pierce}.
 A $\lambda$-calculus expression is either:
