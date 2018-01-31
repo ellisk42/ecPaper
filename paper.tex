@@ -217,7 +217,27 @@ greatly increasing the tractability of BPL.
 
 \section{The \system Algorithm}
 
-\subsection{Motivation and Overview}
+The goal of \system is to both induce a DSL and find good programs solving each of the tasks.
+Our strategy is to
+alternate between 3 different steps: (1) improving the DSL, (2) searching for programs that solve the tasks, and (3) learning a
+better neural recognition model, which we use to accelerate the search over programs.
+The key observation here is that each of these three steps can bootstrap off of each other:
+
+\begin{itemize}
+\item Improving the DSL: We induce a DSL from the programs we have found so far which solve the tasks;
+  as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
+\item Searching for programs: Searching for programs is done using the neural recognition model --
+  so the recognition model bootstraps the search process.
+  \item Learning a recognition model: The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and we find more programs, the recognition model gets both more data to train on and better data.
+\end{itemize}
+
+Section~\ref{mathematicalFraming} frames this 3-step procedure as
+a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
+Section~\ref{grammarInductionSection} explains how \system induces a DSL from programs;
+Section~\ref{explorationSection} explains how we search for programs that solve the tasks; and Section~\ref{recognitionSection}
+explains how we train a neural network to accelerate the search over programs.
+
+\subsection{Probabilistic Framing}\label{mathematicalFraming}
 
 \system takes as input a set of \emph{tasks}, written $X$, each of which is a program induction problem.
 It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$.
@@ -262,7 +282,7 @@ Describe the enumerator, depth first search on the random choices made by the ge
 
 Limitation: has a hard time learning arbitrary constants. Solution: solve those constants using specialized solvers.
 
-\subsection{Learning a Neural Recognition Model}
+\subsection{Learning a Neural Recognition Model}\label{recognitionSection}
 The key idea here is that if the DSL is suitably fit to the domain then
 we can get away with a simple, low-capacity model.
 
