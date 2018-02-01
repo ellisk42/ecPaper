@@ -535,36 +535,6 @@ In the Appendix we derive an efficient MAP estimator for $\theta$.
     These subexpressions are taken from programs in the frontiers (middle column), and can introduce new variables (\texttt{z} in the right column).}
   \label{fragmentExample}
   \end{figure*}
-\section{Program Representation}
-We choose to represent programs using $\lambda$-calculus~\cite{pierce}.
-A $\lambda$-calculus expression is either:
-\\\noindent A \emph{primitive}, like the number 5 or
-  the function \texttt{sum}.
-\\\noindent A \emph{variable}, like $x$, $y$, $z$
-\\\noindent A $\lambda$\emph{-abstraction}, which creates a new function. $\lambda$-abstractions have a variable and a body. The body is a $\lambda$-calculus expression. Abstractions are written as $\lambda \text{var}. \text{body}$.
-\\\noindent An \emph{application} of a function to an argument. Both the function and the argument are $\lambda$-calculus expressions. The application of the function $f$ to the argument $x$ is written as $f\; x$.
-
-For example, the function which squares the logarithm of a number is
-$\lambda x.\text{\texttt{square}} (\text{\texttt{log} } x)$, and the identity function $f(x) = x$ is $\lambda x.x$. The
-$\lambda$-calculus serves as a spartan but expressive Turing complete
-program representation, and distills the essential features of functional languages like Lisp.
-
-However, many $\lambda$-calculus expressions correspond to ill-typed programs, such as the program that takes the logarithm of the Boolean \texttt{true} (i.e., \texttt{log true}) or which applies the number five to the identity function
-(i.e., $5 \; (\lambda x.x)$).
-We use a well-established typing system for $\lambda$-calculus called \emph{Hindley-Milner typing}~\cite{pierce}, which is used in programming languages like OCaml.
-The purpose of the typing system is to ensure that our programs never call a function with a type it is not expecting (like trying to take the logarithm of \texttt{true}).
-Hindley-Milner has two important features:
-Feature 1: It supports \emph{parametric polymorphism}: meaning that types can have variables in them, called \emph{type variables}. Lowercase Greek letters are conventionally used for  type variables.
-For example, the type of the identity function is $\alpha\to\alpha$, meaning it takes something of type $\alpha$ and return something of type $\alpha$. A function that returns the first element of a list has the type $\texttt{list}(\alpha)\to\alpha$. Type variables are not the same has variables introduced by $\lambda$-abstractions.
-Feature 2: Remarkably, there is a  simple algorithm for automatically inferring the polymorphic Hindley-Milner type of a $\lambda$-calculus expression~\cite{damas1982principal}.
-A detailed exposition of Hindley-Milner is beyond the scope of this work.
-
-%% \begin{figure}
-%%   \begin{align}
-%%     \text{primitive types} & 
-%%     \end{align}
-%%   \end{figure}
-
 
 
 \section{Experiments}
@@ -748,6 +718,38 @@ bound.
  \STATE \textbf{return} $\mathcal{D}^I,\theta^I,q^I$
 \end{algorithmic}
 \end{algorithm}
+
+\pagebreak
+
+\section{Program Representation}
+We choose to represent programs using $\lambda$-calculus~\cite{pierce}.
+A $\lambda$-calculus expression is either:
+\\\noindent A \emph{primitive}, like the number 5 or
+  the function \texttt{sum}.
+\\\noindent A \emph{variable}, like $x$, $y$, $z$
+\\\noindent A $\lambda$\emph{-abstraction}, which creates a new function. $\lambda$-abstractions have a variable and a body. The body is a $\lambda$-calculus expression. Abstractions are written as $\lambda \text{var}. \text{body}$.
+\\\noindent An \emph{application} of a function to an argument. Both the function and the argument are $\lambda$-calculus expressions. The application of the function $f$ to the argument $x$ is written as $f\; x$.
+
+For example, the function which squares the logarithm of a number is
+$\lambda x.\text{\texttt{square}} (\text{\texttt{log} } x)$, and the identity function $f(x) = x$ is $\lambda x.x$. The
+$\lambda$-calculus serves as a spartan but expressive Turing complete
+program representation, and distills the essential features of functional languages like Lisp.
+
+However, many $\lambda$-calculus expressions correspond to ill-typed programs, such as the program that takes the logarithm of the Boolean \texttt{true} (i.e., \texttt{log true}) or which applies the number five to the identity function
+(i.e., $5 \; (\lambda x.x)$).
+We use a well-established typing system for $\lambda$-calculus called \emph{Hindley-Milner typing}~\cite{pierce}, which is used in programming languages like OCaml.
+The purpose of the typing system is to ensure that our programs never call a function with a type it is not expecting (like trying to take the logarithm of \texttt{true}).
+Hindley-Milner has two important features:
+Feature 1: It supports \emph{parametric polymorphism}: meaning that types can have variables in them, called \emph{type variables}. Lowercase Greek letters are conventionally used for  type variables.
+For example, the type of the identity function is $\alpha\to\alpha$, meaning it takes something of type $\alpha$ and return something of type $\alpha$. A function that returns the first element of a list has the type $\texttt{list}(\alpha)\to\alpha$. Type variables are not the same has variables introduced by $\lambda$-abstractions.
+Feature 2: Remarkably, there is a  simple algorithm for automatically inferring the polymorphic Hindley-Milner type of a $\lambda$-calculus expression~\cite{damas1982principal}.
+A detailed exposition of Hindley-Milner is beyond the scope of this work.
+
+%% \begin{figure}
+%%   \begin{align}
+%%     \text{primitive types} & 
+%%     \end{align}
+%%   \end{figure}
 
 
 
