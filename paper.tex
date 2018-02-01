@@ -671,12 +671,12 @@ We supply \system with the DSL outlined in Table~\ref{listdsl}.
   \hline
   \emph{name} & \emph{type} \\
   \hline
-    empty & \texttt{tlist($\alpha$)} \\
-    singleton & \texttt{arrow($\alpha$, tlist($\alpha$))} \\
-    range & \texttt{int $\rightarrow$ tlist(int)} \\
-    concat & \texttt{tlist($\alpha$) $\rightarrow$ tlist($\alpha$) $\rightarrow$ tlist($\alpha$)} \\
-    map & \texttt{($\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ tlist($\alpha$) $\rightarrow$ tlist($\beta$)} \\
-    reduce & \texttt{($\beta$ $\rightarrow$ $\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ $\beta$ $\rightarrow$ tlist($\alpha$) $\rightarrow$ $\beta$} \\
+    empty & \texttt{[$\alpha$]} \\
+    singleton & \texttt{$\alpha$ $\rightarrow$ [$\alpha$]} \\
+    range & \texttt{int $\rightarrow$ [int]} \\
+    concat & \texttt{[$\alpha$] $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$]} \\
+    map & \texttt{($\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ [$\alpha$] $\rightarrow$ [$\beta$]} \\
+    reduce & \texttt{($\beta$ $\rightarrow$ $\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ $\beta$ $\rightarrow$ [$\alpha$] $\rightarrow$ $\beta$} \\
     \hline
     true & \texttt{bool} \\
     not & \texttt{bool $\rightarrow$ bool} \\
@@ -692,15 +692,15 @@ We supply \system with the DSL outlined in Table~\ref{listdsl}.
     gt? & \texttt{int $\rightarrow$ int $\rightarrow$ bool} \\
     is-prime & \texttt{int $\rightarrow$ bool} \\
     is-square & \texttt{int $\rightarrow$ bool} \\
-    sort & \texttt{tlist(int) $\rightarrow$ tlist(int)} \\
+    sort & \texttt{[int] $\rightarrow$ [int]} \\
     \hline
-    sum & \texttt{tlist(int) $\rightarrow$ int} \\
-    reverse & \texttt{tlist($\alpha$) $\rightarrow$ tlist($\alpha$)} \\
-    all & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ tlist($\alpha$) $\rightarrow$ bool} \\
-    any & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ tlist($\alpha$) $\rightarrow$ bool} \\
-    index & \texttt{int $\rightarrow$ tlist($\alpha$) $\rightarrow$ $\alpha$} \\
-    filter & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ tlist($\alpha$) $\rightarrow$ tlist($\alpha$)} \\
-    slice & \texttt{int $\rightarrow$ int $\rightarrow$ tlist($\alpha$) $\rightarrow$ tlist($\alpha$)} \\
+    sum & \texttt{[int] $\rightarrow$ int} \\
+    reverse & \texttt{[$\alpha$] $\rightarrow$ [$\alpha$]} \\
+    all & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ bool} \\
+    any & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ bool} \\
+    index & \texttt{int $\rightarrow$ [$\alpha$] $\rightarrow$ $\alpha$} \\
+    filter & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$]} \\
+    slice & \texttt{int $\rightarrow$ int $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$]} \\
   \hline
 \end{tabular}
 \caption{DSL for the domain of list function.}
