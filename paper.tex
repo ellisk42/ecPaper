@@ -492,7 +492,6 @@ $\mathcal{D}$
 due to the presence of variables in the programs and also due to the
 polymorphic typing system.
 In the Appendix we derive a tractable MAP estimator for $\theta$.
-
 \begin{algorithm}[tb]
    \caption{DSL Induction Algorithm}
    \label{grammarInductionAlgorithm}
@@ -533,7 +532,36 @@ In the Appendix we derive a tractable MAP estimator for $\theta$.
   \caption{The DSL induction algorithm works by proposing subexpressions of programs to add to the DSL.
     These subexpressions are taken from programs in the frontiers (middle column), and can introduce new variables (\texttt{z} in the right column).}
   \label{fragmentExample}
-  \end{figure*}
+\end{figure*}
+
+\noindent\textbf{Putting it all together.}
+Algorithm~\ref{mainAlgorithm} describes how we combine the
+program search, recognition model training, and DSL induction.
+
+
+\begin{algorithm}[tb]
+   \caption{The \system Algorithm}
+   \label{mainAlgorithm}
+   \begin{algorithmic}
+     \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
+     \STATE \textbf{Hyperparameters:} Maximum frontier size $F$
+     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, bottom-up recognition model $q(\cdot)$
+     \STATE Initialize $\mathcal{D}_0\gets \mathcal{D}$, $\theta_0\gets \text{uniform}$, $q_0(\cdot ) = \theta_0$
+     \FOR{$i=1$ {\bfseries to} $I$}
+     \FOR{$x:\tau\in X$}
+     \STATE  $\mathcal{F}_x\gets \{z| z\in \text{enumerate}(\mathcal{D}_{i - 1},q_{i - 1}(x),F)\cup\text{enumerate}(\mathcal{D}_{i - 1},\theta_{i - 1},F) \text{ if }\probability[x|z] > 0\}$
+     \ENDFOR
+     \STATE $\mathcal{D}_i,\theta_i\gets $induceDSL$(\{\mathcal{F}_x\}_{x\in X})$
+     %% \STATE Define $Q_x(z) \propto \begin{cases}
+     %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
+     %%   0&x\not \in \mathcal{F}_x
+     %% \end{cases}
+     
+     \STATE $q_i\gets \text{train recognition model to maximize }\mathcal{L}_{\text{RM}}$
+      \ENDFOR
+ \STATE \textbf{return} $\mathcal{D}^I,\theta^I,q^I$
+\end{algorithmic}
+\end{algorithm}
 
 
 \section{Experiments}
@@ -695,28 +723,7 @@ bound.
 
 
 
-\begin{algorithm}[tb]
-   \caption{DSL Learner}
-   \label{mainAlgorithm}
-   \begin{algorithmic}
-     \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
-     \STATE \textbf{Hyperparameters:} Frontier size $F$
-     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, bottom-up recognition model $q(\cdot)$
-     \STATE Initialize $\mathcal{D}_0\gets \mathcal{D}$, $\theta_0\gets \text{uniform}$, $q_0(\cdot ) = \theta_0$
-     \FOR{$i=1$ {\bfseries to} $I$}
-     \FOR{$x:\tau\in X$}
-     \STATE  $\mathcal{F}_x\gets \{z| z\in \text{enumerate}(\mathcal{D}_{i - 1},q_{i - 1}(x),F)\cup\text{enumerate}(\mathcal{D}_{i - 1},\theta_{i - 1},F) \text{ if }\probability[x|z] > 0\}$
-     \ENDFOR
-     \STATE $\mathcal{D}_i,\theta_i\gets $induceGrammar$(\{\mathcal{F}_x\}_{x\in X})$
-     \STATE Define $Q_x(z) \propto \begin{cases}
-       \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
-       0&x\not \in \mathcal{F}_x
-     \end{cases}$
-     \STATE $q_i\gets \argmin_q \sum_{x\in X}\text{KL}(Q_x(\cdot )||\probability[\cdot |\mathcal{D}_i,q(x)])$
-      \ENDFOR
- \STATE \textbf{return} $\mathcal{D}^I,\theta^I,q^I$
-\end{algorithmic}
-\end{algorithm}
+
 
 \pagebreak
 
