@@ -673,7 +673,6 @@ We supply \system with the DSL outlined in Table~\ref{listdsl}.
   \hline
     empty & \texttt{[$\alpha$]} \\
     singleton & \texttt{$\alpha$ $\rightarrow$ [$\alpha$]} \\
-    range & \texttt{int $\rightarrow$ [int]} \\
     concat & \texttt{[$\alpha$] $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$]} \\
     map & \texttt{($\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ [$\alpha$] $\rightarrow$ [$\beta$]} \\
     reduce & \texttt{($\beta$ $\rightarrow$ $\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ $\beta$ $\rightarrow$ [$\alpha$] $\rightarrow$ $\beta$} \\
@@ -692,6 +691,7 @@ We supply \system with the DSL outlined in Table~\ref{listdsl}.
     gt? & \texttt{int $\rightarrow$ int $\rightarrow$ bool} \\
     is-prime & \texttt{int $\rightarrow$ bool} \\
     is-square & \texttt{int $\rightarrow$ bool} \\
+    range & \texttt{int $\rightarrow$ [int]} \\
     sort & \texttt{[int] $\rightarrow$ [int]} \\
     \hline
     sum & \texttt{[int] $\rightarrow$ int} \\
