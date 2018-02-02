@@ -707,6 +707,28 @@ for example, it represents the polynomial $8x^2+8x$
       \includegraphics[width = 9cm]{figures/polynomial.png}
 \end{figure}
 \subsection{String editing}\label{textSection}
+
+\begin{tabular}{ll}
+  \toprule
+  Primitives&\begin{tabular}{l}
+    \texttt{0}, \texttt{+1},\texttt{-1}\\
+    \texttt{split}, \texttt{join}, \texttt{map}, \texttt{length}, \texttt{slice}\\
+    \texttt{append}, \texttt{chr->str}\\
+    \texttt{lowercase}, \texttt{uppercase}, \texttt{capitalize}\\
+    \texttt{""},    \texttt{","},     \texttt{" "},    \texttt{"<"}, \texttt{">"}
+    \end{tabular}
+  
+\\\midrule
+  Observation $x$& $N$ input/output examples: $\left\{(i_n,o_n) \right\}_{n\leq N}$\\
+  \midrule
+  Likelihood $\probability[x|p]$& $\prod_n \indicator[p(i_n) = o_n]$
+  \\\midrule
+  \begin{tabular}{l}
+    Subset of \\Learned DSL
+    \end{tabular}&
+
+  \\\bottomrule
+  \end{tabular}
 \begin{figure}
 
   \includegraphics[width = 9cm]{figures/text.png}
