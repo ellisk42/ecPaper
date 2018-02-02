@@ -255,7 +255,7 @@ learning a generative model and training a recognition model on samples from the
 We apply this same idea to the problem of program induction,
 and so we call our algorithm the \system.
 Figure~\ref{feeding} diagrams how these three steps feed off of each other.
-\begin{figure}[b]\centering
+\begin{figure}\centering
   \begin{tikzpicture}
     \begin{scope}[shift = {(1,-1)}]
     \node[align = center](DSL) at (6,4) {DSL: $\mathcal{D}$};
@@ -402,7 +402,7 @@ expressions in order of their probability.
   \IF{$\tau = \alpha\to\beta$}
   \STATE var $\gets$ an unused variable name
   \STATE body $\sim$ sample$(\mathcal{D},\theta,\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$
-   \STATE \textbf{return} $\lambda \text{var}.$ body
+   \STATE \textbf{return} \texttt{(lambda (}var\texttt{) }body\texttt{)}
    \ENDIF
    %   \ELSE
    \STATE $\text{primitives} \gets\{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
@@ -410,17 +410,22 @@ expressions in order of their probability.
    
    \STATE Draw $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$
    \STATE \hspace{3.1cm}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
-   \STATE Let $e:\alpha_1\to\alpha_2\to\cdots\to \alpha_K\to\beta$. Unify $\tau$ with $\beta$.
+   \STATE Unify $\tau$ with yield$(\tau')$.
+   \STATE $\left\{\alpha_k \right\}_{k\leq K}\gets\text{argTypes}(\tau')$
 %   \STATE unify$(\tau,\beta)$
    \FOR{$k=1$ {\bfseries to} $K$}
  \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
  \ENDFOR
- \STATE \textbf{return} $e\;a_1\; a_2\; \cdots\; a_K$
- \STATE
- \STATE \textbf{function} yield$(\tau)$:
- \STATE \textbf{Input:} type $\tau$
- \STATE \textbf{Output:} the return type of $\tau$
- \STATE \textbf{if} $\tau = \alpha\to \beta$ \textbf{then return }yield$(\beta)$ \textbf{else return }$\tau$
+ \STATE \textbf{return} \texttt{(}$e\;a_1\; a_2\; \cdots\; a_K$\texttt{)}
+ \STATE\textbf{where:}
+ \STATE  yield$(\tau) = \begin{cases}
+\text{yield}(\beta)   &\text{ if }$\tau = \alpha\to \beta$\\
+\tau   &\text{ otherwise.}
+ \end{cases}$ 
+ \STATE\hspace{0cm} argTypes$(\tau) = \begin{cases}
+[\alpha] + \text{argTypes}(\beta)   &\text{ if }$\tau = \alpha\to \beta$\\
+[]   &\text{ otherwise.}
+ \end{cases}$
 \end{algorithmic}
 \end{algorithm}
 
@@ -460,10 +465,9 @@ Together with the DSL, this defines a distribution over programs,
 $\probability[p|\mathcal{D},\theta = q(x)]$.
 We abbreviate this distribution as $q(p|x)$.
 The crucial aspect of this framing is that the neural network
-can leverage the structure of the DSL,
-and is \emph{not} responsible for
+leverages the structure of the learned DSL,
+and so is \emph{not} responsible for
 generating programs wholesale.
-We will show that this lets us get away with a simple, low-capacity neural network.
 
 
 
@@ -505,7 +509,7 @@ look at the programs in the frontiers and
 generalize beyond them; 
 not only so the DSL can better express the current solutions,
 but also so that the DSL might expose new abstractions
-which will later used to
+which will later be used to
 discover even better programs.
 
 Exact maximization of $J$ (Eq.\ref{lowerBound}) w.r.t. $(\mathcal{D},\theta)$
@@ -600,6 +604,7 @@ with the highest $\probability[x,p|\mathcal{D},\theta]$;
 by only summing over the top $K$
 programs in $\mathcal{F}_x$.
 We found that $K = 2$ sufficed.
+(4) For added robustness, at each iteration we enumerate programs from both the generative model and the recognition model.
 
 \begin{algorithm}[tb]
    \caption{The \system Algorithm}
