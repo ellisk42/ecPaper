@@ -159,13 +159,15 @@ Gross violations will trigger corrections at the camera-ready phase.
 
 \section{Introduction}
 
-%% Imagine an agent faced with a suite of new problems totally different
-%% from anything it has seen before. It has at its disposal a basic set
-%% of primitive actions it can compose to build solutions to these problems, but
-%% it is no idea what kinds of primitives are appropriate for which
-%% problems nor does it know the higher-level vocabulary in
-%% which solutions are best expressed.
-%% How can our agent get off the ground?
+Imagine an agent faced with a new domain of unfamiliar tasks: think
+playing new kinds of videogames, authoring Python code, or navigating
+through mazes.  Our agent has at its disposal a basis of primitive
+actions it can compose to propose solutions to these tasks, but it is
+no idea what kinds of primitives are appropriate for which tasks
+nor does it know the higher-level vocabulary in which solutions are
+best expressed.  How can our agent learn to solve problems in this new
+domain?
+
 
 The AI and machine learning literature contains two broad takes on this problem.
 The first take is that the agent should come up with a better representation of the space of solutions,
@@ -176,7 +178,20 @@ we propose jointly inducing a representation language, called a \emph{Domain Spe
 alongside a bottom-up discriminative model that regresses from problems to solutions.
 We evaluate our algorithm on four domains:
 building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and functions on lists.
-We show that \system can construct a set of basis primitives suitable for discovering solutions in each of these domains
+Because we want a domain-general
+approach,
+we model solutions to tasks as
+programs,
+which frames our problem as one of program induction.
+
+Our algorithm is best understood as inference in a hierarchical Bayesian model (Figure~\ref{graphicalModel}: solid lines):
+A DSL $\mathcal{D}$
+probabilistically generates a latent program $p$
+which generates the agent's observations, $x$.
+In tandem we learn a learn a neural network $q$ that regresses
+from observations to programs.
+
+
 
 We cast these problems as \emph{Bayesian Program
   Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}),
@@ -190,8 +205,6 @@ The solid lines in Fig.~\ref{graphicalModel} the diagram this generative model.
 Alongside this generative model,
 we infer a bottom-up recognition model, $q(x)$, which is a neural network that regresses from observations to a distribution over programs.
 
-Our key observation is that the generative and recognition models can bootstrap off of each other,
-greatly increasing the tractability of BPL.
 
 
 \begin{figure}
@@ -224,16 +237,16 @@ greatly increasing the tractability of BPL.
     \draw [->,thick] (DSL.east) to[out = 0,in = 0] node[above,rotate = -90]{{\footnotesize Trains}} (recognitionModel.east);
   \end{scope}
   \end{tikzpicture}
-  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe program outputs $x$. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from program outputs to a distribution over programs ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
+  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe tasks $x$, which are program inputs/outputs. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from $x$ to a distribution over programs ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
 
 \section{The \system Algorithm}
 
-The goal of \system is to both induce a DSL and find good programs solving each of the tasks.
+Our goal in this work is to both induce a DSL and find good programs solving each of the tasks.
 Our strategy is to iterate through three steps: (1) searching for programs that
 solve the tasks, (2) learning a better neural recognition model -- which we use
 to accelerate the search over programs -- and (3) improving the DSL.
-The key observation here is that each of these three steps can bootstrap off of each other:
+The key observation here is that each of these three steps can bootstrap off each other:
 
 \begin{itemize}
   \item Searching for programs: Program search uses a distribution determined by the neural recognition model --
@@ -242,6 +255,12 @@ The key observation here is that each of these three steps can bootstrap off of 
   \item Improving the DSL: We induce a DSL from the programs we have found so far which solve the tasks;
   as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
 \end{itemize}
+
+The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternating between
+learning a generative model and training a recognition model on samples from the generative model.
+We apply this same idea to the problem of program induction,
+and so we call our algorithm the \system.
+
 
 Section~\ref{mathematicalFraming} frames this 3-step procedure as
 a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
