@@ -190,13 +190,13 @@ samples a latent program $p$
 which determines the agent's observations, $x$.
 This makes our work in instance of
  \emph{Bayesian Program
-  Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}).
+  Learning} (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}).
 In tandem we learn a learn a neural network $q$ that regresses
 from observations to programs.
 We will show that the interaction of
 the generative and recognition models is important for solving these program induction problems.
 
-
+TODO: talk explicitly about what ideas we are borrowing from EC
 %% We cast these problems as \emph{Bayesian Program
 %%   Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}),
 %% where the goal is to infer from an observation $x$ a posterior distribution over programs, $\probability[p|x]$.
@@ -634,9 +634,22 @@ We found that $K = 2$ sufficed.
 \section{Experiments}
 
 \subsection{Boolean circuits}
-pedagogical example; easy domain
+As a toy warm-up domain, we consider the problem of learning
+to build the Boolean circuits out of logic gates.
+Now, if we equipped our agent with a full repertoire of
+circuit primitives -- XOR gates, multiplexers, etc. -- this problem would be easy,
+and we could use sophisticated symbolic search algorithms like SMT solvers to synthesize circuits.
+Instead, we gave \system only a NAND gate,
+and tasked it with building a set of 500 random circuits made out of
+AND, NOT, and OR gates.
+This experimental setup was introduced in the original EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
+
+Figure~\ref{circuitLearningCurve} 
+
+
 \begin{figure}
-  \includegraphics[width = \columnwidth]{figures/circuit.png} 
+  \includegraphics[width = \columnwidth]{figures/circuit.png}
+  \caption{\system learning to build Boolean circuits. We start out with only NAND gates and learn DSL that contains ...}\label{circuitLearningCurve}
 \end{figure}
 
 \subsection{Symbolic Regression}\label{regressionSection}
