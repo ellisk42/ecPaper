@@ -643,14 +643,31 @@ Instead, we gave \system only a NAND gate,
 and tasked it with building a set of 500 random circuits made out of
 AND, NOT, and OR gates.
 This experimental setup was introduced in the original EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
-
-Figure~\ref{circuitLearningCurve} 
+For this domain our recognition model is a simple multilayer perceptron
+whose inputs are the input/output examples.
+Figure~\ref{circuitLearningCurve} shows our algorithm learning to build circuits; Table~\ref{circuitExperimentTable} 
 
 
 \begin{figure}
   \includegraphics[width = \columnwidth]{figures/circuit.png}
   \caption{\system learning to build Boolean circuits. We start out with only NAND gates and learn DSL that contains ...}\label{circuitLearningCurve}
 \end{figure}
+
+\begin{tabular}{ll}
+  \toprule
+  Primitives&\texttt{nand}
+  
+\\\midrule
+  Observation $x$& $N$ input/output examples: $\left\{(i_n,o_n) \right\}_{n\leq N}$\\
+  \midrule
+  Likelihood $\probability[x|p]$& $\prod_n \indicator[p(i_n) = o_n]$
+  \\\midrule
+  \begin{tabular}{l}
+    Subset of \\Learned DSL
+    \end{tabular}&
+
+  \\\bottomrule
+\end{tabular}
 
 \subsection{Symbolic Regression}\label{regressionSection}
 We show how to use \system to infer programs containing both discrete
