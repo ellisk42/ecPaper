@@ -61,8 +61,8 @@
 \usepackage{tikz}
 \usetikzlibrary{fit,bayesnet}
 %\usetikzlibrary{arrows.meta}
-\usetikzlibrary{positioning}
-%\usetikzlibrary{decorations.text,decorations.pathreplacing}
+%\usetikzlibrary{positioning}
+%\usetikzlibrary{decorations.text}
 %\usetikzlibrary{decorations.pathmorphing}
 \usepackage{dsfont}
 \usepackage{amsmath}
@@ -211,6 +211,18 @@ greatly increasing the tractability of BPL.
   \node at (nn.south) {$q(x)$};
   \draw [->,dashed] (d.west) to[out = 180,in = 180] (z.west);
   \draw [->,dashed] (tx.west) -- (z.east);
+
+  \begin{scope}[shift = {(1,-1)}]
+    \node[align = center](DSL) at (6,4) {DSL: $\mathcal{D}$};
+    \node[align = center](synthesis) at (4,2) {Search for \\programs: $p$};
+    \node[ align = center](recognitionModel) at (6,0) {Recognition \\model: $q$};
+
+    \draw [->,thick] (DSL.west) to[out = 180,in = 90] node[above,rotate = 45]{{\footnotesize Makes tractable}} (synthesis.north);
+    \draw [->,thick] (synthesis.east) to[out = 0,in = -90] node[above,rotate = 70]{{\footnotesize Trains}} (DSL.south);
+    \draw [->,thick] (synthesis.east) to[out = 0,in = 90] node[below,rotate = -60]{{\footnotesize Trains}} (recognitionModel.north);
+    \draw [->,thick] (recognitionModel.west) to[out = 180,in = -90] node[below,rotate = -70]{{\footnotesize Makes tractable}} (synthesis.south);
+    \draw [->,thick] (DSL.east) to[out = 0,in = 0] node[above,rotate = -90]{{\footnotesize Trains}} (recognitionModel.east);
+  \end{scope}
   \end{tikzpicture}
   \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe program outputs $x$. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from program outputs to a distribution over programs ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
@@ -534,10 +546,21 @@ In the Appendix we derive a tractable MAP estimator for $\theta$.
   \label{fragmentExample}
 \end{figure*}
 
-\noindent\textbf{Putting it all together.}
+\subsection{Implementing the \system}
+
 Algorithm~\ref{mainAlgorithm} describes how we combine the
 program search, recognition model training, and DSL induction.
-
+We additionally make the following implementation details:
+(1) On the first iteration we do \emph{not} train the recognition model on samples from
+the generative model because, on the first iteration, we have not yet learned a
+new DSL, so we instead trained the network to only maximize $\mathcal{L}_{\text{AE}}$;
+(2) Because the frontiers can grow very large,
+we only keep around the top $10^4$ programs $p$ in each frontier $\mathcal{F}_x$
+with the highest $\probability[x,p|\mathcal{D},\theta]$;
+(3) During both DSL induction and neural net training, we calculate $\text{score}(\mathcal{D}')$ and $\mathcal{L}_{\text{RM}}$
+by only summing over the top $K$
+programs in $\mathcal{F}_x$.
+We found that $K = 2$ sufficed.
 
 \begin{algorithm}[tb]
    \caption{The \system Algorithm}
@@ -545,21 +568,21 @@ program search, recognition model training, and DSL induction.
    \begin{algorithmic}
      \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
      \STATE \textbf{Hyperparameters:} Maximum frontier size $F$
-     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, bottom-up recognition model $q(\cdot)$
-     \STATE Initialize $\mathcal{D}_0\gets \mathcal{D}$, $\theta_0\gets \text{uniform}$, $q_0(\cdot ) = \theta_0$
+     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
+     \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
      \FOR{$i=1$ {\bfseries to} $I$}
-     \FOR{$x:\tau\in X$}
-     \STATE  $\mathcal{F}_x\gets \{z| z\in \text{enumerate}(\mathcal{D}_{i - 1},q_{i - 1}(x),F)\cup\text{enumerate}(\mathcal{D}_{i - 1},\theta_{i - 1},F) \text{ if }\probability[x|z] > 0\}$
-     \ENDFOR
-     \STATE $\mathcal{D}_i,\theta_i\gets $induceDSL$(\{\mathcal{F}_x\}_{x\in X})$
+%     \FOR{$x:\tau\in X$}
+     \STATE  $\mathcal{F}^{(\theta)}_x\gets \{z| z\in \text{enumerate}(\mathcal{D},\theta,F)\text{ if }\probability[x|z] > 0\}$
+ %    \ENDFOR
+     \STATE $q_i\gets \text{train recognition model to maximize }\mathcal{L}_{\text{RM}}$
+     \STATE  $\mathcal{F}^{(q)}_x\gets\{z|z\in \text{enumerate}(\mathcal{D},q(x),F)\text{ if }\probability[x|z] > 0\}$
+     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{(\theta)}_x\cup\mathcal{F}^{(q)}_x\}_{x\in X})$
      %% \STATE Define $Q_x(z) \propto \begin{cases}
      %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
      %%   0&x\not \in \mathcal{F}_x
      %% \end{cases}
-     
-     \STATE $q_i\gets \text{train recognition model to maximize }\mathcal{L}_{\text{RM}}$
       \ENDFOR
- \STATE \textbf{return} $\mathcal{D}^I,\theta^I,q^I$
+ \STATE \textbf{return} $\mathcal{D},\theta,q$
 \end{algorithmic}
 \end{algorithm}
 
