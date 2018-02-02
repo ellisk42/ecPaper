@@ -186,24 +186,28 @@ which frames our problem as one of program induction.
 
 Our algorithm is best understood as inference in a hierarchical Bayesian model (Figure~\ref{graphicalModel}: solid lines):
 A DSL $\mathcal{D}$
-probabilistically generates a latent program $p$
-which generates the agent's observations, $x$.
+samples a latent program $p$
+which determines the agent's observations, $x$.
+This makes our work in instance of
+ \emph{Bayesian Program
+  Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}).
 In tandem we learn a learn a neural network $q$ that regresses
 from observations to programs.
+We will show that the interaction of
+the generative and recognition models is important for solving these program induction problems.
 
 
-
-We cast these problems as \emph{Bayesian Program
-  Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}),
-where the goal is to infer from an observation $x$ a posterior distribution over programs, $\probability[p|x]$.
-A DSL $\mathcal{D}$ specifies the vocabulary in which programs $p$ are written.
-We equip our DSLs with a \emph{weight vector} $\theta$; together, $(\mathcal{D},\theta)$
-define a probabilistic generative model over programs, $\probability[p|\mathcal{D},\theta]$.
-In this BPL setting, $\probability[p|x]\propto \probability[x|p]\probability[p|\mathcal{D},\theta]$,
-where the likelihood $\probability[x|p]$ is domain-dependent.
-The solid lines in Fig.~\ref{graphicalModel} the diagram this generative model.
-Alongside this generative model,
-we infer a bottom-up recognition model, $q(x)$, which is a neural network that regresses from observations to a distribution over programs.
+%% We cast these problems as \emph{Bayesian Program
+%%   Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}),
+%% where the goal is to infer from an observation $x$ a posterior distribution over programs, $\probability[p|x]$.
+%% A DSL $\mathcal{D}$ specifies the vocabulary in which programs $p$ are written.
+%% We equip our DSLs with a \emph{weight vector} $\theta$; together, $(\mathcal{D},\theta)$
+%% define a probabilistic generative model over programs, $\probability[p|\mathcal{D},\theta]$.
+%% In this BPL setting, $\probability[p|x]\propto \probability[x|p]\probability[p|\mathcal{D},\theta]$,
+%% where the likelihood $\probability[x|p]$ is domain-dependent.
+%% The solid lines in Fig.~\ref{graphicalModel} the diagram this generative model.
+%% Alongside this generative model,
+%% we infer a bottom-up recognition model, $q(x)$, which is a neural network that regresses from observations to a distribution over programs.
 
 
 
@@ -225,17 +229,7 @@ we infer a bottom-up recognition model, $q(x)$, which is a neural network that r
   \draw [->,dashed] (d.west) to[out = 180,in = 180] (z.west);
   \draw [->,dashed] (tx.west) -- (z.east);
 
-  \begin{scope}[shift = {(1,-1)}]
-    \node[align = center](DSL) at (6,4) {DSL: $\mathcal{D}$};
-    \node[align = center](synthesis) at (4,2) {Search for \\programs: $p$};
-    \node[ align = center](recognitionModel) at (6,0) {Recognition \\model: $q$};
 
-    \draw [->,thick] (DSL.west) to[out = 180,in = 90] node[above,rotate = 45]{{\footnotesize Makes tractable}} (synthesis.north);
-    \draw [->,thick] (synthesis.east) to[out = 0,in = -90] node[above,rotate = 70]{{\footnotesize Trains}} (DSL.south);
-    \draw [->,thick] (synthesis.east) to[out = 0,in = 90] node[below,rotate = -60]{{\footnotesize Trains}} (recognitionModel.north);
-    \draw [->,thick] (recognitionModel.west) to[out = 180,in = -90] node[below,rotate = -70]{{\footnotesize Makes tractable}} (synthesis.south);
-    \draw [->,thick] (DSL.east) to[out = 0,in = 0] node[above,rotate = -90]{{\footnotesize Trains}} (recognitionModel.east);
-  \end{scope}
   \end{tikzpicture}
   \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe tasks $x$, which are program inputs/outputs. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from $x$ to a distribution over programs ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
@@ -249,9 +243,9 @@ to accelerate the search over programs -- and (3) improving the DSL.
 The key observation here is that each of these three steps can bootstrap off each other:
 
 \begin{itemize}
-  \item Searching for programs: Program search uses a distribution determined by the neural recognition model --
-  so the recognition model bootstraps the search process.
-  \item Learning a recognition model: The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and we find more programs, the recognition model gets both more data to train on and better data.
+\item Searching for programs: Our program search  is informed by both the DSL and the recognition model.
+When these improve we find better programs.
+  \item Learning a recognition model: The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
   \item Improving the DSL: We induce a DSL from the programs we have found so far which solve the tasks;
   as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
 \end{itemize}
@@ -260,7 +254,23 @@ The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternati
 learning a generative model and training a recognition model on samples from the generative model.
 We apply this same idea to the problem of program induction,
 and so we call our algorithm the \system.
+Figure~\ref{feeding} diagrams how these three steps feed off of each other.
+\begin{figure}[b]\centering
+  \begin{tikzpicture}
+    \begin{scope}[shift = {(1,-1)}]
+    \node[align = center](DSL) at (6,4) {DSL: $\mathcal{D}$};
+    \node[align = center](synthesis) at (4,2) {Search for \\programs: $p$};
+    \node[ align = center](recognitionModel) at (6,0) {Recognition \\model: $q$};
 
+    \draw [->,thick] (DSL.west) to[out = 180,in = 90] node[above,rotate = 45]{{\footnotesize Makes tractable}} (synthesis.north);
+    \draw [->,thick] (synthesis.east) to[out = 0,in = -90] node[above,rotate = 70]{{\footnotesize Trains}} (DSL.south);
+    \draw [->,thick] (synthesis.east) to[out = 0,in = 90] node[below,rotate = -60]{{\footnotesize Trains}} (recognitionModel.north);
+    \draw [->,thick] (recognitionModel.west) to[out = 180,in = -90] node[below,rotate = -70]{{\footnotesize Makes tractable}} (synthesis.south);
+    \draw [->,thick] (DSL.east) to[out = 0,in = 0] node[above,rotate = -90]{{\footnotesize Trains}} (recognitionModel.east);
+  \end{scope}
+    \end{tikzpicture}
+\caption{Our algorithm alternatingly solves for the programs, DSL, and recognition model. Each of these steps bootstraps off of the others.}  \label{feeding}
+  \end{figure}
 
 Section~\ref{mathematicalFraming} frames this 3-step procedure as
 a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
@@ -297,7 +307,7 @@ J = \log \probability[\mathcal{D},\theta] + \sum_{x\in X}\log \sum_{p\in \mathca
 \end{equation}
 This lower bound depends on sets of programs, $\left\{\mathcal{F}_x \right\}_{x\in X}$:
 
-\noindent\textbf{Definition.} The \emph{frontier of task $x$}, written $\mathcal{F}_x$,
+\noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
 is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
 
 We maximize $J$ by alternatingly maximizing it w.r.t. the DSL and the frontiers:
@@ -344,15 +354,25 @@ the frontier $\mathcal{F}_x$.
 
 To make this concrete we need to define what programs actually are and
 what form $\probability[p |\mathcal{D},\theta]$ takes.
-In this work, we represent programs as \emph{polymorphicly-typed $\lambda$-calculus expressions}.
-$\lambda$-calculus is a formalism for expressing functional programs.
-It includes variables, function application, and the ability to create new functions using ...
+In this work, we represent programs as $\lambda$-calculus expressions.
+$\lambda$-calculus is a formalism for expressing functional programs
+that closely resembles Lisp.
+$\lambda$-calculus includes variables, function application, and the ability to create new functions.
+Throughout this paper we will write $\lambda$-calculus expressions in Lisp syntax.
+Our programs are all strongly typed.
+We use the Hindley-Milner polymorphic typing system~\cite{pierce} which is used in functional languages like OCaml.
+Variables that range over types are always written using lowercase Greek letters
+and we write $\alpha\to \beta$ to mean a function that takes as input type $\alpha$
+and returns something of type $\beta$.
+We use the notation $p:\tau$ to mean that the $\lambda$-calculus expression $p$
+has the type $\tau$.
+For example, to describe the type of the identity function
+we would say \texttt{(lambda (x) x)}$:\alpha\to \alpha$.
+With this notation in hand we can now define DSLs:
 
-TODO: summarize lambda calculus and types in one paragraph
-
-\noindent\textbf{Definition: $\mathcal{D}$.}
+\noindent\textbf{Definition.}
 A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
-\\\noindent\textbf{Definition: $\theta$.}
+\\\noindent\textbf{Definition.}
 A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| + 1$ real numbers:
 one number for each DSL primitive $e:\tau\in \mathcal{D}$, written $\theta_e$,
 and a weight controlling the probability of a variable occurring in a program, written $\theta_{\text{var}}$.
