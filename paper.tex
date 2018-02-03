@@ -184,19 +184,78 @@ we model solutions to tasks as
 programs,
 which frames our problem as one of program induction.
 
+\begin{figure}
+  \centering
+
+  \begin{tikzpicture}
+
+  \node[latent] at (1,3) (d){$\mathcal{D}$};
+  \node[latent] at (2.5,3) (t){$\theta$};
+  \node[latent] at (1,1.5) (z){$p$};
+  \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
+  \node[obs] at (1,-0.5) (x) {$x$};
+  \edge {z}{x};
+  \edge {d,t}{z};
+  \plate {}{(tx)(z)(x)}{$x\in X$};
+  \draw [->,dashed] (x.east) to[out = 0,in = -90] node(nn){} (tx.south);
+  \draw [->,dashed] (tx.west) -- (z.east);
+
+  \node at (nn) {
+    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle,width=2cm] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}
+  };
+  \node[shift={+(0,-0.55)}] at (nn) { $q(x)$ };
+
+  \end{tikzpicture}
+  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe tasks $x$, which are program inputs/outputs. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from $x$ to a distribution over programs ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
+\end{figure}
+
+
 Our algorithm is best understood as inference in a hierarchical Bayesian model (Figure~\ref{graphicalModel}: solid lines):
 A DSL $\mathcal{D}$
-samples a latent program $p$
-which determines the agent's observations, $x$.
+determines a distribution with production probabilities $\theta$,
+from which a latent program $p$ is sampled,
+which finally determines the agent's observations, $x$.
 This makes our work in instance of
  \emph{Bayesian Program
   Learning} (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}).
-In tandem we learn a learn a neural network $q$ that regresses
-from observations to programs.
-We will show that the interaction of
-the generative and recognition models is important for solving these program induction problems.
+In tandem we learn a neural network $q$ that regresses from observations to
+programs by proposing a distribution over programs $\theta^{(x)} = q(x)$.
+We will show that the interaction of the generative and recognition models
+is important for solving these program induction problems.
 
-TODO: talk explicitly about what ideas we are borrowing from EC
+TODO: talk about existing works as special cases of, and points of inspiration for, \system:
+\begin{itemize}
+  \item Maximum-likelihood estimation of a PCFG \citep{DBLP:conf/icml/LiangJK10} with
+    production probabilities $\theta$, a fixed the DSL $\mathcal{D}$ and no neural network
+    $q$;
+    % although some of the Liang paper actually learns subexpressions and therefore DSL
+  \item The EC algorithm \citep{Dechter:2013:BLV:2540128.2540316} has no recognition model
+    $q$;
+    % because this is a primary inspiration, might be worth further mention:
+    % different program representation (routing vs. substitution; simple vs polymorphic types);
+    % different grammar induction (sequitur vs. fragment grammar)
+  \item DeepCoder and RobustFill \citep{balog2016deepcoder,devlin2017robustfill} both fix the
+    DSL $\mathcal{D}$ and does not use $\theta$ in favor of solely relying on the neural
+    network $q$.
+    % although RobustFill has very different enumeration
+\end{itemize}
+
 %% We cast these problems as \emph{Bayesian Program
 %%   Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}),
 %% where the goal is to infer from an observation $x$ a posterior distribution over programs, $\probability[p|x]$.
@@ -210,29 +269,6 @@ TODO: talk explicitly about what ideas we are borrowing from EC
 %% we infer a bottom-up recognition model, $q(x)$, which is a neural network that regresses from observations to a distribution over programs.
 
 
-
-\begin{figure}
-  \begin{tikzpicture}
-  
-  \node[latent] at (1,3) (d){$\mathcal{D}$};
-  \node[latent] at (2.5,3) (t){$\theta$};
-  \node[latent] at (1,1.5) (z){$p$};
-  \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
-  \node[obs] at (1,-0.5) (x) {$x$};
-  \edge {z}{x};
-  \edge {d,t}{z};
-  \plate {}{(tx)(z)(x)}{$x\in X$};
-  \draw [->,dashed] (x.east) to[out = 0,in = -90] node(nn)[fill = white]{
-          \includegraphics[width = 1.5cm]{figures/MLP.png} 
-  } (tx.south);
-  \node at (nn.south) {$q(x)$};
-  \draw [->,dashed] (d.west) to[out = 180,in = 180] (z.west);
-  \draw [->,dashed] (tx.west) -- (z.east);
-
-
-  \end{tikzpicture}
-  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe tasks $x$, which are program inputs/outputs. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from $x$ to a distribution over programs ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
-\end{figure}
 
 \section{The \system Algorithm}
 
@@ -290,7 +326,7 @@ We frame this problem as maximum a posteriori (MAP) inference in the generative 
   \probability[\mathcal{D}|X]\propto \probability[\mathcal{D}] \int \mathrm{d}\theta P(\theta|\mathcal{D})\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]
 \end{equation*}
 In general this marginalization over $\theta$ is intractable, so we make an AIC-style approximation\footnote{Sec.~\ref{grammarInductionSection} explains that $\mathcal{D}$ is a context-sensitive grammar.
-Conventional NLP approaches to using variational inference to lower bound the marginal over $\theta$ do not apply in our setting.}, $A\approx \log\probability[\mathcal{D}|X] $:
+Conventional natural-language processing (NLP) approaches to using variational inference to lower bound the marginal over $\theta$ do not apply in our setting.}, $A\approx \log\probability[\mathcal{D}|X] $:
 \begin{align}
   A =   \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_p\probability[x|p]\probability[p|\mathcal{D},\theta]\nonumber\\
 &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
@@ -310,7 +346,7 @@ This lower bound depends on sets of programs, $\left\{\mathcal{F}_x \right\}_{x\
 \noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
 is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
 
-We maximize $J$ by alternatingly maximizing it w.r.t. the DSL and the frontiers:
+We maximize $J$ by alternating maximization w.r.t. the DSL and the frontiers:
 %So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
 %explains how \system synthesizes new programs and given a DSL.
 \\\noindent \textbf{Program Search: Maxing $J$ w.r.t. the frontiers.} Here we
@@ -433,7 +469,7 @@ Why enumerate, when the program synthesis community has invented many
 sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
 We have two reasons:% for using the simple strategy of enumerating programs:
 \begin{itemize}
-\item A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the  search algorithm is very simple.  
+\item A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the search algorithm is very simple.
 \item Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
   the space of of programs.
 \end{itemize}
@@ -653,6 +689,7 @@ Figure~\ref{circuitLearningCurve} shows our algorithm learning to build circuits
   \caption{\system learning to build Boolean circuits. We start out with only NAND gates and learn DSL that contains ...}\label{circuitLearningCurve}
 \end{figure}
 
+\begin{table}
 \begin{tabular}{ll}
   \toprule
   Primitives&\texttt{nand}
@@ -668,6 +705,8 @@ Figure~\ref{circuitLearningCurve} shows our algorithm learning to build circuits
 
   \\\bottomrule
 \end{tabular}
+\caption{}\label{circuitExperimentTable}
+\end{table}
 
 \subsection{Symbolic Regression}\label{regressionSection}
 We show how to use \system to infer programs containing both discrete
