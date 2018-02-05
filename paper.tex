@@ -392,7 +392,7 @@ to accelerate the search over programs -- and (3) improving the DSL.
 The key observation here is that each of these three steps can bootstrap off each other:
 
 \begin{description}
-\item[ Searching for programs:] Our program search  is informed by both the DSL and the recognition model.
+\item[ Searching for programs:]  Our program search  is informed by both the DSL and the recognition model.
 When these improve we find better programs.
   \item[ Learning a recognition model:] The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
   \item[Improving the DSL:] We induce a DSL from the programs we have found so far which solve the tasks;
@@ -434,21 +434,51 @@ It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, w
 Its goal is to solve each of the tasks by writing a program,
 and also to infer a DSL $\mathcal{D}$.
 
-We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Figure~\ref{graphicalModel}. We wish to maximize the posterior probability of $\mathcal{D}$:
-\begin{equation*}
-  \probability[\mathcal{D}|X]\propto \probability[\mathcal{D}] \int \mathrm{d}\theta P(\theta|\mathcal{D})\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]
-\end{equation*}
-In general this marginalization over $\theta$ is intractable, so we make an AIC-style approximation\footnote{Sec.~\ref{grammarInductionSection} explains that $\mathcal{D}$ is a context-sensitive grammar.
-Conventional natural-language processing (NLP) approaches to using variational inference to lower bound the marginal over $\theta$ do not apply in our setting.}, $A\approx \log\probability[\mathcal{D}|X] $:
+We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Figure~\ref{graphicalModel}(a), finding the $\mathcal{D}^*,\theta^*$ solving:
+\begin{align}\label{intractableObjectives}
+  \nonumber\probability[X|\mathcal{D},\theta] &= \prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
+  \nonumber\probability[\mathcal{D}|X]&\propto \probability[\mathcal{D}] \int \mathrm{d}\theta P(\theta|\mathcal{D})\probability[X|\mathcal{D},\theta]\\
+  \mathcal{D}^* &= \argmax_{\mathcal{D}}\probability[\mathcal{D}|X]\\
+\nonumber  \theta^*& =\argmax_\theta P(\theta |\mathcal{D}^*)\probability[X|\mathcal{D}^*,\theta]
+\end{align}
+The above equations summarize the problem from the point of view of an ideal Bayesian learner.
+However, Eq.~\ref{intractableObjectives}
+is wildly intractable because evaluating $\probability[X|\mathcal{D},\theta]$ involves
+summing over the  infinite set of all possible programs.
+In practice we will only ever be able to sum over a finite set of programs.
+So, for each task, we define a finite set of programs, called a \emph{frontier}, and only marginalize over the frontiers:
+\\\noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
+is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
+
+With the frontiers in hand, we can define the following intuitive lower bound on the likelihood of the tasks, which we call $\mathcal{L}$:
 \begin{align}
-  A =   \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_p\probability[x|p]\probability[p|\mathcal{D},\theta]\nonumber\\
-&+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
+  \probability[X|\mathcal{D},\theta]\geq J\triangleq\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
+\end{align}
+along with a corresponding lower bound on the marginal likelihood of a DSL, which we call $$
+\begin{align}
+  \probability[\mathcal{D}|X]\geq 
   \end{align}
 
+If we had a $(\mathcal{D},\theta)$ solving Eq.~\ref{intractableObjectives}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
+Through this lens we now take as our goal to solve Eq.~\ref{intractableObjectives}.
+But even \emph{evaluating} Eq.~\ref{intractableObjectives} is intractable because it involves summing over the infinite set of all possible programs, as an ideal Bayesian learner would.
+In practice, we must instead marginalize over
+some finite set of programs.
 
-If we had a $(\mathcal{D},\theta)$ maximizing Eq.~\ref{AIC}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
-Through this lens we now take as our goal to maximize Eq.~\ref{AIC}.
-But even \emph{evaluating} Eq.~\ref{AIC} is intractable because it involves summing over the infinite set of all possible programs. In general, programs are hard-won: finding even a single program that explains a given observation presents a daunting combinatorial search problem.
+In general, programs are hard-won: finding even a single program that explains a given observation presents a daunting combinatorial search problem.
+
+Now in theory we would like to sum over the entire infinite space
+of all programs -- but this is of course impossible.
+
+%% In general this marginalization over $\theta$ is intractable, so we make an AIC-style approximation\footnote{Sec.~\ref{grammarInductionSection} explains that $\mathcal{D}$ is a context-sensitive grammar.
+%% Conventional natural-language processing (NLP) approaches to using variational inference to lower bound the marginal over $\theta$ do not apply in our setting.}, $A\approx \log\probability[\mathcal{D}|X] $:
+%% \begin{align}
+%%   A =   \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_p\probability[x|p]\probability[p|\mathcal{D},\theta]\nonumber\\
+%% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
+%%   \end{align}
+
+
+
 With this fact in mind, we will instead maximize the following tractable lower bound on Eq.~\ref{AIC},
 which we call $J$:
 \begin{equation}
@@ -456,8 +486,6 @@ J = \log \probability[\mathcal{D},\theta] + \sum_{x\in X}\log \sum_{p\in \mathca
 \end{equation}
 This lower bound depends on sets of programs, $\left\{\mathcal{F}_x \right\}_{x\in X}$:
 
-\noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
-is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
 
 We maximize $J$ by alternating maximization w.r.t. the frontiers and the DSL:
 %So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
