@@ -164,7 +164,7 @@ of artificial intelligence.  Recent work in program induction show
 that deep networks can be very successful at learning to write certain
 kinds of programs (e.g., RobustFill:~\cite{devlin2017robustfill} and
 DeepCoder:~\cite{balog2016deepcoder}), as can symbolic search
-techniques (e.g., Metagol:~\cite{muggleton2015meta} and
+techniques (e.g., Metagol:~\cite{muggleton2015meta} and 
 FlashFill:~\cite{gulwani2011automating}).
 However, the success of these approaches -- both symbolic and neural --
 relies critically upon a hand-engineered \emph{Domain Specific Language} (DSL).
@@ -291,14 +291,29 @@ scheme~\cite{le2016inference,ritchie2016deep} for the generative
 model.
 
 How should we perform inference for the model
-in~\ref{graphicalModel}(a)?  An intuitive strategy is to exploit the
+in~\ref{graphicalModel}(a)?  We take the intuitive strategy of exploiting the
 conditional independence of the programs conditioned on the DSL, and
-so to alternate between estimating the DSL ($\mathcal{D},\theta$) and
-estimating a posterior distribution over the programs by searching for
-programs written using the current DSL.  In practice searching the
+so alternate between estimating the DSL ($\mathcal{D},\theta$) and
+estimating a posterior distribution over $p$ by searching for
+programs written using $\mathcal{D}$.  In practice searching the
 space of programs is difficult, so we use the recognition model to
-learn how to efficiently search for programs in the current DSL.
+learn how to efficiently search for programs.
 
+We apply \system to four domains:
+ building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and Lisp-style functions on lists.
+ For each of these we deliberately provide an impoverished
+ set of programming primitives,
+ and show that our algorithm discovers
+ its own domain-specific vocabulary for expressing solutions in each of these domains (Table~\ref{initialExampleDSL}).
+ \begin{table}
+    \begin{tabular}{ll}
+   \toprule
+   Domain&Subset of induced DSL\\\midrule
+   \\\bottomrule
+ \end{tabular}
+   \end{table}
+
+ 
 
 
 
