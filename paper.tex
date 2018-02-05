@@ -178,9 +178,9 @@ we propose jointly inducing a representation language, called a \emph{Domain Spe
 alongside a bottom-up discriminative model that regresses from problems to solutions.
 We evaluate our algorithm on four domains:
 building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and functions on lists.
-Because we want a domain-general
-approach,
-we model solutions to tasks as
+%Because we want a domain-general
+%approach,
+We model solutions to tasks as
 programs,
 which frames our problem as one of program induction.
 
@@ -222,7 +222,8 @@ which frames our problem as one of program induction.
   \node[shift={+(0,-0.55)}] at (nn) { $q(x)$ };
 
   \end{tikzpicture}
-  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe tasks $x$, which are program inputs/outputs. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from $x$ to a distribution over programs ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
+  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe tasks $x$, which are program inputs/outputs. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from $x$ to a distribution over programs
+    ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
 
 
@@ -241,11 +242,8 @@ is important for solving these program induction problems.
 
 TODO: talk about existing works as special cases of, and points of inspiration for, \system:
 \begin{itemize}
-  \item Maximum-likelihood estimation of a PCFG \citep{DBLP:conf/icml/LiangJK10} with
-    production probabilities $\theta$, a fixed the DSL $\mathcal{D}$ and no neural network
-    $q$;
-    % although some of the Liang paper actually learns subexpressions and therefore DSL
-  \item The EC algorithm \citep{Dechter:2013:BLV:2540128.2540316} has no recognition model
+  \item Fixed DSL, no recognition model, learn parameters $\theta$ of an inductive bias over programs\citep{menon2013machine,singh2015predicting,learningToRank}
+  \item The EC algorithm and related work \citep{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14} has no recognition model
     $q$;
     % because this is a primary inspiration, might be worth further mention:
     % different program representation (routing vs. substitution; simple vs polymorphic types);
@@ -369,7 +367,7 @@ The network $q$ exploits the structure of the DSL $\mathcal{D}$:
 rather than directly predicting a distribution over $p$ conditioned on $x$,
 it predicts a weight vector, $\theta^{(x)}$, and we define $q(p|x)\triangleq \probability[p|\mathcal{D},\theta = q(x)]$.
 This approach implements an amortized
-inference scheme~\cite{ritchie2016deep} for the generative model in
+inference scheme~\cite{le2016inference,ritchie2016deep} for the generative model in
 Fig.~\ref{graphicalModel}.
 
 
