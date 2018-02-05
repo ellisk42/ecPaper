@@ -314,7 +314,8 @@ We apply \system to four domains:
       &\hspace{0.5cm} \emph{(a linear function of x)}\\
    Strings& \texttt{(join '' (split c s))}\\
    &\hspace{0.5cm} \emph{(delete occurrences of c in string s)}\\
-   Lists&
+   Lists& \texttt{(map (lambda (x) (+ x a)) l)}\\
+   &\hspace{0.5cm} \emph{(add a to every element of list l)}
    \\\bottomrule
     \end{tabular}
     \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful fragments of code.}\label{initialExampleDSL}
