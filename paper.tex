@@ -167,10 +167,9 @@ DeepCoder:~\cite{balog2016deepcoder}), as can symbolic search
 techniques (e.g., Metagol:~\cite{muggleton2015meta} and 
 FlashFill:~\cite{gulwani2011automating}).
 However, the success of these approaches -- both symbolic and neural --
-relies critically upon a hand-engineered \emph{Domain Specific Language} (DSL).
+relies crucially upon a hand-engineered \emph{Domain Specific Language} (DSL).
 The DSL is an inventory of restricted programming primitives,
-crafted by an engineer,
-which imparts domain specific knowledge about the space of programs.
+that imparts domain specific knowledge about the space of programs.
 To what extent can we dispense with hand-engineered DSLs?
 
 This work proposes \emph{learning} DSLs.
@@ -269,9 +268,9 @@ new useful programming idioms and subroutines.
 
 Our algorithm is best understood as inference in a hierarchical Bayesian model (Figure~\ref{graphicalModel}(a): black lines):
 A DSL $\mathcal{D}$, equipped with a real-valued weight vector $\theta$,
-determine a distribution over programs
+give a distribution over programs
 from which a latent program is sampled,
-which finally determines the agent's observations.
+which then determines the agent's observations.
 Our goal will be both to infer the programs that best explain our observations,
 and at the same time induce a DSL
 that distills the commonalities across all of the programs that solve the tasks.
@@ -295,9 +294,9 @@ in~\ref{graphicalModel}(a)?  We take the intuitive strategy of exploiting the
 conditional independence of the programs conditioned on the DSL, and
 so alternate between estimating the DSL ($\mathcal{D},\theta$) and
 estimating a posterior distribution over $p$ by searching for
-programs written using $\mathcal{D}$.  In practice searching the
-space of programs is difficult, so we use the recognition model to
-learn how to efficiently search for programs.
+programs written using $\mathcal{D}$.  In practice searching for
+programs is difficult, so we use the recognition model to
+learn how to search efficiently.
 
 We apply \system to four domains:
  building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and Lisp-style functions on lists.
@@ -308,10 +307,41 @@ We apply \system to four domains:
  \begin{table}
     \begin{tabular}{ll}
    \toprule
-   Domain&Subset of induced DSL\\\midrule
+   Domain&Part of the learned DSL\\\midrule
+   Circuits&\texttt{(nand (nand a a) (nand b b))}\\
+   &\hspace{0.5cm} \emph{(an OR gate)}\\
+   Regression& \texttt{(+ (* real x) real)} \\
+      &\hspace{0.5cm} \emph{(a linear function of x)}\\
+   Strings& \texttt{(join '' (split c s))}\\
+   &\hspace{0.5cm} \emph{(delete occurrences of c in string s)}\\
+   Lists&
    \\\bottomrule
- \end{tabular}
-   \end{table}
+    \end{tabular}
+    \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful fragments of code.}\label{initialExampleDSL}
+ \end{table}
+
+
+ \subsection{Related Work}
+ Our work is far from the first to learn to learn programs,
+ an  idea that goes back to Solomonoff~\cite{solomonoff1989system}:
+
+ \noindent \emph{Neural recognition models for program induction:} Much recent work in the ML community has
+ focused on engineering neural networks that regress from
+ input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. This family of work is analogous to a lesioned version of
+ \system where $(\mathcal{D},\theta)$ is held fixed and $q$ is learned.
+
+ \noindent \emph{Predicate Invention in ILP:} The Inductive Logic Programming (ILP) community
+ has long worked on the problem of inventing new primitive predicates~\cite{DBLP:conf/ecai/LinDETM14,muggleton2015meta}, which is analogous to our model with $\theta$ held fixed and $q$ ablated.
+
+ \noindent \emph{Inventing new subroutines for program induction:}
+ Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
+ and go beyond it along two dimensions: (1) we propose more sophisticated algorithms for
+ inducing reusable structure, based on a formalism called \emph{Fragment Grammars}~\cite{tim};
+ and (2) we show how to combine these techniques with bottom-up neural recognition models.
+ Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10} and Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}.
+ 
+ 
+ 
 
  
 
@@ -320,27 +350,23 @@ We apply \system to four domains:
 
 
 
-This makes our work in instance of
+Our work is an instance of
  \emph{Bayesian Program
   Learning} (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}).
- Alongside this generative model, our algorithm learns a bottom-up recognition model (Figure~\ref{graphicalModel}(b)).
- The recognition model is a neural network $q$ that regresses from programming tasks $x$
- to a distribution over programs.
 
 
-TODO: talk about existing works as special cases of, and points of inspiration for, \system:
-\begin{itemize}
-  \item Fixed DSL, no recognition model, learn parameters $\theta$ of an inductive bias over programs\citep{menon2013machine,singh2015predicting,learningToRank}
-  \item The EC algorithm and related work \citep{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14} has no recognition model
-    $q$;
-    % because this is a primary inspiration, might be worth further mention:
-    % different program representation (routing vs. substitution; simple vs polymorphic types);
-    % different grammar induction (sequitur vs. fragment grammar)
-  \item DeepCoder and RobustFill \citep{balog2016deepcoder,devlin2017robustfill} both fix the
-    DSL $\mathcal{D}$ and does not use $\theta$ in favor of solely relying on the neural
-    network $q$.
-    % although RobustFill has very different enumeration
-\end{itemize}
+%% \begin{itemize}
+%%   \item Fixed DSL, no recognition model, learn parameters $\theta$ of an inductive bias over programs\citep{menon2013machine,singh2015predicting,learningToRank}
+%%   \item The EC algorithm and related work \citep{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14} has no recognition model
+%%     $q$;
+%%     % because this is a primary inspiration, might be worth further mention:
+%%     % different program representation (routing vs. substitution; simple vs polymorphic types);
+%%     % different grammar induction (sequitur vs. fragment grammar)
+%%   \item DeepCoder and RobustFill \citep{balog2016deepcoder,devlin2017robustfill} both fix the
+%%     DSL $\mathcal{D}$ and does not use $\theta$ in favor of solely relying on the neural
+%%     network $q$.
+%%     % although RobustFill has very different enumeration
+%% \end{itemize}
 
 %% We cast these problems as \emph{Bayesian Program
 %%   Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}),
@@ -358,19 +384,19 @@ TODO: talk about existing works as special cases of, and points of inspiration f
 
 \section{The \system Algorithm}
 
-Our goal in this work is to both induce a DSL and find good programs solving each of the tasks.
+Our goal  is to induce a DSL and find good programs solving each of the tasks.
 Our strategy is to iterate through three steps: (1) searching for programs that
 solve the tasks, (2) learning a better neural recognition model -- which we use
 to accelerate the search over programs -- and (3) improving the DSL.
 The key observation here is that each of these three steps can bootstrap off each other:
 
-\begin{itemize}
-\item Searching for programs: Our program search  is informed by both the DSL and the recognition model.
+\begin{description}
+\item[ Searching for programs:] Our program search  is informed by both the DSL and the recognition model.
 When these improve we find better programs.
-  \item Learning a recognition model: The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
-  \item Improving the DSL: We induce a DSL from the programs we have found so far which solve the tasks;
+  \item[ Learning a recognition model:] The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
+  \item[Improving the DSL:] We induce a DSL from the programs we have found so far which solve the tasks;
   as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
-\end{itemize}
+\end{description}
 
 The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternating between
 learning a generative model and training a recognition model on samples from the generative model.
@@ -405,7 +431,7 @@ Section~\ref{grammarInductionSection} explains how \system induces a DSL from pr
 \system takes as input a set of \emph{tasks}, written $X$, each of which is a program induction problem.
 It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$.
 Its goal is to solve each of the tasks by writing a program,
-and also to infer a DSL $\mathcal{D}$ that distills the commonalities across all of the programs that solve the tasks.
+and also to infer a DSL $\mathcal{D}$.
 
 We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Figure~\ref{graphicalModel}. We wish to maximize the posterior probability of $\mathcal{D}$:
 \begin{equation*}
