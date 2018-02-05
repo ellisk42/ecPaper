@@ -648,37 +648,37 @@ $\probability[p|\mathcal{D},\theta = q(x)]$.
 We abbreviate this distribution as $q(p|x)$.
 The crucial aspect of this framing is that the neural network
 leverages the structure of the learned DSL,
-and so is \emph{not} responsible for
+so it is \emph{not} responsible for
 generating programs wholesale.
 
 
 
-We want a recognition model that closely approximates the true posteriors over programs, and so aim to minimize the following KL-divergence:
+We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence:
 \begin{equation*}
   \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]||q(p|x) \right) \right]
 \end{equation*}
 which is equivalent to maximizing
-$$
+\begin{equation*}
   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
-$$
-  where the expectation is taken over tasks. One could take this expectation
-  over the empirical distribution of the observations,
-  like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
-  We found it useful to maximize both an autoencoder-style objective (written $\mathcal{L}_{\text{AE}}$) and a Helmholtz-style objective ($\mathcal{L}_{\text{HM}}$), giving the \system objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
-  \begin{align}
-  \mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
-  \mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right],\text{ $p$ evaluates to $x$}\nonumber\\
-  \mathcal{L}_{\text{AE}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
-    \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p|\mathcal{D},\theta \right]}\log q(p|x)\right]\nonumber
-  \end{align}
+\end{equation*}
+where the expectation is taken over tasks. One could take this expectation
+over the empirical distribution of the observations,
+like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
+We found it useful to maximize both an autoencoder-style objective (written $\mathcal{L}_{\text{AE}}$) and a Helmholtz-style objective ($\mathcal{L}_{\text{HM}}$), giving the \system objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
+\begin{align}
+\mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
+\mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right],\text{ $p$ evaluates to $x$}\nonumber\\
+\mathcal{L}_{\text{AE}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
+  \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p|\mathcal{D},\theta \right]}\log q(p|x)\right]\nonumber
+\end{align}
 
-  Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
-  the current DSL, running them to get their outputs,
-  and then training $q$ to regress from the outputs to the program.
-  If these programs map inputs to outputs,
-  then we need some way of sampling these inputs as well.
-  Our solution to this problem is to sample the inputs
-  from the empirical observed distribution of inputs in $X$.
+Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
+the current DSL, running them to get their outputs,
+and then training $q$ to regress from the outputs to the program.
+If these programs map inputs to outputs,
+then we need some way of sampling these inputs as well.
+Our solution to this problem is to sample the inputs
+from the empirical observed distribution of inputs in $X$.
 
 \subsection{Inducing the DSL from the Frontiers}\label{grammarInductionSection}
 
@@ -706,9 +706,9 @@ programs already in the frontier.
 These extracted subexpressions
 are fragments of the original programs, and can introduce new variables (Figure~\ref{fragmentExample}),
 which then become new functions in the DSL.
-
-Closely related to Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing},
-but context-sensitive
+Our model of subexpressions is loosely related to Fragment
+Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing},
+but context-sensitive.
 
 We define a prior distribution over DSLs which penalizes the sizes of the $\lambda$-calculus expressions in the DSL, and put a Dirichlet prior over the weight vector:
 \begin{align*}
@@ -720,14 +720,12 @@ $\lambda$ is a hyperparameter that acts as a regularizer on the size of the DSL,
 and $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
 Algorithm~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
 
-Additionally, for each proposed $\mathcal{D}$ we have to reestimate $\theta$.
+To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
 Although this problem may seem 
 very similar to estimating the parameters of a probabilistic context free grammar (PCFG: see~\cite{}),
 for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
-$\mathcal{D}$
- is actually context-sensitive
-due to the presence of variables in the programs and also due to the
-polymorphic typing system.
+a DSL in \system may be context-sensitive due to the presence of variables
+in the programs and also due to the polymorphic typing system.
 In the Appendix we derive a tractable MAP estimator for $\theta$.
 \begin{algorithm}[tb]
    \caption{DSL Induction Algorithm}
@@ -773,19 +771,18 @@ In the Appendix we derive a tractable MAP estimator for $\theta$.
 
 \subsection{Implementing the \system}
 
-Algorithm~\ref{mainAlgorithm} describes how we combine the
-program search, recognition model training, and DSL induction.
-We additionally make the following implementation details:
-(1) On the first iteration we do \emph{not} train the recognition model on samples from
-the generative model because, on the first iteration, we have not yet learned a
-new DSL, so we instead trained the network to only maximize $\mathcal{L}_{\text{AE}}$;
+Algorithm~\ref{mainAlgorithm} describes how we combine program search,
+recognition model training, and DSL induction.
+We note the following implementation details:
+(1) on the first iteration, we do \emph{not} train the recognition model on samples from
+the generative model because a DSL has not yet been learned --
+we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
 (2) Because the frontiers can grow very large,
 we only keep around the top $10^4$ programs $p$ in each frontier $\mathcal{F}_x$
-with the highest $\probability[x,p|\mathcal{D},\theta]$;
+with the highest likelihood $\probability[x,p|\mathcal{D},\theta]$.
 (3) During both DSL induction and neural net training, we calculate $\text{score}(\mathcal{D}')$ and $\mathcal{L}_{\text{RM}}$
 by only summing over the top $K$
-programs in $\mathcal{F}_x$.
-We found that $K = 2$ sufficed.
+programs in $\mathcal{F}_x$ -- we found that $K = 2$ sufficed.
 (4) For added robustness, at each iteration we enumerate programs from both the generative model and the recognition model.
 
 \begin{algorithm}[tb]
