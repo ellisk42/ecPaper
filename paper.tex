@@ -159,46 +159,81 @@ Gross violations will trigger corrections at the camera-ready phase.
 
 \section{Introduction}
 
-Imagine an agent faced with a new domain of unfamiliar tasks: think
-playing new kinds of videogames, authoring Python code, or navigating
-through mazes.  Our agent has at its disposal a basis of primitive
-actions it can compose to propose solutions to these tasks, but it is
-no idea what kinds of primitives are appropriate for which tasks
-nor does it know the higher-level vocabulary in which solutions are
-best expressed.  How can our agent learn to solve problems in this new
-domain?
+Automatically inducing programs from examples is a long-standing goal
+of artificial intelligence.  Recent work in program induction show
+that deep networks can be very successful at learning to write certain
+kinds of programs (e.g., RobustFill:~\cite{devlin2017robustfill} and
+DeepCoder:~\cite{balog2016deepcoder}), as can symbolic search
+techniques (e.g., Metagol:~\cite{muggleton2015meta} and
+FlashFill:~\cite{gulwani2011automating}).
+However, the success of these approaches -- both symbolic and neural --
+relies critically upon a hand-engineered \emph{Domain Specific Language} (DSL).
+The DSL is an inventory of restricted programming primitives,
+crafted by an engineer,
+which imparts domain specific knowledge about the space of programs.
+To what extent can we dispense with hand-engineered DSLs?
+
+This work proposes \emph{learning} DSLs.
+We consider the problem of solving many related program induction tasks,
+starting with a Lisp-like representation.
+We introduce an algorithm, called the \system,
+which creates its own DSL by discovering and then reusing
+new useful programming idioms and subroutines.
 
 
-The AI and machine learning literature contains two broad takes on this problem.
-The first take is that the agent should come up with a better representation of the space of solutions,
-for example, by inventing new primitive actions: see \emph{options} in reinforcement learning~\cite{stolle2002learning}, the EC algorithm in program synthesis~\cite{Dechter:2013:BLV:2540128.2540316}, or predicate invention in inductive logic programming~\cite{muggleton2015meta}.
-The second take is that the agent should learn a discriminative model mapping problems to a distribution over solutions: for example, policy gradient methods in reinforcement learning or neural models of program synthesis~\cite{devlin2017robustfill,balog2016deepcoder}.
-Our contribution is a general algorithm for fusing these two takes on the problem:
-we propose jointly inducing a representation language, called a \emph{Domain Specific Language} (DSL),
-alongside a bottom-up discriminative model that regresses from problems to solutions.
-We evaluate our algorithm on four domains:
-building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and functions on lists.
-%Because we want a domain-general
-%approach,
-We model solutions to tasks as
-programs,
-which frames our problem as one of program induction.
+
+
+
+%% Imagine an agent faced with a new domain of unfamiliar tasks: think
+%% playing new kinds of videogames, authoring Python code, or navigating
+%% through mazes.  Our agent has at its disposal a basis of primitive
+%% actions it can compose to propose solutions to these tasks, but it is
+%% no idea what kinds of primitives are appropriate for which tasks
+%% nor does it know the higher-level vocabulary in which solutions are
+%% best expressed.  How can our agent learn to solve problems in this new
+%% domain?
+
+
+%% The AI and machine learning literature contains two broad takes on this problem.
+%% The first take is that the agent should come up with a better representation of the space of solutions,
+%% for example, by inventing new primitive actions: see \emph{options} in reinforcement learning~\cite{stolle2002learning}, the EC algorithm in program synthesis~\cite{Dechter:2013:BLV:2540128.2540316}, or predicate invention in inductive logic programming~\cite{muggleton2015meta}.
+%% The second take is that the agent should learn a discriminative model mapping problems to a distribution over solutions: for example, policy gradient methods in reinforcement learning or neural models of program synthesis~\cite{devlin2017robustfill,balog2016deepcoder}.
+%% Our contribution is a general algorithm for fusing these two takes on the problem:
+%% we propose jointly inducing a representation language, called a \emph{Domain Specific Language} (DSL),
+%% alongside a bottom-up discriminative model that regresses from problems to solutions.
+%% We evaluate our algorithm on four domains:
+%% building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and functions on lists.
+%% %Because we want a domain-general
+%% %approach,
+%% We model solutions to tasks as
+%% programs,
+%% which frames our problem as one of program induction.
 
 \begin{figure}
   \centering
 
   \begin{tikzpicture}
 
-  \node[latent] at (1,3) (d){$\mathcal{D}$};
-  \node[latent] at (2.5,3) (t){$\theta$};
-  \node[latent] at (1,1.5) (z){$p$};
-  \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
-  \node[obs] at (1,-0.5) (x) {$x$};
+  \node[latent] at (0.5,3) (d){$\mathcal{D}$};
+  \node[latent] at (1.5,3) (t){$\theta$};
+  \node[latent] at (1,1.75) (z){$p$};
+%  \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
+  \node[obs] at (1,0) (x) {$x$};
   \edge {z}{x};
   \edge {d,t}{z};
-  \plate {}{(tx)(z)(x)}{$x\in X$};
-  \draw [->,dashed] (x.east) to[out = 0,in = -90] node(nn){} (tx.south);
-  \draw [->,dashed] (tx.west) -- (z.east);
+  \plate {}{(z)(x)}{$x\in X$};
+  \node[align = center] at ([yshift = -1.3cm]x.south) {(a) \\generative \\model};
+
+  \begin{scope}[shift = {(-1,0)}]  
+  \node[latent] at (3.5,3) (dx){$\mathcal{D}$};
+  \node[latent] at (3.5,1.75) (zp){$p$};
+  \node[latent] at (5.5,1.75) (tx){$\theta^{(x)}$};
+  \node[obs] at (3.5,0) (xp) {$x$};
+  \plate {}{(zp)(xp)(tx)}{$x\in X$};
+  \node[align = center] at ([yshift = -1.2cm,xshift = 1cm]xp.south) {(b) \\recognition model};
+  \draw [->,red] (xp.east) to[out = 0,in = -90] node(nn){} (tx.south);
+  \draw [->,red] (tx.west) -- (zp.east);
+  \draw [->,red] (dx.south) -- (zp.north);
 
   \node at (nn) {
     \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
@@ -221,24 +256,62 @@ which frames our problem as one of program induction.
   };
   \node[shift={+(0,-0.55)}] at (nn) { $q(x)$ };
 
+  \end{scope}
+
+  
+
+
   \end{tikzpicture}
-  \caption{DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). We observe tasks $x$, which are program inputs/outputs. A neural network $q(\cdot )$ called the \emph{recognition model} regresses from $x$ to a distribution over programs
-    ($\theta^{(x)} = q(x)$). Solid arrows correspond to the top-down generative model. Dashed arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
+  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). Observe tasks $x$ (program inputs/outputs). (b)  neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to a distribution over programs
+    ($\theta^{(x)} = q(x)$). Black arrows correspond to the top-down generative model. Red arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
 
 
-Our algorithm is best understood as inference in a hierarchical Bayesian model (Figure~\ref{graphicalModel}: solid lines):
-A DSL $\mathcal{D}$
-determines a distribution with production probabilities $\theta$,
-from which a latent program $p$ is sampled,
-which finally determines the agent's observations, $x$.
+Our algorithm is best understood as inference in a hierarchical Bayesian model (Figure~\ref{graphicalModel}(a): black lines):
+A DSL $\mathcal{D}$, equipped with a real-valued weight vector $\theta$,
+determine a distribution over programs
+from which a latent program is sampled,
+which finally determines the agent's observations.
+Our goal will be both to infer the programs that best explain our observations,
+and at the same time induce a DSL
+that distills the commonalities across all of the programs that solve the tasks.
+Inducing the DSL means learning the symbolic structure of a latent programming language,
+and so we are confronted with two distinct structure learning problems:
+the structure of the programs and the structure of the DSL.
+
+Inference in the generative model in Figure~\ref{graphicalModel}(a) is
+difficult because of the vastness of the combinatorial space of all
+programs. To make inference tractable our model learns a bottom-up
+\emph{recognition model} alongside the top-down generative model
+(Figure~\ref{graphicalModel}b).  The recognition model $q$ is a neural
+network that regresses from observations to a distribution over
+programs.  The neural network $q$ implements an amortized
+inference/compiled inference
+scheme~\cite{le2016inference,ritchie2016deep} for the generative
+model.
+
+How should we perform inference for the model
+in~\ref{graphicalModel}(a)?  An intuitive strategy is to exploit the
+conditional independence of the programs conditioned on the DSL, and
+so to alternate between estimating the DSL ($\mathcal{D},\theta$) and
+estimating a posterior distribution over the programs by searching for
+programs written using the current DSL.  In practice searching the
+space of programs is difficult, so we use the recognition model to
+learn how to efficiently search for programs in the current DSL.
+
+
+
+
+
+
+
 This makes our work in instance of
  \emph{Bayesian Program
   Learning} (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}).
-In tandem we learn a neural network $q$ that regresses from observations to
-programs by proposing a distribution over programs $\theta^{(x)} = q(x)$.
-We will show that the interaction of the generative and recognition models
-is important for solving these program induction problems.
+ Alongside this generative model, our algorithm learns a bottom-up recognition model (Figure~\ref{graphicalModel}(b)).
+ The recognition model is a neural network $q$ that regresses from programming tasks $x$
+ to a distribution over programs.
+
 
 TODO: talk about existing works as special cases of, and points of inspiration for, \system:
 \begin{itemize}
