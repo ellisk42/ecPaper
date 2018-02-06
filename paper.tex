@@ -936,14 +936,27 @@ along with input/output examples (Figure~\ref{exampleTextProblem}).
 \begin{table}
   
   \centering
-  \begin{tabular}{l}
-  \toprule
+  \begin{tabular}{c}
+    String editing primitives\\
+    \begin{tabular}{l}
+    \toprule
     \texttt{0}, \texttt{+1},\texttt{-1}\\
     \texttt{split}, \texttt{join}, \texttt{map}, \texttt{length}, \texttt{slice}\\
     \texttt{append}, \texttt{chr->str}, \texttt{trim}, \texttt{index}\\
     \texttt{lowercase}, \texttt{uppercase}, \texttt{capitalize}\\
     \texttt{""},    \texttt{","},     \texttt{" "},    \texttt{"<"}, \texttt{">"}  
   \\\bottomrule
+    \end{tabular}\\
+\\    Subset of learned DSL\\
+    \begin{tabular}{l}
+      \toprule
+      $f_0 = $\texttt{(+ (chr->str c))}\\
+      $f_1($\texttt{i,c,s}$) = $      \texttt{(+ (nth i (split c s)) (chr->str s))}\\
+      $f_2($\texttt{s,c}$) = $\texttt{(}$f_0$\texttt{ c) s (}$f_1$\texttt{ c s (1+ 0))} (\emph{Extracts substring delimited by character})
+    %% $f_0($\texttt{i,c,s}$) = $    \texttt{(+ (index i (split c s)) (chr->str c))}\\
+    %% $f_1 = $\texttt{(join "")}
+  \\\bottomrule
+    \end{tabular}
   \end{tabular}
   \caption{Initial set of primitives provided to the system for learning string editing programs}\label{textPrimitives}
   \end{table}
