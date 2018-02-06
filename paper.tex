@@ -92,7 +92,7 @@
 \begin{document}
 
 \twocolumn[
-\icmltitle{Inducing Domain Specific Languages for Bayesian Program Learning}
+\icmltitle{\system: Bootstrapping Domain Specific Languages for Neurally-Guided Bayesian Program Learning}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -900,7 +900,7 @@ Examining the programs themselves,
 one finds that the algorithm discovers representations for each of the polynomials that minimizes the number of continuous degrees of freedom:
 for example, it represents the linear function $-x+2$ with the program 
 \texttt{(* (* (+ x }$\mathcal{R}$\texttt{) }$\mathcal{R}$\texttt{) x)}, which has two continuous degrees of freedom -- while representing quartic functions using the invented DSL primitive $f_6$ in Table~\ref{regressionDSL}.
-This falls out of our Bayesian treatment of the program learning problem -- both the bias towards shorter programs (more likely under $\mathcal{D},\theta$) and the likelihood's model BIC penalty.
+This falls out of our Bayesian treatment of the program learning problem -- both the bias towards shorter programs (more likely under $\mathcal{D},\theta$) and the likelihood model's BIC penalty.
 \begin{table}
 \begin{tabular}{l}
   \toprule
