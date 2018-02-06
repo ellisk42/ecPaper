@@ -152,9 +152,7 @@
 \printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
 \begin{abstract}
-This document provides a basic paper template and submission guidelines.
-Abstracts must be a single paragraph, ideally between 4--6 sentences long.
-Gross violations will trigger corrections at the camera-ready phase.
+
 \end{abstract}
 
 \section{Introduction}
@@ -268,20 +266,21 @@ new useful programming idioms and subroutines.
 
 Our algorithm is best understood as inference in a hierarchical Bayesian model (Figure~\ref{graphicalModel}(a): black lines):
 A DSL $\mathcal{D}$, equipped with a real-valued weight vector $\theta$,
-give a distribution over programs
-from which a latent program is sampled,
-which then determines the agent's observations.
+defines a distribution over programs.
+A program is sampled from $(\mathcal{D},\theta)$,
+and then the program is executed to determines the agent's observations.
 Our goal will be both to infer the programs that best explain our observations,
 and at the same time induce a DSL
 that distills the commonalities across all of the programs that solve the tasks.
-Inducing the DSL means learning the symbolic structure of a latent programming language,
-and so we are confronted with two distinct structure learning problems:
-the structure of the programs and the structure of the DSL.
+%% Inducing the DSL means learning the symbolic structure of a latent programming language,
+%% and so we are confronted with two distinct structure learning problems:
+%% the structure of the programs and the structure of the DSL.
 
 Inference in the generative model in Figure~\ref{graphicalModel}(a) is
-difficult because of the vastness of the combinatorial space of all
-programs. To make inference tractable our model learns a bottom-up
-\emph{recognition model} alongside the top-down generative model
+difficult because the programs are unobserved, and so we must solve a
+difficult search problem to find any programs at all. To make
+inference tractable our model learns a bottom-up \emph{recognition
+  model} alongside the top-down generative model
 (Figure~\ref{graphicalModel}b).  The recognition model $q$ is a neural
 network that regresses from observations to a distribution over
 programs.  The neural network $q$ implements an amortized
@@ -643,7 +642,10 @@ The crucial aspect of this framing is that the neural network
 leverages the structure of the learned DSL,
 so it is \emph{not} responsible for
 generating programs wholesale.
-
+This taps into the intuition that programming is primarily a top-down activity:
+as human programmers, we first decide what kind of
+programming constructs we might need to use,
+and then we figure out how to assemble them in to the desired program.
 
 
 We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence:
@@ -673,7 +675,10 @@ then we need some way of sampling these inputs as well.
 Our solution to this problem is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
 
-  
+The neural architecture of $q$ depends upon the domain;
+for domains with sequential structure like strings and lists,
+we use an RNN,
+and for domains with a fixed-dimensionality inputs/outputs we use a multilayer perceptron.
 
 \subsection{Inducing the DSL from the Frontiers}\label{grammarInductionSection}
 
@@ -689,11 +694,15 @@ but also so that the DSL might expose new abstractions
 which will later be used to
 discover even better programs.
 
-Exact maximization of $\lowerBound$ (Eq.\ref{lowerBound}) w.r.t. $(\mathcal{D},\theta)$
-is intractable,
-so we take a more heuristic approach.
-The strategy is to search locally through the space of DSLs,
-proposing small local changes to $\mathcal{D}$ until $\lowerBound$ fails to increase.
+Recall from Section~\ref{mathematicalFraming} that we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$.
+We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
+\begin{align}
+\nonumber  \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\\
+&+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
+  \end{align}
+
+We induce a DSL by searching locally through the space of DSLs,
+proposing small local changes to $\mathcal{D}$ until Eq.~\ref{AIC} fails to increase.
 The search moves work by introducing new
 $\lambda$-expressions into the DSL.
 We propose these new expressions by extracting subexpressions from
@@ -701,15 +710,10 @@ programs already in the frontier.
 These extracted subexpressions
 are fragments of the original programs, and can introduce new variables (Figure~\ref{fragmentExample}),
 which then become new functions in the DSL.
-
-%% Our model of subexpressions is loosely related to Fragment
-%% Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing},
-%% but context-sensitive.
-
-
 The idea of storing and reusing
 fragments of expressions comes from Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing}.
-Somehow I need to clarify that this is not like an adapter grammar, and that previous work has done adapter grammar like things... In fact this might be a baseline, because with the right parameter settings our algorithm can revert to an adapter grammar like phase.
+
+
 
 We define a prior distribution over DSLs which penalizes the sizes of the $\lambda$-calculus expressions in the DSL, and put a Dirichlet prior over the weight vector:
 \begin{align*}
@@ -749,16 +753,16 @@ In the Appendix we derive a tractable MAP estimator for $\theta$.
 \end{algorithm}
 
 \begin{figure*}
-  \begin{tabular}{lll}
+\centering  \begin{tabular}{lll}
     \toprule
     Domain&Example programs in frontiers&Example proposed subexpression\\\midrule
-    Boolean circuits&
+    Circuits&
     \begin{tabular}{l}
       \texttt{(lambda x (nand x x))}\\
       \texttt{(lambda x (lambda y (nand x (nand y y))}
     \end{tabular}&
     \texttt{(nand z z)}\\\midrule
-    String editing&
+    Strings&
     \begin{tabular}{l}
       \texttt{(lambda s (+ ',' (index 0 (split ',' s))))}\\
       \texttt{(lambda s (index 0 (split ' ' s)))}
@@ -766,7 +770,7 @@ In the Appendix we derive a tractable MAP estimator for $\theta$.
     \texttt{(index 0 (split z s))}\\\bottomrule
   \end{tabular}
   \caption{The DSL induction algorithm works by proposing subexpressions of programs to add to the DSL.
-    These subexpressions are taken from programs in the frontiers (middle column), and can introduce new variables (\texttt{z} in the right column).}
+    These subexpressions are taken from programs in the frontiers (middle column), and can introduce new variables (\texttt{z} and \texttt{s} in the right column).}
   \label{fragmentExample}
 \end{figure*}
 
@@ -796,11 +800,11 @@ programs in $\mathcal{F}_x$ -- we found that $K = 2$ sufficed.
      \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
      \FOR{$i=1$ {\bfseries to} $I$}
 %     \FOR{$x:\tau\in X$}
-     \STATE  $\mathcal{F}^{(\theta)}_x\gets \{z| z\in \text{enumerate}(\mathcal{D},\theta,F)\text{ if }\probability[x|z] > 0\}$
+     \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enumerate}(\mathcal{D},\theta,F)\text{ if }\probability[x|p] > 0\}$
  %    \ENDFOR
-     \STATE $q_i\gets \text{train recognition model to maximize }\mathcal{L}_{\text{RM}}$
-     \STATE  $\mathcal{F}^{(q)}_x\gets\{z|z\in \text{enumerate}(\mathcal{D},q(x),F)\text{ if }\probability[x|z] > 0\}$
-     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{(\theta)}_x\cup\mathcal{F}^{(q)}_x\}_{x\in X})$
+     \STATE $q(\cdot )\gets \text{train recognition model to maximize }\mathcal{L}_{\text{RM}}$
+     \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enumerate}(\mathcal{D},q(x),F)\text{ if }\probability[x|p] > 0\}$
+     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$
      %% \STATE Define $Q_x(z) \propto \begin{cases}
      %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
      %%   0&x\not \in \mathcal{F}_x
@@ -814,15 +818,16 @@ programs in $\mathcal{F}_x$ -- we found that $K = 2$ sufficed.
 \section{Experiments}
 
 \subsection{Boolean circuits}
-As a toy warm-up domain, we consider the problem of learning
+As a toy domain, we consider the problem of learning
 to build the Boolean circuits out of logic gates.
 Now, if we equipped our agent with a full repertoire of
 circuit primitives -- XOR gates, multiplexers, etc. -- this problem would be easy,
 and we could use sophisticated symbolic search algorithms like SMT solvers to synthesize circuits.
 Instead, we gave \system only a NAND gate,
 and tasked it with building a set of 500 random circuits made out of
-AND, NOT, and OR gates.
-This experimental setup was introduced in the original EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
+AND, NOT, and OR gates,
+as well as 2 or 4 input multiplexers.
+This experimental setup is an extension of one introduced in the original EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
 For this domain our recognition model is a simple multilayer perceptron
 whose inputs are the input/output examples.
 Figure~\ref{circuitLearningCurve} shows our algorithm learning to build circuits; Table~\ref{circuitExperimentTable} 
@@ -833,24 +838,7 @@ Figure~\ref{circuitLearningCurve} shows our algorithm learning to build circuits
   \caption{\system learning to build Boolean circuits. We start out with only NAND gates and learn DSL that contains ...}\label{circuitLearningCurve}
 \end{figure}
 
-\begin{table}
-\begin{tabular}{ll}
-  \toprule
-  Primitives&\texttt{nand}
-  
-\\\midrule
-  Observation $x$& $N$ input/output examples: $\left\{(i_n,o_n) \right\}_{n\leq N}$\\
-  \midrule
-  Likelihood $\probability[x|p]$& $\prod_n \indicator[p(i_n) = o_n]$
-  \\\midrule
-  \begin{tabular}{l}
-    Subset of \\Learned DSL
-    \end{tabular}&
 
-  \\\bottomrule
-\end{tabular}
-\caption{}\label{circuitExperimentTable}
-\end{table}
 
 \subsection{Symbolic Regression}\label{regressionSection}
 We show how to use \system to infer programs containing both discrete
@@ -912,7 +900,7 @@ This falls out of our Bayesian treatment of the program learning problem -- both
   $f_6($\texttt{x}$) = $\texttt{(}$f_0$\texttt{ (}$f_4$\texttt{ x))} (\emph{4th order polynomial})
   \\\bottomrule
 \end{tabular}
-\caption{Some induced DSL primitives for symbolic regression. System starts out with addition, multiplication, and real numbers, and learns functions for building 4-th order polynomials.}\label{regressionDSL}
+\caption{Some induced DSL primitives for symbolic regression. System starts out with addition, multiplication, and real numbers, and learns functions for building 4th order polynomials.}\label{regressionDSL}
 \end{table}
 
 \begin{figure}\centering
@@ -920,28 +908,20 @@ This falls out of our Bayesian treatment of the program learning problem -- both
   \caption{DSL learning curve for symbolic regression.}\label{regressionLearningCurve}
 \end{figure}
 \subsection{String editing}\label{textSection}
-
-\begin{tabular}{ll}
+\begin{table}
+  
+  \centering
+  \begin{tabular}{l}
   \toprule
-  Primitives&\begin{tabular}{l}
     \texttt{0}, \texttt{+1},\texttt{-1}\\
     \texttt{split}, \texttt{join}, \texttt{map}, \texttt{length}, \texttt{slice}\\
-    \texttt{append}, \texttt{chr->str}\\
+    \texttt{append}, \texttt{chr->str}, \texttt{trim}\\
     \texttt{lowercase}, \texttt{uppercase}, \texttt{capitalize}\\
-    \texttt{""},    \texttt{","},     \texttt{" "},    \texttt{"<"}, \texttt{">"}
-    \end{tabular}
-  
-\\\midrule
-  Observation $x$& $N$ input/output examples: $\left\{(i_n,o_n) \right\}_{n\leq N}$\\
-  \midrule
-  Likelihood $\probability[x|p]$& $\prod_n \indicator[p(i_n) = o_n]$
-  \\\midrule
-  \begin{tabular}{l}
-    Subset of \\Learned DSL
-    \end{tabular}&
-
+    \texttt{""},    \texttt{","},     \texttt{" "},    \texttt{"<"}, \texttt{">"}  
   \\\bottomrule
   \end{tabular}
+  \caption{Initial set of primitives provided to the system for learning string editing programs}
+  \end{table}
 \begin{figure}
 
   \includegraphics[width = 9cm]{figures/text.png}
