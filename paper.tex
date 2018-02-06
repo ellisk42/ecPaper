@@ -19,7 +19,7 @@
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
 \newcommand{\system}{\textsc{HelmholtzHacker}~}
-
+\newcommand{\lowerBound}{\mathscr{L}}
 % Use the following line for the initial blind version submitted for review:
 \usepackage{icml2018}
 
@@ -30,7 +30,7 @@
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
-
+\usepackage{mathrsfs}
 \usepackage{listings}
 \usepackage{amsthm}
 % use Times
@@ -434,41 +434,36 @@ It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, w
 Its goal is to solve each of the tasks by writing a program,
 and also to infer a DSL $\mathcal{D}$.
 
-We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Figure~\ref{graphicalModel}(a), finding the $\mathcal{D}^*,\theta^*$ solving:
+We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Figure~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$, we want the $\mathcal{D}^*,\theta^*$ solving:
 \begin{align}\label{intractableObjectives}
-  \nonumber\probability[X|\mathcal{D},\theta] &= \prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
-  \nonumber\probability[\mathcal{D}|X]&\propto \probability[\mathcal{D}] \int \mathrm{d}\theta P(\theta|\mathcal{D})\probability[X|\mathcal{D},\theta]\\
-  \mathcal{D}^* &= \argmax_{\mathcal{D}}\probability[\mathcal{D}|X]\\
-\nonumber  \theta^*& =\argmax_\theta P(\theta |\mathcal{D}^*)\probability[X|\mathcal{D}^*,\theta]
+\nonumber  J(\mathcal{D},\theta)&\triangleq \probability[\mathcal{D}]P(\theta)\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
+  \mathcal{D}^* &= \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta \\
+\nonumber  \theta^*& =\argmax_\theta J(\mathcal{D}^*,\theta)
 \end{align}
 The above equations summarize the problem from the point of view of an ideal Bayesian learner.
 However, Eq.~\ref{intractableObjectives}
-is wildly intractable because evaluating $\probability[X|\mathcal{D},\theta]$ involves
+is wildly intractable because evaluating $J(\mathcal{D},\theta)$ involves
 summing over the  infinite set of all possible programs.
 In practice we will only ever be able to sum over a finite set of programs.
 So, for each task, we define a finite set of programs, called a \emph{frontier}, and only marginalize over the frontiers:
 \\\noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
 is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
 
-With the frontiers in hand, we can define the following intuitive lower bound on the likelihood of the tasks, which we call $\mathcal{L}$:
+Using the frontiers we  define the following intuitive lower bound on the joint probability, which we call $\lowerBound$:
 \begin{align}
-  \probability[X|\mathcal{D},\theta]\geq J\triangleq\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
+ J\geq \lowerBound\triangleq\probability[\mathcal{D}]P(\theta)\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
 \end{align}
-along with a corresponding lower bound on the marginal likelihood of a DSL, which we call $$
-\begin{align}
-  \probability[\mathcal{D}|X]\geq 
-  \end{align}
 
-If we had a $(\mathcal{D},\theta)$ solving Eq.~\ref{intractableObjectives}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
-Through this lens we now take as our goal to solve Eq.~\ref{intractableObjectives}.
-But even \emph{evaluating} Eq.~\ref{intractableObjectives} is intractable because it involves summing over the infinite set of all possible programs, as an ideal Bayesian learner would.
-In practice, we must instead marginalize over
-some finite set of programs.
+%% If we had a $(\mathcal{D},\theta)$ solving Eq.~\ref{intractableObjectives}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
+%% Through this lens we now take as our goal to solve Eq.~\ref{intractableObjectives}.
+%% But even \emph{evaluating} Eq.~\ref{intractableObjectives} is intractable because it involves summing over the infinite set of all possible programs, as an ideal Bayesian learner would.
+%% In practice, we must instead marginalize over
+%% some finite set of programs.
 
-In general, programs are hard-won: finding even a single program that explains a given observation presents a daunting combinatorial search problem.
+%% In general, programs are hard-won: finding even a single program that explains a given observation presents a daunting combinatorial search problem.
 
-Now in theory we would like to sum over the entire infinite space
-of all programs -- but this is of course impossible.
+%% Now in theory we would like to sum over the entire infinite space
+%% of all programs -- but this is of course impossible.
 
 %% In general this marginalization over $\theta$ is intractable, so we make an AIC-style approximation\footnote{Sec.~\ref{grammarInductionSection} explains that $\mathcal{D}$ is a context-sensitive grammar.
 %% Conventional natural-language processing (NLP) approaches to using variational inference to lower bound the marginal over $\theta$ do not apply in our setting.}, $A\approx \log\probability[\mathcal{D}|X] $:
@@ -476,42 +471,40 @@ of all programs -- but this is of course impossible.
 %%   A =   \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_p\probability[x|p]\probability[p|\mathcal{D},\theta]\nonumber\\
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
-
-
-
-With this fact in mind, we will instead maximize the following tractable lower bound on Eq.~\ref{AIC},
-which we call $J$:
-\begin{equation}
-J = \log \probability[\mathcal{D},\theta] + \sum_{x\in X}\log \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]\label{lowerBound}
-\end{equation}
-This lower bound depends on sets of programs, $\left\{\mathcal{F}_x \right\}_{x\in X}$:
-
-
-We maximize $J$ by alternating maximization w.r.t. the frontiers and the DSL:
+Mechanistically, \system does approximate MAP inference in the generative model of Figure~\ref{graphicalModel}(a) by maximizing this lower bound on the joint probability.
+We maximize $\lowerBound$ by alternatingly maximizing w.r.t. the frontiers and the DSL:
 %So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
 %explains how \system synthesizes new programs and given a DSL.
-\\\noindent \textbf{Program Search: Maxing $J$ w.r.t. the frontiers.} Here we
-want to find new programs to add to  the frontiers so that $J$ increases the most.
+\\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
+want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
 Adding new programs to the frontiers means searching for new programs $p$ for task $x$
 where $\probability[x,p|\mathcal{D},\theta]$ is large.
-\\\noindent \textbf{DSL Induction: Maxing $J$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed so we can evaluate $J$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $J$.
+\\\noindent \textbf{DSL Induction: Maxing $\int \lowerBound\;\mathrm{d}\theta$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound\;\mathrm{d}\theta$.
+Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\})$. 
+
 
 Searching for programs is extremely difficult because
 of the large search space. We ease this difficulty by learning a neural recognition model:
 
-\textbf{Neural recognition model: tractably maxing $J$ w.r.t. the
+\textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
   frontiers.}  Here we train a neural network, $q$, to predict a
 distribution over programs conditioned on a task. The objective of $q$
 is to assign high probability to programs $p$ where
 $\probability[x,p|\mathcal{D},\theta]$ is large.  With $q$ in hand we can find programs for
-the frontier of a task $\mathcal{F}_x$ by searching for programs that maximize
+the frontier $\mathcal{F}_x$ by searching for programs that maximize
 $q(p|x)$.
 The network $q$ exploits the structure of the DSL $\mathcal{D}$:
 rather than directly predicting a distribution over $p$ conditioned on $x$,
 it predicts a weight vector, $\theta^{(x)}$, and we define $q(p|x)\triangleq \probability[p|\mathcal{D},\theta = q(x)]$.
-This approach implements an amortized
-inference scheme~\cite{le2016inference,ritchie2016deep} for the generative model in
-Figure~\ref{graphicalModel}.
+%% This approach implements an amortized
+%% inference scheme~\cite{le2016inference,ritchie2016deep} for the generative model in
+%% Figure~\ref{graphicalModel}.
+
+Our lower bound $\lowerBound$ is unconventional,
+and one might wonder why we do not instead maximize an ELBO-style bound like in a VAE or in the EM algorithm.
+For the interested reader, we explain in the supplement that maximizing an ELBO-style bound
+leads to a pathological behavior that would cause the algorithm to easily become trapped in local optima.
+
 
 
 
@@ -549,7 +542,7 @@ We say a type $\alpha$ \emph{unifies} with $\tau$ if every expression
 $p:\alpha$ also satisfies $p:\tau$. Furthermore, the act of \emph{unifying}
 a type $\alpha$ with $\tau$ is to introduce constraints on the type
 variables of $\alpha$ to ensure that $\alpha$ unifies with $\tau$.
-See Section~\ref{programrepresentation} for more detail on program representation.
+See Supplement for more detail on program representation.
 With this notation in hand we can now define DSLs:
 
 \noindent\textbf{Definition.}
@@ -680,6 +673,8 @@ then we need some way of sampling these inputs as well.
 Our solution to this problem is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
 
+  
+
 \subsection{Inducing the DSL from the Frontiers}\label{grammarInductionSection}
 
 The purpose of the DSL is to
@@ -694,11 +689,11 @@ but also so that the DSL might expose new abstractions
 which will later be used to
 discover even better programs.
 
-Exact maximization of $J$ (Eq.\ref{lowerBound}) w.r.t. $(\mathcal{D},\theta)$
+Exact maximization of $\lowerBound$ (Eq.\ref{lowerBound}) w.r.t. $(\mathcal{D},\theta)$
 is intractable,
 so we take a more heuristic approach.
 The strategy is to search locally through the space of DSLs,
-proposing small local changes to $\mathcal{D}$ until $J$ fails to increase.
+proposing small local changes to $\mathcal{D}$ until $\lowerBound$ fails to increase.
 The search moves work by introducing new
 $\lambda$-expressions into the DSL.
 We propose these new expressions by extracting subexpressions from
@@ -706,13 +701,19 @@ programs already in the frontier.
 These extracted subexpressions
 are fragments of the original programs, and can introduce new variables (Figure~\ref{fragmentExample}),
 which then become new functions in the DSL.
-Our model of subexpressions is loosely related to Fragment
-Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing},
-but context-sensitive.
+
+%% Our model of subexpressions is loosely related to Fragment
+%% Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing},
+%% but context-sensitive.
+
+
+The idea of storing and reusing
+fragments of expressions comes from Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing}.
+Somehow I need to clarify that this is not like an adapter grammar, and that previous work has done adapter grammar like things... In fact this might be a baseline, because with the right parameter settings our algorithm can revert to an adapter grammar like phase.
 
 We define a prior distribution over DSLs which penalizes the sizes of the $\lambda$-calculus expressions in the DSL, and put a Dirichlet prior over the weight vector:
 \begin{align*}
-  \probability[\mathcal{D}]&\propto\exp\left(\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)\\
+  \probability[\mathcal{D}]&\propto\exp\left(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)\\
   P(\theta|\mathcal{D})& = \text{Dir}(\theta|\alpha)
 \end{align*}
 where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
