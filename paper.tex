@@ -13,7 +13,7 @@
 % If your build breaks (sometimes temporarily if a hyperlink spans a page)
 % please comment out the following usepackage line and replace
 % \usepackage{icml2018} with \usepackage[nohyperref]{icml2018} above.
-\usepackage{hyperref}
+%\usepackage{hyperref}
 
 % Attempt to make hyperref and algorithmic work together better:
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
@@ -21,10 +21,10 @@
 \newcommand{\system}{\textsc{DreamHacker}~}
 \newcommand{\lowerBound}{\mathscr{L}}
 % Use the following line for the initial blind version submitted for review:
-\usepackage{icml2018}
+\usepackage[nohyperref]{icml2018}
 
 
-\usepackage{hyperref}       % hyperlinks
+%\usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
@@ -66,7 +66,7 @@
 %\usetikzlibrary{decorations.pathmorphing}
 \usepackage{dsfont}
 \usepackage{amsmath}
-\usepackage{hyperref}
+
 \DeclareMathOperator*{\argmin}{arg\,min} % thin space, limits underneath in displays
 \DeclareMathOperator*{\argmax}{arg\,max} % thin space, limits underneath in displays
  
@@ -292,9 +292,9 @@ Figure~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarch
 %% the structure of the programs and the structure of the DSL.
 
 Inference in the generative model in Figure~\ref{graphicalModel}(a) is
-complicated by the fact that the programs are unobserved latent variables,
+complicated by the fact that the programs are unobserved,
 and so we must solve a difficult search problem to find any programs at all. To make
-inference tractable our model learns a bottom-up \emph{recognition
+search tractable we learn a bottom-up \emph{recognition
   model} alongside the top-down generative model
 (Figure~\ref{graphicalModel}b).  The recognition model $q$ is a neural
 network that regresses from input/output pairs to a distribution over
