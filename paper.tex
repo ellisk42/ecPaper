@@ -854,57 +854,70 @@ Figure~\ref{circuitLearningCurve} shows our algorithm learning to build circuits
 
 \subsection{Symbolic Regression}\label{regressionSection}
 We show how to use \system to infer programs containing both discrete
-structure and continuous parameters. The high-level idea is to synthesize programs with unspecified-real-valued parameters, and to fit those parameters using gradient descent.
+structure and continuous parameters. The high-level idea is to synthesize programs with unspecified real-valued parameters, and to fit those parameters by differentiating through the program
+and optimizing using gradient descent.
 Concretely, we ask the algorithm to
-solve a set of 1000 symbolic regression problems, each a polynomial of
-degree 0, 1, or 2, where our observations $x$ take the form of $N$
-input/output examples, which we write as $x = \left\{(i_n,o_n)
-\right\}_{n\leq N}$. For example, one task is to infer a program
-calculating $3x + 2$, and the observations are the input-output
-examples $\left\{(-1,-1),(0,2),(1,5) \right\}$.
+solve a set of 400 symbolic regression problems, each a polynomial of
+degree 0 to 4, where our observations $x$ are 10
+input/output examples.%, which we write as $x = \left\{(i_n,o_n)
+%\right\}_{n\leq N}$. %% For example, one task is to infer a program
+%% calculating $3x + 2$, and the observations are the input-output
+%% examples $\left\{(-1,-1),(0,2),(1,5) \right\}$.
 
-We initially equip our DSL learner with addition and multiplication,
+We initially give our system only addition and multiplication,
 along with the possibility of introducing real-valued parameters, which we write as $\mathcal{R}$.
-We define the likelihood of an observation $x$ by assuming a Gaussian noise model for the input/output examples and integrate over the real-valued parameters, which we collectively write as $\vec{\mathcal{R}}$:
-\begin{align*}
-\log   \probability\left[\{(i_n,o_n)\}|p\right] = \log \int \mathrm{d}\vec{\mathcal{R}}\; P_{\vec{\mathcal{R}}}(\vec{\mathcal{R}})\prod_{n\leq N}\mathcal{N}(p(i_n,\vec{\mathcal{R}})|o_n)
-%\text{\emph{BIC:}} &\approx 
-\end{align*}
-where $\mathcal{N}(\cdot |\cdot )$ is the normal density  and $P_{\vec{\mathcal{R}}}(\cdot )$ is a prior over $\vec{\mathcal{R}}$. We approximate this marginal using the BIC~\cite{Bishop:2006:PRM:1162264}:
-\begin{align*}
-  \log \probability[x|p]  \approx& \sum_{n\leq N}\log \mathcal{N}(p(i_n,\vec{\mathcal{R}}^*)|o_n) - \frac{D\log N}{2}
-\end{align*}
-where $\vec{\mathcal{R}}^*$ is an assignment to $\vec{\mathcal{R}}$ found by performing gradient ascent on the likelihood of the observations w.r.t. $\vec{\mathcal{R}}$.
+We define the likelihood of an observation $x$ by assuming a Gaussian noise model for the input/output examples,
+and penalize extra continuous degrees of freedom using the BIC~\cite{Bishop:2006:PRM:1162264}:
+%% \begin{align*}
+%%   \log \probability[x|p] \triangleq& \sum_{n\leq N}\log
+%%   \mathcal{N}(p(i_n,\vec{\mathcal{R}}^*)|o_n) - \frac{D\log N}{2}
+%% \end{align*}
+
+%% %% and integrate over the real-valued parameters, which we collectively write as $\vec{\mathcal{R}}$:
+%% %% \begin{align*}
+%% %% \log   \probability\left[\{(i_n,o_n)\}|p\right] = \log \int \mathrm{d}\vec{\mathcal{R}}\; P(\vec{\mathcal{R}})\prod_{n\leq N}\mathcal{N}(p(i_n,\vec{\mathcal{R}})|o_n)
+%% %% %\text{\emph{BIC:}} &\approx 
+%% %% \end{align*}
+%% where $\mathcal{N}(\cdot |\cdot )$ is the normal density and
+%% $P_{\vec{\mathcal{R}}}(\cdot )$ is a prior over
+%% $\vec{\mathcal{R}}$. We approximate this marginal using the BIC~:
+
+%% where $\vec{\mathcal{R}}^*$ is an assignment to $\vec{\mathcal{R}}$
+%% found by performing gradient ascent on the likelihood of the
+%% observations w.r.t. $\vec{\mathcal{R}}$.
 
 What DSL does \system learn?
-The learned DSL contains templates for quadratic and linear functions,
-which lets the algorithm quickly hone in on the kinds of functions that are most appropriate to this domain.
+The learned DSL contains templates for polynomials of different orders,
+which lets the algorithm quickly hone in on the kinds of functions that are most appropriate to this domain (Table~\ref{regressionDSL}).
 Examining the programs themselves,
 one finds that the algorithm discovers representations for each of the polynomials that minimizes the number of continuous degrees of freedom:
-for example, it represents the polynomial $8x^2+8x$
-
-\begin{tabular}{ll}
+for example, it represents the linear function $-x+2$ with the program 
+\texttt{(* (* (+ x }$\mathcal{R}$\texttt{) }$\mathcal{R}$\texttt{) x)}, which has two continuous degrees of freedom -- while representing quartic functions using the invented DSL primitive $f_6$ in Table~\ref{regressionDSL}.
+This falls out of our Bayesian treatment of the program learning problem -- both the bias towards shorter programs (more likely under $\mathcal{D},\theta$) and the likelihood's model BIC penalty.
+\begin{table}
+\begin{tabular}{l}
   \toprule
-  Primitives& $+,\times:\mathbb{R}\to \mathbb{R}\to \mathbb{R}$\\
-  & $\mathcal{R}:\mathbb{R}$ (real valued parameter)\\\midrule
-  Observation $x$& $N$ input/output examples: $\left\{(i_n,o_n) \right\}_{n\leq N}$\\
-  \midrule
-  Likelihood $\probability[x|p]$& $\propto\exp\left( - D\log N \right)\prod_{n\leq N}\mathcal{N}(p(i_n)|o_n)$
-  \\\midrule
-  \begin{tabular}{l}
-    Subset of \\Learned DSL
-    \end{tabular}&
-  \begin{tabular}{ll}
-    $\lambda x. \mathcal{R}\times x + \mathcal{R}$ &linear\\
-    $\lambda x. \mathcal{R} + x$ &increment\\
-    $\lambda x. x\times (\text{linear } x)$&$\text{quadratic}_0$\\
-    $\lambda x. \text{increment }(\text{quadratic}_0\; x)$&quadratic\\
-  \end{tabular}
+  %% Primitives& $+,\times:\mathbb{R}\to \mathbb{R}\to \mathbb{R}$\\
+  %% & $\mathcal{R}:\mathbb{R}$ (real valued parameter)\\\midrule
+  %% Observation $x$& $N$ input/output examples: $\left\{(i_n,o_n) \right\}_{n\leq N}$\\
+  %% \midrule
+  %% Likelihood $\probability[x|p]$& $\propto\exp\left( - D\log N \right)\prod_{n\leq N}\mathcal{N}(p(i_n)|o_n)$
+  %% \\\midrule
+    $f_0 = $\texttt{(+ }$\mathcal{R}$\texttt{)}\\
+    $f_1($\texttt{x}$) =$ \texttt{(* (* (+ x }$\mathcal{R}$\texttt{) }$\mathcal{R}$\texttt{) x)} \\
+      $f_2($\texttt{x}$) =$ \texttt{(+ }$\mathcal{R}$\texttt{ ($f_1$ x))} \\
+      $f_3($\texttt{x}$) = $\texttt{(* x (}$f_2$\texttt{ x))}\\
+  $f_4($\texttt{x}$) = $\texttt{(}$f_0$\texttt{ (}$f_3$\texttt{ x)))}\\
+  $f_5($\texttt{x}$) =$ \texttt{(* x (}$f_4$\texttt{ x))}\\
+  $f_6($\texttt{x}$) = $\texttt{(}$f_0$\texttt{ (}$f_4$\texttt{ x))} (\emph{4th order polynomial})
   \\\bottomrule
-  \end{tabular}
+\end{tabular}
+\caption{Some induced DSL primitives for symbolic regression. System starts out with addition, multiplication, and real numbers, and learns functions for building 4-th order polynomials.}\label{regressionDSL}
+\end{table}
 
-\begin{figure}
-      \includegraphics[width = 9cm]{figures/polynomial.png}
+\begin{figure}\centering
+  \includegraphics[width = 7cm]{figures/symbolicRegression.png}
+  \caption{DSL learning curve for symbolic regression.}\label{regressionLearningCurve}
 \end{figure}
 \subsection{String editing}\label{textSection}
 
