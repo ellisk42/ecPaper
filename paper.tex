@@ -173,12 +173,14 @@ To what extent can we dispense with hand-engineered DSLs?
 This work proposes learning DSLs.
 We consider the setting where we have a collection of related programming tasks,
 each specified by a set of input/output examples.
+We do not assume that the tasks are annotated with
+ground-truth programs.
 Our algorithm, called \system,
 does two things:
 it finds programs that solve each of the tasks,
 and at the same time creates its own DSL by discovering and reusing
-new domain-specific subroutines.
-The idea is that induced DSL
+domain-specific subroutines.
+The learned DSL
 should distill the commonalities across the programs that solve the tasks,
 and so can be used to solve other related program learning problems.
 
@@ -271,7 +273,7 @@ and so can be used to solve other related program learning problems.
 
 
   \end{tikzpicture}
-  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). Observe tasks $x$ (program inputs/outputs). (b)  neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to a distribution over programs
+  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs
     ($\theta^{(x)} = q(x)$). Black arrows correspond to the top-down generative model. Red arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
 
@@ -291,16 +293,16 @@ Figure~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarch
 %% the structure of the programs and the structure of the DSL.
 
 Inference in the generative model in Figure~\ref{graphicalModel}(a) is
-difficult because the programs are unobserved, and so we must solve a
-difficult search problem to find any programs at all. To make
+complicated by the fact that the programs are unobserved latent variables,
+and so we must solve a difficult search problem to find any programs at all. To make
 inference tractable our model learns a bottom-up \emph{recognition
   model} alongside the top-down generative model
 (Figure~\ref{graphicalModel}b).  The recognition model $q$ is a neural
-network that regresses from observations to a distribution over
+network that regresses from input/output pairs to a distribution over
 programs.  The neural network $q$ implements an amortized
 inference/compiled inference
 scheme~\cite{le2016inference,ritchie2016deep} for the generative
-model.
+model by speeding up the search for programs.
 
 How should we perform inference for the model
 in~\ref{graphicalModel}(a)?  We take the intuitive strategy of exploiting the
@@ -692,10 +694,11 @@ then we need some way of sampling these inputs as well.
 Our solution to this problem is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
 
-The neural architecture of $q$ depends upon the domain;
-for domains with sequential structure like strings and lists,
-we use an RNN,
+The neural architecture of $q$ depends upon the domain.
+For domains with sequential structure like strings and lists,
+we use an RNN to encode each input/output example,
 and for domains with a fixed-dimensionality inputs/outputs we use a multilayer perceptron.
+We MaxPool across all of the input/output examples. See supplement for more details on the neural architecture.
 
 \subsection{Inducing the DSL from the Frontiers}\label{grammarInductionSection}
 
