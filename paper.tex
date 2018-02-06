@@ -907,7 +907,29 @@ This falls out of our Bayesian treatment of the program learning problem -- both
   \includegraphics[width = 7cm]{figures/symbolicRegression.png}
   \caption{DSL learning curve for symbolic regression.}\label{regressionLearningCurve}
 \end{figure}
+
 \subsection{String editing}\label{textSection}
+Synthesizing programs that manipulate strings is a classic problem in the
+programming languages and AI literatures~\cite{menon2013machine,lau2001programming},
+and algorithms that learn string editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
+However, this prior work presumes a ready-made DSL,
+expertly crafted to suit string editing.
+We show in this experiment that we can instead start out with a
+more restricted set of primitives -- close to the string routines provided by Python --
+and automatically recover many of the higher-level building blocks that have made these
+other system successful.
+Table~\ref{textPrimitives} lists the primitive functions provided to \system.
+Absent are any routines for searching for characters, extracting substrings,
+or replacing one character with another.
+Instead, we provide array/string indexing primitives (\texttt{slice}, \texttt{index}),
+basic arithmetic, and functions for splitting a string into a list (\texttt{split})
+or turning a list into a string (\texttt{join}).
+
+We automatically generated 600 string editing problems,
+along with input/output examples (Figure~\ref{exampleTextProblem}).
+
+
+
 \begin{table}
   
   \centering
@@ -915,12 +937,12 @@ This falls out of our Bayesian treatment of the program learning problem -- both
   \toprule
     \texttt{0}, \texttt{+1},\texttt{-1}\\
     \texttt{split}, \texttt{join}, \texttt{map}, \texttt{length}, \texttt{slice}\\
-    \texttt{append}, \texttt{chr->str}, \texttt{trim}\\
+    \texttt{append}, \texttt{chr->str}, \texttt{trim}, \texttt{index}\\
     \texttt{lowercase}, \texttt{uppercase}, \texttt{capitalize}\\
     \texttt{""},    \texttt{","},     \texttt{" "},    \texttt{"<"}, \texttt{">"}  
   \\\bottomrule
   \end{tabular}
-  \caption{Initial set of primitives provided to the system for learning string editing programs}
+  \caption{Initial set of primitives provided to the system for learning string editing programs}\label{textPrimitives}
   \end{table}
 \begin{figure}
 
@@ -928,6 +950,17 @@ This falls out of our Bayesian treatment of the program learning problem -- both
   \caption{Learning curves for string editing programs}\label{textLearningCurve}
 
 \end{figure}
+
+\begin{figure}
+  \begin{tabular}{ll}\toprule
+    Input&Output\\\midrule
+    kIDY eMSz,zON& 	eM\\
+KCQ njp,yzhq 	&nj\\
+zeChf zzZ,dtFP 	&zz\\
+plbKi fmLcO,ykkOR 	&fm    \\\bottomrule
+  \end{tabular}
+  \caption{Example string edit problem (left) and the program that our system recovers (right)}\label{exampleTextProblem}
+  \end{figure}
 
 \subsection{List functions}
 Our list function domain consists of tasks which are solved by functions
