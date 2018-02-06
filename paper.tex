@@ -221,7 +221,7 @@ new useful programming idioms and subroutines.
   \plate {}{(z)(x)}{$x\in X$};
   \node[align = center] at ([yshift = -1.3cm]x.south) {(a) \\generative \\model};
 
-  \begin{scope}[shift = {(-1,0)}]  
+  \begin{scope}[shift = {(0.7,0)}]  
   \node[latent] at (3.5,3) (dx){$\mathcal{D}$};
   \node[latent] at (3.5,1.75) (zp){$p$};
   \node[latent] at (5.5,1.75) (tx){$\theta^{(x)}$};
@@ -351,8 +351,11 @@ We apply \system to four domains:
 
 
 Our work is an instance of
- \emph{Bayesian Program
-  Learning} (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}).
+ Bayesian Program
+ Learning (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
+ and our contribution here is a general scheme for getting BPL off the ground with less hand-engineering of the DSL.
+ 
+ 
 
 
 %% \begin{itemize}
@@ -482,8 +485,8 @@ where $\probability[x,p|\mathcal{D},\theta]$ is large.
 Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\})$. 
 
 
-Searching for programs is extremely difficult because
-of the large search space. We ease this difficulty by learning a neural recognition model:
+Searching for programs is hard because
+of the large combinatorial search space. We ease this difficulty by learning a neural recognition model:
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
   frontiers.}  Here we train a neural network, $q$, to predict a
@@ -495,6 +498,10 @@ $q(p|x)$.
 The network $q$ exploits the structure of the DSL $\mathcal{D}$:
 rather than directly predicting a distribution over $p$ conditioned on $x$,
 it predicts a weight vector, $\theta^{(x)}$, and we define $q(p|x)\triangleq \probability[p|\mathcal{D},\theta = q(x)]$.
+This taps into the intuition that programming is primarily a top-down activity:
+as human programmers, we first decide what kind of
+programming constructs we might need to use,
+and then we figure out how to assemble them in to the desired program.
 %% This approach implements an amortized
 %% inference scheme~\cite{le2016inference,ritchie2016deep} for the generative model in
 %% Figure~\ref{graphicalModel}.
@@ -642,10 +649,6 @@ The crucial aspect of this framing is that the neural network
 leverages the structure of the learned DSL,
 so it is \emph{not} responsible for
 generating programs wholesale.
-This taps into the intuition that programming is primarily a top-down activity:
-as human programmers, we first decide what kind of
-programming constructs we might need to use,
-and then we figure out how to assemble them in to the desired program.
 
 
 We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence:
