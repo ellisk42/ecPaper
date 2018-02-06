@@ -169,7 +169,7 @@ The DSL is an inventory of restricted programming primitives,
 and imparts domain specific knowledge about the space of programs.
 To what extent can we dispense with hand-engineered DSLs?
 
-This work proposes learning DSLs.
+This work proposes \emph{learning} the DSL.
 We consider the setting where we have a collection of related programming tasks,
 each specified by a set of input/output examples.
 We do not assume that the tasks are annotated with
@@ -308,7 +308,7 @@ in~\ref{graphicalModel}(a)?  We take the intuitive strategy of exploiting the
 conditional independence of the programs conditioned on the DSL, and
 so alternate between estimating the DSL ($\mathcal{D},\theta$) and
 estimating a posterior distribution over $p$ by searching for
-programs written using $\mathcal{D}$.  In practice searching for
+programs.  In practice searching for
 programs is difficult, so we use the recognition model to
 learn how to search efficiently.
 
@@ -940,7 +940,7 @@ other system successful.
 Table~\ref{textPrimitives} lists the primitive functions provided to \system.
 Absent are any routines for searching for characters, extracting substrings,
 or replacing one character with another.
-Instead, we provide array/string indexing primitives (\texttt{slice}, \texttt{index}),
+Instead, we provide array/string indexing primitives (\texttt{slice}, \texttt{nth}),
 basic arithmetic, and functions for splitting a string into a list (\texttt{split})
 or turning a list into a string (\texttt{join}).
 
@@ -958,7 +958,7 @@ along with input/output examples (Figure~\ref{exampleTextProblem}).
     \toprule
     \texttt{0}, \texttt{+1},\texttt{-1}\\
     \texttt{split}, \texttt{join}, \texttt{map}, \texttt{length}, \texttt{slice}\\
-    \texttt{append}, \texttt{chr->str}, \texttt{trim}, \texttt{index}\\
+    \texttt{append}, \texttt{chr->str}, \texttt{trim}, \texttt{nth}\\
     \texttt{lowercase}, \texttt{uppercase}, \texttt{capitalize}\\
     \texttt{""},    \texttt{","},     \texttt{" "},    \texttt{"<"}, \texttt{">"}  
   \\\bottomrule
@@ -966,15 +966,16 @@ along with input/output examples (Figure~\ref{exampleTextProblem}).
 \\    Subset of learned DSL\\
     \begin{tabular}{l}
       \toprule
-      $f_0 = $\texttt{(+ (chr->str c))}\\
-      $f_1($\texttt{i,c,s}$) = $      \texttt{(+ (nth i (split c s)) (chr->str s))}\\
-      $f_2($\texttt{s,c}$) = $\texttt{(}$f_0$\texttt{ c) s (}$f_1$\texttt{ c s (1+ 0))} (\emph{Extracts substring delimited by character})
+      $f_0($\texttt{c}$) = $\texttt{(+ (chr->str c))}\\
+      $f_1($\texttt{i,c,s}$) = $      \texttt{(+ (nth i (split c s))}\\\hspace{2.55cm}\texttt{ (chr->str c))}\\
+      $f_2($\texttt{s,c}$) = $\texttt{((}$f_0$\texttt{ c) (}$f_1$\texttt{ (1+ 0) c s))} \\
+      \hspace{1cm}($f_2$: \emph{Extract substring delimited by character})
     %% $f_0($\texttt{i,c,s}$) = $    \texttt{(+ (index i (split c s)) (chr->str c))}\\
     %% $f_1 = $\texttt{(join "")}
   \\\bottomrule
     \end{tabular}
   \end{tabular}
-  \caption{Initial set of primitives provided to the system for learning string editing programs}\label{textPrimitives}
+  \caption{Top: provided string editing primitives. Bottom: some induced DSL primitives.}\label{textPrimitives}
   \end{table}
 \begin{figure}
 
