@@ -18,7 +18,7 @@
 % Attempt to make hyperref and algorithmic work together better:
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
-\newcommand{\system}{\textsc{HelmholtzHacker}~}
+\newcommand{\system}{\textsc{DreamHacker}~}
 \newcommand{\lowerBound}{\mathscr{L}}
 % Use the following line for the initial blind version submitted for review:
 \usepackage{icml2018}
@@ -170,12 +170,24 @@ The DSL is an inventory of restricted programming primitives,
 that imparts domain specific knowledge about the space of programs.
 To what extent can we dispense with hand-engineered DSLs?
 
-This work proposes \emph{learning} DSLs.
-We consider the problem of solving many related program induction tasks,
-starting with a Lisp-like representation.
-We introduce an algorithm, called the \system,
-which creates its own DSL by discovering and then reusing
-new useful programming idioms and subroutines.
+This work proposes learning DSLs.
+We consider the setting where we have a collection of related programming tasks,
+each specified by a set of input/output examples.
+Our algorithm, called \system,
+does two things:
+it finds programs that solve each of the tasks,
+and at the same time creates its own DSL by discovering and reusing
+new domain-specific subroutines.
+The idea is that induced DSL
+should distill the commonalities across the programs that solve the tasks,
+and so can be used to solve other related program learning problems.
+
+
+
+%% starting with a Lisp-like representation.
+%% We introduce an algorithm, called the \system,
+%% which creates its own DSL by discovering and then reusing
+%% new useful programming idioms and subroutines.
 
 
 
@@ -264,14 +276,16 @@ new useful programming idioms and subroutines.
 \end{figure}
 
 
-Our algorithm is best understood as inference in a hierarchical Bayesian model (Figure~\ref{graphicalModel}(a): black lines):
-A DSL $\mathcal{D}$, equipped with a real-valued weight vector $\theta$,
-defines a distribution over programs.
-A program is sampled from $(\mathcal{D},\theta)$,
-and then the program is executed to determines the agent's observations.
-Our goal will be both to infer the programs that best explain our observations,
-and at the same time induce a DSL
-that distills the commonalities across all of the programs that solve the tasks.
+Viewed as an inference problem,
+our goal is to infer the DSL, written $\mathcal{D}$,
+along with a program (written $p$) for each set of inputs/outputs (\emph{tasks}, written $x$).
+A DSL $\mathcal{D}$ is a collection of domain specific subroutines.
+We equip $\mathcal{D}$ with a real-valued weight vector, $\theta$, and together
+$(\mathcal{D},\theta)$ define a distribution over programs.
+Figure~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarchical Bayesian model.
+
+
+
 %% Inducing the DSL means learning the symbolic structure of a latent programming language,
 %% and so we are confronted with two distinct structure learning problems:
 %% the structure of the programs and the structure of the DSL.
