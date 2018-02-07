@@ -405,7 +405,7 @@ When these improve we find better programs.
     \node[align = center](recognitionModel) at (9,1) {Recognition \\model: $q$};
 
     \draw [->,thick] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep)}} (DSL.30);
-    \draw [->,thick] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Wake)}} (recognitionModel.150);
+    \draw [->,thick] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep)}} (recognitionModel.150);
     \draw [->,thick] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep)}} (recognitionModel.west);
 
     \draw [->,thick,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Provides}\\ \footnotesize{inductive bias}} (synthesis.west);
