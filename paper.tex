@@ -644,16 +644,13 @@ so it is \emph{not} responsible for
 generating programs wholesale.
 
 
-We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence:
-\begin{equation*}
-  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]||q(p|x) \right) \right]
-\end{equation*}
+We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]||q(p|x) \right) \right]$,
 which is equivalent to maximizing
 \begin{equation*}
   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
 \end{equation*}
 where the expectation is taken over tasks. One could take this expectation
-over the empirical distribution of the observations,
+over the observed empirical distribution of tasks,
 like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
 We found it useful to maximize both an autoencoder-style objective (written $\mathcal{L}_{\text{AE}}$) and a Helmholtz-style objective ($\mathcal{L}_{\text{HM}}$), giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
 \begin{align}
