@@ -882,7 +882,7 @@ one finds that the algorithm discovers representations for each of the polynomia
 for example, it represents the linear function $-x+2$ with the program 
 \texttt{(* (* (+ x }$\mathcal{R}$\texttt{) }$\mathcal{R}$\texttt{) x)}, which has two continuous degrees of freedom -- while representing quartic functions using the invented DSL primitive $f_6$ in Table~\ref{regressionDSL}.
 This falls out of our Bayesian treatment of the program learning problem -- both the bias towards shorter programs (more likely under $\mathcal{D},\theta$) and the likelihood model's BIC penalty.
-\begin{table}
+\begin{table}\centering
 \begin{tabular}{l}
   \toprule
   %% Primitives& $+,\times:\mathbb{R}\to \mathbb{R}\to \mathbb{R}$\\
@@ -1051,9 +1051,13 @@ See Supplement for more detail on these DSLs.
  an  idea that goes back to Solomonoff~\cite{solomonoff1989system}:
 
  \noindent \emph{Neural recognition models for program induction:} Much recent work in the ML community has
- focused on engineering neural networks that regress from
- input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. This family of work is analogous to a lesioned version of
- \system where $(\mathcal{D},\theta)$ is held fixed and $q$ is learned.
+ focused on creating neural networks that regress from
+ input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. This family of work is analogous to the lesioned version of
+ \system where $(\mathcal{D},\theta)$ is held fixed and $q$ is learned (RF/DC baseline).
+ These neural networks are typically trained with strong supervision (i.e., with annotated ground-truth programs) on massive data sets (i.e., hundreds of millions~\cite{devlin2017robustfill}).
+ In our work we consider a weakly-supervised setting where ground truth programs are not provided and
+ the agent must learn from a few hundred examples.
+ 
 
  \noindent \emph{Predicate Invention in ILP:} The Inductive Logic Programming (ILP) community
  has long worked on the problem of inventing new primitive predicates~\cite{DBLP:conf/ecai/LinDETM14,muggleton2015meta}, which is analogous to our model with $\theta$ held fixed and $q$ ablated.
@@ -1065,27 +1069,26 @@ See Supplement for more detail on these DSLs.
  and (2) we show how to combine these techniques with bottom-up neural recognition models.
  Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10} and Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}.
  
- 
- 
-
- 
-
-
-
-
-
-
-Our work is an instance of
+ Our work is an instance of
  Bayesian Program
  Learning (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
  and our contribution here is a general scheme for getting BPL off the ground with less hand-engineering of the DSL.
  
+ \section{Conclusion}
+ We have contributed a model, \system, that learns to program by
+ bootstrapping a domain-specific language for expressing the solutions
+ to the tasks at hand.  Alongside this DSL, we train a bottom-up
+ neural recognition model that learns how to efficiently deploy the
+ DSL and hone in on the desired programs.  We believe that this
+ integration of top-down symbolic representation and bottom-up neural
+ networks -- both of them learned -- is a useful general approach for
+ getting program induction off the ground.
+ 
 
 
 
 
-
-
+\pagebreak
 
 
 
