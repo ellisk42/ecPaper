@@ -655,13 +655,19 @@ which is equivalent to maximizing
 where the expectation is taken over tasks. One could take this expectation
 over the empirical distribution of the observations,
 like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
-We found it useful to maximize both an autoencoder-style objective (written $\mathcal{L}_{\text{AE}}$) and a Helmholtz-style objective ($\mathcal{L}_{\text{HM}}$), giving the \system objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
+We found it useful to maximize both an autoencoder-style objective (written $\mathcal{L}_{\text{AE}}$) and a Helmholtz-style objective ($\mathcal{L}_{\text{HM}}$), giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
 \begin{align}
 \mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
 \mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right],\text{ $p$ evaluates to $x$}\nonumber\\
 \mathcal{L}_{\text{AE}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
   \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p|\mathcal{D},\theta \right]}\log q(p|x)\right]\nonumber
 \end{align}
+The $\mathcal{L}_{\text{HM}}$ objective is essential for data efficiency:
+all of our experiments train \system on only a few hundred tasks, which is too little for
+a high-capacity $q$.
+Once we have bootstrapped a $(\mathcal{D},\theta)$,
+we can draw unlimited samples from $(\mathcal{D},\theta)$,
+and train $q$ on those samples.
 
 Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
 the current DSL, running them to get their outputs,
