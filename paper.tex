@@ -310,8 +310,10 @@ in~\ref{graphicalModel}(a)?
 We take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
 which alternates between ``waking'', which draws samples from a recognition model (our $q$);
 and  ``sleeping'', which trains a recognition model on samples from the generative model (our $\mathcal{D},\theta$).
-For us, a wake cycle means using the recognition model to search for programs that solve the tasks,
-while a sleep cycle means updating the DSL and the recognition model
+For us, a wake cycle means using the recognition model to search for programs that solve the tasks.
+The wake cycle can be thought of as a kind of active problem solving,
+guided by the current generative and recognition models.
+A sleep cycle means updating these models so that the DSL and  recognition model
 to more closely match the distribution of tasks.
 This wake/sleep style of inference is the reason why we call our approach \system.
 
@@ -329,7 +331,7 @@ We apply \system to four domains:
  For each of these we deliberately provide an impoverished
  set of programming primitives,
  and show that our algorithm discovers
- its own domain-specific vocabulary for expressing solutions in each of these domains (Table~\ref{initialExampleDSL}).
+ its own domain-specific vocabulary for expressing solutions the domain (Table~\ref{initialExampleDSL}).
  \begin{table}
     \begin{tabular}{ll}
    \toprule
@@ -824,13 +826,31 @@ Now, if we equipped our agent with a full repertoire of
 circuit primitives -- XOR gates, multiplexers, etc. -- this problem would be easy,
 and we could use sophisticated symbolic search algorithms like SMT solvers to synthesize circuits.
 Instead, we gave \system only a NAND gate,
-and tasked it with building a set of 500 random circuits made out of
+and tasked it with building a set of 250 random circuits made out of
 AND, NOT, and OR gates,
 as well as 2 or 4 input multiplexers.
 This experimental setup is an extension of one introduced in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
-For this domain our recognition model is a simple multilayer perceptron
-whose inputs are the input/output examples.
-Figure~\ref{circuitLearningCurve} shows our algorithm learning to build circuits; Table~\ref{circuitExperimentTable} 
+%% For this domain our recognition model is a simple multilayer perceptron 
+%% whose inputs are the input/output examples.
+\system learns to build these
+circuits by inventing new subroutines that correspond to
+logic gates and multiplexers (Figure~\ref{circuitTables}, top).
+We compare  with four baselines on 250 held-out circuits:
+No NN, which lesions $q$;
+RF/DC,
+which holds the generative model $(\mathcal{D},\theta)$ fixed and learns
+a $q$ only from samples from the fixed generative model --
+this is how RobustFill and DeepCoder are trained;
+PCFG, which lesions $q$, fixes $\mathcal{D}$, and learns only $\theta$ (so it is analogous to learning the parameters of a PCFG);
+and Enum, which does no learning and just enumerates a large frontier.
+\begin{figure}
+\begin{tabular}{lllll}
+  \toprule \system&No NN  & RF/DC & PCFG & Enum\\\midrule
+  84\% solved&76\%& \\
+  $0.9$ sec&  1.1
+  \\\bottomrule
+\end{tabular}
+\end{figure}
 
 
 %% \begin{figure}
@@ -905,18 +925,11 @@ This falls out of our Bayesian treatment of the program learning problem -- both
 
 The neural recognition model accelerates inference,
 but given enough iterations of our algorithm,
-a lesioned version without the recognition model eventually comes close to catching up (red curves in Figure~\ref{regressionLearningCurve}; No NN in Table~\ref{regressionComparison}).
-We compare our model on held-out tasks against 4 baselines (Table~\ref{regressionComparison}):
-No NN, which lesions $q$;
-RF/DC,
-which holds the generative model $(\mathcal{D},\theta)$ fixed and learns
-a $q$ only from samples from the fixed generative model --
-this is how RobustFill and DeepCoder are trained;
-PCFG, which lesions $q$, fixes $\mathcal{D}$, and learns only $\theta$ (so it is analogous to learning the parameters of a PCFG);
-and Enum, which does no learning and just enumerates a large frontier.
+a lesioned version without the recognition model eventually comes close to catching up (green curves in Figure~\ref{regressionLearningCurve}; No NN in Table~\ref{regressionComparison}).
+We compare our model on held-out tasks against 4 baselines (Table~\ref{regressionComparison}).
 \begin{figure}\centering
   \includegraphics[width = 7cm]{figures/regression.eps}
-  \caption{Learning curves for symbolic regression. Green: \system. Red: no neural network. Notice how the model without the neural network eventually almost catches up.}\label{regressionLearningCurve}
+  \caption{Learning curves for symbolic regression. Red: \system. Green: no neural network. Notice how the model without the neural network eventually solves almost all the tasks, but does so using programs with lower likelihood (see Table~\ref{regressionComparison}).}\label{regressionLearningCurve}
 \end{figure}
 
 \begin{table}
@@ -937,7 +950,7 @@ and algorithms that learn string editing programs ship in Microsoft Excel~\cite{
 However, this prior work presumes a ready-made DSL,
 expertly crafted to suit string editing.
 We show in this experiment that we can instead start out with a
-more restricted set of primitives -- close to the string routines provided by Python --
+less specialized set of primitives -- close to the string routines provided by Python --
 and automatically recover many of the higher-level building blocks that have made these
 other system successful.
 Table~\ref{textPrimitives} lists the primitive functions provided to \system.
@@ -947,7 +960,7 @@ Instead, we provide array/string indexing primitives (\texttt{slice}, \texttt{nt
 basic arithmetic, and functions for splitting a string into a list (\texttt{split})
 or turning a list into a string (\texttt{join}).
 
-We automatically generated  600 string editing along with input/output examples (Figure~\ref{exampleTextProblem}), split into a 75/25 train/test split.
+We automatically generated  600 string editing along with input/output examples (Figure~\ref{exampleTextProblem}), split  75/25 train/test.
 
 \begin{table}
 \begin{tabular}{lllll}
@@ -979,7 +992,9 @@ We automatically generated  600 string editing along with input/output examples 
       $f_0($\texttt{c}$) = $\texttt{(+ (chr->str c))}\\
       $f_1($\texttt{i,c,s}$) = $      \texttt{(+ (nth i (split c s))}\\\hspace{2.55cm}\texttt{ (chr->str c))}\\
       $f_2($\texttt{s,c}$) = $\texttt{((}$f_0$\texttt{ c) (}$f_1$\texttt{ (1+ 0) c s))} \\
-      \hspace{1cm}($f_2$: \emph{Extract substring delimited by character})
+      \hspace{0.5cm}($f_2$: \emph{Extract substring delimited by character})\\
+      $f_3($\texttt{c,s}$) = $\texttt{(nth (1+ 0) (split c (nth 0 s)))}\\
+      \hspace{0.5cm}($f_3$: \emph{2nd substring delimited by character})
     %% $f_0($\texttt{i,c,s}$) = $    \texttt{(+ (index i (split c s)) (chr->str c))}\\
     %% $f_1 = $\texttt{(join "")}
   \\\bottomrule
@@ -995,14 +1010,21 @@ We automatically generated  600 string editing along with input/output examples 
 %% \end{figure}
 
 \begin{figure}
-  \begin{tabular}{ll}\toprule
+  \centering\begin{tabular}{ll}\toprule
     Input&Output\\\midrule
-    kIDY eMSz,zON& 	eM\\
-KCQ njp,yzhq 	&nj\\
-zeChf zzZ,dtFP 	&zz\\
-plbKi fmLcO,ykkOR 	&fm    \\\bottomrule
+cqbHT$>$aIKd$<$szW& 	AIKD\\
+YBW$>$TIg$<$WSho 	&TIG\\
+DkI$>$DwKI$<$xaPoc& 	DWKI\\
+KfvTh$>$Dbl$<$OIJso 	&DBL
+    \\\bottomrule
   \end{tabular}
-  \caption{Example string edit problem (left) and the program that our system recovers (right)}\label{exampleTextProblem}
+  
+  \vspace{0.5cm}
+  
+  \begin{minipage}{7.5cm}
+ $f($\texttt{s}$) = $   \texttt{(}$f_3$\texttt{ (split '>' (upper s)) '<')}
+    \end{minipage}
+  \caption{Example string edit task (top) and program  \system writes (bottom). $f_3$ is a new DSL subroutine discovered by \system, defined in Table~\ref{textPrimitives}}\label{exampleTextProblem}
   \end{figure}
 
 \subsection{List functions}
@@ -1082,7 +1104,7 @@ See Supplement for more detail on these DSLs.
  DSL and hone in on the desired programs.  We believe that this
  integration of top-down symbolic representation and bottom-up neural
  networks -- both of them learned -- is a useful general approach for
- getting program induction off the ground.
+ getting program induction off the ground. 
  
 
 
