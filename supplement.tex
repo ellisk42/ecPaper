@@ -213,7 +213,7 @@ We write $c(e,p)$ to mean the number of times that primitive $e$ was used in pro
   \log \probability[p|\theta]&\stackrel{+}{ = }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - \sum_{\tau\in R(p)} \log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
   &\stackrel{+}{\geq }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \sum_{\tau\in R(p)} \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
   & = \sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \sum_{e\in \mathcal{D}} r(e,p)\theta_e
-\end{align}
+\end{align*}
 where $c(p) = \sum_{e\in \mathcal{D}}c(e,p)$ and $r(e:\tau',p) = \sum_{\tau\in R(p)} \indicator[\text{canUnify}(\tau,\tau')]$.
 
 Differentiate with respect to $\theta_e$ and set to zero 
@@ -237,6 +237,61 @@ Now what we are actually after is the parameters that maximize the joint log pro
   & = \sum_x (c(x) + \alpha_x - 1)\log \theta_x -  N \log \sum_x a(x)\theta_x
 \end{align}
 We identify the parameters of the prior over $\theta$, $\alpha$, as  pseudocounts that are added to the \emph{counts} ($c(x)$), but not to the \emph{possible counts} ($a(x)$).
+
+
+\vfill\null\columnbreak
+
+\section{Initial domain-specific languages}
+\subsection{List functions}
+DSL for the list function experiment domain is shown below. The lower
+section with seven primitives designates those given to the \emph{rich} DSL
+variant and not the \emph{base} variant. The rich variant is not supplied
+the \texttt{if} primitive, because its primary intention is to enable the
+learning of the \texttt{filter}, \texttt{index}, and \texttt{slice}
+concepts.
+
+\begin{center}
+\tt
+\begin{tabular}{| l | l |}
+  \hline
+  \textrm{\emph{name}} & \textrm{\emph{type}} \\
+  \hline
+    empty & [$\alpha$] \\
+    singleton & $\alpha$ $\rightarrow$ [$\alpha$] \\
+    concat & [$\alpha$] $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$] \\
+    mapi & (int $\rightarrow$ $\alpha$ $\rightarrow$ $\beta$) \\
+    & \qquad\qquad$\rightarrow$ [$\alpha$] $\rightarrow$ [$\beta$] \\
+    reducei & ($\beta$ $\rightarrow$ int $\rightarrow$ $\alpha$ $\rightarrow$ $\beta$)\\
+    & \qquad\qquad$\rightarrow$ $\beta$ $\rightarrow$ [$\alpha$] $\rightarrow$ $\beta$ \\
+    \hline
+    true & bool \\
+    not & bool $\rightarrow$ bool \\
+    and & bool $\rightarrow$ bool $\rightarrow$ bool \\
+    or & bool $\rightarrow$ bool $\rightarrow$ bool \\
+    if & bool $\rightarrow$ $\alpha$ $\rightarrow$ $\alpha$ $\rightarrow$ $\alpha$ \\
+    \hline
+    0 $\cdots$ 5 & int \\
+    + & int $\rightarrow$ int $\rightarrow$ int \\
+    * & int $\rightarrow$ int $\rightarrow$ int \\
+    negate & int $\rightarrow$ int \\
+    mod & int $\rightarrow$ int $\rightarrow$ int \\
+    eq? & int $\rightarrow$ int $\rightarrow$ bool \\
+    gt? & int $\rightarrow$ int $\rightarrow$ bool \\
+    is-prime & int $\rightarrow$ bool \\
+    is-square & int $\rightarrow$ bool \\
+    range & int $\rightarrow$ [int] \\
+    sort & [int] $\rightarrow$ [int] \\
+    \hline
+    sum & [int] $\rightarrow$ int \\
+    reverse & [$\alpha$] $\rightarrow$ [$\alpha$] \\
+    all & ($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ bool \\
+    any & ($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ bool \\
+    index & int $\rightarrow$ [$\alpha$] $\rightarrow$ $\alpha$ \\
+    filter & ($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$] \\
+    slice & int $\rightarrow$ int $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$] \\
+  \hline
+\end{tabular}
+\end{center}
 
 
 \bibliography{main}

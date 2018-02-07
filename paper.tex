@@ -960,8 +960,7 @@ We automatically generated  600 string editing along with input/output examples 
 
 
 
-\begin{table}
-  
+\begin{table}[t]
   \centering
   \begin{tabular}{c}
     String editing primitives\\
@@ -1007,14 +1006,11 @@ plbKi fmLcO,ykkOR 	&fm    \\\bottomrule
   \end{figure}
 
 \subsection{List functions}
-Our list function domain consists of tasks which are solved by functions
-that take as input an integer or a list of integers, and have as output
-either a Boolean, an integer, or a list of integers. Examples of these
-functions are in Table~\ref{listexamples}. For each function, we create a
-task $x$ by generating 15 input/output examples used for testing whether a
-program produces the correct output. Supplying many examples reduces
-ambiguity in the task's function, ensuring solutions achieve the desired
-concept.
+Our list function domain consists of hand-designed concepts from which we
+sample tasks. All tasks are solved by functions that take as input an
+integer or a list of integers, and have as output either a Boolean, an
+integer, a list of Booleans, or a list of integers.  Examples of these
+tasks are in Table~\ref{listexamples}.
 
 \begin{table}
 \centering
@@ -1027,66 +1023,26 @@ concept.
   len & [3\, 5\, 12\, 1] & 4 \\
   range & 3 & [1\, 2\, 3] \\
   has-2 & [4\, 5\, 7\, 4] & \texttt{false} \\
-  has-4 & [4\, 5\, 7\, 4] & \texttt{true} \\
+  has-head-in-tail & [4\, 5\, 7\, 4] & \texttt{true} \\
   repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
   drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
   \hline
 \end{tabular}
-\caption{Examples from the domain of list functions.}
+\caption{Examples of tasks from our list function domain. These are simpler
+  than most other tasks in our dataset which are too complex to warrant
+  description here.}
 \label{listexamples}
 \end{table}
 
-We supply \system with the DSL outlined in Table~\ref{listdsl}.
+We take approaches from two different initial DSLs, \emph{base} and
+\emph{rich}, and assess their performance. The base DSL starts with only
+low-level primitives such as \texttt{mapi}, \texttt{reducei}, and
+\texttt{if}, whereas the rich DSL includes some common structure that can be
+built from these such as \texttt{all}, \texttt{filter}, and \texttt{slice}.
+Both are theoretically capable of solving all tasks supplied by our dataset.
+See Supplement for more detail on these DSLs.
 
-\begin{table}
-\centering
-\begin{tabular}{| l | l |}
-  \hline
-  \emph{name} & \emph{type} \\
-  \hline
-    empty & \texttt{[$\alpha$]} \\
-    singleton & \texttt{$\alpha$ $\rightarrow$ [$\alpha$]} \\
-    concat & \texttt{[$\alpha$] $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$]} \\
-    map & \texttt{($\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ [$\alpha$] $\rightarrow$ [$\beta$]} \\
-    reduce & \texttt{($\beta$ $\rightarrow$ $\alpha$ $\rightarrow$ $\beta$) $\rightarrow$ $\beta$ $\rightarrow$ [$\alpha$] $\rightarrow$ $\beta$} \\
-    \hline
-    true & \texttt{bool} \\
-    not & \texttt{bool $\rightarrow$ bool} \\
-    and & \texttt{bool $\rightarrow$ bool $\rightarrow$ bool} \\
-    or & \texttt{bool $\rightarrow$ bool $\rightarrow$ bool} \\
-    \hline
-    0, $\ldots$, 9 & \texttt{int} \\
-    + & \texttt{int $\rightarrow$ int $\rightarrow$ int} \\
-    * & \texttt{int $\rightarrow$ int $\rightarrow$ int} \\
-    negate & \texttt{int $\rightarrow$ int} \\
-    mod & \texttt{int $\rightarrow$ int $\rightarrow$ int} \\
-    eq? & \texttt{int $\rightarrow$ int $\rightarrow$ bool} \\
-    gt? & \texttt{int $\rightarrow$ int $\rightarrow$ bool} \\
-    is-prime & \texttt{int $\rightarrow$ bool} \\
-    is-square & \texttt{int $\rightarrow$ bool} \\
-    range & \texttt{int $\rightarrow$ [int]} \\
-    sort & \texttt{[int] $\rightarrow$ [int]} \\
-    \hline
-    sum & \texttt{[int] $\rightarrow$ int} \\
-    reverse & \texttt{[$\alpha$] $\rightarrow$ [$\alpha$]} \\
-    all & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ bool} \\
-    any & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ bool} \\
-    index & \texttt{int $\rightarrow$ [$\alpha$] $\rightarrow$ $\alpha$} \\
-    filter & \texttt{($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$]} \\
-    slice & \texttt{int $\rightarrow$ int $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$]} \\
-  \hline
-\end{tabular}
-\caption{DSL for the domain of list function.}
-\label{listdsl}
-\end{table}
-
-\begin{figure}
-  \includegraphics[width=\columnwidth]{figures/list.eps}
-\end{figure}
-
-We found that using a less sophisticated but equally-capable DSL made common
-patterns, such as summation, unlikely and unlearnable in a small enumeration
-bound.
+% TODO: table of list results, show some induced primitives
 
 
 \pagebreak
