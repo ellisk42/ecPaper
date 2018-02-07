@@ -172,7 +172,11 @@ Hindley-Milner has two important features:
 Feature 1: It supports \emph{parametric polymorphism}: meaning that types can have variables in them, called \emph{type variables}. Lowercase Greek letters are conventionally used for  type variables.
 For example, the type of the identity function is $\alpha\to\alpha$, meaning it takes something of type $\alpha$ and return something of type $\alpha$. A function that returns the first element of a list has the type $\texttt{list}(\alpha)\to\alpha$. Type variables are not the same has variables introduced by $\lambda$-abstractions.
 Feature 2: Remarkably, there is a  simple algorithm for automatically inferring the polymorphic Hindley-Milner type of a $\lambda$-calculus expression~\cite{damas1982principal}.
-A detailed exposition of Hindley-Milner is beyond the scope of this work.
+Our generative model over programs performs Hindley-Milner type inference during sampling;
+\texttt{unify} in the generative model uses the machinery of Hindley-Milner to
+ensure that the generated programs have valid polymorphic types.
+A satisfactory exposition of Hindley-Milner is beyond the scope of this paper,
+but~\cite{pierce} offers a nice overview of lambda calculus and typing systems like Hindley-Milner.
 
 %% \begin{figure}
 %%   \begin{align}
@@ -181,6 +185,24 @@ A detailed exposition of Hindley-Milner is beyond the scope of this work.
 %%   \end{figure}
 
 \section{Neural recognition model architecture}
+
+The neural recognition model regresses from an observation (set of input/output pairs: $\left\{(i_n,o_n) \right\}_{n\leq N}$) to a $|\mathcal{D}| + 1$ dimensional vector. Each input/output pair is processed by an identical encoder network;
+the outputs of the encoders are max pooled and passed to an MLP with 1 hidden layer, 16 hidden units, and a ReLU activation:
+\begin{align}
+  q(x) = \text{MLP}\left(\text{MaxPool}\left(\left\{\text{encoder}\left(i_n,o_n \right) \right\}_{n\leq N} \right) \right)
+\end{align}
+For the Boolean circuits and symbolic regression domains,
+the inputs and outputs have a fixed dimensionality,
+and the set of possible inputs is prespecified. For these fixed-dimensionality domains our encoder is an MLP with 1 hidden layer having 16  units and a ReLU activation function. The input to the encoder is
+the sequence of program outputs $\left\{o_n \right\}_{n\leq N}$.
+
+For the string editing and list domains,
+the inputs and outputs are sequences. Our encoder for these domains is a bidirectional GRU with 16 hidden units that reads each input/output pair; we concatenate the input and output along with a special delimiter
+symbol between them.
+We MaxPool the final hidden unit activations in the GRU along both passes of the bidirectional GRU.
+
+\section{Why not the ELBO bound?}
+
 
 \section{Estimating $\theta$}
 
@@ -208,13 +230,13 @@ If this equality holds then $\theta_x \propto c(x)/a(x)$:
   \theta_x = \frac{c(x)}{a(x)}\times \underbrace{\frac{\sum_y a(y)\theta_y}{N}}_{\text{Independent of $x$}}.
 \end{align}
 
-Now what we are actually after is the parameters that maximize the joint log probability of the data+parameters, which I will write $J$:
+Now what we are actually after is the parameters that maximize the joint log probability of the data and parameters $\theta$, which we  write $J$:
 \begin{align}
   J& = L + \log \text{D}(\theta|\alpha)\\
   &\stackrel{+}{\geq } \sum_x c(x)\log \theta_x - N \log \sum_x a(x)\theta_x  + \sum_x(\alpha_x - 1)\log \theta_x\\
   & = \sum_x (c(x) + \alpha_x - 1)\log \theta_x -  N \log \sum_x a(x)\theta_x
 \end{align}
-So you add the pseudocounts to the \emph{counts} ($c(x)$), but not to the \emph{possible counts} ($a(x)$).
+We identify the parameters of the prior over $\theta$, $\alpha$, as  pseudocounts that are added to the \emph{counts} ($c(x)$), but not to the \emph{possible counts} ($a(x)$).
 
 
 \bibliography{main}

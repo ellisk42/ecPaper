@@ -381,22 +381,22 @@ We apply \system to four domains:
 \section{The \system Algorithm}
 
 Our goal  is to induce a DSL and find good programs solving each of the tasks.
-Our strategy is to iterate through three steps: (1) searching for programs that
-solve the tasks, (2) learning a better neural recognition model -- which we use
+Our strategy is to iterate through three steps: (1) a \emph{wake} phase where we search for programs, and then a pair of \emph{sleep} phases: (2) learning a neural recognition model -- which we use
 to accelerate the search over programs -- and (3) improving the DSL.
-The key observation here is that each of these three steps can bootstrap off each other:
+The key observation here is that these three steps bootstrap off each other:
 
-\begin{description}
-\item[ Searching for programs:]  Our program search  is informed by both the DSL and the recognition model.
+
+\noindent \textbf{Searching for programs:}  Our program search  is informed by both the DSL and the recognition model.
 When these improve we find better programs.
-  \item[ Learning a recognition model:] The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
-  \item[Improving the DSL:] We induce a DSL from the programs we have found so far which solve the tasks;
-  as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
-\end{description}
 
-The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternating between
-learning a generative model and training a recognition model on samples from the generative model.
-We apply this idea to program induction, motivating why we call our algorithm the \system.
+\noindent\textbf{Learning a recognition model:} The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
+
+\noindent\textbf{Improving the DSL:} We induce a DSL from the programs we have found so far which solve the tasks;
+  as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
+
+%% The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternating between
+%% learning a generative model and training a recognition model on samples from the generative model.
+%% We apply this idea to program induction, motivating why we call our algorithm the \system.
 Figure~\ref{feeding} diagrams how these three steps feed off of each other.
 \begin{figure}\centering
   \begin{tikzpicture}
@@ -413,7 +413,7 @@ Figure~\ref{feeding} diagrams how these three steps feed off of each other.
     \draw [->,thick,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white]{{\footnotesize Makes tractable}} (synthesis.east);
   \end{scope}
     \end{tikzpicture}
-\caption{Our algorithm solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others.}  \label{feeding}
+\caption{Our algorithm solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
   \end{figure}
 
 Section~\ref{mathematicalFraming} frames this 3-step procedure as
@@ -485,7 +485,8 @@ of the large combinatorial search space. We ease this difficulty by learning a n
   frontiers.}  Here we train a neural network, $q$, to predict a
 distribution over programs conditioned on a task. The objective of $q$
 is to assign high probability to programs $p$ where
-$\probability[x,p|\mathcal{D},\theta]$ is large.  With $q$ in hand we can find programs for
+$\probability[x,p|\mathcal{D},\theta]$ is large, because including those programs
+in the frontiers will most increase $\lowerBound$.  With $q$ in hand we can find programs for
 the frontier $\mathcal{F}_x$ by searching for programs that maximize
 $q(p|x)$.
 The network $q$ exploits the structure of the DSL $\mathcal{D}$:
@@ -605,12 +606,11 @@ expressions in order of their probability.
 
 Why enumerate, when the program synthesis community has invented many
 sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
-We have two reasons:% for using the simple strategy of enumerating programs:
-\begin{itemize}
-\item A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the search algorithm is very simple.
-\item Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
+We have two reasons:
+(1) A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the search algorithm is very simple.
+(2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
   the space of of programs.
-\end{itemize}
+
 A main drawback of an enumerative search algorithm is that we have no
 efficient means of solving for arbitrary constants that might occur in the
 program. In Section~\ref{regressionSection},
@@ -824,16 +824,16 @@ Instead, we gave \system only a NAND gate,
 and tasked it with building a set of 500 random circuits made out of
 AND, NOT, and OR gates,
 as well as 2 or 4 input multiplexers.
-This experimental setup is an extension of one introduced in the original EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
+This experimental setup is an extension of one introduced in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
 For this domain our recognition model is a simple multilayer perceptron
 whose inputs are the input/output examples.
 Figure~\ref{circuitLearningCurve} shows our algorithm learning to build circuits; Table~\ref{circuitExperimentTable} 
 
 
-\begin{figure}
-  \includegraphics[width = \columnwidth]{figures/circuit.png}
-  \caption{\system learning to build Boolean circuits. We start out with only NAND gates and learn DSL that contains ...}\label{circuitLearningCurve}
-\end{figure}
+%% \begin{figure}
+%%   \includegraphics[width = \columnwidth]{figures/circuit.png}
+%%   \caption{\system learning to build Boolean circuits. We start out with only NAND gates and learn DSL that contains ...}\label{circuitLearningCurve}
+%% \end{figure}
 
 
 
@@ -900,10 +900,30 @@ This falls out of our Bayesian treatment of the program learning problem -- both
 \caption{Some induced DSL primitives for symbolic regression. System starts out with addition, multiplication, and real numbers, and learns functions for building 4th order polynomials.}\label{regressionDSL}
 \end{table}
 
+The neural recognition model accelerates inference,
+but given enough iterations of our algorithm,
+a lesioned version without the recognition model eventually comes close to catching up (red curves in Figure~\ref{regressionLearningCurve}; No NN in Table~\ref{regressionComparison}).
+We compare our model on held-out tasks against 4 baselines (Table~\ref{regressionComparison}):
+No NN, which lesions $q$;
+RF/DC,
+which holds the generative model $(\mathcal{D},\theta)$ fixed and learns
+a $q$ only from samples from the fixed generative model --
+this is how RobustFill and DeepCoder are trained;
+PCFG, which lesions $q$, fixes $\mathcal{D}$, and learns only $\theta$ (so it is analogous to learning the parameters of a PCFG);
+and Enum, which does no learning and just enumerates a large frontier.
 \begin{figure}\centering
-  \includegraphics[width = 7cm]{figures/symbolicRegression.png}
-  \caption{DSL learning curve for symbolic regression.}\label{regressionLearningCurve}
+  \includegraphics[width = 7cm]{figures/regression.eps}
+  \caption{Learning curves for symbolic regression. Green: \system. Red: no neural network. Notice how the model without the neural network eventually almost catches up.}\label{regressionLearningCurve}
 \end{figure}
+
+\begin{table}
+\begin{tabular}{lllll}
+  \toprule \system&No NN  & RF/DC & PCFG & Enum\\\midrule
+  98\% solved&94\% \\
+  $2.71\pm 0.07$ sec& $2.84\pm0.07$
+  \\\bottomrule
+\end{tabular}\caption{\% held out tasks solved and average solve time for symbolic regression}\label{regressionComparison}
+\end{table}
 
 \subsection{String editing}\label{textSection}
 Synthesizing programs that manipulate strings is a classic problem in the
@@ -922,8 +942,16 @@ Instead, we provide array/string indexing primitives (\texttt{slice}, \texttt{nt
 basic arithmetic, and functions for splitting a string into a list (\texttt{split})
 or turning a list into a string (\texttt{join}).
 
-We automatically generated  600 string editing problems,
-along with input/output examples (Figure~\ref{exampleTextProblem}).
+We automatically generated  600 string editing along with input/output examples (Figure~\ref{exampleTextProblem}), split into a 75/25 train/test split.
+
+\begin{table}
+\begin{tabular}{lllll}
+  \toprule \system&No NN  & RF/DC & PCFG & Enum\\\midrule
+  99\% solved\\
+  $0.88\pm 0.04$ sec
+  \\\bottomrule
+\end{tabular}\caption{\% held out tasks solved and average solve time for string edit problems}
+\end{table}
 
 
 
@@ -955,12 +983,12 @@ along with input/output examples (Figure~\ref{exampleTextProblem}).
   \end{tabular}
   \caption{Top: provided string editing primitives. Bottom: some induced DSL primitives.}\label{textPrimitives}
   \end{table}
-\begin{figure}
+%% \begin{figure}
 
-  \includegraphics[width = 7cm]{figures/text.png}
-  \caption{Learning curves for string editing programs}\label{textLearningCurve}
+%%   \includegraphics[width = 7cm]{figures/text.png}
+%%   \caption{Learning curves for string editing programs}\label{textLearningCurve}
 
-\end{figure}
+%% \end{figure}
 
 \begin{figure}
   \begin{tabular}{ll}\toprule
