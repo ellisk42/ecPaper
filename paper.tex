@@ -302,7 +302,7 @@ search tractable we learn a bottom-up \emph{recognition
 network that regresses from input/output pairs to a distribution over
 programs likely to explain the input/outputs. $q(\cdot )$ implements an amortized
 inference
-scheme~\cite{le2016inference,ritchie2016deep} for the generative
+scheme~\cite{le2016inference} for the generative %ritchie2016deep
 model.
 
 How should we perform inference for the model
@@ -383,8 +383,7 @@ We apply \system to four domains:
 Our goal  is to induce a DSL and find good programs solving each of the tasks.
 Our strategy is to iterate through three steps: (1) a \emph{wake} phase where we search for programs, and then a pair of \emph{sleep} phases: (2) learning a neural recognition model -- which we use
 to accelerate the search over programs -- and (3) improving the DSL.
-The key observation here is that these three steps bootstrap off each other:
-
+The key observation here is that these three steps bootstrap off each other (Figure~\ref{feeding}):
 
 \noindent \textbf{Searching for programs:}  Our program search  is informed by both the DSL and the recognition model.
 When these improve we find better programs.
@@ -397,7 +396,7 @@ When these improve we find better programs.
 %% The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternating between
 %% learning a generative model and training a recognition model on samples from the generative model.
 %% We apply this idea to program induction, motivating why we call our algorithm the \system.
-Figure~\ref{feeding} diagrams how these three steps feed off of each other.
+
 \begin{figure}\centering
   \begin{tikzpicture}
     \begin{scope}[shift = {(1,-1)}]
@@ -466,8 +465,8 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %%   A =   \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_p\probability[x|p]\probability[p|\mathcal{D},\theta]\nonumber\\
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
-Mechanistically, \system does approximate MAP inference in the generative model of Figure~\ref{graphicalModel}(a) by maximizing this lower bound on the joint probability.
-We maximize $\lowerBound$ by alternatingly maximizing w.r.t. the frontiers and the DSL:
+\system does approximate MAP inference in the generative model of Figure~\ref{graphicalModel}(a) by maximizing this lower bound on the joint probability,
+alternatingly maximizing w.r.t. the frontiers (``wake'') and the DSL (``sleep''):
 %So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
 %explains how \system synthesizes new programs and given a DSL.
 \\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
@@ -479,7 +478,8 @@ Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowe
 
 
 Searching for programs is hard because
-of the large combinatorial search space. We ease this difficulty by learning a neural recognition model:
+of the large combinatorial search space. We ease this difficulty by learning a neural recognition model
+during a second ``sleep'' phase:
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
   frontiers.}  Here we train a neural network, $q$, to predict a
@@ -513,7 +513,7 @@ leads to a pathological behavior that would cause the algorithm to easily become
 %% Another complementary means of meeting search is to learn a
 %% bottom-up \emph{recognition model}
 
-\subsection{Searching for Programs}\label{explorationSection}
+\subsection{Wake Phase: Searching for Programs}\label{explorationSection}
 
 Now our goal is to search for programs that solve the tasks.  In this
 work we use the simple search strategy of enumerating programs from
@@ -545,19 +545,19 @@ variables of $\alpha$ to ensure that $\alpha$ unifies with $\tau$.
 See Supplement for more detail on program representation.
 With this notation in hand we can now define DSLs:
 
-\noindent\textbf{Definition.}
+\noindent\textbf{Definition: $(\mathcal{D},\theta)$.}
 A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
-\\\noindent\textbf{Definition.}
+%\\\noindent\textbf{Definition.}
 A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| + 1$ real numbers:
 one number for each DSL primitive $e:\tau\in \mathcal{D}$, written $\theta_e$,
-and a weight controlling the probability of a variable occurring in a program, written $\theta_{\text{var}}$.
+and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
 
 Algorithm~\ref{programGenerativeModel} is a procedure for drawing
 samples from $\probability[p|\mathcal{D},\theta]$.  In practice, we
 enumerate programs rather than sampling them.  Enumeration proceeds by
 a depth-first search over the random choices made by
 Algorithm~\ref{programGenerativeModel}; we wrap the depth-first search
-in iterative deepening to (approximately) build $\lambda$-calculus
+in iterative deepening to build $\lambda$-calculus
 expressions in order of their probability.
 
 
@@ -626,7 +626,7 @@ by automatically differentiating through the program and setting the constants u
 
 
 
-\subsection{Learning a Neural Recognition Model}\label{recognitionSection}
+\subsection{Sleep Phase I: Learning a Recognition Model}\label{recognitionSection}
 
 The purpose of the recognition model is to accelerate the search over
 programs.  It does this by learning to predict which programs both 
@@ -677,19 +677,19 @@ we use an RNN to encode each input/output example,
 and for domains with a fixed-dimensionality inputs/outputs we use a multilayer perceptron.
 We MaxPool across all of the input/output examples. See supplement for more details on the neural architecture.
 
-\subsection{Inducing the DSL from the Frontiers}\label{grammarInductionSection}
+\subsection{Sleep Phase II: Inducing the DSL}\label{grammarInductionSection}
 
 The purpose of the DSL is to
 offer a set of abstractions
 that allow an agent to easily express solutions to the tasks at hand.
 In the \system algorithm we infer the DSL from a collection of frontiers.
 Intuitively, we want the algorithm to
-look at the programs in the frontiers and
-generalize beyond them; 
-not only so the DSL can better express the current solutions,
-but also so that the DSL might expose new abstractions
+look at  the frontiers and
+generalize beyond them, 
+both so the DSL can better express the current solutions,
+and  also so that the DSL might expose new abstractions
 which will later be used to
-discover even better programs.
+discover more programs.
 
 Recall from Section~\ref{mathematicalFraming} that we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$.
 We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
@@ -796,7 +796,7 @@ programs in $\mathcal{F}_x$ -- we found that $K = 2$ sufficed.
      \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
      \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
      \FOR{$i=1$ {\bfseries to} $I$}
-%     \FOR{$x:\tau\in X$}
+     %     \FOR{$x:\tau\in X$}
      \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enumerate}(\mathcal{D},\theta,F)\text{ if }\probability[x|p] > 0\}$
  %    \ENDFOR
      \STATE $q(\cdot )\gets \text{train recognition model to maximize }\mathcal{L}_{\text{RM}}$
