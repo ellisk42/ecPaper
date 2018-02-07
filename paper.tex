@@ -18,7 +18,7 @@
 % Attempt to make hyperref and algorithmic work together better:
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
-\newcommand{\system}{\textsc{DreamHacker}~}
+\newcommand{\system}{\textsc{DreamCoder}~}
 \newcommand{\lowerBound}{\mathscr{L}}
 % Use the following line for the initial blind version submitted for review:
 \usepackage[nohyperref]{icml2018}
@@ -92,7 +92,7 @@
 \begin{document}
 
 \twocolumn[
-\icmltitle{\system: Bootstrapping Domain Specific Languages for Neurally-Guided Bayesian Program Learning}
+\icmltitle{Bootstrapping Domain Specific Languages for Neurally-Guided Bayesian Program Learning}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -175,13 +175,15 @@ each specified by a set of input/output examples.
 We do not assume that the tasks are annotated with
 ground-truth programs.
 Our algorithm, called \system,
-does two things:
-it finds programs that solve each of the tasks,
-and at the same time creates its own DSL by discovering and reusing
-domain-specific subroutines.
-The learned DSL
-should distill the commonalities across the programs that solve the tasks,
-and so can be used to solve other related program learning problems.
+does three things:
+it finds programs that solve each of the tasks;
+it creates its own DSL by discovering and reusing
+domain-specific subroutines;
+and it learns a neural network that
+efficiently searches for programs in the DSL.
+The purpose of the DSL
+is to distill the commonalities across the programs that solve the tasks,
+and it can be used to solve other related program learning problems.
 
 
 
@@ -304,7 +306,17 @@ scheme~\cite{le2016inference,ritchie2016deep} for the generative
 model by speeding up the search for programs.
 
 How should we perform inference for the model
-in~\ref{graphicalModel}(a)?  We take the intuitive strategy of exploiting the
+in~\ref{graphicalModel}(a)?
+We take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
+which alternates between ``waking'', or training a generative model (our $\mathcal{D},\theta$),
+and  ``sleeping'', or training a recognition model on samples from the generative model (our $q$).
+For us, a wake cycle means using the recognition model to search for programs that solve the tasks,
+while a sleep cycle means updating the DSL and the recognition model
+to more closely match the distribution of tasks.
+This wake/sleep style of inference is the reason why we call our approach \system.
+
+
+We take the intuitive strategy of exploiting the
 conditional independence of the programs conditioned on the DSL, and
 so alternate between estimating the DSL ($\mathcal{D},\theta$) and
 estimating a posterior distribution over $p$ by searching for
@@ -332,44 +344,10 @@ We apply \system to four domains:
    &\hspace{0.5cm} \emph{(add a to every element of list l)}
    \\\bottomrule
     \end{tabular}
-    \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful fragments of code.}\label{initialExampleDSL}
+    \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
  \end{table}
 
 
- \subsection{Related Work}
- Our work is far from the first to learn to learn programs,
- an  idea that goes back to Solomonoff~\cite{solomonoff1989system}:
-
- \noindent \emph{Neural recognition models for program induction:} Much recent work in the ML community has
- focused on engineering neural networks that regress from
- input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. This family of work is analogous to a lesioned version of
- \system where $(\mathcal{D},\theta)$ is held fixed and $q$ is learned.
-
- \noindent \emph{Predicate Invention in ILP:} The Inductive Logic Programming (ILP) community
- has long worked on the problem of inventing new primitive predicates~\cite{DBLP:conf/ecai/LinDETM14,muggleton2015meta}, which is analogous to our model with $\theta$ held fixed and $q$ ablated.
-
- \noindent \emph{Inventing new subroutines for program induction:}
- Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
- and go beyond it along two dimensions: (1) we propose more sophisticated algorithms for
- inducing reusable structure, based on a formalism called \emph{Fragment Grammars}~\cite{tim};
- and (2) we show how to combine these techniques with bottom-up neural recognition models.
- Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10} and Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}.
- 
- 
- 
-
- 
-
-
-
-
-
-
-Our work is an instance of
- Bayesian Program
- Learning (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
- and our contribution here is a general scheme for getting BPL off the ground with less hand-engineering of the DSL.
- 
  
 
 
@@ -638,9 +616,9 @@ efficient means of solving for arbitrary constants that might occur in the
 program. In Section~\ref{regressionSection},
 we will show how to find programs with real-valued constants
 by automatically differentiating through the program and setting the constants using gradient descent.
-In Section~\ref{textSection}
-we will show that the bottom-up neural recognition model can learn
-which discrete constants should be included in a program.
+%% In Section~\ref{textSection}
+%% we will show that the bottom-up neural recognition model can learn
+%% which discrete constants should be included in a program.
 
 
 
@@ -653,7 +631,7 @@ which discrete constants should be included in a program.
 The purpose of the recognition model is to accelerate the search over
 programs.  It does this by learning to predict which programs both 
 assign high likelihood to a task, and at the same time 
-have high prior probability under the prior $\probability[\cdot |\mathcal{D},\theta]$.
+have high probability under $(\mathcal{D},\theta)$.
 
 The recognition model $q$ is a neural network that predicts,
 for each task $x\in X$, a weight vector $q(x) = \theta^{(x)}\in \mathbb{R}^{|\mathcal{D}| + 1}$.
@@ -1077,8 +1055,42 @@ We found that using a less sophisticated but equally-capable DSL made common
 patterns, such as summation, unlikely and unlearnable in a small enumeration
 bound.
 
-\section{Model}
 
+\pagebreak
+ \subsection{Related Work}
+ Our work is far from the first to learn to learn programs,
+ an  idea that goes back to Solomonoff~\cite{solomonoff1989system}:
+
+ \noindent \emph{Neural recognition models for program induction:} Much recent work in the ML community has
+ focused on engineering neural networks that regress from
+ input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. This family of work is analogous to a lesioned version of
+ \system where $(\mathcal{D},\theta)$ is held fixed and $q$ is learned.
+
+ \noindent \emph{Predicate Invention in ILP:} The Inductive Logic Programming (ILP) community
+ has long worked on the problem of inventing new primitive predicates~\cite{DBLP:conf/ecai/LinDETM14,muggleton2015meta}, which is analogous to our model with $\theta$ held fixed and $q$ ablated.
+
+ \noindent \emph{Inventing new subroutines for program induction:}
+ Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
+ and go beyond it along two dimensions: (1) we propose more sophisticated algorithms for
+ inducing reusable structure, based on a formalism called \emph{Fragment Grammars}~\cite{tim};
+ and (2) we show how to combine these techniques with bottom-up neural recognition models.
+ Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10} and Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}.
+ 
+ 
+ 
+
+ 
+
+
+
+
+
+
+Our work is an instance of
+ Bayesian Program
+ Learning (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
+ and our contribution here is a general scheme for getting BPL off the ground with less hand-engineering of the DSL.
+ 
 
 
 
