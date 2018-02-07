@@ -923,7 +923,7 @@ and Enum, which does no learning and just enumerates a large frontier.
 \begin{tabular}{lllll}
   \toprule \system&No NN  & RF/DC & PCFG & Enum\\\midrule
   98\% solved&94\%&0.7\%&0\%&2\% \\
-  $2.71$ sec& $2.84$  &$3.6$ sec&--&\\
+  $2.7$ sec& $2.8$ sec  &$3.6$ sec&--&$2.1$ sec\\
   $9.3$ nats &$11$ nats&$2.3$ nats&--&$4.6$ nats
   \\\bottomrule
 \end{tabular}\caption{Symbolic regression. Top: \% held out tasks solved w/ 5 second timeout. Middle: average solve time. Bottom: average description length $-\log \probability[x|p]$. ``No NN'' solves almost as many tasks but
