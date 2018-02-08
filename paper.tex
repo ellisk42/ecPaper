@@ -430,9 +430,9 @@ When these improve we find better programs.
   \node[obs] at (4,3) (tx){$\theta^{(x)}$};
   \node[obs] at (3.5,0.5) (xp) {$x$};
   \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Wake: Infer $p$};
-  \draw [->,red] (xp.east) to[out = 0,in = 20] node(nn){} (tx.north);
-  \draw [->,red] (tx.south) -- (zp.north);
-  \draw [->] (dx.south) -- (zp.north);
+  \draw [->,red] (xp.east) to[out = 0,in = 0] node(nn){} (tx.east);
+  \draw [->,red] (tx) -- (zp);
+  \draw [->] (dx) -- (zp);
 
   \node at (nn) {
     \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
@@ -453,9 +453,7 @@ When these improve we find better programs.
               \draw [-latex] (H-\source) -- (O-\dest);
     \end{tikzpicture}
   };
-  \node[shift={+(0,-0.55)}] at (nn) { $q(x)$ };
-  \node[shift={+(0,-0.55)}] at (nn) { $q(x)$ };
-  \node[shift={+(0,-0.55)}] at (nn) { $q(x)$ };
+  \node[shift={+(0,-0.65)}] at (nn) [fill=white]{ $q(x)$ };
 
   \end{scope}
 
