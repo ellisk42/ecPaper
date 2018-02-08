@@ -921,8 +921,7 @@ circuit primitives -- XOR gates, multiplexers, etc. -- this problem would be eas
 and we could use sophisticated symbolic search algorithms like SMT solvers to synthesize circuits.
 Instead, we gave \system only a NAND gate,
 and tasked it with building a set of 250 random circuits made out of
-AND, NOT, and OR gates,
-as well as 2 or 4 input multiplexers.
+AND, NOT, and OR gates, along with a multiplexer.
 \system observes the input/output truth table of the circuits.
 This experimental setup is an extension of one introduced in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
 %% For this domain our recognition model is a simple multilayer perceptron 
@@ -1202,8 +1201,8 @@ compares our model against these baselines.
   MDL (nats)&   $9.3$ &$11.0$&$2.3$&--&$4.6$ 
   
   \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
-  \% solved&99\% \\
-  Solve time&  0.9s
+  \% solved&99\% &82\% \\
+  Solve time&  0.9s&2.2s
   \\\bottomrule
   \end{tabular}
 \caption{\% solved: fraction solved with 5 sec timeout. Solve time: averaged over solved tasks. MDL: $-\expect\left[\probability[x|p] \right]$. For domains other than symbolic regression MDL is 0 nats. For symbolic regression MDL is a proxy for \# of continuous degrees of freedom.}\label{baselineComparisons}  \end{table}
