@@ -1183,9 +1183,9 @@ Examples of these tasks are in Table~\ref{listexamples}.
   drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
   \hline
 \end{tabular}
-\caption{Examples of tasks from our list function domain. These are simpler
-  than most other tasks in our dataset which are too complex to warrant
-  description here.}
+\caption{Examples of simple tasks from our list function domain. We used
+  15 input/output examples for each task to reduce ambiguity in the task's
+  function, ensuring solutions achieve the desired concept.}
 \label{listexamples}
 \end{table}
 
@@ -1193,7 +1193,8 @@ We take approaches from two different initial DSLs, \emph{base} and
 \emph{rich}, and assess their performance. The base DSL starts with only
 low-level primitives such as \code{mapi}, \code{reducei}, and
 \code{if}, whereas the rich DSL includes some common structure that can be
-built from these such as \code{all}, \code{filter}, and \code{slice}.
+built from these such as \code{all}, \code{filter}, \code{slice}, and
+\code{index}.
 Both are theoretically capable of solving all tasks supplied by our dataset.
 See Supplement for more detail on these DSLs.
 
@@ -1288,9 +1289,10 @@ This data supports our view of the recognition model as a way of accelerating th
 
 \begin{figure}\centering
   \includegraphics[width = 7cm]{figures/regression.eps}
+  \includegraphics[width = 7cm]{figures/list.eps}
   \includegraphics[width = 7cm]{figures/textLearningCurve.eps}
-  \includegraphics[width = 7cm]{figures/circuitLearningCurve.eps}  
-  \caption{Learning curves for \system both with and without the recognition model (No NN in the above plots). Red: \system. Green: no neural network. Notice how the model without the neural network eventually solves almost all the tasks, but does so using programs with lower likelihood (see Table~\ref{regressionComparison}).}\label{regressionLearningCurve}  
+  \includegraphics[width = 7cm]{figures/circuitLearningCurve.eps}
+  \caption{Learning curves for \system both with and without the recognition model (No NN in the above plots). Red: \system. Green: no neural network. Notice how the model without the neural network eventually solves almost all the tasks, but does so using programs with lower likelihood (see Table~\ref{regressionComparison}).}\label{regressionLearningCurve}
 \end{figure}
 
 \pagebreak
