@@ -820,11 +820,17 @@ programs in $\mathcal{F}_x$ -- we found that $K = 2$ sufficed.
 
 
 \section{Experiments}
+We first present our experimental results qualitatively,
+illustrating the DSLs that  \system
+learns in the domains of Boolean circuits, symbolic regression, string editing, and list functions.
+We then show quantitative results (Section~\ref{quantitative})
+comparing \system with lesioned versions
+of our model that are analogous to prior work.
 
 \subsection{Boolean circuits}
 As a toy domain, we consider the problem of learning
 to build the Boolean circuits out of logic gates.
-Now, if we equipped our agent with a full repertoire of
+If we gave our agent the full repertoire of
 circuit primitives -- XOR gates, multiplexers, etc. -- this problem would be easy,
 and we could use sophisticated symbolic search algorithms like SMT solvers to synthesize circuits.
 Instead, we gave \system only a NAND gate,
@@ -838,23 +844,6 @@ This experimental setup is an extension of one introduced in the EC algorithm~\c
 \system learns to build these
 circuits by inventing new subroutines that correspond to
 logic gates and multiplexers (Figure~\ref{multiplexer}, top).
-We compare  with four baselines on 250 held-out circuits:
-No NN, which lesions $q$;
-RF/DC,
-which holds the generative model $(\mathcal{D},\theta)$ fixed and learns
-a $q$ only from samples from the fixed generative model --
-this is how RobustFill and DeepCoder are trained;
-PCFG, which lesions $q$, fixes $\mathcal{D}$, and learns only $\theta$ (so it is analogous to learning the parameters of a PCFG);
-and Enum, which does no learning and just enumerates a large frontier.
-\begin{figure}
-\begin{tabular}{lllll}
-  \toprule \system&No NN  & RF/DC & PCFG & Enum\\\midrule
-  84\% solved&76\%& 63\%&62\%&62\%\\
-  $0.9$ sec&  1.1&1.2&1.3&1.3
-  \\\bottomrule
-\end{tabular}
-\caption{Top: \% held-out Boolean circuits solved by \system and baselines w/ 5sec timeout. Bottom: average search time.}
-\end{figure}
 
 \begin{figure}\centering
   \begin{circuitikz} \draw
@@ -869,7 +858,7 @@ and Enum, which does no learning and just enumerates a large frontier.
     (x.out) -- (xy.in 1)
     (y.out) -- (xy.in 2)
 
-    (x.out) -- (xz.in 1)
+    (x.out) -| (xz.in 1)
     (z.out) -- (xz.in 2)
 
     (xz.out) -- (zxz.in 2)
@@ -968,17 +957,6 @@ We compare our model on held-out tasks against 4 baselines (Table~\ref{regressio
   \caption{Learning curves for symbolic regression. Red: \system. Green: no neural network. Notice how the model without the neural network eventually solves almost all the tasks, but does so using programs with lower likelihood (see Table~\ref{regressionComparison}).}\label{regressionLearningCurve}
 \end{figure}
 
-\begin{table}
-\begin{tabular}{lllll}
-  \toprule \system&No NN  & RF/DC & PCFG & Enum\\\midrule
-  98\% solved&94\%&0.7\%&0\%&2\% \\
-  $2.7$ sec& $2.8$ sec  &$3.6$ sec&--&$2.1$ sec\\
-  $9.3$ nats &$11$ nats&$2.3$ nats&--&$4.6$ nats
-  \\\bottomrule
-\end{tabular}\caption{Symbolic regression. Top: \% held out tasks solved w/ 5 second timeout. Middle: average solve time. Bottom: average description length $-\log \probability[x|p]$. ``No NN'' solves almost as many tasks but
-using worse programs w/ extraneous degrees of freedom, increasing  description length.}\label{regressionComparison}
-\end{table}
-
 \subsection{String editing}\label{textSection}
 Synthesizing programs that manipulate strings is a classic problem in the
 programming languages and AI literatures~\cite{menon2013machine,lau2001programming},
@@ -998,14 +976,7 @@ or turning a list into a string (\code{join}).
 
 We automatically generated  600 string editing along with input/output examples (Figure~\ref{exampleTextProblem}), split  75/25 train/test.
 
-\begin{table}
-\begin{tabular}{lllll}
-  \toprule \system&No NN  & RF/DC & PCFG & Enum\\\midrule
-  99\% solved\\
-  $0.88\pm 0.04$ sec
-  \\\bottomrule
-\end{tabular}\caption{\% held out tasks solved and average solve time for string edit problems}
-\end{table}
+
 
 
 
@@ -1101,9 +1072,57 @@ See Supplement for more detail on these DSLs.
 
 % TODO: table of list results, show some induced primitives
 
+\subsection{Quantitative Results}\label{quantitative}
 
+We compare  with four baselines on  held-out tasks:
+\\\noindent \textbf{Ours--NN}, which lesions the recognition model.
+\\\noindent \textbf{RF/DC}, which holds the generative model $(\mathcal{D},\theta)$ fixed and learns
+a recognition model only from samples from the fixed generative model.
+This is equivalent to our algorithm with $\lambda = \infty$ (see Section~\ref{grammarInductionSection})
+and $\mathcal{L}_{\text{RM}} = \mathcal{L}_{\text{HM}}$ (see Section~\ref{recognitionSection}).
+We call this baseline RF/DC because
+this setup is closest to how RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
+\\\noindent \textbf{PCFG}, which lesions the recognition model, fixes $\mathcal{D}$, and learns only $\theta$.
+This is like learning the parameters of a PCFG.
+\\\noindent \textbf{Enum}, which does no learning and just enumerates a frontier.
+This is equivalent to the first wake cycle of our \system.
+
+For each domain,
+we are interested both in how many tasks the
+agent can solve and how quickly can find those solutions.
+For symbolic regression, we also care about the quality
+of the solution, as measured by the likelihood model $\probability[x|p]$.
+Concretely, this cashes out as measuring how many
+real numbers were used in the programs: did the model correctly explain a linear function
+using two numbers, or did it introduce extraneous parameters?
+Table~\ref{baselineComparisons}
+compares our model against these baselines.
+
+\begin{table}
+%% This radically shrinks the table
+\tabcolsep=4pt
+\renewcommand{\arraystretch}{0.5}
+\begin{tabular}{llllll}
+  \toprule& Ours&Ours--NN  & RF/DC & PCFG & Enum
+  
+  \\\midrule\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
+  \% solved &
+  84\% &76\%& 63\%&62\%&62\%\\
+  Solve time&  $0.9$s&  1.1&1.2&1.3&1.3
+  
+  \\\midrule\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
+  \% solved&    98\% &94\%&0.7\%&0\%&2\% \\
+  Solve time&  $2.7$s& $2.8$s  &$3.6$s&--&$2.1$s\\
+  MDL (nats)&   $9.3$ &$11.0$&$2.3$&--&$4.6$ 
+  
+  \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
+  \% solved&99\% \\
+  Solve time&  0.9s
+  \\\bottomrule
+  \end{tabular}
+\caption{\% solved: fraction solved with 5 sec timeout. Solve time: averaged over solved tasks. MDL: $-\expect\left[\probability[x|p] \right]$. For domains other than symbolic regression MDL is 0 nats. For symbolic regression MDL is a proxy for \# of continuous degrees of freedom.}\label{baselineComparisons}  \end{table}
 \pagebreak
- \subsection{Related Work}
+ \section{Related Work}
  Our work is far from the first to learn to learn programs,
  an  idea that goes back to Solomonoff~\cite{solomonoff1989system}:
 
@@ -1132,9 +1151,10 @@ See Supplement for more detail on these DSLs.
  and our contribution here is a general scheme for getting BPL off the ground with less hand-engineering of the DSL.
  
  \section{Conclusion}
- We have contributed a model, \system, that learns to program by
- bootstrapping a domain-specific language for expressing the solutions
- to the tasks at hand.  Alongside this DSL, we train a bottom-up
+ We contributed a model, \system, that learns to program by
+ bootstrapping a domain-specific language.
+ The  DSL learns to expose new domain-specific primitives
+  Alongside this DSL, we train a bottom-up
  neural recognition model that learns how to efficiently deploy the
  DSL and hone in on the desired programs.  We believe that this
  integration of top-down symbolic representation and bottom-up neural
