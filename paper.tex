@@ -959,7 +959,43 @@ logic gates and multiplexers (Figure~\ref{multiplexer}, top).
 %% (myand1.out) -- (myxnor.in 1)
 %% (myand2.out) -- (myxnor.in 2);
   \end{circuitikz}
-\caption{\system discovers the above multiplexer circuit, which it uses to make more complicated circuits like the one below.}\label{multiplexer}
+  \begin{circuitikz} \draw
+    (0,0) node[port] (a) {$a$}
+    (a)++(0,-0.7) node[port] (b) {$b$}
+
+    
+    (a)++(1,-0) node[nand port, scale = 0.5] (ab1) {}
+    (b)++(1,-0) node[nand port, scale = 0.5] (ab2) {}
+    (ab1)++(1,-0.35) node[nand port, scale = 0.5] (o) {}
+
+    (a.out) -| (ab1.in 1)
+    (a.out) -| (ab1.in 2)
+    (b.out) -| (ab2.in 1)
+    (b.out) -| (ab2.in 2)
+
+    (ab1.out) -- (o.in 1)
+    (ab2.out) -- (o.in 2)
+
+    (o)++(0.8,0) node [port] (l) {\textsc{OR}$(a,b)$}
+    ;
+  \end{circuitikz}
+  \begin{circuitikz}     \node(m)[draw] at (1,-1) {MUX}; \draw
+    (0,0) node[port] (w) {$w$}
+    (w)++(0,-0.5) node[port] (x) {$x$}
+    (x)++(0,-0.5) node[port] (y) {$y$}
+    (y)++(0,-0.5) node[port] (z) {$z$}
+
+    (z.out) -| (m.south)
+    (y.out) -| (m.west)
+    (x.out) -| (m.north)
+
+    
+    (y)++(2.5,0.13) node[or port, scale = 0.5] (z) {}
+    (m.east) -- (z.in 2)
+    (w.east) -| (z.in 1)
+    ;
+  \end{circuitikz}
+\caption{\system discovers multiplexers (above) and OR gates (bottom left), which it uses to make more complicated circuits (bottom right), which it was unable to build without discovering these new primitives.}\label{multiplexer}
   \end{figure}
 
 
