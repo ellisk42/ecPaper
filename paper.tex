@@ -912,21 +912,29 @@ comparing \system with lesioned versions
 of our model that are analogous to prior work.
 
 \subsection{Boolean circuits}
-As a toy domain, we consider the problem of learning
-to build the Boolean circuits out of logic gates.
+We consider the problem of learning
+to build  Boolean circuits out of logic gates.
 If we gave our agent the full repertoire of
 circuit primitives -- XOR gates, multiplexers, etc. -- this problem would be easy,
 and we could use sophisticated symbolic search algorithms like SMT solvers to synthesize circuits.
 Instead, we gave \system only a NAND gate,
 and tasked it with building a set of 250 random circuits made out of
 AND, NOT, and OR gates, along with a multiplexer.
-\system observes the input/output truth table of the circuits.
+\system observes the input/output truth table of the circuits,
+and we define the likelihood (where $x$ is a truth table and $p$ a program implementing a circuit):
+\begin{align}
+  \probability[x|p]\triangleq\indicator\left[p\text{ has  the same truth table as }x \right]\nonumber
+  \end{align}
+
 This experimental setup is an extension of one introduced in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
 %% For this domain our recognition model is a simple multilayer perceptron 
 %% whose inputs are the input/output examples.
 \system learns to build these
-circuits by inventing new subroutines that correspond to
-logic gates and multiplexers (Figure~\ref{multiplexer}, top).
+circuits by creating new subroutines that correspond to
+logic gates and multiplexers (Figure~\ref{multiplexer}).
+We will show data showing that the neural recognition model
+assists in building these circuits (Section~\ref{quantitative}),
+suggesting that an agent can glean something about the structure of the circuit just by looking at its truth table.
 
 \begin{figure}\centering
   \begin{circuitikz} \draw
@@ -1009,8 +1017,8 @@ We show how to use \system to infer programs containing both discrete
 structure and continuous parameters. The high-level idea is to synthesize programs with unspecified real-valued parameters, and to fit those parameters by differentiating through the program
 and optimizing using gradient descent.
 Concretely, we ask the algorithm to
-solve a set of 400 symbolic regression problems, each a polynomial of
-degree 0 to 4, where our observations $x$ are 10
+solve a set of 200 symbolic regression problems, each a polynomial of
+degree 1 to 4, where our observations $x$ are 10
 input/output examples.%, which we write as $x = \left\{(i_n,o_n)
 %\right\}_{n\leq N}$. %% For example, one task is to infer a program
 %% calculating $3x + 2$, and the observations are the input-output
@@ -1019,7 +1027,7 @@ input/output examples.%, which we write as $x = \left\{(i_n,o_n)
 We initially give our system only addition and multiplication,
 along with the possibility of introducing real-valued parameters, which we write as $\mathcal{R}$.
 We define the likelihood of an observation $x$ by assuming a Gaussian noise model for the input/output examples,
-and penalize extra continuous degrees of freedom using the BIC~\cite{Bishop:2006:PRM:1162264}:
+and penalize continuous degrees of freedom using the BIC~\cite{Bishop:2006:PRM:1162264}.
 %% \begin{align*}
 %%   \log \probability[x|p] \triangleq& \sum_{n\leq N}\log
 %%   \mathcal{N}(p(i_n,\vec{\mathcal{R}}^*)|o_n) - \frac{D\log N}{2}
@@ -1083,16 +1091,18 @@ We show in this experiment that we can instead start out with a
 less specialized set of primitives -- close to the string routines provided by Python --
 and automatically recover many of the higher-level building blocks that have made these
 other system successful.
-Table~\ref{textPrimitives} lists the primitive functions provided to \system.
+Table~\ref{textPrimitives} (top) lists the primitive functions provided to \system.
 Absent are any routines for searching for characters, extracting substrings,
 or replacing one character with another.
 Instead, we provide list/string indexing primitives (\code{slice}, \code{nth}),
 basic arithmetic, and functions for splitting a string into a list (\code{split})
 or turning a list into a string (\code{join}).
-
 We automatically generated  600 string editing tasks along with input/output examples (Figure~\ref{exampleTextProblem}). %, split  75/25 train/test.
-
-
+At first, \system cannot find any programs that
+work at all for most of the tasks.
+After a few wake/sleep iterations,
+it assembles a DSL (Table~\ref{textPrimitives}, bottom) that lets it rapidly explore the space of programs and find solutions to
+all of the tasks.
 
 
 
@@ -1227,7 +1237,7 @@ this setup is closest to how RobustFill~\cite{devlin2017robustfill} and DeepCode
 This is equivalent to our algorithm with $q(x) = \theta$ and $\lambda = \infty$,
 and is like learning the parameters of a PCFG while not learning any of the structure.
 \\\noindent \textbf{Enum}, which does no learning and just enumerates a frontier.
-This is equivalent to the first wake cycle of \system.
+This is equivalent to the first wake cycle of \system.   
 
 For each domain,
 we are interested both in how many tasks the
