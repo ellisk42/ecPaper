@@ -295,7 +295,7 @@ letting the agent solve other related program learning problems.
 
 
   \end{tikzpicture}
-  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
+  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Alg.~\ref{programGenerativeModel}). Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
     $\theta^{(x)}$. Black arrows correspond to the top-down generative model. Red arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
 
@@ -306,7 +306,7 @@ along with a program (written $p$) for each set of inputs/outputs (\emph{tasks},
 A DSL $\mathcal{D}$ is a collection of domain specific subroutines.
 We equip $\mathcal{D}$ with a real-valued weight vector, $\theta$, and together
 $(\mathcal{D},\theta)$ define a distribution over programs.
-Figure~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarchical Bayesian model.
+Fig.~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarchical Bayesian model.
 
 
 
@@ -314,12 +314,12 @@ Figure~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarch
 %% and so we are confronted with two distinct structure learning problems:
 %% the structure of the programs and the structure of the DSL.
 
-Inference in the generative model in Figure~\ref{graphicalModel}(a) is
+Inference in the generative model in Fig.~\ref{graphicalModel}(a) is
 complicated by the fact that the programs are unobserved,
 and so we must solve a difficult search problem to find any programs at all. To make
 search tractable we learn a bottom-up \emph{recognition
   model}, written $q(\cdot )$
-(Figure~\ref{graphicalModel}b).  The recognition model $q$ is a neural
+(Fig.~\ref{graphicalModel}b).  The recognition model $q$ is a neural
 network that regresses from input/output pairs to a distribution over
 programs likely to explain the input/outputs. $q(\cdot )$ implements an amortized
 inference
@@ -357,7 +357,7 @@ We apply \system to four domains:
  For each of these we deliberately provide an impoverished
  set of programming primitives,
  and show that our algorithm discovers
- its own domain-specific vocabulary for expressing solutions the domain (Table~\ref{initialExampleDSL}).
+ its own domain-specific vocabulary for expressing solutions the domain (Tbl.~\ref{initialExampleDSL}).
  \begin{table}
     \begin{tabular}{ll}
    \toprule
@@ -411,7 +411,7 @@ We apply \system to four domains:
 Our goal  is to induce a DSL and find good programs solving each of the tasks.
 Our strategy is to iterate through three steps: (1) searching for programs; (2) learning a neural recognition model -- which we use
 to accelerate the search over programs -- and (3) improving the DSL.
-The key observation here is that these three steps bootstrap off each other (Figure~\ref{feeding}):
+The key observation is that these steps bootstrap off each other (Fig.~\ref{feeding}):
 \\\noindent \textbf{Wake: Searching for programs.}  Our program search  is informed by both the DSL and the recognition model.
 When these improve we find better programs.
 \\\noindent\textbf{Sleep-R: Learning a recognition model.} The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
@@ -440,90 +440,90 @@ When these improve we find better programs.
 \caption{Our algorithm solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
 \end{figure}
 
-\begin{figure}
-\centering
-\begin{tikzpicture}
-  \begin{scope}[shift={(2.5,0)}]
-    \node[obs] at (3,3) (dx){$\mathcal{D}$};
-    \node[latent] at (3.5,1.75) (zp){$p$};
-    \node[obs] at (4,3) (tx){$\theta^{(x)}$};
-    \node[obs] at (3.5,0.7) (xp) {$x$};
-    \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Wake: Infer $p$};
-    \draw [->,red] (xp.east) to[out = 0,in = 0] node(nn){} (tx.east);
-    \draw [->,red] (tx) -- (zp);
-    \draw [->] (dx) -- (zp);
-    \node at (nn) {
-      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
-        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-        \node[rectangle,width=2cm] at (1,1) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (I-\name) at (0,-\y) {};
-        \foreach \name / \y in {1,...,3}
-            \node[neuron] (H-\name) at (1,-\y-0.5) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (O-\name) at (2,-\y) {};
-        \foreach \source in {1,...,4}
-            \foreach \dest in {1,...,3}
-                \draw [-latex] (I-\source) -- (H-\dest);
-        \foreach \source in {1,...,3}
-            \foreach \dest in {1,...,4}
-                \draw [-latex] (H-\source) -- (O-\dest);
-      \end{tikzpicture}
-    };
-    \node[shift={+(0,-0.65)}] at (nn) [fill=white]{ $q(x)$ };
-  \end{scope}
+%% \begin{figure}
+%% \centering
+%% \begin{tikzpicture}
+%%   \begin{scope}[shift={(2.5,0)}]
+%%     \node[obs] at (3,3) (dx){$\mathcal{D}$};
+%%     \node[latent] at (3.5,1.75) (zp){$p$};
+%%     \node[obs] at (4,3) (tx){$\theta^{(x)}$};
+%%     \node[obs] at (3.5,0.7) (xp) {$x$};
+%%     \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Wake: Infer $p$};
+%%     \draw [->,red] (xp.east) to[out = 0,in = 0] node(nn){} (tx.east);
+%%     \draw [->,red] (tx) -- (zp);
+%%     \draw [->] (dx) -- (zp);
+%%     \node at (nn) {
+%%       \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+%%         \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+%%         \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+%%         \node[rectangle,width=2cm] at (1,1) {};
+%%         \foreach \name / \y in {1,...,4}
+%%             \node[neuron] (I-\name) at (0,-\y) {};
+%%         \foreach \name / \y in {1,...,3}
+%%             \node[neuron] (H-\name) at (1,-\y-0.5) {};
+%%         \foreach \name / \y in {1,...,4}
+%%             \node[neuron] (O-\name) at (2,-\y) {};
+%%         \foreach \source in {1,...,4}
+%%             \foreach \dest in {1,...,3}
+%%                 \draw [-latex] (I-\source) -- (H-\dest);
+%%         \foreach \source in {1,...,3}
+%%             \foreach \dest in {1,...,4}
+%%                 \draw [-latex] (H-\source) -- (O-\dest);
+%%       \end{tikzpicture}
+%%     };
+%%     \node[shift={+(0,-0.65)}] at (nn) [fill=white]{ $q(x)$ };
+%%   \end{scope}
 
-  \begin{scope}[shift={(0.7,-4.2)}]
-    \node[obs] at (3,3) (dt){$\mathcal{D},\theta$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]dt.south) (p2){$p_2$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p2.south) (x2){$x_2$};
-    \draw [->] (p2.south) -- (x2.north);
-    \draw [->] (dt.south) -- (p2.north);
+%%   \begin{scope}[shift={(0.7,-4.2)}]
+%%     \node[obs] at (3,3) (dt){$\mathcal{D},\theta$};
+%%     \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]dt.south) (p2){$p_2$};
+%%     \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p2.south) (x2){$x_2$};
+%%     \draw [->] (p2.south) -- (x2.north);
+%%     \draw [->] (dt.south) -- (p2.north);
 
 
-    \node[obs] at ([yshift = 0cm,xshift = -0.5cm]p2.west) (p1){$p_1$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p1.south) (x1){$x_1$};
-    \draw [->] (p1.south) -- (x1.north);
-    \draw [->] (dt.south) -- (p1.north);
+%%     \node[obs] at ([yshift = 0cm,xshift = -0.5cm]p2.west) (p1){$p_1$};
+%%     \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p1.south) (x1){$x_1$};
+%%     \draw [->] (p1.south) -- (x1.north);
+%%     \draw [->] (dt.south) -- (p1.north);
 
-    \node[obs] at ([yshift = 0cm,xshift = 0.5cm]p2.east) (p3){$p_3$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p3.south) (x3){$x_3$};
-    \draw [->] (p3.south) -- (x3.north);
-    \draw [->] (dt.south) -- (p3.north);
+%%     \node[obs] at ([yshift = 0cm,xshift = 0.5cm]p2.east) (p3){$p_3$};
+%%     \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p3.south) (x3){$x_3$};
+%%     \draw [->] (p3.south) -- (x3.north);
+%%     \draw [->] (dt.south) -- (p3.north);
 
-    \node at ([yshift = 0cm,xshift = 0.3cm]p3.east) {$\cdots $};
-    \node at ([yshift = 0cm,xshift = 0.3cm]x3.east) {$\cdots $};
+%%     \node at ([yshift = 0cm,xshift = 0.3cm]p3.east) {$\cdots $};
+%%     \node at ([yshift = 0cm,xshift = 0.3cm]x3.east) {$\cdots $};
       
-    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]p3.east) (zp){$p$};
-    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]x3.east) (xp) {$x$};
-    \draw [->] (zp.south) -- (xp.north);
-    \plate {}{(zp)(xp)}{$x\in X$};
+%%     \node[obs] at ([yshift = 0cm,xshift = 1.3cm]p3.east) (zp){$p$};
+%%     \node[obs] at ([yshift = 0cm,xshift = 1.3cm]x3.east) (xp) {$x$};
+%%     \draw [->] (zp.south) -- (xp.north);
+%%     \plate {}{(zp)(xp)}{$x\in X$};
 
-    \draw[dashed,cyan,very thick] ([yshift = 0.5cm,xshift = -0.5]p1.west) rectangle  ([yshift = -0.5cm,xshift = -0.5]xp.east);
-    \node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Sleep-R: Train $q$\\training data: cyan $(x,p)$};
-  \end{scope}
+%%     \draw[dashed,cyan,very thick] ([yshift = 0.5cm,xshift = -0.5]p1.west) rectangle  ([yshift = -0.5cm,xshift = -0.5]xp.east);
+%%     \node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Sleep-R: Train $q$\\training data: cyan $(x,p)$};
+%%   \end{scope}
     
-  \begin{scope}[shift={(7.7,-4)}]
-    \node[latent] at (0.5,3) (d){$\mathcal{D}$};
-    \node[latent] at (1.5,3) (t){$\theta$};
-    \node[obs] at (1,1.75) (z){$p$};
-    % \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
-    \node[obs] at (1,0.5) (x) {$x$};
-    \edge {z}{x};
-    \edge {d,t}{z};
-    \plate {}{(z)(x)}{$x\in X$};
-    \node[align = center] at ([yshift = -1cm]x.south) {Sleep-G: Induce $(\mathcal{D},\theta})$};
-  \end{scope}
+%%   \begin{scope}[shift={(7.7,-4)}]
+%%     \node[latent] at (0.5,3) (d){$\mathcal{D}$};
+%%     \node[latent] at (1.5,3) (t){$\theta$};
+%%     \node[obs] at (1,1.75) (z){$p$};
+%%     % \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
+%%     \node[obs] at (1,0.5) (x) {$x$};
+%%     \edge {z}{x};
+%%     \edge {d,t}{z};
+%%     \plate {}{(z)(x)}{$x\in X$};
+%%     \node[align = center] at ([yshift = -1cm]x.south) {Sleep-G: Induce $(\mathcal{D},\theta})$};
+%%   \end{scope}
 
-\end{tikzpicture}
-\end{figure}
+%% \end{tikzpicture}
+%% \end{figure}
 
-Section~\ref{mathematicalFraming} frames this 3-step procedure as
+Sec.~\ref{mathematicalFraming} frames this 3-step procedure as
 a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
-Section~\ref{explorationSection} explains how we search for programs that solve the tasks;
-Section~\ref{recognitionSection} explains how we train a neural network to accelerate the search over programs; and
-Section~\ref{grammarInductionSection} explains how \system induces a DSL from programs.
+Sec.~\ref{explorationSection} explains how we search for programs that solve the tasks;
+Sec.~\ref{recognitionSection} how we train a neural network to accelerate the search over programs; and
+Sec.~\ref{grammarInductionSection}  how \system induces a DSL from programs.
 
 \subsection{Probabilistic Framing}\label{mathematicalFraming}
 
@@ -532,7 +532,7 @@ It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, w
 Its goal is to solve each of the tasks by writing a program,
 and also to infer a DSL $\mathcal{D}$.
 
-We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Figure~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$, we want the $\mathcal{D}^*,\theta^*$ solving:
+We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Fig.~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$, we want the $\mathcal{D}^*,\theta^*$ solving:
 \begin{align}\label{intractableObjectives}
 \nonumber  J(\mathcal{D},\theta)&\triangleq \probability[\mathcal{D}]P(\theta)\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
   \mathcal{D}^* &= \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta \\
@@ -569,9 +569,9 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %%   A =   \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_p\probability[x|p]\probability[p|\mathcal{D},\theta]\nonumber\\
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
-\system does approximate MAP inference in the generative model of Figure~\ref{graphicalModel}(a) by maximizing this lower bound on the joint probability,
+\system does approximate MAP inference in the generative model of Fig.~\ref{graphicalModel}(a) by maximizing this lower bound on the joint probability,
 alternatingly maximizing w.r.t. the frontiers (Wake) and the DSL (Sleep-G):
-%So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
+%So interleaved with the DSL induction steps are program induction steps. Sec.~\ref{explorationSection}
 %explains how \system synthesizes new programs and given a DSL.
 \\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
@@ -599,12 +599,12 @@ The recognition model exploits the structure of the DSL: %$\mathcal{D}$:
 rather than directly predicting a distribution over $p$ conditioned on $x$,
 it predicts a distribution over components of the DSL.
 This taps into the intuition that programming is primarily a top-down activity:
-as human programmers, we first decide what kind of
+as human programmers, we often first decide what kind of
 programming constructs we might need to use,
 and then we figure out how to assemble them in to the desired program.
 %% This approach implements an amortized
 %% inference scheme~\cite{le2016inference,ritchie2016deep} for the generative model in
-%% Figure~\ref{graphicalModel}.
+%% Fig.~\ref{graphicalModel}.
 
 Our lower bound $\lowerBound$ is unconventional,
 and one might wonder why we do not instead maximize an ELBO-style bound like in a VAE or in the EM algorithm.
@@ -649,7 +649,7 @@ $p:\alpha$ also satisfies $p:\tau$. Furthermore, the act of \emph{unifying}
 a type $\alpha$ with $\tau$ is to introduce constraints on the type
 variables of $\alpha$ to ensure that $\alpha$ unifies with $\tau$.
 See Supplement for more detail on program representation.
-With this notation in hand we can now define DSLs:
+With this notation in hand we now define DSLs:
 
 \noindent\textbf{Definition: $(\mathcal{D},\theta)$.}
 A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
@@ -658,11 +658,11 @@ A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| +
 one number for each DSL primitive $e\in \mathcal{D}$, written $\theta_e$,
 and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
 
-Algorithm~\ref{programGenerativeModel} is a procedure for drawing
+Alg.~\ref{programGenerativeModel} is a procedure for drawing
 samples from $\probability[p|\mathcal{D},\theta]$.  In practice, we
 enumerate programs rather than sampling them.  Enumeration proceeds by
 a depth-first search over the random choices made by
-Algorithm~\ref{programGenerativeModel}; we wrap the depth-first search
+Alg.~\ref{programGenerativeModel}; we wrap the depth-first search
 in iterative deepening to build $\lambda$-calculus
 expressions in order of their probability.
 
@@ -719,10 +719,10 @@ We have two reasons:
 
 A main drawback of an enumerative search algorithm is that we have no
 efficient means of solving for arbitrary constants that might occur in the
-program. In Section~\ref{regressionSection},
+program. In Sec.~\ref{regressionSection},
 we will show how to find programs with real-valued constants
 by automatically differentiating through the program and setting the constants using gradient descent.
-%% In Section~\ref{textSection}
+%% In Sec.~\ref{textSection}
 %% we will show that the bottom-up neural recognition model can learn
 %% which discrete constants should be included in a program.
 
@@ -748,11 +748,11 @@ The crucial aspect of this framing is that the neural network
 leverages the structure of the learned DSL,
 so it is \emph{not} responsible for
 generating programs wholesale.
-We share this aspect with the DeepCoder system~\cite{balog2016deepcoder}.
+We share this aspect with DeepCoder~\cite{balog2016deepcoder}.
 
 
 We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]||q(p|x) \right) \right]$,
-which is equivalent to maximizing
+equivalently maximizing
 \begin{equation*}
   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
 \end{equation*}
@@ -785,7 +785,7 @@ The neural architecture of $q$ depends upon the domain.
 For domains with sequential structure like strings and lists,
 we use an RNN to encode each input/output example,
 and for domains with a fixed-dimensionality inputs/outputs we use a multilayer perceptron.
-We MaxPool across all of the input/output examples. See supplement for more details on the neural architecture.
+We MaxPool across all of the input/output examples. See supplement for details.
 
 \subsection{Sleep-G: Inducing the DSL}\label{grammarInductionSection}
 
@@ -801,7 +801,7 @@ and  also so that the DSL might expose new abstractions
 which will later be used to
 discover more programs.
 
-Recall from Section~\ref{mathematicalFraming} that we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$.
+Recall from Sec.~\ref{mathematicalFraming} that we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$.
 We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
 \begin{align}
 \nonumber  \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\\
@@ -815,7 +815,7 @@ $\lambda$-expressions into the DSL.
 We propose these new expressions by extracting subexpressions from
 programs already in the frontier.
 These extracted subexpressions
-are fragments of the original programs, and can introduce new variables (Figure~\ref{fragmentExample}),
+are fragments of the original programs, and can introduce new variables (Fig.~\ref{fragmentExample}),
 which then become new functions in the DSL.
 The idea of storing and reusing
 fragments of expressions comes from Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing}.
@@ -830,7 +830,7 @@ We define a prior distribution over DSLs which penalizes the sizes of the $\lamb
 where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
 $\lambda$ is a hyperparameter that acts as a regularizer on the size of the DSL,
 and $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
-Algorithm~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
+Alg.~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
 
 To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
 Although this problem may seem 
@@ -883,7 +883,7 @@ In the Supplement we derive a tractable MAP estimator for $\theta$.
 
 \subsection{Implementing the \system}
 
-Algorithm~\ref{mainAlgorithm} describes how we combine program search,
+Alg.~\ref{mainAlgorithm} describes how we combine program search,
 recognition model training, and DSL induction.
 We note the following implementation details:
 (1) We interleave wake cycles with each of the sleep cycles;
@@ -927,7 +927,7 @@ programs in $\mathcal{F}_x$ -- we found that $K = 2$ sufficed.
 We first present our experimental results qualitatively,
 illustrating the DSLs that  \system
 learns in the domains of Boolean circuits, symbolic regression, string editing, and list functions.
-We then show quantitative results (Section~\ref{quantitative})
+We then show quantitative results (Sec.~\ref{quantitative})
 comparing \system with lesioned versions
 of our model that are analogous to prior work.
 
@@ -941,19 +941,19 @@ Instead, we gave \system only a NAND gate,
 and tasked it with building a set of 250 random circuits made out of
 AND, NOT, and OR gates, along with a multiplexer.
 \system observes the input/output truth table of the circuits,
-and we define the likelihood (where $x$ is a truth table and $p$ a program implementing a circuit):
-\begin{align}
-  \probability[x|p]\triangleq\indicator\left[p\text{ has  the same truth table as }x \right]\nonumber
-  \end{align}
+and we define the likelihood 
+$  \probability[x|p]\triangleq\indicator\left[p\text{ has  the same truth table as }x \right]$,
+where $x$ is a truth table and $p$ a program implementing a circuit.
+
 
 This experimental setup is an extension of one introduced in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
 %% For this domain our recognition model is a simple multilayer perceptron 
 %% whose inputs are the input/output examples.
 \system learns to build these
 circuits by creating new subroutines that correspond to
-logic gates and multiplexers (Figure~\ref{multiplexer}).
+logic gates and multiplexers (Fig.~\ref{multiplexer}).
 We will show data showing that the neural recognition model
-assists in building these circuits (Section~\ref{quantitative}),
+assists in building these circuits (Sec.~\ref{quantitative}),
 suggesting that an agent can glean something about the structure of a circuit just by looking at its truth table.
 
 \begin{figure}\centering
@@ -1034,9 +1034,9 @@ suggesting that an agent can glean something about the structure of a circuit ju
 
 \subsection{Symbolic Regression}\label{regressionSection}
 We show how to use \system to infer programs containing both discrete
-structure and continuous parameters. The high-level idea is to synthesize programs with unspecified real-valued parameters, and to fit those parameters by differentiating through the program
+structure and continuous parameters. The high-level idea is to write programs with unspecified real-valued parameters, and to fit those parameters by differentiating through the program
 and optimizing using gradient descent.
-Concretely, we ask the algorithm to
+We have the algorithm 
 solve a set of 200 symbolic regression problems, each a polynomial of
 degree 1 to 4, where our observations $x$ are 10
 input/output examples.%, which we write as $x = \left\{(i_n,o_n)
@@ -1068,12 +1068,12 @@ and penalize continuous degrees of freedom using the BIC~\cite{Bishop:2006:PRM:1
 
 What DSL does \system learn?
 The learned DSL contains templates for polynomials of different orders,
-which lets the algorithm quickly hone in on the kinds of functions that are most appropriate to this domain (Table~\ref{regressionDSL}).
+which lets the algorithm quickly hone in on the kinds of functions that are most appropriate to this domain (Tbl.~\ref{regressionDSL}).
 Examining the programs themselves,
 one finds that the algorithm discovers representations for each of the polynomials that minimizes the number of continuous degrees of freedom:
 for example, it represents the linear function $-x+2$ with the program 
-\code{(* (* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{) x)}, which has two continuous degrees of freedom -- while representing quartic functions using the invented DSL primitive $f_6$ in Table~\ref{regressionDSL}.
-This falls out of our Bayesian treatment of the program learning problem -- both the bias towards shorter programs (more likely under $\mathcal{D},\theta$) and the likelihood model's BIC penalty.
+\code{(* (* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{) x)}, which has two continuous degrees of freedom -- while representing quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}.
+This falls out of our Bayesian framing -- both the bias towards shorter programs (more likely under $\mathcal{D},\theta$) and the likelihood model's BIC penalty.
 \begin{table}\centering
 \begin{tabular}{l}
   \toprule
@@ -1097,8 +1097,8 @@ This falls out of our Bayesian treatment of the program learning problem -- both
 
 %% The neural recognition model accelerates inference,
 %% but given enough iterations of our algorithm,
-%% a lesioned version without the recognition model eventually comes close to catching up (green curves in Figure~\ref{regressionLearningCurve}; No NN in Table~\ref{regressionComparison}).
-%% We compare our model on held-out tasks against 4 baselines (Table~\ref{regressionComparison}).
+%% a lesioned version without the recognition model eventually comes close to catching up (green curves in Fig.~\ref{regressionLearningCurve}; No NN in Tbl.~\ref{regressionComparison}).
+%% We compare our model on held-out tasks against 4 baselines (Tbl.~\ref{regressionComparison}).
 
 
 \subsection{String editing}\label{textSection}
@@ -1109,19 +1109,19 @@ However, this prior work presumes a ready-made DSL,
 expertly crafted to suit string editing.
 We show in this experiment that we can instead start out with a
 less specialized set of primitives -- close to the string routines provided by Python --
-and automatically recover many of the higher-level building blocks that have made these
+and recover many of the higher-level building blocks that have made these
 other system successful.
-Table~\ref{textPrimitives} (top) lists the primitive functions provided to \system.
+Tbl.~\ref{textPrimitives} (top) lists the primitive functions provided to \system.
 Absent are any routines for searching for characters, extracting substrings,
 or replacing one character with another.
 Instead, we provide list/string indexing primitives (\code{slice}, \code{nth}),
 basic arithmetic, and functions for splitting a string into a list (\code{split})
 or turning a list into a string (\code{join}).
-We automatically generated  600 string editing tasks along with input/output examples (Figure~\ref{exampleTextProblem}). %, split  75/25 train/test.
+We automatically generated  600 string editing tasks along with input/output examples (Fig.~\ref{exampleTextProblem}). %, split  75/25 train/test.
 At first, \system cannot find any programs that
 work at all for most of the tasks.
-After a few wake/sleep iterations,
-it assembles a DSL (Table~\ref{textPrimitives}, bottom) that lets it rapidly explore the space of programs and find solutions to
+After three wake/sleep iterations,
+it assembles a DSL (Tbl.~\ref{textPrimitives}, bottom) that lets it rapidly explore the space of programs and find solutions to
 all of the tasks.
 
 
@@ -1154,29 +1154,23 @@ all of the tasks.
   \end{tabular}
   \caption{Top: provided string editing primitives. Bottom: some induced DSL primitives.}\label{textPrimitives}
   \end{table}
-%% \begin{figure}
-
-%%   \includegraphics[width = 7cm]{figures/text.png}
-%%   \caption{Learning curves for string editing programs}\label{textLearningCurve}
-
-%% \end{figure}
 
 \begin{figure}
   \centering\begin{tabular}{ll}\toprule
     Input&Output\\\midrule
 cqbHT$>$aIKd$<$szW& 	AIKD\\
 YBW$>$TIg$<$WSho 	&TIG\\
-DkI$>$DwKI$<$xaPoc& 	DWKI\\
+%DkI$>$DwKI$<$xaPoc& 	DWKI\\
 KfvTh$>$Dbl$<$OIJso 	&DBL
     \\\bottomrule
   \end{tabular}
   
-  \vspace{0.5cm}
+  \vspace{0.25cm}
   
   \begin{minipage}{7.5cm}
  $f($\code{s}$) = $   \code{(}$f_3$\code{ (split '>' (upper s)) '<')}
     \end{minipage}
-  \caption{Example string edit task (top) and program  \system writes (bottom). $f_3$ is a new DSL subroutine discovered by \system, defined in Table~\ref{textPrimitives}}\label{exampleTextProblem}
+  \caption{Example string edit task (top) and program  \system writes (bottom). $f_3$ is a new DSL subroutine discovered by \system, defined in Tbl.~\ref{textPrimitives}}\label{exampleTextProblem}
   \end{figure}
 
 \subsection{List functions}
@@ -1187,7 +1181,7 @@ many of them represent distinct operations.
 Tasks in this domain are solved by functions that take as input an integer
 or a list of integers, and have as output either a Boolean, an integer, a
 list of Booleans, or a list of integers.  There are 225 tasks in total, some
-of which are shown in Table~\ref{listexamples}.
+of which are shown in Tbl.~\ref{listexamples}.
 
 We take approaches from two different initial DSLs, \emph{base} and
 \emph{rich}, and assess their performance. The base DSL starts with only
@@ -1196,7 +1190,7 @@ low-level primitives such as \code{mapi}, \code{reducei}, and
 built from these such as \code{all}, \code{filter}, \code{slice}, and
 \code{index}.
 Both are capable of solving all tasks supplied by our dataset.
-See Supplement for more detail on these DSLs.
+See Supplement for details on these DSLs.
 
 We found that this domain was difficult to tackle without starting from a
 relatively rich DSL, and even then it was still hard to solve all tasks. Our
@@ -1254,8 +1248,8 @@ We compare  with four baselines on  held-out tasks:
 \\\noindent \textbf{Ours--NN}, which lesions the recognition model.
 \\\noindent \textbf{RF/DC}, which holds the generative model $(\mathcal{D},\theta)$ fixed and learns
 a recognition model only from samples from the fixed generative model.
-This is equivalent to our algorithm with $\lambda = \infty$ (see Section~\ref{grammarInductionSection})
-and $\mathcal{L}_{\text{RM}} = \mathcal{L}_{\text{HM}}$ (see Section~\ref{recognitionSection}).
+This is equivalent to our algorithm with $\lambda = \infty$ (see Sec.~\ref{grammarInductionSection})
+and $\mathcal{L}_{\text{RM}} = \mathcal{L}_{\text{HM}}$ (see Sec.~\ref{recognitionSection}).
 We call this baseline RF/DC because
 this setup is closest to how RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
 \\\noindent \textbf{PCFG}, which lesions the recognition model, learns $\theta$, and fixes $\mathcal{D}$.
@@ -1272,15 +1266,15 @@ of the solution, as measured by the likelihood model $\probability[x|p]$,
 which measures how many
 real numbers were used in the program: e.g. did the model correctly explain a linear function
 using two numbers, or did it introduce extraneous parameters?
-Table~\ref{baselineComparisons}
+Tbl.~\ref{baselineComparisons}
 compares our model against these baselines.
-We see that our full model consistently
+Our full model consistently
 beats the baselines,
 and that the recognition model 
 consistently increases the number of solved held-out tasks.
 Lesioning the recognition model also slows down the convergence of the algorithm,
-taking more wake/sleep cycles to reach a given number of tasks solved (Figure~\ref{learningCurves}).
-This data supports our view of the recognition model as a way of accelerating the search over programs.
+taking more wake/sleep cycles to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
+This supports our view of the recognition model as a way of accelerating the search over programs.
 
 \begin{table}
 %% This radically shrinks the table
@@ -1289,25 +1283,25 @@ This data supports our view of the recognition model as a way of accelerating th
 \begin{tabular}{llllll}
   \toprule& Ours&Ours--NN  & RF/DC & PCFG & Enum
 
-  \\\midrule\\\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
+  \\\midrule\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
   \% solved &
   \textbf{84\%} &76\%& 63\%&62\%&62\%\\
   Solve time&  0.9s&  1.1s&1.2s&1.3s&1.3s
 
-  \\\midrule\\\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
+  \\\midrule\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
   \% solved&   \textbf{ 98\% }&94\%&0.7\%&0\%&2\% \\
   Solve time&  2.7s& 2.8s  &3.6s&--&2.1s\\
   MDL (nats)&   9.3 &11.0&2.3&--&4.6
 
-  \\\midrule\\\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
+  \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
   \% solved&\textbf{99\%} &82\% &9\%&24\%&18\%\\
   Solve time&  0.9s&2.2s&2.7s&2.3s&2.4s
 
-  \\\midrule\\\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
+  \\\midrule\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
   \% solved&\textbf{52\%} &\textbf{52\%} &40\%&44\%&42\%\\
   Solve time&  0.4s&0.7s&1.2s&0.9s&1.0s
 
-  \\\midrule\\\multicolumn{6}{c}{\emph{List functions (rich DSL)}}\\\midrule
+  \\\midrule\multicolumn{6}{c}{\emph{List functions (rich DSL)}}\\\midrule
   \% solved&\textbf{86\%} &84\% &60\%&74\%&70\%\\
   Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
   \\\bottomrule
