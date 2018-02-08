@@ -1184,34 +1184,11 @@ KfvTh$>$Dbl$<$OIJso 	&DBL
 Our list function domain consists of hand-designed concepts from which we
 sample tasks, so there is no ``ground truth'' formal DSL from which these
 tasks are generated. Additionally, few of these tasks are concatenative ---
-many of them represent distinct operations. We found that this domain was
-difficult to tackle without starting from a relatively rich DSL, and even
-then it was still hard to solve all tasks. All tasks are solved by functions
-that take as input an integer or a list of integers, and have as output
-either a Boolean, an integer, a list of Booleans, or a list of integers.
-Examples of these tasks are in Table~\ref{listexamples}.
-
-\begin{table}
-\centering
-\begin{tabular}{| l | l | l |}
-  \hline
-  \emph{name} & \emph{input} & \emph{output} \\
-  \hline
-  add-3 & [1\, 2\, 3\, 4] & [4\, 5\, 6\, 7] \\
-  append-4 & [7\, 0\, 2] & [7\, 0\, 2\, 4] \\
-  len & [3\, 5\, 12\, 1] & 4 \\
-  range & 3 & [1\, 2\, 3] \\
-  has-2 & [4\, 5\, 7\, 4] & \code{false} \\
-  has-head-in-tail & [4\, 5\, 7\, 4] & \code{true} \\
-  repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
-  drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
-  \hline
-\end{tabular}
-\caption{Examples of simple tasks from our list function domain. We used
-  15 input/output examples for each task to reduce ambiguity in the task's
-  function, ensuring solutions achieve the desired concept.}
-\label{listexamples}
-\end{table}
+many of them represent distinct operations.
+Tasks in this domain are solved by functions that take as input an integer
+or a list of integers, and have as output either a Boolean, an integer, a
+list of Booleans, or a list of integers.  There are 225 tasks in total, some
+of which are shown in Table~\ref{listexamples}.
 
 We take approaches from two different initial DSLs, \emph{base} and
 \emph{rich}, and assess their performance. The base DSL starts with only
@@ -1222,9 +1199,36 @@ built from these such as \code{all}, \code{filter}, \code{slice}, and
 Both are capable of solving all tasks supplied by our dataset.
 See Supplement for more detail on these DSLs.
 
+We found that this domain was difficult to tackle without starting from a
+relatively rich DSL, and even then it was still hard to solve all tasks. Our
+algorithm, like human learners, requires a spectrum of problems ranging from
+easy to hard. Without this curriculum, \system cannot get off the ground.
+The behavior with the base DSL illustrates this, because the initial set of
+primitives is not paired with a sufficiently large and graded curriculum.
+
+\begin{table}
+\centering
+\begin{tabular}{lll}
+  \toprule
+  Name & Input & Output \\\midrule
+  add-3 & [1\, 2\, 3\, 4] & [4\, 5\, 6\, 7] \\
+  append-4 & [7\, 0\, 2] & [7\, 0\, 2\, 4] \\
+  len & [3\, 5\, 12\, 1] & 4 \\
+  range & 3 & [1\, 2\, 3] \\
+  has-2 & [4\, 5\, 7\, 4] & \code{false} \\
+  has-head-in-tail & [4\, 5\, 7\, 4] & \code{true} \\
+  repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
+  drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
+  \bottomrule
+\end{tabular}
+\caption{Simple tasks from our list function domain. We used 15 input/output
+  examples for each task to reduce ambiguity in the task's function,
+  ensuring solutions achieve the desired concept.}
+\label{listexamples}
+\end{table}
+
 \begin{table}[t]
   \centering
-  Subset of learned DSL\\
   \begin{tabular}{l}
     \toprule
     $(f_0$ \code{i $\ell$}$) = $\code{(singleton (index i $\ell$))}\\
@@ -1241,7 +1245,7 @@ See Supplement for more detail on these DSLs.
     \hspace{0.5cm}($f_6$: \emph{Caesar shift of $k$ in integers modulo $n$})\\
   \bottomrule
   \end{tabular}
-  \caption{Some induced primitives from the list DSL}\label{listinduced}
+  \caption{Some induced primitives for list functions.}\label{listinduced}
 \end{table}
 
 
