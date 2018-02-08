@@ -837,7 +837,7 @@ This experimental setup is an extension of one introduced in the EC algorithm~\c
 %% whose inputs are the input/output examples.
 \system learns to build these
 circuits by inventing new subroutines that correspond to
-logic gates and multiplexers (Figure~\ref{circuitTables}, top).
+logic gates and multiplexers (Figure~\ref{multiplexer}, top).
 We compare  with four baselines on 250 held-out circuits:
 No NN, which lesions $q$;
 RF/DC,
@@ -856,14 +856,36 @@ and Enum, which does no learning and just enumerates a large frontier.
 \caption{Top: \% held-out Boolean circuits solved by \system and baselines w/ 5sec timeout. Bottom: average search time.}
 \end{figure}
 
-\begin{figure}
+\begin{figure}\centering
   \begin{circuitikz} \draw
-(0,2) node[and port] (myand1) {}
-(0,0) node[and port] (myand2) {}
-(2,1) node[xnor port] (myxnor) {}
-(myand1.out) -- (myxnor.in 1)
-(myand2.out) -- (myxnor.in 2);
-\end{circuitikz}
+    (0,0) node[port] (x) {$x$}
+    (x)++(0,-0.3) node[port] (y) {$y$}
+    (y)++(0,-0.5) node[port] (z) {$z$}
+    
+    (x)++(1.7,-0.15) node[nand port, scale = 0.5] (xy) {}
+    (xy) ++ (0,-1) node[nand port, scale = 0.5] (xz) {}
+    (xz) ++ (1,0.2) node[nand port, scale = 0.5] (zxz) {}
+    (zxz) ++ (1,0.2) node[nand port, scale = 0.5] (m) {}
+    (x.out) -- (xy.in 1)
+    (y.out) -- (xy.in 2)
+
+    (x.out) -- (xz.in 1)
+    (z.out) -- (xz.in 2)
+
+    (xz.out) -- (zxz.in 2)
+    (z.out) |- (zxz.in 1)
+
+    (zxz.out) -- (m.in 2)
+    (xy.out) |- (m.in 1)
+
+    (m)++(1.2,0) node [port] (l) {\textsc{MUX}$(x,y,z)$}
+    ;
+%% (0,0) node[and port] (myand2) {}
+%% (2,1) node[xnor port] (myxnor) {}
+%% (myand1.out) -- (myxnor.in 1)
+%% (myand2.out) -- (myxnor.in 2);
+  \end{circuitikz}
+\caption{\system discovers the above multiplexer circuit, which it uses to make more complicated circuits like the one below.}\label{multiplexer}
   \end{figure}
 
 
