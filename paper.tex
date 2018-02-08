@@ -1240,8 +1240,8 @@ This data supports our view of the recognition model as a way of accelerating th
   MDL (nats)&   $9.3$ &$11.0$&$2.3$&--&$4.6$ 
   
   \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
-  \% solved&99\% &82\% \\
-  Solve time&  0.9s&2.2s
+  \% solved&99\% &82\% &9\%&24\%&18\%\\
+  Solve time&  0.9s&2.2s&2.7s&2.3s&2.4s
   \\\bottomrule
   \end{tabular}
 \caption{\% solved: fraction solved with 5 sec timeout. Solve time: averaged over solved tasks. MDL: $-\expect\left[\probability[x|p] \right]$. For domains other than symbolic regression MDL is 0 nats. For symbolic regression MDL is a proxy for \# of continuous degrees of freedom.}\label{baselineComparisons}  \end{table}
