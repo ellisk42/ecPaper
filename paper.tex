@@ -1153,10 +1153,14 @@ KfvTh$>$Dbl$<$OIJso 	&DBL
 
 \subsection{List functions}
 Our list function domain consists of hand-designed concepts from which we
-sample tasks. All tasks are solved by functions that take as input an
-integer or a list of integers, and have as output either a Boolean, an
-integer, a list of Booleans, or a list of integers.  Examples of these
-tasks are in Table~\ref{listexamples}.
+sample tasks, so there is no ``ground truth'' formal DSL from which these
+tasks are generated. Additionally, few of these tasks are concatenative ---
+many of them represent distinct operations. We found that this domain was
+difficult to tackle without starting from a relatively rich DSL, and even
+then it was still hard to solve all tasks. All tasks are solved by functions
+that take as input an integer or a list of integers, and have as output
+either a Boolean, an integer, a list of Booleans, or a list of integers.
+Examples of these tasks are in Table~\ref{listexamples}.
 
 \begin{table}
 \centering
@@ -1188,7 +1192,28 @@ built from these such as \code{all}, \code{filter}, and \code{slice}.
 Both are theoretically capable of solving all tasks supplied by our dataset.
 See Supplement for more detail on these DSLs.
 
-% TODO: table of list results, show some induced primitives
+\begin{table}[t]
+  \centering
+  Subset of learned DSL\\
+  \begin{tabular}{l}
+    \toprule
+    $(f_0$ \code{i $\ell$}$) = $\code{(singleton (index i $\ell$))}\\
+    \hspace{0.5cm}($f_0$: \emph{Put the $i$-th index into a list})\\
+    $(f_1$ \code{i $\ell$}$) = $\code{(++ $\ell$ ($f_0$ i $\ell$))}\\
+    \hspace{0.5cm}($f_1$: \emph{Append the $i$-th index})\\
+    $(f_2$ \code{n $\ell$}$) = $\code{(any (lambda (x) (= n x)) $\ell$)}\\
+    \hspace{0.5cm}($f_1$: \emph{Whether $n$ appears in the list})\\
+    $(f_3$ \code{i $\ell$}$) = $\code{(index (negate i) (sort $\ell$))}\\
+    \hspace{0.5cm}($f_3$: \emph{Get the $i$-th largest number})\\
+    $(f_4$ \code{n $\ell$}$) = $\code{(mapi (lambda (i x) (mod x n)) $\ell$)}\\
+    $(f_5$ \code{k $\ell$}$) = $\code{(mapi (lambda (i x) (+ x k)) $\ell$)}\\
+    $(f_6$ \code{k n $\ell$}$) = $\code{($f_4$ n ($f_5$ k $\ell$)}\\
+    \hspace{0.5cm}($f_6$: \emph{Caesar shift of $k$ in integers modulo $n$})\\
+  \bottomrule
+  \end{tabular}
+  \caption{Some induced primitives from the list DSL}\label{listinduced}
+\end{table}
+
 
 \subsection{Quantitative Results}\label{quantitative}
 
@@ -1223,26 +1248,35 @@ consistently increases the number of solved held-out tasks.
 Lesioning the recognition model also slows down the convergence of the algorithm,
 taking more wake/sleep cycles to reach a given number of tasks solved (Figure~\ref{learningCurves}).
 This data supports our view of the recognition model as a way of accelerating the search over programs.
+
 \begin{table}
 %% This radically shrinks the table
 \tabcolsep=4pt
 \renewcommand{\arraystretch}{0.5}
 \begin{tabular}{llllll}
   \toprule& Ours&Ours--NN  & RF/DC & PCFG & Enum
-  
-  \\\midrule\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
+
+  \\\midrule\\\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
   \% solved &
   84\% &76\%& 63\%&62\%&62\%\\
-  Solve time&  $0.9$s&  1.1&1.2&1.3&1.3
-  
-  \\\midrule\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
+  Solve time&  0.9s&  1.1s&1.2s&1.3s&1.3s
+
+  \\\midrule\\\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
   \% solved&    98\% &94\%&0.7\%&0\%&2\% \\
-  Solve time&  $2.7$s& $2.8$s  &$3.6$s&--&$2.1$s\\
-  MDL (nats)&   $9.3$ &$11.0$&$2.3$&--&$4.6$ 
-  
-  \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
+  Solve time&  2.7s& 2.8s  &3.6s&--&2.1s\\
+  MDL (nats)&   9.3 &11.0&2.3&--&4.6
+
+  \\\midrule\\\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
   \% solved&99\% &82\% &9\%&24\%&18\%\\
   Solve time&  0.9s&2.2s&2.7s&2.3s&2.4s
+
+  \\\midrule\\\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
+  \% solved&52\% &52\% &40\%&44\%&42\%\\
+  Solve time&  0.4s&0.7s&1.2s&0.9s&1.0s
+
+  \\\midrule\\\multicolumn{6}{c}{\emph{List functions (rich DSL)}}\\\midrule
+  \% solved&86\% &84\% &60\%&74\%&70\%\\
+  Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
   \\\bottomrule
   \end{tabular}
 \caption{\% solved: fraction solved with 5 sec timeout. Solve time: averaged over solved tasks. MDL: $-\expect\left[\probability[x|p] \right]$. For domains other than symbolic regression MDL is 0 nats. For symbolic regression MDL is a proxy for \# of continuous degrees of freedom.}\label{baselineComparisons}  \end{table}
