@@ -671,7 +671,7 @@ expressions in order of their probability.
    \STATE Draw $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$
    \STATE \hspace{3.1cm}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
    \STATE Unify $\tau$ with yield$(\tau')$.
-   \STATE $\left\{\alpha_k \right\}_{k\leq K}\gets\text{argTypes}(\tau')$
+   \STATE $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{argTypes}(\tau')$ 
 %   \STATE unify$(\tau,\beta)$
    \FOR{$k=1$ {\bfseries to} $K$}
  \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
@@ -1241,9 +1241,9 @@ For each domain,
 we are interested both in how many tasks the
 agent can solve and how quickly it can find those solutions.
 For symbolic regression, we also care about the quality
-of the solution, as measured by the likelihood model $\probability[x|p]$.
-Concretely, this cashes out as measuring how many
-real numbers were used in the programs: e.g. did the model correctly explain a linear function
+of the solution, as measured by the likelihood model $\probability[x|p]$,
+which measures how many
+real numbers were used in the program: e.g. did the model correctly explain a linear function
 using two numbers, or did it introduce extraneous parameters?
 Table~\ref{baselineComparisons}
 compares our model against these baselines.
@@ -1288,11 +1288,11 @@ This data supports our view of the recognition model as a way of accelerating th
 \caption{\% solved: fraction solved with 5 sec timeout. Solve time: averaged over solved tasks. MDL: $-\expect\left[\probability[x|p] \right]$. For domains other than symbolic regression MDL is 0 nats. For symbolic regression MDL is a proxy for \# of continuous degrees of freedom.}\label{baselineComparisons}  \end{table}
 
 \begin{figure}\centering
-  \includegraphics[width = 7cm]{figures/regression.eps}
+\includegraphics[width = 7cm]{figures/regression.eps}
   \includegraphics[width = 7cm]{figures/list.eps}
   \includegraphics[width = 7cm]{figures/textLearningCurve.eps}
-  \includegraphics[width = 7cm]{figures/circuitLearningCurve.eps}
-  \caption{Learning curves for \system both with and without the recognition model (No NN in the above plots). Red: \system. Green: no neural network. Notice how the model without the neural network eventually solves almost all the tasks, but does so using programs with lower likelihood (see Table~\ref{regressionComparison}).}\label{regressionLearningCurve}
+  \includegraphics[width = 7cm]{figures/circuitLearningCurve.eps}  
+  \caption{Learning curves for \system both with (blue) and without (red) the recognition model as the frontier size is varied (solid/dashed/dotted lines).}\label{learningCurves} 
 \end{figure}
 
 \pagebreak
