@@ -1033,14 +1033,11 @@ This falls out of our Bayesian treatment of the program learning problem -- both
 \caption{Some induced DSL primitives for symbolic regression. System starts out with addition, multiplication, and real numbers, and learns functions for building 4th order polynomials.}\label{regressionDSL}
 \end{table}
 
-The neural recognition model accelerates inference,
-but given enough iterations of our algorithm,
-a lesioned version without the recognition model eventually comes close to catching up (green curves in Figure~\ref{regressionLearningCurve}; No NN in Table~\ref{regressionComparison}).
-We compare our model on held-out tasks against 4 baselines (Table~\ref{regressionComparison}).
-\begin{figure}\centering
-  \includegraphics[width = 7cm]{figures/regression.eps}
-  \caption{Learning curves for symbolic regression. Red: \system. Green: no neural network. Notice how the model without the neural network eventually solves almost all the tasks, but does so using programs with lower likelihood (see Table~\ref{regressionComparison}).}\label{regressionLearningCurve}
-\end{figure}
+%% The neural recognition model accelerates inference,
+%% but given enough iterations of our algorithm,
+%% a lesioned version without the recognition model eventually comes close to catching up (green curves in Figure~\ref{regressionLearningCurve}; No NN in Table~\ref{regressionComparison}).
+%% We compare our model on held-out tasks against 4 baselines (Table~\ref{regressionComparison}).
+
 
 \subsection{String editing}\label{textSection}
 Synthesizing programs that manipulate strings is a classic problem in the
@@ -1055,11 +1052,11 @@ other system successful.
 Table~\ref{textPrimitives} lists the primitive functions provided to \system.
 Absent are any routines for searching for characters, extracting substrings,
 or replacing one character with another.
-Instead, we provide array/string indexing primitives (\code{slice}, \code{nth}),
+Instead, we provide list/string indexing primitives (\code{slice}, \code{nth}),
 basic arithmetic, and functions for splitting a string into a list (\code{split})
 or turning a list into a string (\code{join}).
 
-We automatically generated  600 string editing along with input/output examples (Figure~\ref{exampleTextProblem}), split  75/25 train/test.
+We automatically generated  600 string editing tasks along with input/output examples (Figure~\ref{exampleTextProblem}). %, split  75/25 train/test.
 
 
 
@@ -1174,15 +1171,21 @@ This is equivalent to the first wake cycle of our \system.
 
 For each domain,
 we are interested both in how many tasks the
-agent can solve and how quickly can find those solutions.
+agent can solve and how quickly it can find those solutions.
 For symbolic regression, we also care about the quality
 of the solution, as measured by the likelihood model $\probability[x|p]$.
 Concretely, this cashes out as measuring how many
-real numbers were used in the programs: did the model correctly explain a linear function
+real numbers were used in the programs: e.g. did the model correctly explain a linear function
 using two numbers, or did it introduce extraneous parameters?
 Table~\ref{baselineComparisons}
 compares our model against these baselines.
-
+We see that our full model consistently
+beats the baselines,
+and that the recognition model 
+consistently increases the number of solved held-out tasks.
+Lesioning the recognition model also slows down the convergence of the algorithm,
+taking more wake/sleep cycles to reach a given number of tasks solved (Figure~\ref{learningCurves}).
+This data supports our view of the recognition model as a way of accelerating the search over programs.
 \begin{table}
 %% This radically shrinks the table
 \tabcolsep=4pt
@@ -1206,6 +1209,12 @@ compares our model against these baselines.
   \\\bottomrule
   \end{tabular}
 \caption{\% solved: fraction solved with 5 sec timeout. Solve time: averaged over solved tasks. MDL: $-\expect\left[\probability[x|p] \right]$. For domains other than symbolic regression MDL is 0 nats. For symbolic regression MDL is a proxy for \# of continuous degrees of freedom.}\label{baselineComparisons}  \end{table}
+
+\begin{figure}\centering
+  \includegraphics[width = 7cm]{figures/regression.eps}
+  \caption{Learning curves for \system both with and without the recognition model (No NN in the above plots). Red: \system. Green: no neural network. Notice how the model without the neural network eventually solves almost all the tasks, but does so using programs with lower likelihood (see Table~\ref{regressionComparison}).}\label{regressionLearningCurve}  
+\end{figure}
+
 \pagebreak
  \section{Related Work}
  Our work is far from the first to learn to learn programs,
@@ -1225,8 +1234,8 @@ compares our model against these baselines.
 
  \noindent \emph{Inventing new subroutines for program induction:}
  Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
- and go beyond it along two dimensions: (1) we propose more sophisticated algorithms for
- inducing reusable structure, based on a formalism called \emph{Fragment Grammars}~\cite{tim};
+ and go beyond it along two dimensions: (1) we propose a new algorithm for
+ inducing reusable subroutines, based on Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing};
  and (2) we show how to combine these techniques with bottom-up neural recognition models.
  Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10} and Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}.
  
@@ -1237,8 +1246,7 @@ compares our model against these baselines.
  
  \section{Conclusion}
  We contributed a model, \system, that learns to program by
- bootstrapping a domain-specific language.
- The  DSL learns to expose new domain-specific primitives
+ bootstrapping a DSL with new domain-specific primitives that the algorithm itself discovers.
   Alongside this DSL, we train a bottom-up
  neural recognition model that learns how to efficiently deploy the
  DSL and hone in on the desired programs.  We believe that this
@@ -1246,9 +1254,6 @@ compares our model against these baselines.
  networks -- both of them learned -- is a useful general approach for
  getting program induction off the ground. 
  
-
-
-
 
 \pagebreak
 
