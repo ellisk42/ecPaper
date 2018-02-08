@@ -185,7 +185,7 @@ and it learns a neural network that
 efficiently searches for programs in the DSL.
 The purpose of the DSL
 is to distill the commonalities across the programs that solve the tasks,
-and it can be used to solve other related program learning problems.
+letting the agent solve other related program learning problems.
 
 
 
@@ -316,7 +316,7 @@ For us, a wake cycle means using the recognition model to search for programs th
 The wake cycle can be thought of as a kind of active problem solving,
 guided by the current generative and recognition models.
 A sleep cycle means updating these models so that the DSL and  recognition model
-to more closely match the distribution of tasks.
+more closely match the distribution of tasks.
 This wake/sleep style of inference is the reason why we call our approach \system.
 
 
@@ -553,7 +553,7 @@ With this notation in hand we can now define DSLs:
 A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
 %\\\noindent\textbf{Definition.}
 A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| + 1$ real numbers:
-one number for each DSL primitive $e:\tau\in \mathcal{D}$, written $\theta_e$,
+one number for each DSL primitive $e\in \mathcal{D}$, written $\theta_e$,
 and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
 
 Algorithm~\ref{programGenerativeModel} is a procedure for drawing
@@ -1015,11 +1015,10 @@ We automatically generated  600 string editing along with input/output examples 
     String editing primitives\\
     \begin{tabular}{l}
     \toprule
-    \code{0}, \code{+1},\code{-1}\\
-    \code{split}, \code{join}, \code{map}, \code{length}, \code{slice}\\
+    \code{0}, \code{+1},\code{-1},     \code{""},    \code{","},     \code{" "},    \code{"<"}, \code{">"}  \\
+    \code{split}, \code{join}, \code{map}, 
     \code{append}, \code{chr->str}, \code{trim}, \code{nth}\\
-    \code{lowercase}, \code{uppercase}, \code{capitalize}\\
-    \code{""},    \code{","},     \code{" "},    \code{"<"}, \code{">"}  
+    \code{length}, \code{slice},    \code{lower}, \code{upper}, \code{capitalize}
   \\\bottomrule
     \end{tabular}\\
 \\    Subset of learned DSL\\
