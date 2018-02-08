@@ -830,7 +830,7 @@ We define a prior distribution over DSLs which penalizes the sizes of the $\lamb
 where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
 $\lambda$ is a hyperparameter that acts as a regularizer on the size of the DSL,
 and $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
-Alg.~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
+%Alg.~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
 
 To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
 Although this problem may seem 
@@ -839,25 +839,25 @@ for which we have effective approaches like the Inside/Outside algorithm~\cite{i
 a DSL in \system may be context-sensitive due to the presence of variables
 in the programs and also due to the polymorphic typing system.
 In the Supplement we derive a tractable MAP estimator for $\theta$.
-\begin{algorithm}[tb]
-   \caption{DSL Induction Algorithm}
-   \label{grammarInductionAlgorithm}
-   \begin{algorithmic}
-     \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
-     \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
-     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
-     \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{z\in \mathcal{F}_x} \probability[z|\mathcal{D},\theta]$
-     \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
-     \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - ||\theta||_0$
-     \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
-     \WHILE {true}
-     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ subexpression of }z\}$
-     \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
-     \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$
-     \STATE $\mathcal{D}\gets\mathcal{D}'$
-     \ENDWHILE
-   \end{algorithmic}
-\end{algorithm}
+%% \begin{algorithm}[tb]
+%%    \caption{DSL Induction Algorithm}
+%%    \label{grammarInductionAlgorithm}
+%%    \begin{algorithmic}
+%%      \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
+%%      \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
+%%      \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+%%      \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{z\in \mathcal{F}_x} \probability[z|\mathcal{D},\theta]$
+%%      \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
+%%      \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - ||\theta||_0$
+%%      \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
+%%      \WHILE {true}
+%%      \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ subexpression of }z\}$
+%%      \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
+%%      \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$
+%%      \STATE $\mathcal{D}\gets\mathcal{D}'$
+%%      \ENDWHILE
+%%    \end{algorithmic}
+%% \end{algorithm}
 
 \begin{figure*}
 \centering  \begin{tabular}{lll}
