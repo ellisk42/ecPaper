@@ -153,6 +153,26 @@
 \printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
 \begin{abstract}
+  Successful  approaches to program induction require a
+  hand-engineered  domain-specific languaget (DSL),
+  constraining the space of allowed programs and imparting
+  prior knowledge of the domain.
+  We contribute a program learning algorithm
+  that learns the DSL called \system,
+which infers
+  a DSL 
+  and trains a neural network to
+  efficiently search for programs in the learned DSL.
+  We use our model to build circuits,
+  edit strings, do symbolic regression,
+  and synthesize Lisp-style functions on lists,
+  in each case showing that
+  \system learns a domain-specific vocabulary for expressing programs.
+  
+  
+  
+  
+  
 
 \end{abstract}
 
@@ -163,8 +183,8 @@ of artificial intelligence.  Recent work in program induction show
 that deep networks can be very successful at learning to write certain
 kinds of programs (e.g., RobustFill:~\cite{devlin2017robustfill} and
 DeepCoder:~\cite{balog2016deepcoder}), as can symbolic search
-techniques (e.g., Metagol:~\cite{muggleton2015meta} and 
-FlashFill:~\cite{gulwani2011automating}).
+techniques (e.g., Metagol:~\cite{muggleton2015meta},
+FlashFill:~\cite{gulwani2011automating}, and Sketch~\cite{solar2008program}).
 However, the success of these approaches -- both symbolic and neural --
 relies crucially upon a hand-engineered \emph{Domain Specific Language} (DSL).
 The DSL is an inventory of restricted programming primitives,
@@ -184,7 +204,7 @@ domain-specific subroutines;
 and it learns a neural network that
 efficiently searches for programs in the DSL.
 The purpose of the DSL
-is to distill the commonalities across the programs that solve the tasks,
+is to expose the commonalities across the programs that solve tasks within a domain,
 letting the agent solve other related program learning problems.
 
 
@@ -276,8 +296,8 @@ letting the agent solve other related program learning problems.
 
 
   \end{tikzpicture}
-  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs
-    ($\theta^{(x)} = q(x)$). Black arrows correspond to the top-down generative model. Red arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
+  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Algorithm~\ref{programGenerativeModel}). Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
+    $\theta^{(x)}$. Black arrows correspond to the top-down generative model. Red arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
 \end{figure}
 
 
@@ -313,7 +333,7 @@ We take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cit
 which alternates between ``waking'', which draws samples from a recognition model (our $q$);
 and  ``sleeping'', which trains a recognition model on samples from the generative model (our $\mathcal{D},\theta$).
 For us, a wake cycle means using the recognition model to search for programs that solve the tasks.
-The wake cycle can be thought of as a kind of active problem solving,
+The wake cycle can be thought of active problem solving,
 guided by the current generative and recognition models.
 A sleep cycle means  updating these models so that the DSL and  recognition model
 more closely match the distribution of tasks.
@@ -551,32 +571,34 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
 \system does approximate MAP inference in the generative model of Figure~\ref{graphicalModel}(a) by maximizing this lower bound on the joint probability,
-alternatingly maximizing w.r.t. the frontiers (``wake'') and the DSL (``sleep''):
+alternatingly maximizing w.r.t. the frontiers (Wake) and the DSL (Sleep-G):
 %So interleaved with the DSL induction steps are program induction steps. Section~\ref{explorationSection}
 %explains how \system synthesizes new programs and given a DSL.
 \\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
-Adding new programs to the frontiers means searching for new programs $p$ for task $x$
-where $\probability[x,p|\mathcal{D},\theta]$ is large.
+$\lowerBound$ most increases by searching for programs where $\probability[x,p|\mathcal{D},\theta]$
+is large.
+%% which we can accomplish by adding new programs to the frontiers means searching for new programs $p$ for task $x$
+%% where  is large.
 \\\noindent \textbf{DSL Induction: Maxing $\int \lowerBound\;\mathrm{d}\theta$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound\;\mathrm{d}\theta$.
 Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\})$. 
 
 
 Searching for programs is hard because
 of the large combinatorial search space. We ease this difficulty by learning a neural recognition model
-during a second ``sleep'' phase:
+during the Sleep-R phase:
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
   frontiers.}  Here we train a neural network, $q$, to predict a
 distribution over programs conditioned on a task. The objective of $q$
 is to assign high probability to programs $p$ where
 $\probability[x,p|\mathcal{D},\theta]$ is large, because including those programs
-in the frontiers will most increase $\lowerBound$.  With $q$ in hand we can find programs for
-the frontier $\mathcal{F}_x$ by searching for programs that maximize
-$q(p|x)$.
-The network $q$ exploits the structure of the DSL $\mathcal{D}$:
+in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can find programs for
+%% the frontier $\mathcal{F}_x$ by searching for programs that maximize
+%% $q(p|x)$.
+The recognition model exploits the structure of the DSL: %$\mathcal{D}$:
 rather than directly predicting a distribution over $p$ conditioned on $x$,
-it predicts a weight vector, $\theta^{(x)}$, and we define $q(p|x)\triangleq \probability[p|\mathcal{D},\theta = q(x)]$.
+it predicts a distribution over components of the DSL.
 This taps into the intuition that programming is primarily a top-down activity:
 as human programmers, we first decide what kind of
 programming constructs we might need to use,
@@ -587,8 +609,8 @@ and then we figure out how to assemble them in to the desired program.
 
 Our lower bound $\lowerBound$ is unconventional,
 and one might wonder why we do not instead maximize an ELBO-style bound like in a VAE or in the EM algorithm.
-For the interested reader, we explain in the supplement that maximizing an ELBO-style bound
-leads to a pathological behavior that would cause the algorithm to easily become trapped in local optima.
+We explain in the supplement that maximizing an ELBO-style bound
+leads to a pathological behavior that  causes the model to easily become trapped in local optima.
 
 
 
@@ -727,6 +749,7 @@ The crucial aspect of this framing is that the neural network
 leverages the structure of the learned DSL,
 so it is \emph{not} responsible for
 generating programs wholesale.
+We share this aspect with the DeepCoder system~\cite{balog2016deepcoder}.
 
 
 We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]||q(p|x) \right) \right]$,
@@ -812,11 +835,11 @@ Algorithm~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
 
 To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
 Although this problem may seem 
-very similar to estimating the parameters of a probabilistic context free grammar (PCFG: see~\cite{}),
+very similar to estimating the parameters of a probabilistic context free grammar,
 for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
 a DSL in \system may be context-sensitive due to the presence of variables
 in the programs and also due to the polymorphic typing system.
-In the Appendix we derive a tractable MAP estimator for $\theta$.
+In the Supplement we derive a tractable MAP estimator for $\theta$.
 \begin{algorithm}[tb]
    \caption{DSL Induction Algorithm}
    \label{grammarInductionAlgorithm}
@@ -864,16 +887,17 @@ In the Appendix we derive a tractable MAP estimator for $\theta$.
 Algorithm~\ref{mainAlgorithm} describes how we combine program search,
 recognition model training, and DSL induction.
 We note the following implementation details:
-(1) on the first iteration, we do \emph{not} train the recognition model on samples from
+(1) We interleave wake cycles with each of the sleep cycles;
+(2) on the first iteration, we do \emph{not} train the recognition model on samples from
 the generative model because a DSL has not yet been learned --
 we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
-(2) Because the frontiers can grow very large,
+(3) Because the frontiers can grow very large,
 we only keep around the top $10^4$ programs $p$ in each frontier $\mathcal{F}_x$
 with the highest likelihood $\probability[x,p|\mathcal{D},\theta]$.
-(3) During both DSL induction and neural net training, we calculate $\text{score}(\mathcal{D}')$ and $\mathcal{L}_{\text{RM}}$
+(4) During both DSL induction and neural net training, we calculate $\text{score}(\mathcal{D}')$ and $\mathcal{L}_{\text{RM}}$
 by only summing over the top $K$
 programs in $\mathcal{F}_x$ -- we found that $K = 2$ sufficed.
-(4) For added robustness, at each iteration we enumerate programs from both the generative model and the recognition model.
+(5) For added robustness, we enumerate programs from both the generative model and the recognition model.
 
 \begin{algorithm}[tb]
    \caption{The \system Algorithm}
@@ -931,7 +955,7 @@ circuits by creating new subroutines that correspond to
 logic gates and multiplexers (Figure~\ref{multiplexer}).
 We will show data showing that the neural recognition model
 assists in building these circuits (Section~\ref{quantitative}),
-suggesting that an agent can glean something about the structure of the circuit just by looking at its truth table.
+suggesting that an agent can glean something about the structure of a circuit just by looking at its truth table.
 
 \begin{figure}\centering
   \begin{circuitikz} \draw
@@ -1195,7 +1219,7 @@ low-level primitives such as \code{mapi}, \code{reducei}, and
 \code{if}, whereas the rich DSL includes some common structure that can be
 built from these such as \code{all}, \code{filter}, \code{slice}, and
 \code{index}.
-Both are theoretically capable of solving all tasks supplied by our dataset.
+Both are capable of solving all tasks supplied by our dataset.
 See Supplement for more detail on these DSLs.
 
 \begin{table}[t]
@@ -1264,24 +1288,24 @@ This data supports our view of the recognition model as a way of accelerating th
 
   \\\midrule\\\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
   \% solved &
-  84\% &76\%& 63\%&62\%&62\%\\
+  \textbf{84\%} &76\%& 63\%&62\%&62\%\\
   Solve time&  0.9s&  1.1s&1.2s&1.3s&1.3s
 
   \\\midrule\\\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
-  \% solved&    98\% &94\%&0.7\%&0\%&2\% \\
+  \% solved&   \textbf{ 98\% }&94\%&0.7\%&0\%&2\% \\
   Solve time&  2.7s& 2.8s  &3.6s&--&2.1s\\
   MDL (nats)&   9.3 &11.0&2.3&--&4.6
 
   \\\midrule\\\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
-  \% solved&99\% &82\% &9\%&24\%&18\%\\
+  \% solved&\textbf{99\%} &82\% &9\%&24\%&18\%\\
   Solve time&  0.9s&2.2s&2.7s&2.3s&2.4s
 
   \\\midrule\\\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
-  \% solved&52\% &52\% &40\%&44\%&42\%\\
+  \% solved&\textbf{52\%} &\textbf{52\%} &40\%&44\%&42\%\\
   Solve time&  0.4s&0.7s&1.2s&0.9s&1.0s
 
   \\\midrule\\\multicolumn{6}{c}{\emph{List functions (rich DSL)}}\\\midrule
-  \% solved&86\% &84\% &60\%&74\%&70\%\\
+  \% solved&\textbf{86\%} &84\% &60\%&74\%&70\%\\
   Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
   \\\bottomrule
   \end{tabular}
@@ -1302,7 +1326,7 @@ This data supports our view of the recognition model as a way of accelerating th
 
  \noindent \emph{Neural recognition models for program induction:} Much recent work in the ML community has
  focused on creating neural networks that regress from
- input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. This family of work is analogous to the lesioned version of
+ input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. This family of work is closest to the lesioned version of
  \system where $(\mathcal{D},\theta)$ is held fixed and $q$ is learned (RF/DC baseline).
  These neural networks are typically trained with strong supervision (i.e., with annotated ground-truth programs) on massive data sets (i.e., hundreds of millions~\cite{devlin2017robustfill}).
  In our work we consider a weakly-supervised setting where ground truth programs are not provided and
@@ -1314,7 +1338,7 @@ This data supports our view of the recognition model as a way of accelerating th
 
  \noindent \emph{Inventing new subroutines for program induction:}
  Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
- and go beyond it along two dimensions: (1) we propose a new algorithm for
+ and extend it along two dimensions: (1) we propose a new algorithm for
  inducing reusable subroutines, based on Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing};
  and (2) we show how to combine these techniques with bottom-up neural recognition models.
  Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10} and Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}.
@@ -1329,7 +1353,7 @@ This data supports our view of the recognition model as a way of accelerating th
  bootstrapping a DSL with new domain-specific primitives that the algorithm itself discovers.
   Alongside this DSL, we train a bottom-up
  neural recognition model that learns how to efficiently deploy the
- DSL and hone in on the desired programs.  We believe that this
+ DSL and hone in on the right programs.  We believe that this
  integration of top-down symbolic representation and bottom-up neural
  networks -- both of them learned -- is a useful general approach for
  getting program induction off the ground. 
