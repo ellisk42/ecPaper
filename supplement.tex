@@ -17,7 +17,7 @@
 % Attempt to make hyperref and algorithmic work together better:
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
-\newcommand{\system}{\textsc{HelmholtzHacker}~}
+\newcommand{\system}{\textsc{DreamCoder}~}
 
 % Use the following line for the initial blind version submitted for review:
 \usepackage{icml2018}
@@ -87,12 +87,12 @@
 
 % The \icmltitle you define below is probably too long as a header.
 % Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Inducing Domain Specific Languages for Bayesian Program Learning}
+\icmltitlerunning{Bootstrapping Domain Specific Languages for Bayesian Program Learning}
 
 \begin{document}
 
 \twocolumn[
-\icmltitle{Supplement to: Inducing Domain Specific Languages for Bayesian Program Learning}
+\icmltitle{Supplement: Bootstrapping Domain Specific Languages for Bayesian Program Learning}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -203,6 +203,33 @@ We MaxPool the final hidden unit activations in the GRU along both passes of the
 
 \section{Why not the ELBO bound?}
 
+If we were to maximize the ELBO bound to perform inference in
+our generative model,
+then, during DSL induction, we would seek a new $(\mathcal{D}^*,\theta^*)$ maximizing the following lower bound on the likelihood (along an unimportant regularizing term on the DSL):
+\begin{align}
+  &  \sum_{x\in X}\expect_{p\sim Q_x}\left[\log \probability[p|\mathcal{D}^*,\theta^*] \right] \label{EM}\\
+  & Q_x(p)\triangleq \probability[p|x,\mathcal{D},\theta]
+\end{align}
+where $(\mathcal{D},\theta)$ is our current estimate of the generative
+model.  These equations fall out of an EM-style derivation, and one
+could replace $Q_x(p)$ with the recognition model $q(p|x)$, either
+using importance sampling (so the expectation in~\ref{EM} is taken
+over $q$ and we reweight using $Q_x$) or by directly using $q$ as our approximate posterior over the program that solves task $x$.
+
+How the recognition model is worked into this is unimportant to the reason why we do not maximize a bound of this form:
+this bound takes an expectation over the \emph{previous} sleep cycle's
+posterior over programs,
+and so the approximate posterior $Q_x$ at the next iteration
+ends up being very close to previous approximate posterior.
+Intuitively,
+we want the DSL induction to be a function \emph{only} of the programs that we have found,
+and \emph{not} be a function of how the previous generative model weighted them.
+In practice,
+we found that maximizing EM-style bounds, like the ELBO,
+leads to a kind of hysteresis effect,
+where the next generative model too closely matches the previous one,
+causing the algorithm to easily become trapped in local optima.
+
 
 \section{Estimating $\theta$}
 
@@ -218,9 +245,9 @@ where $c(p) = \sum_{e\in \mathcal{D}}c(e,p)$ and $r(e:\tau',p) = \sum_{\tau\in R
 
 Differentiate with respect to $\theta_e$ and set to zero 
 \begin{align}
-  \frac{c(x)}{\theta^{(x)}} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
+  \frac{c(x)}{\theta_x} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
 \end{align}
-This equality holds if $\theta^{(x)} = c(x)/a(x)$:
+This equality holds if $\theta_x = c(x)/a(x)$:
 \begin{align}
   \frac{c(x)}{\theta_x} &= a(x).\\
 N\frac{a(x)}{\sum_y a(y)\theta_y}& = N\frac{a(x)}{\sum_y c(y)}   = N\frac{a(x)}{N} = a(x).
@@ -238,6 +265,14 @@ Now what we are actually after is the parameters that maximize the joint log pro
 \end{align}
 We identify the parameters of the prior over $\theta$, $\alpha$, as  pseudocounts that are added to the \emph{counts} ($c(x)$), but not to the \emph{possible counts} ($a(x)$).
 
+
+When is this lower bound tight? This lower bound is tight whenever all
+of the types of the expressions in the DSL are not polymorphic, in which case our DSL is equivalent to a PCFG
+and this estimator is equivalent to the inside/outside algorithm.
+Polymorphism introduces context-sensitivity to the DSL,
+and exactly maximizing the likelihood with respect to $\theta$
+becomes intractable,
+so for domains with polymorphic types we use this estimator.
 
 \vfill\null\columnbreak
 

@@ -1200,10 +1200,11 @@ This is equivalent to our algorithm with $\lambda = \infty$ (see Section~\ref{gr
 and $\mathcal{L}_{\text{RM}} = \mathcal{L}_{\text{HM}}$ (see Section~\ref{recognitionSection}).
 We call this baseline RF/DC because
 this setup is closest to how RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
-\\\noindent \textbf{PCFG}, which lesions the recognition model, fixes $\mathcal{D}$, and learns only $\theta$.
-This is like learning the parameters of a PCFG.
+\\\noindent \textbf{PCFG}, which lesions the recognition model, learns $\theta$, and fixes $\mathcal{D}$.
+This is equivalent to our algorithm with $q(x) = \theta$ and $\lambda = \infty$,
+and is like learning the parameters of a PCFG while not learning any of the structure.
 \\\noindent \textbf{Enum}, which does no learning and just enumerates a frontier.
-This is equivalent to the first wake cycle of our \system.
+This is equivalent to the first wake cycle of \system.
 
 For each domain,
 we are interested both in how many tasks the
