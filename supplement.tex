@@ -5,7 +5,7 @@
 % Recommended, but optional, packages for figures and better typesetting:
 \usepackage{microtype}
 \usepackage{graphicx}
-\usepackage{subfigure}
+%\usepackage{subfigure}
 \usepackage{booktabs} % for professional tables
 
 % hyperref makes hyperlinks in the resulting PDF.
@@ -354,7 +354,7 @@ Differentiating with respect to $\theta_e$ and setting to zero:
 \begin{align*}
   \frac{c(e, p)}{\theta_e} &= c(p)\frac{r(e, p)}{\sum_{e'\in\mathcal{D}} r(e', p)\theta_{e'}} \\
   \frac{c(x,p)}{\theta_x} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
-\end{align}
+\end{align*}
 where $N=c(p)$ and $a(x) = r(x, p)$. From here forward, we similarly let
 $c(x)=c(x,p)$ for notational convenience.
 
@@ -603,7 +603,8 @@ WYPvm & YPvm \\
 \section{Learned DSLs}
 
 Here we present representative DSLs learned by
-our model. DSL primitives discovered by the algorithm are prefixed with \code{#}.
+our model. DSL primitives discovered by the algorithm are prefixed with
+\lstinline!#!.
 Variables are prefixed with \$, and we use De Bruijn indices to model variables~\cite{pierce}.
 We abbreviate lambda as \textbackslash.
 
