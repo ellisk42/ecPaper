@@ -607,7 +607,7 @@ one number for each DSL primitive $e\in \mathcal{D}$, written $\theta_e$,
 and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
 
 Alg.~\ref{programGenerativeModel} is a procedure for drawing
-samples from $\probability[p|\mathcal{D},\theta]$.  In practice, we
+samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
 enumerate programs rather than sampling them.  Enumeration proceeds by
 a depth-first search over the random choices made by
 Alg.~\ref{programGenerativeModel}; we wrap the depth-first search
@@ -735,7 +735,7 @@ we use an RNN to encode each input/output example.
 For domains with fixed-dimensionality inputs/outputs we use a multilayer perceptron.
 We MaxPool across all of the input/output examples. See Supplement for details.
 
-\subsection{Sleep-G: Inducing the DSL}\label{grammarInductionSection}
+\subsection{Sleep-G: Learning a DSL (Generative Model)}\label{grammarInductionSection}
 
 The purpose of the DSL is to
 offer a set of abstractions
@@ -819,7 +819,7 @@ recognition model training, and DSL induction.
 We note the following implementation details:
 (1) We perform a wake cycle before each of the sleep cycles.
 (2) On the first iteration, we do \emph{not} train the recognition model on samples from
-the generative model because a DSL has not yet been learned --
+the generative model because a generative model has not yet been learned --
 we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
 %% (3) Because the frontiers can grow very large,
 %% we only keep around the top $10^4$ programs $p$ in each frontier $\mathcal{F}_x$
@@ -1087,22 +1087,30 @@ all of the tasks.
   \end{table}
 
 \begin{figure}
-  \centering\begin{tabular}{ll}\toprule
-    Input&Output\\\midrule
-cqbHT$>$aIKd$<$szW& 	AIKD\\
-YBW$>$TIg$<$WSho 	&TIG\\
+  \centering\begin{tabular}{ll|ll}\toprule
+    Input&Output&Input&Output\\\midrule
+cqbHT$>$aIKd$<$W& 	AIKD&BgZQ..PBBnD & BgZQ. \\
+YBW$>$TIg$<$WS 	&TIG& qqfgg..mNIx & qqfgg. 
 %DkI$>$DwKI$<$xaPoc& 	DWKI\\
-KfvTh$>$Dbl$<$OIJso 	&DBL
-    \\\bottomrule
+%KfvTh$>$Dbl$<$OIJso 	&DBL
+\\\midrule
+\multicolumn{2}{l|}{$f(\text{\code{s}}) = $\code{(}$f_3$\code{ (split '>' } }&
+\multicolumn{2}{l}{$f(\text{\code{s}}) = $\code{(}$f_1$\code{ s '.' 0)}}
+\\
+\multicolumn{2}{l|}{\hspace{1.1cm}\code{(upper s)) '<')}}
+\\\bottomrule
   \end{tabular}
+
   
-  \vspace{0.25cm}
+  %% \vspace{0.25cm}
   
-  \begin{minipage}{\linewidth}
-    \centering
-    $f($\code{s}$) \,=\, $\code{(}$f_3$\code{ (split '>' (upper s)) '<')}
-  \end{minipage}
-  \caption{A string edit task and the program \system writes for it. $f_3$ is a discovered DSL subroutine, defined in Tbl.~\ref{textPrimitives}.}\label{exampleTextProblem}
+  %% \begin{minipage}{\linewidth}
+  %%   \centering
+  %%   $f($\code{s}$) \,=\, $
+  %% \end{minipage}
+
+  
+  \caption{Two string edit tasks (top) and the programs \system writes for them (bottom). $f_3$ are $f_1$  discovered DSL subroutines, defined in Tbl.~\ref{textPrimitives}.}\label{exampleTextProblem}
 \end{figure}
 
 

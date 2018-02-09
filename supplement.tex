@@ -235,87 +235,6 @@ generative model, while red lines correspond to connections from the bottom-up r
 \end{tikzpicture}
 \end{figure}
 
-\section{Example program induction tasks}
-
-\subsection{String editing}
-
-We automatically generated 600 string editing problems split 75/25 train/test.
-We show representative problems:
-\pagebreak
-
-
-double
-
-\begin{tabular}{ll}
-        \toprule Input&Output\\\midrule
-vlxS & vlxSvlxS \\
- JkVC & JkVCJkVC \\
- dbxD & dbxDdbxD \\
- gQgB & gQgBgQgB
-\\\bottomrule
-\end{tabular}
-
-Extract string delimited by ',' (inclusive),' '
-\begin{tabular}{ll}
-        \toprule Input&Output\\\midrule
-LsR,uhMZI wIL & ,uhMZI  \\
- tMY,KdF hhT & ,KdF  \\
- UUPdC,UAd kCgtq & ,UAd  \\
- gQgGN,VMJ FjrXZ & ,VMJ 
-\\\bottomrule
-\end{tabular}
-
-Apply first 2 characters to input delimited by '.'
-\begin{tabular}{ll}
-        \toprule Input&Output\\\midrule
-OhCQN.DlH.LdkJ.pLh & OhDlLdpL \\
- CZr.mveZr.dvjP.YMJpg & CZmvdvYM \\
- bpub.VkkZ.dYdPr & bpVkdY \\
- zjNA.wFwY.WMMqh.OFdbr & zjwFWMOF
-\\\bottomrule
-\end{tabular}
-
-Apply first 2 characters to string delimited by ' ','.'
-\begin{tabular}{ll}
-        \toprule Input&Output\\\midrule
-fNA YWyL.JDD & YW \\
- YWozt TPW.nczz & TP \\
- RJwiT dpW.uFU & dp \\
- FTp gNMo.JsZB & gN
-\\\bottomrule
-\end{tabular}
-
-%% Apply double to input delimited by '.'
-%% \begin{tabular}{ll}
-%%         \toprule Input&Output\\\midrule
-%% FWhb.jYMdi & FWhbFWhbjYMdijYMdi \\
-%%  JZB.WEwgH & JZBJZBWEwgHWEwgH \\
-%%  SgA.Kxo.RyF & SgASgAKxoKxoRyFRyF \\
-%%  NMApj.OaPBs.uZm.iCZy & NMApjNMApjOaPBsOaPBsuZmuZmiCZyiCZy
-%% \\\bottomrule
-%% \end{tabular}
-
-
-Apply strip to string delimited by ',','.'
-\begin{tabular}{ll}
-        \toprule Input&Output\\\midrule
-iNEP,  GigW .Xlm & GigW \\
- xhpH,  QvwnW .mfK & QvwnW \\
- weWIC,IQjhWa .fGKz & IQjhWa \\
- xZUm, FpdE.ETcr & FpdE
-\\\bottomrule
-\end{tabular}
-
-drop first character
-
-\begin{tabular}{ll}
-        \toprule Input&Output\\\midrule
-WYPvm & YPvm \\
- terHk & erHk \\
- asWM & sWM \\
- tBdT & BdT
-\\\bottomrule
-\end{tabular}
 
 
 \section{Program Representation}\label{programrepresentation}
@@ -628,6 +547,87 @@ leads to a kind of hysteresis effect,
 where the next generative model too closely matches the previous one,
 causing the algorithm to easily become trapped in local optima.
 
+\section{Example program induction tasks}
+
+\subsection{String editing}
+
+We automatically generated 600 string editing problems split 75/25 train/test.
+We show representative problems:
+\pagebreak
+
+
+double
+
+\begin{tabular}{ll}
+        \toprule Input&Output\\\midrule
+vlxS & vlxSvlxS \\
+ JkVC & JkVCJkVC \\
+ dbxD & dbxDdbxD \\
+ gQgB & gQgBgQgB
+\\\bottomrule
+\end{tabular}
+
+Extract string delimited by ',' (inclusive),' '
+\begin{tabular}{ll}
+        \toprule Input&Output\\\midrule
+LsR,uhMZI wIL & ,uhMZI  \\
+ tMY,KdF hhT & ,KdF  \\
+ UUPdC,UAd kCgtq & ,UAd  \\
+ gQgGN,VMJ FjrXZ & ,VMJ 
+\\\bottomrule
+\end{tabular}
+
+Apply first 2 characters to input delimited by '.'
+\begin{tabular}{ll}
+        \toprule Input&Output\\\midrule
+OhCQN.DlH.LdkJ.pLh & OhDlLdpL \\
+ CZr.mveZr.dvjP.YMJpg & CZmvdvYM \\
+ bpub.VkkZ.dYdPr & bpVkdY \\
+ zjNA.wFwY.WMMqh.OFdbr & zjwFWMOF
+\\\bottomrule
+\end{tabular}
+
+Apply first 2 characters to string delimited by ' ','.'
+\begin{tabular}{ll}
+        \toprule Input&Output\\\midrule
+fNA YWyL.JDD & YW \\
+ YWozt TPW.nczz & TP \\
+ RJwiT dpW.uFU & dp \\
+ FTp gNMo.JsZB & gN
+\\\bottomrule
+\end{tabular}
+
+%% Apply double to input delimited by '.'
+%% \begin{tabular}{ll}
+%%         \toprule Input&Output\\\midrule
+%% FWhb.jYMdi & FWhbFWhbjYMdijYMdi \\
+%%  JZB.WEwgH & JZBJZBWEwgHWEwgH \\
+%%  SgA.Kxo.RyF & SgASgAKxoKxoRyFRyF \\
+%%  NMApj.OaPBs.uZm.iCZy & NMApjNMApjOaPBsOaPBsuZmuZmiCZyiCZy
+%% \\\bottomrule
+%% \end{tabular}
+
+
+Apply strip to string delimited by ',','.'
+\begin{tabular}{ll}
+        \toprule Input&Output\\\midrule
+iNEP,  GigW .Xlm & GigW \\
+ xhpH,  QvwnW .mfK & QvwnW \\
+ weWIC,IQjhWa .fGKz & IQjhWa \\
+ xZUm, FpdE.ETcr & FpdE
+\\\bottomrule
+\end{tabular}
+
+drop first character
+
+\begin{tabular}{ll}
+        \toprule Input&Output\\\midrule
+WYPvm & YPvm \\
+ terHk & erHk \\
+ asWM & sWM \\
+ tBdT & BdT
+\\\bottomrule
+\end{tabular}
 
 
 \bibliography{main}
