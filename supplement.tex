@@ -304,12 +304,12 @@ We use Alg.~\ref{grammarInductionAlgorithm} to search for the structure of the D
      \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
      \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
      \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
-     \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{z\in \mathcal{F}_x} \probability[z|\mathcal{D},\theta]$
+     \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{p\in \mathcal{F}_x} \probability[p|\mathcal{D},\theta]$
      \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
      \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - \|\theta\|_0$
      \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
      \WHILE {true}
-     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ subexpression of }z\}$
+     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, p\in \mathcal{F}_x, s\text{ subexpression of }p\}$
      \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
      \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$
      \STATE $\mathcal{D}\gets\mathcal{D}'$
