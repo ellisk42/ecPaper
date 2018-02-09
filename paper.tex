@@ -1250,14 +1250,15 @@ get \system off the ground.
 \begin{tabular}{lll}
   \toprule
   Name & Input & Output \\\midrule
-  add-3 & [1\, 2\, 3\, 4] & [4\, 5\, 6\, 7] \\
   append-4 & [7\, 0\, 2] & [7\, 0\, 2\, 4] \\
   len & [3\, 5\, 12\, 1] & 4 \\
-  range & 3 & [1\, 2\, 3] \\
   has-2 & [4\, 5\, 7\, 4] & \code{false} \\
-  has-head-in-tail & [4\, 5\, 7\, 4] & \code{true} \\
   repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
   drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
+  count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
+  rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
+  pow-3 & [10\, 4\, 13] & [1000\, 64\, 2197] \\
+  keep-mod-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
   \bottomrule
 \end{tabular}
 \caption{Sample tasks from our list function domain. %% We used 15 input/output
