@@ -409,7 +409,26 @@ so for domains with polymorphic types we use this estimator.
 We also provide the constant empty string which has type string and also provide
 constant characters which have the type char.
 
+
 \vfill
+
+\section{Hyperparameters \& Implementation details}
+We set $\alpha = 10$ and $\lambda = 1$ for all experiments except for string
+editing. For string editing we found that more strongly regularizing
+the DSL was necessary,
+and so we set $\lambda = 5$.
+We believe this is because
+we have many more tasks for string editing than we do for the other domains.
+The frontier size used for Boolean circuits was $5000$,
+for symbolic regression we used $500$,
+for string editing we used $10^5$,
+and for list functions we used $10^4$.
+
+
+
+Because the frontiers can become very large in later iterations of the algorithm,
+we only keep around the top $10^4$ programs in the frontier $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]$.
+
 
 
 \subsection{List functions}
