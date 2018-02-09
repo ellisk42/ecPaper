@@ -1306,23 +1306,21 @@ This supports our view of the recognition model as a way of accelerating the sea
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
  \section{Contribution and Outlook}
- We contribute a model, \systemEnding, that learns to program by
- bootstrapping a DSL with new domain-specific primitives that the algorithm itself discovers.
-  Alongside this DSL, we train a bottom-up
- neural recognition model that learns how to efficiently deploy the
- DSL and hone in on the right programs.
- We believe that this
- integration of top-down symbolic representation and bottom-up neural
- networks -- both of them learned -- is a useful general approach for
- program induction.
-Many directions remain open for future work. Two immediate goals are to
-integrate more sophisticated neural recognition models~\cite{devlin2017robustfill} and
-program synthesizers~\cite{solar2008program}, which may improve performance in some
-domains over the generic methods used here, and to explore DSL
-meta-learning: Can we find a single universal primitive set that could
-effectively bootstrap DSLs for new domains, including the four domains
-considered but also many others?
-
+\system learns to program by bootstrapping a DSL with new
+domain-specific primitives that the algorithm itself discovers,
+together with a neural recognition model that learns how to
+efficiently deploy the DSL on new tasks. We believe this integration
+of top-down symbolic representations and bottom-up neural networks --
+both of them learned -- could help make program induction systems more
+generally useful for AI. Many directions remain open. Two immediate
+goals 
+are to integrate more sophisticated neural recognition
+models~\cite{devlin2017robustfill} and program
+synthesizers~\cite{solar2008program}, which may improve performance in
+some domains over the generic methods used here, and to
+explore DSL meta-learning: Can we find a \emph{single} universal
+primitive set that could effectively bootstrap DSLs for new domains,
+including the four domains considered but many others?
 \bibliography{main}
 \bibliographystyle{icml2018}
 
