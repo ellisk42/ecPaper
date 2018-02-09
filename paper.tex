@@ -189,7 +189,7 @@ specific knowledge about the space of programs. In
 practice
 we often have only a few input/output examples for each
 program to be induced, and thus success often hinges on having a good
-DSL, which
+DSL which
 provides a crucial inductive bias for what would otherwise be an
 unconstrained search through the space of all computable functions.
 Here we ask, to what extent can we dispense with such highly
@@ -200,17 +200,17 @@ have a collection of related programming tasks, each specified by a
 set of input/output examples. We do not assume that the tasks are
 annotated with ground-truth programs. We typically will not try to
 learn a DSL completely from scratch, but rather to start from a weaker
-or more general set of primitives in a Lisp-like representation and
-construct a richer, more powerful and better-tuned DSL.
+or more general set of primitives and
+construct a richer, more powerful, and better-tuned DSL.
 
 Our algorithm is called \system because it is based on a
 novel kind of ``wake-sleep'' learning (c.f. \cite{hinton1995wake}), iterating
 between ``wake'' and ``sleep'' phases to achieve three goals: finding
-programs that solve each of the tasks; creating a DSL by discovering
+programs that solve tasks; creating a DSL by discovering
 and reusing domain-specific subroutines; and training a neural network
-that efficiently guides search for programs in the DSL. The DSL
-distills commonalities across programs that solve the tasks, letting
-the agent solve other related program induction problems. The neural
+that efficiently guides search for programs in the DSL. The learned DSL
+distills commonalities across programs that solve tasks, helping
+the agent solve related program induction problems. The neural
 network ensures that searching for programs remains tractable
 even as the DSL (and hence the search space for programs) expands.
 
@@ -284,7 +284,7 @@ Viewed as an inference problem,
 our goal is to infer the DSL (written $\mathcal{D}$)
 along with a program (written $p$) for each set of inputs/outputs (\emph{tasks}, written $x$).
 A DSL $\mathcal{D}$ is a collection of domain specific subroutines.
-We equip $\mathcal{D}$ with a real-valued weight vector, $\theta$, and together
+We equip $\mathcal{D}$ with a real-valued weight vector $\theta$, and together
 $(\mathcal{D},\theta)$ define a distribution over programs.
 Fig.~\ref{graphicalModel}(a) diagrams this inference problem as a hierarchical Bayesian model.
 Inference in this model is
@@ -352,7 +352,7 @@ model.
 
 
   \end{tikzpicture}
-  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$. Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
+  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives according to probabilities $\theta$. From each program we observe a task $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
     $\theta^{(x)}$. Black/red arrows correspond to the generative/recognition models.}\label{graphicalModel}
 \end{figure}
 
@@ -360,7 +360,7 @@ model.
 To perform inference, we take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
 which alternates between ``waking'', which draws samples from a recognition model (our $q$);
 and  ``sleeping'', which trains a recognition model on samples from the generative model (our $\mathcal{D},\theta$).
-For us, a wake cycle means using the recognition model to search for programs that solve the tasks.
+For us, a \textbf{Wake} cycle means using the recognition model to search for programs that solve the tasks.
 A sleep cycle means  updating these models so that the DSL and  recognition model
 more closely match the distribution of tasks.
 An important difference from the Helmholtz machine
@@ -384,7 +384,7 @@ We apply \system to four domains:
  set of programming primitives,
  and show that our algorithm discovers
  its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
- \begin{table}
+ \begin{table}[b]
     \begin{tabular}{ll}
    \toprule
    Domain&Part of the learned DSL\\\midrule
