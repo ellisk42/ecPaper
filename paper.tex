@@ -1310,8 +1310,7 @@ we are interested both in how many tasks the
 agent can solve and how quickly it can find those solutions.
 For symbolic regression, we also care about the quality
 of the solution, as measured by the likelihood model $\probability[x|p]$,
-which measures how many
-real numbers were used in the program: e.g. did the model correctly explain a linear function
+e.g. did the agent correctly explain a linear function
 using two numbers, or did it introduce extraneous parameters?
 Tbl.~\ref{baselineComparisons}
 compares our model against these baselines.
@@ -1373,18 +1372,15 @@ This supports our view of the recognition model as a way of accelerating the sea
  \system where $(\mathcal{D},\theta)$ is held fixed and $q$ is learned (RF/DC baseline).
  These neural networks are typically trained with strong supervision (i.e., with annotated ground-truth programs) on massive data sets (i.e., hundreds of millions~\cite{devlin2017robustfill}).
  In our work we consider a weakly-supervised setting where ground truth programs are not provided and
- the agent must learn from a few hundred examples.
+ the agent must learn from a few hundred tasks.
  
-
- \noindent \emph{Predicate Invention in ILP:} The Inductive Logic Programming (ILP) community
- has long worked on the problem of inventing new primitive predicates~\cite{DBLP:conf/ecai/LinDETM14,muggleton2015meta}, which is analogous to our model with $\theta$ held fixed and $q$ ablated.
 
  \noindent \emph{Inventing new subroutines for program induction:}
  Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
  and extend it along two dimensions: (1) we propose a new algorithm for
  inducing reusable subroutines, based on Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing};
  and (2) we show how to combine these techniques with bottom-up neural recognition models.
- Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10} and Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}.
+ Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10} Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, and predicate invention in ILP~\cite{DBLP:conf/ecai/LinDETM14,muggleton2015meta}.
  
  Our work is an instance of
  Bayesian Program
