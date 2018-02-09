@@ -1223,11 +1223,8 @@ e.g. did the agent correctly explain a linear function
 using two numbers, or did it introduce extraneous parameters?
 Tbl.~\ref{baselineComparisons}
 compares our model against these baselines.
-Our full model consistently
-beats the baselines,
-and that the recognition model 
-consistently increases the number of solved held-out tasks.
-Lesioning the recognition model also slows down the convergence of the algorithm,
+Our full model consistently beats the baselines.
+Lesioning the recognition model slows down the convergence of the algorithm,
 taking more wake/sleep cycles to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
 This supports our view of the recognition model as a way of accelerating the search over programs.
 
