@@ -675,6 +675,40 @@ We abbreviate lambda as \textbackslash.
 \end{verbatim}
 
 \subsection{List functions}
+\begin{verbatim}
+#(\ (\ (index $0 (sort $1))))
+#(\ (\ (slice $0 (+ $1 4))))
+#(mapi (\ (\ (eq? $0 $2))))
+#(\ (mapi (\ (\ (gt? $0 $2)))))
+#(\ (any (\ (eq? $0 $1))))
+#(\ (mapi (\ (\ (+ $0 $2)))))
+#(\ (\ (mapi (\ (\ (index $2 $3))) $1)))
+#(\ (mapi (\ (\ (mod $0 $2)))))
+#(\ (mapi (\ (\ (* $0 $2)))))
+#(\ (\ (singleton (index $0 $1))))
+#(\ (\ (slice $0 (sum $1) $1)))
+#(slice 0)
+#(\ (\ (index (negate $0) (sort $1))))
+#(\ (++ (singleton $0)))
+#(\ (\ (++ $0 (singleton $1))))
+#(\ (\ (++ $0 (singleton (index $1 $0)))))
+#(\ (\ (++ (singleton (index $0 $1)) $1)))
+#(\ (\ (\ (#(\ (mapi (\ (\ (mod $0 $2))))) $0 (#(\ (mapi (\ (\ (+ $0 $2))))) $1 $2)))))
+#(\ (#(\ (mapi (\ (\ (eq? $0 $2))))) 0 (#(\ (mapi (\ (\ (mod $0 $2))))) $0 $1)))
+#(#(\ (mapi (\ (\ (gt? $0 $2))))) 3 empty)
+#(all (\ (is-square $0)))
+#(\ (\ (#(\ (mapi (\ (\ (mod $0 $2))))) $0 (#(\ (mapi (\ (\ (+ $0 $2))))) 1 $1))))
+#(\ (\ (all (\ $0) (#(\ (\ (#(\ (mapi (\ (\ (eq? $0 $2))))) 0 (#(\ (mapi (\ (\ (mod $0 $2))))) $0 $1)))) $0 $1))))
+#(\ (all (\ $0) (#(\ (\ (#(\ (mapi (\ (\ (eq? $0 $2))))) 0 (#(\ (mapi (\ (\ (mod $0 $2))))) $0 $1)))) $0 2)))
+#(filter (\ (#(\ (all (\ $0) (#(\ (\ (#(\ (mapi (\ (\ (eq? $0 $2))))) 0 (#(\ (mapi (\ (\ (mod $0 $2))))) $0 $1)))) $0 2))) (singleton $0))))
+#(\ (\ (\ (++ (#(slice 0) $0 $1) (#(\ (\ (slice $0 (sum $1) $1))) $1 $2)))))
+#(\ (filter (\ (#(\ (\ (all (\ $0) (#(\ (\ (#(\ (mapi (\ (\ (eq? $0 $2))))) 0 (#(\ (mapi (\ (\ (mod $0 $2))))) $0 $1)))) $0 $1)))) $1 (singleton $0)))))
+#(filter (\ (not (#(\ (all (\ $0) (#(\ (\ (#(\ (mapi (\ (\ (eq? $0 $2))))) 0 (#(\ (mapi (\ (\ (mod $0 $2))))) $0 $1)))) $0 2))) (singleton $0)))))
+#(\ (++ $0 (++ $0 $0)))
+#(\ (++ $0 (#(\ (++ $0 (++ $0 $0))) $0)))
+#(index 0)
+
+\end{verbatim}
 
 \bibliography{main}
 \bibliographystyle{icml2018}
