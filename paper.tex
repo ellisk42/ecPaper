@@ -823,8 +823,8 @@ In the Supplement we derive a tractable MAP estimator for $\theta$.
 Alg.~\ref{mainAlgorithm} describes how we combine program search,
 recognition model training, and DSL induction.
 We note the following implementation details:
-(1) We interleave wake cycles with each of the sleep cycles;
-(2) on the first iteration, we do \emph{not} train the recognition model on samples from
+(1) We perform a wake cycle before each of the sleep cycles.
+(2) On the first iteration, we do \emph{not} train the recognition model on samples from
 the generative model because a DSL has not yet been learned --
 we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
 %% (3) Because the frontiers can grow very large,
