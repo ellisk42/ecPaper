@@ -356,60 +356,7 @@ and exactly maximizing the likelihood with respect to $\theta$
 becomes intractable,
 so for domains with polymorphic types we use this estimator.
 
-\vfill\null\columnbreak
-
 \section{Initial domain-specific languages}
-\subsection{List functions}
-DSL for the list function experiment domain is shown below. The lower
-section with seven primitives designates those given to the \emph{rich} DSL
-variant and not the \emph{base} variant. The rich variant is not supplied
-the \texttt{if} primitive, because its primary intention is to enable the
-learning of the \texttt{filter}, \texttt{index}, and \texttt{slice}
-concepts.
-
-\begin{center}
-\tt
-\begin{tabular}{| l | l |}
-  \hline
-  \textrm{\emph{name}} & \textrm{\emph{type}} \\
-  \hline
-    empty & [$\alpha$] \\
-    singleton & $\alpha$ $\rightarrow$ [$\alpha$] \\
-    concat & [$\alpha$] $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$] \\
-    mapi & (int $\rightarrow$ $\alpha$ $\rightarrow$ $\beta$) \\
-    & \qquad\qquad$\rightarrow$ [$\alpha$] $\rightarrow$ [$\beta$] \\
-    reducei & ($\beta$ $\rightarrow$ int $\rightarrow$ $\alpha$ $\rightarrow$ $\beta$)\\
-    & \qquad\qquad$\rightarrow$ $\beta$ $\rightarrow$ [$\alpha$] $\rightarrow$ $\beta$ \\
-    \hline
-    true & bool \\
-    not & bool $\rightarrow$ bool \\
-    and & bool $\rightarrow$ bool $\rightarrow$ bool \\
-    or & bool $\rightarrow$ bool $\rightarrow$ bool \\
-    if & bool $\rightarrow$ $\alpha$ $\rightarrow$ $\alpha$ $\rightarrow$ $\alpha$ \\
-    \hline
-    0 $\cdots$ 5 & int \\
-    + & int $\rightarrow$ int $\rightarrow$ int \\
-    * & int $\rightarrow$ int $\rightarrow$ int \\
-    negate & int $\rightarrow$ int \\
-    mod & int $\rightarrow$ int $\rightarrow$ int \\
-    eq? & int $\rightarrow$ int $\rightarrow$ bool \\
-    gt? & int $\rightarrow$ int $\rightarrow$ bool \\
-    is-prime & int $\rightarrow$ bool \\
-    is-square & int $\rightarrow$ bool \\
-    range & int $\rightarrow$ [int] \\
-    sort & [int] $\rightarrow$ [int] \\
-    \hline
-    sum & [int] $\rightarrow$ int \\
-    reverse & [$\alpha$] $\rightarrow$ [$\alpha$] \\
-    all & ($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ bool \\
-    any & ($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ bool \\
-    index & int $\rightarrow$ [$\alpha$] $\rightarrow$ $\alpha$ \\
-    filter & ($\alpha$ $\rightarrow$ bool) $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$] \\
-    slice & int $\rightarrow$ int $\rightarrow$ [$\alpha$] $\rightarrow$ [$\alpha$] \\
-  \hline
-\end{tabular}
-\end{center}
-
 \subsection{Boolean circuits}
 \begin{center}
 \tt
@@ -447,7 +394,8 @@ concepts.
   -1&$\mathbb{Z}\to \mathbb{Z}$\\
   split&$\text{char}\to \text{string}\to \left[\text{string} \right]$\\
   join&$\text{string}\to \left[\text{string} \right]\to \text{string}$\\
-  map&$(\text{string}\to \text{string})\to \left[\text{string} \right]\to \left[\text{string} \right]$\\
+  map&$(\text{string}\to \text{string})$\\
+  &$\qquad\quad\to\left[\text{string} \right]\to \left[\text{string} \right]$\\
   nth&$\mathbb{Z}\to \left[\text{string} \right]\to \text{string}$\\
   slice&$\mathbb{Z}\to \mathbb{Z}\to \text{string}\to \text{string}$\\
   length&$\text{string}\to \mathbb{Z}$\\
@@ -463,6 +411,54 @@ constant characters which have the type char.
 
 
 
+\subsection{List functions}
+\begin{center}
+\tt
+\begin{tabular}{| l | l |}
+  \hline
+  \textrm{\emph{name}} & \textrm{\emph{type}} \\
+  \hline
+    empty & [$\alpha$] \\
+    singleton & $\alpha \to$ [$\alpha$] \\
+    concat & [$\alpha$] $\to$ [$\alpha$] $\to$ [$\alpha$] \\
+    mapi & $(\mathbb{Z} \to \alpha \to \beta)$ \\
+    & \qquad\qquad$\to$ [$\alpha$] $\to$ [$\beta$] \\
+    reducei & $(\beta \to \mathbb{Z} \to \alpha \to \beta)$\\
+    & \qquad\qquad$\to \beta \to$ [$\alpha$] $\to \beta$ \\
+    \hline
+    if & bool $\to \alpha \to \alpha \to \alpha$ \\
+    \hline
+    true & bool \\
+    not & bool $\to$ bool \\
+    and & bool $\to$ bool $\to$ bool \\
+    or & bool $\to$ bool $\to$ bool \\
+    0 $\cdots$ 5 & $\mathbb{Z}$ \\
+    + & $\mathbb{Z} \to \mathbb{Z} \to \mathbb{Z}$ \\
+    * & $\mathbb{Z} \to \mathbb{Z} \to \mathbb{Z}$ \\
+    negate & $\mathbb{Z} \to \mathbb{Z}$ \\
+    mod & $\mathbb{Z} \to \mathbb{Z} \to \mathbb{Z}$ \\
+    eq? & $\mathbb{Z} \to \mathbb{Z} \to$ bool \\
+    gt? & $\mathbb{Z} \to \mathbb{Z} \to$ bool \\
+    is-prime & $\mathbb{Z} \to$ bool \\
+    is-square & $\mathbb{Z} \to$ bool \\
+    range & $\mathbb{Z} \to$ [$\mathbb{Z}$] \\
+    sort & [$\mathbb{Z}$] $\to$ [$\mathbb{Z}$] \\
+    \hline
+    sum & [$\mathbb{Z}$] $\to \mathbb{Z}$ \\
+    reverse & [$\alpha$] $\to$ [$\alpha$] \\
+    all & $(\alpha \to$ bool$) \to$ [$\alpha$] $\to$ bool \\
+    any & $(\alpha \to$ bool$) \to$ [$\alpha$] $\to$ bool \\
+    index & $\mathbb{Z} \to$ [$\alpha$] $\to \alpha$ \\
+    filter & $(\alpha \to$ bool$) \to$ [$\alpha$] $\to$ [$\alpha$] \\
+    slice & $\mathbb{Z} \to \mathbb{Z} \to$ [$\alpha$] $\to$ [$\alpha$] \\
+  \hline
+\end{tabular}
+\end{center}
+The lower section with seven primitives designates those given to the
+\emph{rich} DSL variant and not the \emph{base} variant. The rich variant is
+not supplied the \texttt{if} primitive, because its primary intention is to
+enable the learning of the \texttt{filter}, \texttt{index}, and
+\texttt{slice} concepts. Greek letters represent polymorphic types.
 
 
 
