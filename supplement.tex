@@ -617,7 +617,7 @@ We abbreviate lambda as \lstinline!\!.
 \onecolumn
 \subsection{Boolean circuits}
 
-\begin{lstlisting}[breaklines=true]
+\begin{lstlisting}
 #(\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $0 $2))))))
 #(\ (\ (nand (nand $0 $1) (nand $0 $1))))
 #(\ (\ (nand (nand $0 $0) (nand $1 $1))))
@@ -632,7 +632,7 @@ We abbreviate lambda as \lstinline!\!.
 \end{lstlisting}
 
 \subsection{Symbolic regression}
-\begin{lstlisting}[breaklines=true]
+\begin{lstlisting}
 #(\ (* (+ REAL $0) REAL))
 #(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0)))
 #(\ (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))
@@ -647,7 +647,7 @@ We abbreviate lambda as \lstinline!\!.
 \end{lstlisting}
 
 \subsection{String editing}
-\begin{lstlisting}[breaklines=true]
+\begin{lstlisting}
 #(\ (\ (#(nth (incr 0)) (split $0 (#(\ (\ (join (chr->str $0) (map (\ (caseCapitalize $0)) $1)))) $1 $0)))))
 #(\ (\ (join (chr->str $0) (map (\ (strip $0)) $1))))
 #(\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (++ $0 $0))))
@@ -681,7 +681,7 @@ We abbreviate lambda as \lstinline!\!.
 \end{lstlisting}
 
 \subsection{List functions}
-\begin{lstlisting}[breaklines=true]
+\begin{lstlisting}
 #(\ (\ (index $0 (sort $1))))
 #(\ (\ (slice $0 (+ $1 4))))
 #(mapi (\ (\ (eq? $0 $2))))
