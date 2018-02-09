@@ -843,7 +843,7 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
      \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ (\footnotesize{\textbf{Sleep-R}})
      \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enum}(\mathcal{D},q(x),F)\text{ if }\probability[x|p] > 0\}$ \footnotesize{\textbf{(Wake)}}
      
-     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$   \footnotesize{\textbf{(Sleep-G)}}
+     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Sleep-G)}}
      %% \STATE Define $Q_x(z) \propto \begin{cases}
      %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
      %%   0&x\not \in \mathcal{F}_x
