@@ -394,8 +394,8 @@ We apply \system to four domains:
       &\hspace{0.5cm} \emph{(a linear function of x)}\\
    Strings& \code{(join '' (split c s))}\\
    &\hspace{0.5cm} \emph{(delete occurrences of c in string s)}\\
-   Lists& \code{(map (lambda (x) (+ x a)) l)}\\
-   &\hspace{0.5cm} \emph{(add a to every element of list l)}
+   Lists& \code{(map (lambda (x) (+ x k)) l)}\\
+   &\hspace{0.5cm} \emph{(add k to every element of list l)}
    \\\bottomrule
     \end{tabular}
     \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
@@ -439,10 +439,10 @@ Our strategy is to iterate through three steps: (1) searching for programs; (2) 
 to accelerate the search over programs -- and (3) improving the DSL.
 The key observation is that these steps bootstrap off each other (Fig.~\ref{feeding}):
 \\\noindent \textbf{Wake: Searching for programs.}  Our program search  is informed by both the DSL and the recognition model.
-When these improve we find more programs solving the tasks.
+When these improve, we find more programs solving the tasks.
 \\\noindent\textbf{Sleep-R: Learning a recognition model.} The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
-\\\noindent\textbf{Sleep-G: Improving the DSL.} We induce a DSL from the programs we have found so far which solve the tasks;
-  as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
+\\\noindent\textbf{Sleep-G: Improving the DSL.} We induce a DSL from the programs we found which solve the tasks.
+  As we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
 
 %% The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternating between
 %% learning a generative model and training a recognition model on samples from the generative model.
@@ -469,8 +469,8 @@ When these improve we find more programs solving the tasks.
 Sec.~\ref{mathematicalFraming} frames this 3-step procedure as
 a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
 Sec.~\ref{explorationSection} explains how we search for programs that solve the tasks;
-Sec.~\ref{recognitionSection} how we train a neural network to accelerate the search over programs; and
-Sec.~\ref{grammarInductionSection}  how \system induces a DSL from programs.
+Sec.~\ref{recognitionSection} explains how we train a neural network to accelerate program search; and
+Sec.~\ref{grammarInductionSection} explains how we induce a DSL from programs.
 
 \subsection{Probabilistic Framing}\label{mathematicalFraming}
 
