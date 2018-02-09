@@ -583,9 +583,10 @@ that closely resembles the Lisp programming language.
 $\lambda$-calculus includes variables, function application, and the ability to create new functions.
 Throughout this paper we will write $\lambda$-calculus expressions in Lisp syntax.
 Our programs are all strongly typed.
-We use the Hindley-Milner polymorphic typing system~\cite{pierce} which is used in functional languages like OCaml.
-Variables that range over types are always written using lowercase Greek letters
-and we write $\alpha\to \beta$ to mean a function that takes as input type $\alpha$
+We use the Hindley-Milner polymorphic typing system~\cite{pierce} which is
+used in functional programming languages like OCaml.
+Type variables are always written using lowercase Greek letters
+and we write $\alpha\to \beta$ to mean a function that takes an input of type $\alpha$
 and returns something of type $\beta$.
 We use the notation $p:\tau$ to mean that the $\lambda$-calculus expression $p$
 has the type $\tau$.
@@ -664,7 +665,7 @@ We have two reasons:
 (2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
   the space of  programs.
 
-A main drawback of an enumerative search algorithm is that we have no
+A drawback of using an enumerative search algorithm is that we have no
 efficient means of solving for arbitrary constants that might occur in the
 program. In Sec.~\ref{regressionSection},
 we will show how to find programs with real-valued constants
