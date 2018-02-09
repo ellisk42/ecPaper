@@ -19,6 +19,7 @@
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
 \newcommand{\system}{\textsc{DreamCoder}~}
+\newcommand{\endingSystem}{\textsc{DreamCoder}}
 \newcommand{\lowerBound}{\mathscr{L}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
 % Use the following line for the initial blind version submitted for review:
@@ -341,7 +342,7 @@ is that our setup has two distinct sleep phases: a phase where we update the gen
 $(\mathcal{D},\theta)$, which we call \textbf{Sleep-G},
 and a second phase where we update the recognition model $q$,
 which we call \textbf{Sleep-R}.
-This wake/sleep style of inference is the reason why we call our approach \system.
+This wake/sleep style of inference is the reason why we call our approach \endingSystem.
 
 
 %% We take the intuitive strategy of exploiting the
@@ -437,7 +438,7 @@ When these improve we find better programs.
     \draw [->,thick,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Wake)}} (synthesis.east);
   \end{scope}
     \end{tikzpicture}
-\caption{Our algorithm solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
+  \caption{\system solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
 \end{figure}
 
 %% \begin{figure}
@@ -781,10 +782,10 @@ then we need some way of sampling these inputs as well.
 Our solution to this problem is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
 
-The neural architecture of $q$ depends upon the domain.
+The architecture of $q$ depends upon the domain.
 For domains with sequential structure like strings and lists,
 we use an RNN to encode each input/output example,
-and for domains with a fixed-dimensionality inputs/outputs we use a multilayer perceptron.
+and for domains with fixed-dimensionality inputs/outputs we use a multilayer perceptron.
 We MaxPool across all of the input/output examples. See supplement for details.
 
 \subsection{Sleep-G: Inducing the DSL}\label{grammarInductionSection}
@@ -925,8 +926,8 @@ programs in $\mathcal{F}_x$ -- we found that $K = 2$ sufficed.
 
 \section{Experiments}
 We first present our experimental results qualitatively,
-illustrating the DSLs that  \system
-learns in the domains of Boolean circuits, symbolic regression, string editing, and list functions.
+illustrating the DSLs we
+learn.
 We then show quantitative results (Sec.~\ref{quantitative})
 comparing \system with lesioned versions
 of our model that are analogous to prior work.
@@ -1092,7 +1093,7 @@ This falls out of our Bayesian framing -- both the bias towards shorter programs
   $f_6($\code{x}$) = $\code{(}$f_0$\code{ (}$f_4$\code{ x))} (\emph{4th order polynomial})
   \\\bottomrule
 \end{tabular}
-\caption{Some induced DSL primitives for symbolic regression. System starts out with addition, multiplication, and real numbers, and learns functions for building 4th order polynomials.}\label{regressionDSL}
+\caption{Some induced DSL primitives for symbolic regression. System starts out with addition, multiplication, and real numbers, and learns to build 4th order polynomials.}\label{regressionDSL}
 \end{table}
 
 %% The neural recognition model accelerates inference,
@@ -1111,7 +1112,7 @@ We show in this experiment that we can instead start out with a
 less specialized set of primitives -- close to the string routines provided by Python --
 and recover many of the higher-level building blocks that have made these
 other system successful.
-Tbl.~\ref{textPrimitives} (top) lists the primitive functions provided to \system.
+Tbl.~\ref{textPrimitives} (top) lists the primitive functions provided to \endingSystem.
 Absent are any routines for searching for characters, extracting substrings,
 or replacing one character with another.
 Instead, we provide list/string indexing primitives (\code{slice}, \code{nth}),
@@ -1134,7 +1135,7 @@ all of the tasks.
     \toprule
     \code{0}, \code{+1},\code{-1},     \code{""},    \code{","},     \code{" "},    \code{"<"}, \code{">"}  \\
     \code{split}, \code{join}, \code{map}, 
-    \code{append}, \code{chr->str}, \code{trim}, \code{nth}\\
+    \code{+}, \code{chr->str}, \code{trim}, \code{nth}\\
     \code{length}, \code{slice},    \code{lower}, \code{upper}, \code{capitalize}
   \\\bottomrule
     \end{tabular}\\
@@ -1306,7 +1307,7 @@ This supports our view of the recognition model as a way of accelerating the sea
   Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
   \\\bottomrule
   \end{tabular}
-\caption{\% solved: fraction solved with 5 sec timeout. Solve time: averaged over solved tasks. MDL: $-\expect\left[\probability[x|p] \right]$. For domains other than symbolic regression MDL is 0 nats. For symbolic regression MDL is a proxy for \# of continuous degrees of freedom.}\label{baselineComparisons}  \end{table}
+\caption{\% solved: fraction solved w/ 5 sec timeout. Solve time: averaged over solved tasks. MDL: $-\expect\left[\probability[x|p] \right]$. For domains other than symbolic regression MDL is 0 nats. For symbolic regression MDL is a proxy for \# of continuous degrees of freedom.}\label{baselineComparisons}  \end{table}
 
 \begin{figure}\centering
 \includegraphics[width = 3.5cm]{figures/regression.eps} 
@@ -1344,7 +1345,7 @@ This supports our view of the recognition model as a way of accelerating the sea
  Learning (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
- \section{Conclusion}
+ \section{Contribution and Outlook}
  We contributed a model, \system, that learns to program by
  bootstrapping a DSL with new domain-specific primitives that the algorithm itself discovers.
   Alongside this DSL, we train a bottom-up
