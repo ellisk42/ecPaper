@@ -160,8 +160,8 @@
   programs and imparting prior knowledge of the domain.  We contribute
   a program induction algorithm called \system that learns a DSL and
   trains a neural network to efficiently search for programs in the
-  learned DSL.  We use our model to build circuits, edit strings, do
-  symbolic regression, and synthesize functions on lists, in each case
+  learned DSL.  We use our model to build circuits, edit strings, solve
+  symbolic regression problems, and synthesize functions on lists, in each case
   showing the model learns a domain-specific vocabulary for expressing
   solutions to problems in the domain.
   
@@ -189,8 +189,7 @@ knowledge about the space of programs. In
 practice
 we often have only a few input/output examples for each
 program to be induced, and thus success often hinges on having a good
-DSL which
-provides a crucial inductive bias for what would otherwise be an
+DSL, by providing a crucial inductive bias for what would otherwise be an
 unconstrained search through the space of all computable functions.
 Here we ask, to what extent can we dispense with such highly
 hand-engineered domain-specific languages?
@@ -1201,11 +1200,11 @@ get \system off the ground.
 \subsection{Quantitative Results}\label{quantitative}
 
 We compare  with four baselines on  held-out tasks:
-\\\noindent \textbf{Ours (no NN)}, which lesions the recognition model, $q$.
-\\\noindent \textbf{RF/DC}, which holds $(\mathcal{D},\theta)$ fixed and learns
+\\\noindent \textbf{Ours (no NN)}, which lesions the recognition model.
+\\\noindent \textbf{RF/DC}, which holds the generative model $(\mathcal{D},\theta)$ fixed and learns
 a recognition model only from samples from the fixed generative model.
-This is equivalent to our algorithm with $\lambda = \infty$ (see Sec.~\ref{grammarInductionSection})
-and $\mathcal{L}_{\text{RM}} = \mathcal{L}_{\text{HM}}$ (see Sec.~\ref{recognitionSection}).
+This is equivalent to our algorithm with $\lambda = \infty$ (Sec.~\ref{grammarInductionSection})
+and $\mathcal{L}_{\text{RM}} = \mathcal{L}_{\text{HM}}$ (Sec.~\ref{recognitionSection}).
 We call this baseline RF/DC because
 this setup is closest to how RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
 We can not compare directly with these systems,
@@ -1303,7 +1302,7 @@ This supports our view of the recognition model as a way of accelerating the sea
  
  Our work is an instance of
  Bayesian Program
- Learning (BPL; see~\citep{lake2013one,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
+ Learning (BPL; see~\citep{lake2015human,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
  \section{Contribution and Outlook}
