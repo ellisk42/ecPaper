@@ -201,41 +201,37 @@ the inputs and outputs are sequences. Our encoder for these domains is a bidirec
 symbol between them.
 We MaxPool the final hidden unit activations in the GRU along both passes of the bidirectional GRU.
 
-\section{Why not the ELBO bound?}
+\section{DSL Induction}
 
-If we were to maximize the ELBO bound to perform inference in
-our generative model,
-then, during DSL induction, we would seek a new $(\mathcal{D}^*,\theta^*)$ maximizing the following lower bound on the likelihood (along an unimportant regularizing term on the DSL):
-\begin{align}
-  &  \sum_{x\in X}\expect_{p\sim Q_x}\left[\log \probability[p|\mathcal{D}^*,\theta^*] \right] \label{EM}\\
-  & Q_x(p)\triangleq \probability[p|x,\mathcal{D},\theta]
-\end{align}
-where $(\mathcal{D},\theta)$ is our current estimate of the generative
-model.  These equations fall out of an EM-style derivation, and one
-could replace $Q_x(p)$ with the recognition model $q(p|x)$, either
-using importance sampling (so the expectation in~\ref{EM} is taken
-over $q$ and we reweight using $Q_x$) or by directly using $q$ as our approximate posterior over the program that solves task $x$.
+\subsection{Structure learning}
 
-How the recognition model is worked into this is unimportant to the reason why we do not maximize a bound of this form:
-this bound takes an expectation over the \emph{previous} sleep cycle's
-posterior over programs,
-and so the approximate posterior $Q_x$ at the next iteration
-ends up being very close to previous approximate posterior.
-Intuitively,
-we want the DSL induction to be a function \emph{only} of the programs that we have found,
-and \emph{not} be a function of how the previous generative model weighted them.
-In practice,
-we found that maximizing EM-style bounds, like the ELBO,
-leads to a kind of hysteresis effect,
-where the next generative model too closely matches the previous one,
-causing the algorithm to easily become trapped in local optima.
+We use Algorithm~\ref{grammarInductionAlgorithm} to search for the structure of the DSL that best explains the frontiers.
 
+\begin{algorithm}[tb]
+   \caption{DSL Induction Algorithm}
+   \label{grammarInductionAlgorithm}
+   \begin{algorithmic}
+     \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
+     \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
+     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+     \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{z\in \mathcal{F}_x} \probability[z|\mathcal{D},\theta]$
+     \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
+     \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - ||\theta||_0$
+     \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
+     \WHILE {true}
+     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, z\in \mathcal{F}_x, s\text{ subexpression of }z\}$
+     \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
+     \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$
+     \STATE $\mathcal{D}\gets\mathcal{D}'$
+     \ENDWHILE
+   \end{algorithmic}
+\end{algorithm}
 
-\section{Estimating $\theta$}
+\subsection{Estimating $\theta$}
 
 
 
-We write $c(e,p)$ to mean the number of times that primitive $e$ was used in program $p$;  $R(p)$ to mean the sequence of types input to sample in Alg.\ref{programGenerativeModel}. Jensen's inequality gives an intuitive lower bound on the likelihood of a program $p$:
+We write $c(e,p)$ to mean the number of times that primitive $e$ was used in program $p$;  $R(p)$ to mean the sequence of types input to sample in Alg.~1 of the main paper. Jensen's inequality gives an intuitive lower bound on the likelihood of a program $p$:
 \begin{align*}
   \log \probability[p|\theta]&\stackrel{+}{ = }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - \sum_{\tau\in R(p)} \log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
   &\stackrel{+}{\geq }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \sum_{\tau\in R(p)} \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
@@ -327,6 +323,92 @@ concepts.
   \hline
 \end{tabular}
 \end{center}
+
+\subsection{Boolean circuits}
+\begin{center}
+\tt
+\begin{tabular}{| l | l |}
+  \hline
+  \textrm{\emph{name}} & \textrm{\emph{type}} \\
+  \hline
+    nand & $\text{bool}\to \text{bool}\to \text{bool}$ \\  \hline
+\end{tabular}
+\end{center}
+
+\subsection{Symbolic regression}
+\begin{center}
+\tt
+\begin{tabular}{| l | l |}
+  \hline
+  \textrm{\emph{name}} & \textrm{\emph{type}} \\
+  \hline
+  + & $\mathbb{R}\to \mathbb{R}\to \mathbb{R}$ \\
+  *&  $\mathbb{R}\to \mathbb{R}\to \mathbb{R}$\\
+  real&$\mathbb{R}$\\\hline
+\end{tabular}
+\end{center}
+
+
+\subsection{String editing}
+\begin{center}
+\tt
+\begin{tabular}{| l | l |}
+  \hline
+  \textrm{\emph{name}} & \textrm{\emph{type}} \\
+  \hline
+  0&$\mathbb{Z}$\\
+  +1&$\mathbb{Z}\to \mathbb{Z}$\\
+  -1&$\mathbb{Z}\to \mathbb{Z}$\\
+  split&$\text{char}\to \text{string}\to \left[\text{string} \right]$\\
+  join&$\text{string}\to \left[\text{string} \right]\to \text{string}$\\
+  map&$(\text{string}\to \text{string})\to \left[\text{string} \right]\to \left[\text{string} \right]$\\
+  nth&$\mathbb{Z}\to \left[\text{string} \right]\to \text{string}$\\
+  slice&$\mathbb{Z}\to \mathbb{Z}\to \text{string}\to \text{string}$\\
+  length&$\text{string}\to \mathbb{Z}$\\
+  chr->str&$\text{char}\to \text{string}$\\
+  trim&$\text{string}\to \text{string}$\\
+  upper&$\text{string}\to \text{string}$\\
+  lower&$\text{string}\to \text{string}$\\
+  capitalize&$\text{string}\to \text{string}$\\\hline
+\end{tabular}
+\end{center}
+We also provide the constant empty string which has type string and also provide
+constant characters which have the type char.
+
+
+
+
+
+
+\section{Why not the ELBO bound?}
+
+If we were to maximize the ELBO bound to perform inference in
+our generative model,
+then, during DSL induction, we would seek a new $(\mathcal{D}^*,\theta^*)$ maximizing the following lower bound on the likelihood (along an unimportant regularizing term on the DSL):
+\begin{align}
+  &  \sum_{x\in X}\expect_{p\sim Q_x}\left[\log \probability[p|\mathcal{D}^*,\theta^*] \right] \label{EM}\\
+  & Q_x(p)\triangleq \probability[p|x,\mathcal{D},\theta]
+\end{align}
+where $(\mathcal{D},\theta)$ is our current estimate of the generative
+model.  These equations fall out of an EM-style derivation, and one
+could replace $Q_x(p)$ with the recognition model $q(p|x)$, either
+using importance sampling (so the expectation in~\ref{EM} is taken
+over $q$ and we reweight using $Q_x$) or by directly using $q$ as our approximate posterior over the program that solves task $x$.
+
+How the recognition model is worked into this is unimportant to the reason why we do not maximize a bound of this form:
+this bound takes an expectation over the \emph{previous} sleep cycle's
+posterior over programs,
+and so the approximate posterior $Q_x$ at the next iteration
+ends up being very close to previous approximate posterior.
+Intuitively,
+we want the DSL induction to be a function \emph{only} of the programs that we have found,
+and \emph{not} be a function of how the previous generative model weighted them.
+In practice,
+we found that maximizing EM-style bounds, like the ELBO,
+leads to a kind of hysteresis effect,
+where the next generative model too closely matches the previous one,
+causing the algorithm to easily become trapped in local optima.
+
 
 
 \bibliography{main}
