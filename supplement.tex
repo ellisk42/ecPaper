@@ -150,6 +150,92 @@
 %\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
 \printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
+\section{An illustration of the wake-sleep cycle}
+Below we diagram the wake/sleep cycles employed by our algorithm. At each stage of the cycle,
+we have shaded the observed variables in gray and left the unobserved variables white.
+Black lines correspond to a connection from the top-down
+generative model, while red lines correspond to connections from the bottom-up recognition model.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+  \begin{scope}[shift={(2.5,0)}]
+    \node[obs] at (3,3) (dx){$\mathcal{D}$};
+    \node[latent] at (3.5,1.75) (zp){$p$};
+    \node[obs] at (4,3) (tx){$\theta^{(x)}$};
+    \node[obs] at (3.5,0.7) (xp) {$x$};
+    \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Wake: Infer $p$};
+    \draw [->,red] (xp.east) to[out = 0,in = 0] node(nn){} (tx.east);
+    \draw [->,red] (tx) -- (zp);
+    \draw [->] (dx) -- (zp);
+    \node at (nn) {
+      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+        \node[rectangle,width=2cm] at (1,1) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (I-\name) at (0,-\y) {};
+        \foreach \name / \y in {1,...,3}
+            \node[neuron] (H-\name) at (1,-\y-0.5) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (O-\name) at (2,-\y) {};
+        \foreach \source in {1,...,4}
+            \foreach \dest in {1,...,3}
+                \draw [-latex] (I-\source) -- (H-\dest);
+        \foreach \source in {1,...,3}
+            \foreach \dest in {1,...,4}
+                \draw [-latex] (H-\source) -- (O-\dest);
+      \end{tikzpicture}
+    };
+    \node[shift={+(0,-0.65)}] at (nn) [fill=white]{ $q(x)$ };
+  \end{scope}
+
+  \begin{scope}[shift={(0.7,-4.2)}]
+    \node[obs] at (3,3) (dt){$\mathcal{D},\theta$};
+    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]dt.south) (p2){$p_2$};
+    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p2.south) (x2){$x_2$};
+    \draw [->] (p2.south) -- (x2.north);
+    \draw [->] (dt.south) -- (p2.north);
+
+
+    \node[obs] at ([yshift = 0cm,xshift = -0.5cm]p2.west) (p1){$p_1$};
+    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p1.south) (x1){$x_1$};
+    \draw [->] (p1.south) -- (x1.north);
+    \draw [->] (dt.south) -- (p1.north);
+
+    \node[obs] at ([yshift = 0cm,xshift = 0.5cm]p2.east) (p3){$p_3$};
+    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p3.south) (x3){$x_3$};
+    \draw [->] (p3.south) -- (x3.north);
+    \draw [->] (dt.south) -- (p3.north);
+
+    \node at ([yshift = 0cm,xshift = 0.3cm]p3.east) {$\cdots $};
+    \node at ([yshift = 0cm,xshift = 0.3cm]x3.east) {$\cdots $};
+      
+    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]p3.east) (zp){$p$};
+    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]x3.east) (xp) {$x$};
+    \draw [->] (zp.south) -- (xp.north);
+    \plate {}{(zp)(xp)}{$x\in X$};
+
+    \draw[dashed,cyan,very thick] ([yshift = 0.5cm,xshift = -0.5]p1.west) rectangle  ([yshift = -0.5cm,xshift = -0.5]xp.east);
+    \node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Sleep-R: Train $q$\\training data: cyan $(x,p)$};
+  \end{scope}
+    
+  \begin{scope}[shift={(7.7,-4)}]
+    \node[latent] at (0.5,3) (d){$\mathcal{D}$};
+    \node[latent] at (1.5,3) (t){$\theta$};
+    \node[obs] at (1,1.75) (z){$p$};
+    % \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
+    \node[obs] at (1,0.5) (x) {$x$};
+    \edge {z}{x};
+    \edge {d,t}{z};
+    \plate {}{(z)(x)}{$x\in X$};
+    \node[align = center] at ([yshift = -1cm]x.south) {Sleep-G: Induce $(\mathcal{D},\theta})$};
+  \end{scope}
+
+\end{tikzpicture}
+\end{figure}
+
+
 \section{Program Representation}\label{programrepresentation}
 We choose to represent programs using $\lambda$-calculus~\cite{pierce}.
 A $\lambda$-calculus expression is either:
