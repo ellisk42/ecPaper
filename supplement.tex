@@ -459,13 +459,13 @@ Greek letters represent polymorphic types.
   \hline
   \textrm{\emph{name}} & \textrm{\emph{type}} \\
   \hline
-    empty & [$\alpha$] \\
-    singleton & $\alpha \to$ [$\alpha$] \\
-    concat & [$\alpha$] $\to$ [$\alpha$] $\to$ [$\alpha$] \\
+    empty & $\left[\alpha\right]$ \\
+    singleton & $\alpha \to \left[\alpha\right]$ \\
+    concat & $\left[\alpha\right] \to \left[\alpha\right] \to \left[\alpha\right]$ \\
     mapi & $(\mathbb{Z} \to \alpha \to \beta)$ \\
-    & \qquad\qquad$\to$ [$\alpha$] $\to$ [$\beta$] \\
+    & \qquad\qquad$\to \left[\alpha\right] \to \left[\beta\right]$ \\
     reducei & $(\beta \to \mathbb{Z} \to \alpha \to \beta)$\\
-    & \qquad\qquad$\to \beta \to$ [$\alpha$] $\to \beta$ \\
+    & \qquad\qquad$\to \beta \to \left[\alpha\right] \to \beta$ \\
     \hline
     if & bool $\to \alpha \to \alpha \to \alpha$ \\
     \hline
@@ -483,15 +483,15 @@ Greek letters represent polymorphic types.
     is-prime & $\mathbb{Z} \to$ bool \\
     is-square & $\mathbb{Z} \to$ bool \\
     range & $\mathbb{Z} \to$ [$\mathbb{Z}$] \\
-    sort & [$\mathbb{Z}$] $\to$ [$\mathbb{Z}$] \\
+    sort & $\left[\mathbb{Z}\right] \to \left[\mathbb{Z}\right]$ \\
     \hline
-    sum & [$\mathbb{Z}$] $\to \mathbb{Z}$ \\
-    reverse & [$\alpha$] $\to$ [$\alpha$] \\
-    all & $(\alpha \to$ bool$) \to$ [$\alpha$] $\to$ bool \\
-    any & $(\alpha \to$ bool$) \to$ [$\alpha$] $\to$ bool \\
-    index & $\mathbb{Z} \to$ [$\alpha$] $\to \alpha$ \\
-    filter & $(\alpha \to$ bool$) \to$ [$\alpha$] $\to$ [$\alpha$] \\
-    slice & $\mathbb{Z} \to \mathbb{Z} \to$ [$\alpha$] $\to$ [$\alpha$] \\
+    sum & $\left[\mathbb{Z}\right] \to \mathbb{Z}$ \\
+    reverse & $\left[\alpha\right] \to \left[\alpha\right]$ \\
+    all & $(\alpha \to$ bool$) \to \left[\alpha\right] \to$ bool \\
+    any & $(\alpha \to$ bool$) \to \left[\alpha\right] \to$ bool \\
+    index & $\mathbb{Z} \to \left[\alpha\right] \to \alpha$ \\
+    filter & $(\alpha \to$ bool$) \to \left[\alpha\right] \to \left[\alpha\right]$ \\
+    slice & $\mathbb{Z} \to \mathbb{Z} \to \left[\alpha\right] \to \left[\alpha\right]$ \\
   \hline
 \end{tabular}
 \end{center}
