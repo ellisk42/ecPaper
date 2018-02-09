@@ -499,10 +499,12 @@ Greek letters represent polymorphic types.
 \vfill
 
 \section{Hyperparameters \& Implementation details}
-We set $\alpha = 10$ and $\lambda = 1$ for all experiments except for string
-editing. For string editing we found that more strongly regularizing
+We set structure penalty $\lambda = 1$ (Eq.~5 of the main paper) and
+smoothness parameter $\alpha = 10$ (Eq.~6 of the main paper)
+for all experiments except for string editing.
+For string editing we found that more strongly regularizing
 the DSL was necessary,
-and so we set $\lambda = 5$.
+so we set $\lambda = 5$.
 We believe this is because
 we have many more tasks for string editing than we do for the other domains.
 The frontier size used for Boolean circuits was $5000$,

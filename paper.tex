@@ -770,10 +770,10 @@ fragments of expressions comes from Fragment Grammars~\cite{tim} and Tree-Substi
 
 
 We define a prior distribution over DSLs which penalizes the sizes of the $\lambda$-calculus expressions in the DSL, and put a Dirichlet prior over the weight vector:
-\begin{align*}
+\begin{align}
   \probability[\mathcal{D}]&\propto\exp\left(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)\\
   \probability[\theta|\mathcal{D}]& = \text{Dir}(\theta|\alpha)
-\end{align*}
+\end{align}
 where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
 $\lambda$ is a hyperparameter that acts as a regularizer on the size of the DSL,
 and $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
