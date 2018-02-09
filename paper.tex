@@ -167,7 +167,7 @@
   edit strings, do symbolic regression,
   and synthesize functions on lists,
   in each case showing that
-  \system learns a domain-specific vocabulary for expressing programs.
+  \system learns a domain-specific vocabulary for expressing solutions to the problems in the domain.
   
   
   
@@ -212,7 +212,7 @@ Our algorithm is called \system because it is based on a
 novel kind of ``wake-sleep'' learning (c.f. \cite{hinton1995wake}), iterating
 between ``wake'' and ``sleep'' phases to achieve three goals: finding
 programs that solve each of the tasks; creating a DSL by discovering
-and reusing domain-specific subroutines; and learning a neural network
+and reusing domain-specific subroutines; and training a neural network
 that efficiently guides search for programs in the DSL. The DSL
 distills commonalities across programs that solve the tasks, letting
 the agent solve other related program learning problems. The neural
@@ -362,7 +362,7 @@ model.
 \end{figure}
 
 
-To perform inference, we took inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
+To perform inference, we take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
 which alternates between ``waking'', which draws samples from a recognition model (our $q$);
 and  ``sleeping'', which trains a recognition model on samples from the generative model (our $\mathcal{D},\theta$).
 For us, a wake cycle means using the recognition model to search for programs that solve the tasks.
@@ -606,7 +606,7 @@ alternatingly maximizing w.r.t. the frontiers (Wake) and the DSL (Sleep-G):
 %explains how \system synthesizes new programs and given a DSL.
 \\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
-$\lowerBound$ most increases by searching for programs where $\probability[x,p|\mathcal{D},\theta]$
+$\lowerBound$ most increases by finding programs where $\probability[x,p|\mathcal{D},\theta]$
 is large.
 %% which we can accomplish by adding new programs to the frontiers means searching for new programs $p$ for task $x$
 %% where  is large.
@@ -615,7 +615,7 @@ Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowe
 
 
 Searching for programs is hard because
-of the large combinatorial search space. We ease this difficulty by learning a neural recognition model
+of the large combinatorial search space. We ease this difficulty by training a neural recognition model
 during the Sleep-R phase:
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
@@ -807,8 +807,8 @@ and train $q$ on those samples.
 Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
 the current DSL, running them to get their outputs,
 and then training $q$ to regress from the outputs to the program.
-If these programs map inputs to outputs,
-then we need some way of sampling these inputs as well.
+Since these programs map inputs to outputs,
+we need some way of sampling these inputs as well.
 Our solution to this problem is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
 
@@ -924,7 +924,7 @@ we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
 %% (3) Because the frontiers can grow very large,
 %% we only keep around the top $10^4$ programs $p$ in each frontier $\mathcal{F}_x$
 %% with the highest likelihood $\probability[x,p|\mathcal{D},\theta]$.
-(3) During both DSL induction and neural net training, we calculate $\text{score}(\mathcal{D}')$ and $\mathcal{L}_{\text{RM}}$
+(3) During both DSL induction and neural net training, we calculate Eq.~\ref{AIC} and $\mathcal{L}_{\text{RM}}$
 by only summing over the top $K$
 programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]$ -- we found that $K = 2$ sufficed.
 (4) For added robustness, we enumerate programs from both the generative model and the recognition model.
