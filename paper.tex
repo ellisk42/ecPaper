@@ -1096,13 +1096,13 @@ This falls out of our Bayesian framing -- both the bias towards shorter programs
   %% \midrule
   %% Likelihood $\probability[x|p]$& $\propto\exp\left( - D\log N \right)\prod_{n\leq N}\mathcal{N}(p(i_n)|o_n)$
   %% \\\midrule
-    $f_0 = $\code{(+ }$\mathcal{R}$\code{)}\\
-    $f_1($\code{x}$) =$ \code{(* (* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{) x)} \\
-      $f_2($\code{x}$) =$ \code{(+ }$\mathcal{R}$\code{ ($f_1$ x))} \\
-      $f_3($\code{x}$) = $\code{(* x (}$f_2$\code{ x))}\\
-  $f_4($\code{x}$) = $\code{(}$f_0$\code{ (}$f_3$\code{ x)))}\\
-  $f_5($\code{x}$) =$ \code{(* x (}$f_4$\code{ x))}\\
-  $f_6($\code{x}$) = $\code{(}$f_0$\code{ (}$f_4$\code{ x))} (\emph{4th order polynomial})
+  $f_0\,=\,$\code{(+ $\mathcal{R}$)}\\
+  $f_1($\code{x}$)\,=\,$\code{(* (* (+ x $\mathcal{R}$) $\mathcal{R}$) x)} \\
+  $f_2($\code{x}$)\,=\,$\code{(+ $\mathcal{R}$ ($f_1$ x))} \\
+  $f_3($\code{x}$)\,=\,$\code{(* x ($f_2$ x))}\\
+  $f_4($\code{x}$)\,=\,$\code{($f_0$ ($f_3$ x))}\\
+  $f_5($\code{x}$)\,=\,$\code{(* x ($f_4$ x))}\\
+  $f_6($\code{x}$)\,=\,$\code{($f_0$ ($f_4$ x))} (\emph{4th order polynomial})
   \\\bottomrule
 \end{tabular}
 \caption{Some induced DSL primitives for symbolic regression. System starts out with addition, multiplication, and real numbers, and learns to build 4th order polynomials.}\label{regressionDSL}
@@ -1154,12 +1154,13 @@ all of the tasks.
 \\    Subset of learned DSL\\
     \begin{tabular}{l}
       \toprule
-      $f_0($\code{c}$) = $\code{(+ (chr->str c))}\\
-      $f_1($\code{i,c,s}$) = $      \code{(+ (nth i (split c s))}\\\hspace{2.55cm}\code{ (chr->str c))}\\
-      $f_2($\code{s,c}$) = $\code{((}$f_0$\code{ c) (}$f_1$\code{ (1+ 0) c s))} \\
-      \hspace{0.5cm}($f_2$: \emph{Extract substring delimited by character})\\
-      $f_3($\code{c,s}$) = $\code{(nth (1+ 0) (split c (nth 0 s)))}\\
-      \hspace{0.5cm}($f_3$: \emph{2nd substring delimited by character})
+      $f_0($\code{c}$) \,=\, $\code{(+ (chr->str c))}\\
+      $f_1($\code{i$,$c$,$s}$) \,=\, $\code{(+ (nth i (split c s))}\\
+        \phantom{$f_1($\code{i$,$c$,$s}$) \,=\, $\code{(+ }}\code{(chr->str c))}\\
+      $f_2($\code{s$,$c}$) \,=\, $\code{((}$f_0$\code{ c) (}$f_1$\code{ (1+ 0) c s))} \\
+        \hspace{0.5cm}($f_2$: \emph{Extract substring delimited by character})\\
+      $f_3($\code{c$,$s}$) \,=\, $\code{(nth (1+ 0) (split c (nth 0 s)))}\\
+        \hspace{0.5cm}($f_3$: \emph{2nd substring delimited by character})
     %% $f_0($\code{i,c,s}$) = $    \code{(+ (index i (split c s)) (chr->str c))}\\
     %% $f_1 = $\code{(join "")}
   \\\bottomrule
@@ -1181,9 +1182,9 @@ KfvTh$>$Dbl$<$OIJso 	&DBL
   \vspace{0.25cm}
   
   \begin{minipage}{7.5cm}
- $f($\code{s}$) = $   \code{(}$f_3$\code{ (split '>' (upper s)) '<')}
-    \end{minipage}
-  \caption{Example string edit task (top) and program  \system writes (bottom). $f_3$ is a new DSL subroutine discovered by \systemEnding, defined in Tbl.~\ref{textPrimitives}}\label{exampleTextProblem}
+    $f($\code{s}$) \,=\, $\code{(}$f_3$\code{ (split '>' (upper s)) '<')}
+  \end{minipage}
+  \caption{A string edit task and the program \system writes for it. $f_3$ is a discovered DSL subroutine, defined in Tbl.~\ref{textPrimitives}}\label{exampleTextProblem}.
   \end{figure}
 
 \subsection{List functions}
@@ -1254,17 +1255,17 @@ get \system off the ground.
   \centering
   \begin{tabular}{l}
     \toprule
-    $(f_0$ \code{i $\ell$}$) = $\code{(singleton (index i $\ell$))}\\
+    $f_0($\code{i$,\ell$}$) \,=\, $\code{(singleton (index i $\ell$))}\\
     \hspace{0.5cm}($f_0$: \emph{Put the $i$-th index into a list})\\
-    $(f_1$ \code{i $\ell$}$) = $\code{(++ $\ell$ ($f_0$ i $\ell$))}\\
+    $f_1($\code{i$,\ell$}$) \,=\, $\code{(++ $\ell$ ($f_0$ i $\ell$))}\\
     \hspace{0.5cm}($f_1$: \emph{Append the $i$-th index})\\
-    $(f_2$ \code{n $\ell$}$) = $\code{(any (lambda (x) (= n x)) $\ell$)}\\
+    $f_2($\code{n$,\ell$}$) \,=\, $\code{(any (lambda (x) (= n x)) $\ell$)}\\
     \hspace{0.5cm}($f_1$: \emph{Whether $n$ appears in the list})\\
-    $(f_3$ \code{i $\ell$}$) = $\code{(index (negate i) (sort $\ell$))}\\
+    $f_3($\code{i$,\ell$}$) \,=\, $\code{(index (negate i) (sort $\ell$))}\\
     \hspace{0.5cm}($f_3$: \emph{Get the $i$-th largest number})\\
-    $(f_4$ \code{n $\ell$}$) = $\code{(mapi (lambda (i x) (mod x n)) $\ell$)}\\
-    $(f_5$ \code{k $\ell$}$) = $\code{(mapi (lambda (i x) (+ x k)) $\ell$)}\\
-    $(f_6$ \code{k n $\ell$}$) = $\code{($f_4$ n ($f_5$ k $\ell$)}\\
+    $f_4($\code{n$,\ell$}$) \,=\, $\code{(mapi (lambda (i x) (mod x n)) $\ell$)}\\
+    $f_5($\code{k$,\ell$}$) \,=\, $\code{(mapi (lambda (i x) (+ x k)) $\ell$)}\\
+    $f_6($\code{k$,$n$,\ell$}$) \,=\, $\code{($f_4$ n ($f_5$ k $\ell$)}\\
     \hspace{0.5cm}($f_6$: \emph{Caesar shift of $k$ in integers modulo $n$})\\
   \bottomrule
   \end{tabular}
