@@ -479,9 +479,9 @@ Its goal is to solve each of the tasks by writing a program,
 and also to infer a DSL $\mathcal{D}$.
 
 We frame this problem as maximum a posteriori (MAP) inference in the
-generative model diagrammed by Fig.~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
+generative model diagrammed by Fig.~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$ and $X$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
 \begin{align}\label{intractableObjectives}
-\nonumber  J(\mathcal{D},\theta)&\triangleq \probability[\mathcal{D}]\probability(\theta)\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
+\nonumber  J(\mathcal{D},\theta)&\triangleq \probability[\mathcal{D},\theta]\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
   \mathcal{D}^* &= \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta \\
 \nonumber  \theta^*& =\argmax_\theta J(\mathcal{D}^*,\theta)
 \end{align}
@@ -496,7 +496,7 @@ is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal
 
 Using the frontiers we  define the following intuitive lower bound on the joint probability, which we call $\lowerBound$:
 \begin{align}
- J\geq \lowerBound\triangleq\probability[\mathcal{D}]\probability[\theta]\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
+ J\geq \lowerBound\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
 \end{align}
 
 %% If we had a $(\mathcal{D},\theta)$ solving Eq.~\ref{intractableObjectives}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
@@ -1321,7 +1321,7 @@ Many directions remain open for future work. Two immediate goals are to
 integrate more sophisticated neural recognition models~\cite{devlin2017robustfill} and
 program synthesizers~\cite{solar2008program}, which may improve performance in some
 domains over the simple, generic methods used here, and to explore DSL
-meta-learning: Can we find a \emph{single} universal primitive set that could
+meta-learning: Can we find a single universal primitive set that could
 effectively bootstrap DSLs for new domains, including the four domains
 considered but many others?
 
