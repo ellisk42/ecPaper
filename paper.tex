@@ -179,7 +179,7 @@ of artificial intelligence. Recent work has successfully used
 symbolic search techniques (e.g., Metagol:~\cite{muggleton2015meta},
 FlashFill:~\cite{gulwani2011automating}), neural networks trained from
 a corpus of examples (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids of neural and
-symbolic methods (e.g., Neural-guided deductive search~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}) to
+symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}) to
 synthesize programs for task domains such as string transformations,
 list processing, and robot navigation and planning. However, all these
 approaches -- symbolic, neural and neural-symbolic -- rely upon a
@@ -525,7 +525,7 @@ $\lowerBound$ most increases by finding programs where $\probability[x,p|\mathca
 is large.
 %% which we can accomplish by adding new programs to the frontiers means searching for new programs $p$ for task $x$
 %% where  is large.
-\\\noindent \textbf{DSL Induction: Maxing $\int \lowerBound\;\mathrm{d}\theta$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound\;\mathrm{d}\theta$.
+\\\noindent \textbf{DSL Induction: Maxing $\int \lowerBound\;\mathrm{d}\theta$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound\;\mathrm{d}\theta$.
 Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\})$. 
 
 
@@ -570,8 +570,8 @@ Now our goal is to search for programs that solve the tasks.  In this
 work we use the simple search strategy of enumerating programs from
 the DSL  in decreasing order of their probability,
 and then checking if an enumerated program $p$ assigns positive
-probability to a task ($\probability[x|p] > 0$); if so, we include $p$ in
-the frontier $\mathcal{F}_x$.
+probability to a task ($\probability[x|p] > 0$); if so, we incorporate $p$ 
+into the frontier $\mathcal{F}_x$.
 
 To make this concrete we need to define what programs actually are and
 what form $\probability[p |\mathcal{D},\theta]$ takes.
