@@ -22,6 +22,7 @@
 \newcommand{\systemEnding}{\textsc{DreamCoder}}
 \newcommand{\lowerBound}{\mathscr{L}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
+\newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
 % Use the following line for the initial blind version submitted for review:
 \usepackage[nohyperref]{icml2018}
 
@@ -1060,7 +1061,7 @@ all of the tasks.
     String editing primitives\\
     \begin{tabular}{l}
     \toprule
-    \code{0}, \code{+1},\code{-1},     \code{""},    \code{","},     \code{" "},    \code{"<"}, \code{">"}  \\
+    \code{0}, \code{+1},\code{-1},\codechar{},\codechar{,},\codechar{ },\codechar{<},\codechar{>}  \\
     \code{split}, \code{join}, \code{map}, 
     \code{+}, \code{chr->str}, \code{trim}, \code{nth}\\
     \code{length}, \code{slice},    \code{lower}, \code{upper}, \code{capitalize}
@@ -1072,9 +1073,9 @@ all of the tasks.
       $f_0($\code{c}$) \,=\, $\code{(+ (chr->str c))}\\
       $f_1($\code{i$,$c$,$s}$) \,=\, $\code{(+ (nth i (split c s))}\\
         \phantom{$f_1($\code{i$,$c$,$s}$) \,=\, $\code{(+ }}\code{(chr->str c))}\\
-      $f_2($\code{s$,$c}$) \,=\, $\code{((}$f_0$\code{ c) (}$f_1$\code{ (1+ 0) c s))} \\
+      $f_2($\code{s$,$c}$) \,=\, $\code{((}$f_0$\code{ c) (}$f_1$\code{ (+1 0) c s))} \\
         \hspace{0.5cm}($f_2$: \emph{Extract substring delimited by character})\\
-      $f_3($\code{c$,$s}$) \,=\, $\code{(nth (1+ 0) (split c (nth 0 s)))}\\
+      $f_3($\code{c$,$s}$) \,=\, $\code{(nth (+1 0) (split c (nth 0 s)))}\\
         \hspace{0.5cm}($f_3$: \emph{2nd substring delimited by character})
     %% $f_0($\code{i,c,s}$) = $    \code{(+ (index i (split c s)) (chr->str c))}\\
     %% $f_1 = $\code{(join "")}
@@ -1092,10 +1093,10 @@ YBW$>$TIg$<$WS 	&TIG& qqfgg..mNIx & qqfgg.
 %DkI$>$DwKI$<$xaPoc& 	DWKI\\
 %KfvTh$>$Dbl$<$OIJso 	&DBL
 \\\midrule
-\multicolumn{2}{l|}{$f(\text{\code{s}}) = $\code{(}$f_3$\code{ (split '>' } }&
-\multicolumn{2}{l}{$f(\text{\code{s}}) = $\code{(}$f_1$\code{ s '.' 0)}}
+\multicolumn{2}{l|}{$f(\text{\code{s}}) = $\code{(}$f_3$\code{ (split }\codechar{>}\code{ } }&
+\multicolumn{2}{l}{$f(\text{\code{s}}) = $\code{(}$f_1$\code{ s }\codechar{.}\code{ 0)}}
 \\
-\multicolumn{2}{l|}{\hspace{1.1cm}\code{(upper s)) '<')}}
+\multicolumn{2}{l|}{\hspace{1.1cm}\code{(upper s)) }\codechar{<}\code{)}}
 \\\bottomrule
   \end{tabular}
 
