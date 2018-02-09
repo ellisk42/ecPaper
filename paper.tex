@@ -1039,7 +1039,7 @@ and algorithms that learn string editing programs ship in Microsoft Excel~\cite{
 However, this prior work presumes a ready-made DSL,
 expertly crafted to suit string editing.
 We show in this experiment that we can instead start out with a
-less specialized set of primitives -- close to the string routines provided by Python --
+less specialized set of primitives -- close to the string methods provided by Python --
 and recover many of the higher-level building blocks that have made these
 other system successful.
 Tbl.~\ref{textPrimitives} (top) lists the primitive functions provided to \systemEnding.
@@ -1049,8 +1049,7 @@ Instead, we provide list/string indexing primitives (\code{slice}, \code{nth}),
 basic arithmetic, and functions for splitting a string into a list (\code{split})
 or turning a list into a string (\code{join}).
 We automatically generated  600 string editing tasks  with 4 input/output examples each (Fig.~\ref{exampleTextProblem}). %, split  75/25 train/test.
-At first, \system cannot find any programs that
-work at all for most of the tasks.
+At first, \system cannot programs for most of the tasks.
 After three wake/sleep iterations,
 it assembles a DSL (Tbl.~\ref{textPrimitives}, bottom) that lets it rapidly explore the space of programs and find solutions to
 all of the tasks.
@@ -1099,11 +1098,12 @@ KfvTh$>$Dbl$<$OIJso 	&DBL
   
   \vspace{0.25cm}
   
-  \begin{minipage}{7.5cm}
+  \begin{minipage}{\linewidth}
+    \centering
     $f($\code{s}$) \,=\, $\code{(}$f_3$\code{ (split '>' (upper s)) '<')}
   \end{minipage}
-  \caption{A string edit task and the program \system writes for it. $f_3$ is a discovered DSL subroutine, defined in Tbl.~\ref{textPrimitives}}\label{exampleTextProblem}.
-\vspace{-0.5cm}  \end{figure}
+  \caption{A string edit task and the program \system writes for it. $f_3$ is a discovered DSL subroutine, defined in Tbl.~\ref{textPrimitives}.}\label{exampleTextProblem}
+\end{figure}
 
 
 
