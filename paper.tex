@@ -19,7 +19,7 @@
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
 \newcommand{\system}{\textsc{DreamCoder}~}
-\newcommand{\endingSystem}{\textsc{DreamCoder}}
+\newcommand{\systemEnding}{\textsc{DreamCoder}}
 \newcommand{\lowerBound}{\mathscr{L}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
 % Use the following line for the initial blind version submitted for review:
@@ -196,7 +196,7 @@ We consider the setting where we have a collection of related programming tasks,
 each specified by a set of input/output examples.
 We do not assume that the tasks are annotated with
 ground-truth programs.
-Our algorithm, called \system,
+Our algorithm, called \systemEnding,
 does three things:
 it finds programs that solve each of the tasks;
 it creates its own DSL by discovering and reusing
@@ -342,7 +342,7 @@ is that our setup has two distinct sleep phases: a phase where we update the gen
 $(\mathcal{D},\theta)$, which we call \textbf{Sleep-G},
 and a second phase where we update the recognition model $q$,
 which we call \textbf{Sleep-R}.
-This wake/sleep style of inference is the reason why we call our approach \endingSystem.
+This wake/sleep style of inference is the reason why we call our approach \systemEnding.
 
 
 %% We take the intuitive strategy of exploiting the
@@ -1112,7 +1112,7 @@ We show in this experiment that we can instead start out with a
 less specialized set of primitives -- close to the string routines provided by Python --
 and recover many of the higher-level building blocks that have made these
 other system successful.
-Tbl.~\ref{textPrimitives} (top) lists the primitive functions provided to \endingSystem.
+Tbl.~\ref{textPrimitives} (top) lists the primitive functions provided to \systemEnding.
 Absent are any routines for searching for characters, extracting substrings,
 or replacing one character with another.
 Instead, we provide list/string indexing primitives (\code{slice}, \code{nth}),
@@ -1171,7 +1171,7 @@ KfvTh$>$Dbl$<$OIJso 	&DBL
   \begin{minipage}{7.5cm}
  $f($\code{s}$) = $   \code{(}$f_3$\code{ (split '>' (upper s)) '<')}
     \end{minipage}
-  \caption{Example string edit task (top) and program  \system writes (bottom). $f_3$ is a new DSL subroutine discovered by \system, defined in Tbl.~\ref{textPrimitives}}\label{exampleTextProblem}
+  \caption{Example string edit task (top) and program  \system writes (bottom). $f_3$ is a new DSL subroutine discovered by \systemEnding, defined in Tbl.~\ref{textPrimitives}}\label{exampleTextProblem}
   \end{figure}
 
 \subsection{List functions}
@@ -1362,7 +1362,7 @@ This supports our view of the recognition model as a way of accelerating the sea
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
  \section{Contribution and Outlook}
- We contributed a model, \system, that learns to program by
+ We contributed a model, \systemEnding, that learns to program by
  bootstrapping a DSL with new domain-specific primitives that the algorithm itself discovers.
   Alongside this DSL, we train a bottom-up
  neural recognition model that learns how to efficiently deploy the
