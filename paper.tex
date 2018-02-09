@@ -555,7 +555,7 @@ and then we figure out how to assemble them in to the desired program.
 
 Our lower bound $\lowerBound$ is unconventional,
 and one might wonder why we do not instead maximize an ELBO-style bound like in a VAE or in the EM algorithm.
-We explain in the supplement that maximizing an ELBO-style bound
+We explain in the Supplement that maximizing an ELBO-style bound
 leads to a pathological behavior that  causes the model to easily become trapped in local optima.
 
 
@@ -732,7 +732,7 @@ The architecture of $q$ depends upon the domain.
 For domains with sequential structure like strings and lists,
 we use an RNN to encode each input/output example,
 and for domains with fixed-dimensionality inputs/outputs we use a multilayer perceptron.
-We MaxPool across all of the input/output examples. See supplement for details.
+We MaxPool across all of the input/output examples. See Supplement for details.
 
 \subsection{Sleep-G: Inducing the DSL}\label{grammarInductionSection}
 
