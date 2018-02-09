@@ -286,18 +286,18 @@ even as the DSL (and hence the search space for programs) expands.
 
 
 Viewed as an inference problem,
-our goal is to infer the DSL, written $\mathcal{D}$,
+our goal is to infer the DSL (written $\mathcal{D}$)
 along with a program (written $p$) for each set of inputs/outputs (\emph{tasks}, written $x$).
 A DSL $\mathcal{D}$ is a collection of domain specific subroutines.
 We equip $\mathcal{D}$ with a real-valued weight vector, $\theta$, and together
 $(\mathcal{D},\theta)$ define a distribution over programs.
-Fig.~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarchical Bayesian model.
+Fig.~\ref{graphicalModel}(a) diagrams this inference problem as a hierarchical Bayesian model.
 Inference in this model is
 difficult because the programs are unobserved,
 and so we must solve a hard search problem to recover them. To make
 search tractable we learn a bottom-up \emph{recognition
-  model}, written $q(\cdot )$
-(Fig.~\ref{graphicalModel}b).  The recognition model $q$ is a neural
+  model} (written $q(\cdot )$, Fig.~\ref{graphicalModel}(b)).
+The recognition model $q$ is a neural
 network that regresses from input/output pairs to a distribution over
 programs likely to explain the input/outputs. $q(\cdot )$ implements an amortized
 inference
@@ -360,7 +360,6 @@ model.
   \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$. Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
     $\theta^{(x)}$. Black/red arrows correspond to the generative/recognition models.}\label{graphicalModel}
 \end{figure}
-
 
 
 To perform inference, we took inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
