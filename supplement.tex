@@ -345,17 +345,14 @@ $$r(e:\tau',p)\triangleq\sum_{\tau\in R(p)} \indicator[\text{canUnify}(\tau,\tau
 
 
 
-Differentiate with respect to $\theta_e$ and set to zero:
+Differentiating with respect to $\theta_e$ and setting to zero:
 %% \begin{align}
 %%   & \frac{\alpha + \sum_x\expect_{Q_x}\left[ c(e,p)\right]}{\theta_e} -
 %% \theta_e\sum_x  \expect_{Q_x}\left[c(p)\frac{r(p,e)}{\sum_{e'\in \mathcal{D}} r(e',p)\theta_{e'}} \right]  
 %%   \end{align}
-
+%%
 \begin{align*}
- \frac{c(e, p)}{\theta_e} &= c(p)\frac{r(e, p)}{\sum_{e'\in\mathcal{D}} r(e', p)\theta_{e'}}
-\end{align*}
-%or more succinctly,
-\begin{align}
+  \frac{c(e, p)}{\theta_e} &= c(p)\frac{r(e, p)}{\sum_{e'\in\mathcal{D}} r(e', p)\theta_{e'}} \\
   \frac{c(x,p)}{\theta_x} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
 \end{align}
 where $N=c(p)$ and $a(x) = r(x, p)$. From here forward, we similarly let
@@ -366,19 +363,20 @@ $c(x)=c(x,p)$ for notational convenience.
 %%   \frac{c(x)}{\theta_x} &= a(x).\\
 %% N\frac{a(x)}{\sum_y a(y)\theta_y}& = N\frac{a(x)}{\sum_y c(y)}   = N\frac{a(x)}{N} = a(x).
 %% \end{align}
-If this equality holds then $\theta_x \propto c(x)/a(x)$:
+If the above equality holds then $\theta_x \propto c(x)/a(x)$:
 \begin{align}
-  \theta_x = \frac{c(x)}{a(x)}\times \underbrace{\frac{\sum_y a(y)\theta_y}{N}}_{\text{Independent of $x$}}.
+  \theta_x = \frac{c(x)}{a(x)}\times \underbrace{\frac{\sum_y a(y)\theta_y}{N}}_{\text{Independent of $x$}}
 \end{align}
 
 Now what we are actually after is the parameters that maximize the joint log probability of the data and parameters $\theta$, which we  write $J$:
 \begin{align}
-  J& = L + \log \text{Dir}(\theta|\alpha)\\
-  &\stackrel{+}{\geq } \sum_x c(x)\log \theta_x - N \log \sum_x a(x)\theta_x  + \sum_x(\alpha_x - 1)\log \theta_x\\
+  \nonumber J& = L + \log \text{Dir}(\theta|\alpha)\\
+  \nonumber&\stackrel{+}{\geq } \sum_x c(x)\log \theta_x - N \log \sum_x a(x)\theta_x \\
+  \nonumber&\qquad\quad+ \sum_x(\alpha_x - 1)\log \theta_x\\
   & = \sum_x (c(x) + \alpha_x - 1)\log \theta_x -  N \log \sum_x a(x)\theta_x
 \end{align}
-We identify the parameters of the prior over $\theta$, $\alpha$, as  pseudocounts that are added to the \emph{counts} ($c(x)$), but not to the \emph{possible counts} ($a(x)$),
-and so we estimate $\theta_e$ as the ratio of the sum of the number of times that $e$ was used, plus the pseudocounts $\alpha$, with the number of times that it could have been used, $a(e)$.
+We identify the parameters of the prior over $\theta$, $\alpha$, as  pseudocounts that are added to the \emph{counts} $c(x)$, but not to the \emph{possible counts} $a(x)$,
+and so we estimate $\theta_e$ as the ratio of the sum of the number of times that $e$ was used plus the pseudocounts $\alpha$, with the number of times that it could have been used, $a(e)$.
 
 
 
