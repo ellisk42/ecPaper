@@ -752,8 +752,9 @@ discover more programs.
 Recall from Sec.~\ref{mathematicalFraming} that we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$.
 We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
 \begin{align}
-\nonumber  \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\\
-&+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
+  \nonumber
+    \log \probability[\mathcal{D}] + \argmax_{\theta}&\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\\
+  &+ \log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \label{AIC}
   \end{align}
 
 We induce a DSL by searching locally through the space of DSLs,
@@ -773,7 +774,7 @@ fragments of expressions comes from Fragment Grammars~\cite{tim} and Tree-Substi
 We define a prior distribution over DSLs which penalizes the sizes of the $\lambda$-calculus expressions in the DSL, and put a Dirichlet prior over the weight vector:
 \begin{align*}
   \probability[\mathcal{D}]&\propto\exp\left(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)\\
-  P(\theta|\mathcal{D})& = \text{Dir}(\theta|\alpha)
+  \probability[\theta|\mathcal{D}]& = \text{Dir}(\theta|\alpha)
 \end{align*}
 where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
 $\lambda$ is a hyperparameter that acts as a regularizer on the size of the DSL,
@@ -782,7 +783,7 @@ and $\alpha$ is a concentration parameter controlling the smoothness of the prio
 
 To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
 Although this problem may seem 
-very similar to estimating the parameters of a probabilistic context free grammar,
+very similar to estimating the parameters of a probabilistic context free grammar (PCFG),
 for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
 a DSL in \system may be context-sensitive due to the presence of variables
 in the programs and also due to the polymorphic typing system.
