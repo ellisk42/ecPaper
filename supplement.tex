@@ -37,7 +37,7 @@
 % For figures
 \usepackage{graphicx} % more modern
 %\usepackage{epsfig} % less modern
-\usepackage{subfig} 
+%\usepackage{subfig}
 \usepackage{fancyvrb}
 
 
@@ -66,7 +66,7 @@
 \usepackage{dsfont}
 \usepackage{amsmath}
 \usepackage{hyperref}
-\DeclareMathOperator*{\argmin}{arg\,min} % thin space, limits underneath in displays
+%\DeclareMathOperator*{\argmin}{arg\,min} % thin space, limits underneath in displays
 \DeclareMathOperator*{\argmax}{arg\,max} % thin space, limits underneath in displays
 \DeclareMathOperator{\argmin}{argmin} % no space, limits underneath in displays
 
@@ -172,7 +172,7 @@ generative model, while red lines correspond to connections from the bottom-up r
       \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
         \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
         \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-        \node[rectangle,width=2cm] at (1,1) {};
+        \node[rectangle] at (1,1) {};
         \foreach \name / \y in {1,...,4}
             \node[neuron] (I-\name) at (0,-\y) {};
         \foreach \name / \y in {1,...,3}
@@ -229,7 +229,7 @@ generative model, while red lines correspond to connections from the bottom-up r
     \edge {z}{x};
     \edge {d,t}{z};
     \plate {}{(z)(x)}{$x\in X$};
-    \node[align = center] at ([yshift = -1cm]x.south) {Sleep-G: Induce $(\mathcal{D},\theta})$};
+    \node[align = center] at ([yshift = -1cm]x.south) {Sleep-G: Induce $(\mathcal{D},\theta)$};
   \end{scope}
 
 \end{tikzpicture}

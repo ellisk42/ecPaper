@@ -334,7 +334,7 @@ model.
     \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.15,shift={+(-1,2.5)}}]
       \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
       \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-      \node[rectangle,width=2cm] at (1,1) {};
+      \node[rectangle] at (1,1) {};
       \foreach \name / \y in {1,...,4}
           \node[neuron] (I-\name) at (0,-\y) {};
       \foreach \name / \y in {1,...,3}
@@ -638,11 +638,11 @@ expressions in order of their probability.
    \STATE \textbf{return} \code{(lambda (}var\code{) }body\code{)}
    \ENDIF
    %   \ELSE
-   \STATE $\text{primitives} \gets\{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
-   \STATE \hspace{2.5cm}$\text{if }\tau\text{ can unify with yield}(\tau') \} $
+   \STATE $\text{primitives} \gets\{p | p: \tau' \in \mathcal{D}\cup\mathcal{E}$ \\
+     \hspace*{6.9em}$\text{if }\tau\text{ can unify with yield}(\tau') \} $
    
    \STATE Draw $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$
-   \STATE \hspace{3.1cm}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
+   \STATE \hspace*{8.8em}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
    \STATE Unify $\tau$ with yield$(\tau')$.
    \STATE $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{argTypes}(\tau')$ 
 %   \STATE unify$(\tau,\beta)$
@@ -651,13 +651,13 @@ expressions in order of their probability.
  \ENDFOR
  \STATE \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
  \STATE\textbf{where:}
- \STATE  yield$(\tau) = \begin{cases}
-\text{yield}(\beta)   &\text{ if }$\tau = \alpha\to \beta$\\
-\tau   &\text{ otherwise.}
+ \STATE \quad yield$(\tau) = \begin{cases}
+    \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+    \tau   &\text{ otherwise.}
  \end{cases}$ 
- \STATE\hspace{0cm} argTypes$(\tau) = \begin{cases}
-[\alpha] + \text{argTypes}(\beta)   &\text{ if }$\tau = \alpha\to \beta$\\
-[]   &\text{ otherwise.}
+ \STATE \quad argTypes$(\tau) = \begin{cases}
+    [\alpha] + \text{argTypes}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+    []   &\text{ otherwise.}
  \end{cases}$
 \end{algorithmic}
 \end{algorithm}
@@ -892,27 +892,27 @@ suggesting that an agent can glean something about the structure of a circuit ju
 
 \begin{figure}\centering
   \begin{circuitikz} \draw
-    (0,0) node[port] (x) {$x$}
-    (x)++(0,-0.3) node[port] (y) {$y$}
-    (y)++(0,-0.5) node[port] (z) {$z$}
+    (0,0) node (x) {$x$}
+    (x)++(0,-0.3) node (y) {$y$}
+    (y)++(0,-0.5) node (z) {$z$}
     
-    (x)++(1.7,-0.15) node[nand port, scale = 0.5] (xy) {}
+    (x)++(1.7,-0.14) node[nand port, scale = 0.5] (xy) {}
     (xy) ++ (0,-1) node[nand port, scale = 0.5] (xz) {}
     (xz) ++ (1,0.2) node[nand port, scale = 0.5] (zxz) {}
     (zxz) ++ (1,0.2) node[nand port, scale = 0.5] (m) {}
-    (x.out) -- (xy.in 1)
-    (y.out) -- (xy.in 2)
+    (x) -- (xy.in 1)
+    (y) -- (xy.in 2)
 
-    (x.out) -| (xz.in 1)
-    (z.out) -- (xz.in 2)
+    (x) -| (xz.in 1)
+    (z.east) -- (xz.in 2)
 
     (xz.out) -- (zxz.in 2)
-    (z.out) |- (zxz.in 1)
+    (z.east) |- (zxz.in 1)
 
     (zxz.out) -- (m.in 2)
     (xy.out) |- (m.in 1)
 
-    (m)++(1.2,0) node [port] (l) {\textsc{MUX}$(x,y,z)$}
+    (m)++(1.2,0) node (l) {\textsc{MUX}$(x,y,z)$}
     ;
 %% (0,0) node[and port] (myand2) {}
 %% (2,1) node[xnor port] (myxnor) {}
@@ -920,34 +920,34 @@ suggesting that an agent can glean something about the structure of a circuit ju
 %% (myand2.out) -- (myxnor.in 2);
   \end{circuitikz}
   \begin{circuitikz} \draw
-    (0,0) node[port] (a) {$a$}
-    (a)++(0,-0.7) node[port] (b) {$b$}
+    (0,0) node (a) {$a$}
+    (a)++(0,-0.7) node (b) {$b$}
 
     
     (a)++(1,-0) node[nand port, scale = 0.5] (ab1) {}
     (b)++(1,-0) node[nand port, scale = 0.5] (ab2) {}
     (ab1)++(1,-0.35) node[nand port, scale = 0.5] (o) {}
 
-    (a.out) -| (ab1.in 1)
-    (a.out) -| (ab1.in 2)
-    (b.out) -| (ab2.in 1)
-    (b.out) -| (ab2.in 2)
+    (a.east) -| (ab1.in 1)
+    (a.east) -| (ab1.in 2)
+    (b.east) -| (ab2.in 1)
+    (b.east) -| (ab2.in 2)
 
     (ab1.out) -- (o.in 1)
     (ab2.out) -- (o.in 2)
 
-    (o)++(0.8,0) node [port] (l) {\textsc{OR}$(a,b)$}
+    (o)++(0.8,0) node (l) {\textsc{OR}$(a,b)$}
     ;
   \end{circuitikz}
   \begin{circuitikz}     \node(m)[draw] at (1,-1) {MUX}; \draw
-    (0,0) node[port] (w) {$w$}
-    (w)++(0,-0.5) node[port] (x) {$x$}
-    (x)++(0,-0.5) node[port] (y) {$y$}
-    (y)++(0,-0.5) node[port] (z) {$z$}
+    (0,0) node (w) {$w$}
+    (w)++(0,-0.5) node (x) {$x$}
+    (x)++(0,-0.5) node (y) {$y$}
+    (y)++(0,-0.5) node (z) {$z$}
 
-    (z.out) -| (m.south)
-    (y.out) -| (m.west)
-    (x.out) -| (m.north)
+    (z.east) -| (m.south)
+    (y.east) -| (m.west)
+    (x.east) -| (m.north)
 
     
     (y)++(2.5,0.13) node[or port, scale = 0.5] (z) {}
