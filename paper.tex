@@ -1286,12 +1286,11 @@ This supports our view of the recognition model as a way of accelerating the sea
  Our work is far from the first for learning to learn programs,
  an idea that goes back to Solomonoff~\cite{solomonoff1989system}:
 
- \noindent \emph{Neural recognition models for program induction:} Much recent work in the ML community has
+ \noindent \emph{Deep Learning:} Much recent work in the ML community has
  focused on creating neural networks that regress from
- input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. This family of work is closest to the lesioned version of
- \system where $(\mathcal{D},\theta)$ is held fixed and $q$ is learned (RF/DC baseline).
+ input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. %This family of work is closest to our RF/DC baseline.
  These neural networks are typically trained with strong supervision (i.e., with annotated ground-truth programs) on massive data sets (i.e., hundreds of millions~\cite{devlin2017robustfill}).
- In our work we consider a weakly-supervised setting where ground truth programs are not provided and
+ Our work  considers a weakly-supervised regime where ground truth programs are not provided and
  the agent must learn from a few hundred tasks.
  
 
@@ -1308,22 +1307,22 @@ This supports our view of the recognition model as a way of accelerating the sea
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
  \section{Contribution and Outlook}
- We contributed a model, \systemEnding, that learns to program by
+ We contribute a model, \systemEnding, that learns to program by
  bootstrapping a DSL with new domain-specific primitives that the algorithm itself discovers.
   Alongside this DSL, we train a bottom-up
  neural recognition model that learns how to efficiently deploy the
  DSL and hone in on the right programs.
- %% We believe that this
- %% integration of top-down symbolic representation and bottom-up neural
- %% networks -- both of them learned -- is a useful general approach for
- %% getting program induction off the ground. 
+ We believe that this
+ integration of top-down symbolic representation and bottom-up neural
+ networks -- both of them learned -- is a useful general approach for
+ program induction.
 Many directions remain open for future work. Two immediate goals are to
 integrate more sophisticated neural recognition models~\cite{devlin2017robustfill} and
 program synthesizers~\cite{solar2008program}, which may improve performance in some
-domains over the simple, generic methods used here, and to explore DSL
+domains over the generic methods used here, and to explore DSL
 meta-learning: Can we find a single universal primitive set that could
 effectively bootstrap DSLs for new domains, including the four domains
-considered but many others?
+considered but also many others?
 
 \bibliography{main}
 \bibliographystyle{icml2018}
