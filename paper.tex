@@ -165,7 +165,7 @@
   efficiently search for programs in the learned DSL.
   We use our model to build circuits,
   edit strings, do symbolic regression,
-  and synthesize Lisp-style functions on lists,
+  and synthesize functions on lists,
   in each case showing that
   \system learns a domain-specific vocabulary for expressing programs.
   
@@ -294,17 +294,17 @@ even as the DSL (and hence the search space for programs) expands.
   \node[latent] at (1.5,3) (t){$\theta$};
   \node[latent] at (1,1.75) (z){$p$};
 %  \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
-  \node[obs] at (1,0) (x) {$x$};
+  \node[obs] at (1,0.5) (x) {$x$};
   \edge {z}{x};
   \edge {d,t}{z};
   \plate {}{(z)(x)}{$x\in X$};
-  \node[align = center] at ([yshift = -1.3cm]x.south) {(a) \\generative \\model};
+  \node[align = center] at ([yshift = -1.3cm]x.south) {(a) \\generative model};
 
   \begin{scope}[shift = {(0.7,0)}]  
-  \node[latent] at (3.5,3) (dx){$\mathcal{D}$};
-  \node[latent] at (3.5,1.75) (zp){$p$};
-  \node[latent] at (5.5,1.75) (tx){$\theta^{(x)}$};
-  \node[obs] at (3.5,0) (xp) {$x$};
+  \node[obs] at (3.5,3) (dx){$\mathcal{D}$};
+  \node[latent] at (3.5,1.9) (zp){$p$};
+  \node[latent] at (5,1.9) (tx){$\theta^{(x)}$};
+  \node[obs] at (3.5,0.5) (xp) {$x$};
   \plate {}{(zp)(xp)(tx)}{$x\in X$};
   \node[align = center] at ([yshift = -1.2cm,xshift = 1cm]xp.south) {(b) \\recognition model};
   \draw [->,red] (xp.east) to[out = 0,in = -90] node(nn){} (tx.south);
@@ -312,7 +312,7 @@ even as the DSL (and hence the search space for programs) expands.
   \draw [->,red] (dx.south) -- (zp.north);
 
   \node at (nn) {
-    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.15,shift={+(-1,2.5)}}]
       \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
       \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
       \node[rectangle,width=2cm] at (1,1) {};
@@ -338,8 +338,8 @@ even as the DSL (and hence the search space for programs) expands.
 
 
   \end{tikzpicture}
-  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$ (Alg.~\ref{programGenerativeModel}). Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
-    $\theta^{(x)}$. Black arrows correspond to the top-down generative model. Red arrows correspond to the bottom-up recognition model.}\label{graphicalModel}
+  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$. Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
+    $\theta^{(x)}$. Black/red arrows correspond to the generative/recognition models.}\label{graphicalModel}
 \end{figure}
 
 
@@ -350,16 +350,9 @@ A DSL $\mathcal{D}$ is a collection of domain specific subroutines.
 We equip $\mathcal{D}$ with a real-valued weight vector, $\theta$, and together
 $(\mathcal{D},\theta)$ define a distribution over programs.
 Fig.~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarchical Bayesian model.
-
-
-
-%% Inducing the DSL means learning the symbolic structure of a latent programming language,
-%% and so we are confronted with two distinct structure learning problems:
-%% the structure of the programs and the structure of the DSL.
-
-Inference in the generative model in Fig.~\ref{graphicalModel}(a) is
-complicated by the fact that the programs are unobserved,
-and so we must solve a difficult search problem to find any programs at all. To make
+Inference in this model is
+difficult because the programs are unobserved,
+and so we must solve a hard search problem to recover them. To make
 search tractable we learn a bottom-up \emph{recognition
   model}, written $q(\cdot )$
 (Fig.~\ref{graphicalModel}b).  The recognition model $q$ is a neural
@@ -369,14 +362,10 @@ inference
 scheme~\cite{le2016inference} for the generative %ritchie2016deep
 model.
 
-How should we perform inference for the model
-in~\ref{graphicalModel}(a)?
-We take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
+To perform inference, we take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
 which alternates between ``waking'', which draws samples from a recognition model (our $q$);
 and  ``sleeping'', which trains a recognition model on samples from the generative model (our $\mathcal{D},\theta$).
 For us, a wake cycle means using the recognition model to search for programs that solve the tasks.
-The wake cycle can be thought of active problem solving,
-guided by the current generative and recognition models.
 A sleep cycle means  updating these models so that the DSL and  recognition model
 more closely match the distribution of tasks.
 An important difference from the Helmholtz machine
@@ -400,7 +389,7 @@ We apply \system to four domains:
  For each of these we deliberately provide an impoverished
  set of programming primitives,
  and show that our algorithm discovers
- its own domain-specific vocabulary for expressing solutions the domain (Tbl.~\ref{initialExampleDSL}).
+ its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
  \begin{table}
     \begin{tabular}{ll}
    \toprule
@@ -451,7 +440,7 @@ We apply \system to four domains:
 
 \section{The \system Algorithm}
 
-Our goal  is to induce a DSL and find good programs solving each of the tasks.
+Our goal  is to induce a DSL while finding programs solving each of the tasks.
 Our strategy is to iterate through three steps: (1) searching for programs; (2) learning a neural recognition model -- which we use
 to accelerate the search over programs -- and (3) improving the DSL.
 The key observation is that these steps bootstrap off each other (Fig.~\ref{feeding}):
