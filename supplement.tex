@@ -611,7 +611,7 @@ We abbreviate lambda as \textbackslash.
 \onecolumn
 \subsection{Boolean circuits}
 
-\begin{verbatim}
+\begin{lstlisting}[breaklines=true]
 #(\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $0 $2))))))
 #(\ (\ (nand (nand $0 $1) (nand $0 $1))))
 #(\ (\ (nand (nand $0 $0) (nand $1 $1))))
@@ -623,10 +623,10 @@ We abbreviate lambda as \textbackslash.
 #(\ (\ (nand $0 (nand $1 $0))))
 #(\ (#(\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $0 $2)))))) (nand $0 $0)))
 #(\ (\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $3 $2)))))))
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Symbolic regression}
-\begin{verbatim}
+\begin{lstlisting}[breaklines=true]
 #(\ (* (+ REAL $0) REAL))
 #(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0)))
 #(\ (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))
@@ -638,10 +638,10 @@ We abbreviate lambda as \textbackslash.
 #(\ (* (#(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0))) $0) $0))
 #(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0))))
 #(\ (+ $0 REAL))
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{String editing}
-\begin{verbatim}
+\begin{lstlisting}[breaklines=true]
 #(\ (\ (#(nth (incr 0)) (split $0 (#(\ (\ (join (chr->str $0) (map (\ (caseCapitalize $0)) $1)))) $1 $0)))))
 #(\ (\ (join (chr->str $0) (map (\ (strip $0)) $1))))
 #(\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (++ $0 $0))))
@@ -672,10 +672,10 @@ We abbreviate lambda as \textbackslash.
 #(\ (\ (slice $0 (len $1) $1)))
 #(\ (\ (\ (join (chr->str $0) (map $1 $2)))))
 #(\ (\ (++ (chr->str $0) (#(nth (incr 0)) $1))))
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{List functions}
-\begin{verbatim}
+\begin{lstlisting}[breaklines=true]
 #(\ (\ (index $0 (sort $1))))
 #(\ (\ (slice $0 (+ $1 4))))
 #(mapi (\ (\ (eq? $0 $2))))
@@ -707,8 +707,7 @@ We abbreviate lambda as \textbackslash.
 #(\ (++ $0 (++ $0 $0)))
 #(\ (++ $0 (#(\ (++ $0 (++ $0 $0))) $0)))
 #(index 0)
-
-\end{verbatim}
+\end{lstlisting}
 
 \bibliography{main}
 \bibliographystyle{icml2018}
