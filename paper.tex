@@ -1000,10 +1000,11 @@ What DSL does \system learn?
 The learned DSL contains templates for polynomials of different orders,
 which lets the algorithm quickly hone in on the kinds of functions that are most appropriate to this domain (Tbl.~\ref{regressionDSL}).
 Examining the programs themselves,
-one finds that the algorithm discovers representations for each of the polynomials that minimizes the number of continuous degrees of freedom:
-for example, it represents the linear function $-x+2$ with the program 
-\code{(* (* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{) x)}, which has two continuous degrees of freedom -- while representing quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}.
-This falls out of our Bayesian framing -- both the bias towards shorter programs (more likely under $\mathcal{D},\theta$) and the likelihood model's BIC penalty.
+one finds that the algorithm discovers representations for each of the polynomials that minimizes the number of continuous degrees of freedom.
+For example, it represents the linear function $-x+2$ with the program
+\code{(* (* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{) x)} which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
+which has five continuous degrees of freedom.
+This arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
 \begin{table}\centering
 \begin{tabular}{l}
   \toprule
