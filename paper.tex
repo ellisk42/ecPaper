@@ -1175,17 +1175,28 @@ KfvTh$>$Dbl$<$OIJso 	&DBL
   \end{figure}
 
 \subsection{List functions}
-Our list function domain consists of hand-designed concepts from which we
-sample tasks, so there is no ``ground truth'' formal DSL from which these
-tasks are generated. Additionally, few of these tasks are concatenative ---
-many of them represent distinct operations.
-Tasks in this domain are solved by functions that take as input an integer
-or a list of integers, and have as output either a Boolean, an integer, a
-list of Booleans, or a list of integers.  There are 225 tasks in total, some
-of which are shown in Tbl.~\ref{listexamples}.
+Synthesizing programs that manipulate data structures is
+a widely studied problem in the programming languages community~\cite{feser2015synthesizing}.
+%with applications to computer aided programming~\cite{solar2008program}.
+We consider this problem within the context of
+learning functions that manipulate lists.
+We created 225 Lisp-style list manipulation tasks,
+each with 15 input/output examples (Tbl.~\ref{listexamples}).
+Our data set is challenging along two dimensions:
+many of the functions are very complicated,
+and the agent must learn to solve these complicated problems from only 225 tasks.
 
-We take approaches from two different initial DSLs, \emph{base} and
-\emph{rich}, and assess their performance. The base DSL starts with only
+%% Our list function domain consists of hand-designed concepts from which we
+%% sample tasks, so there is no ``ground truth'' formal DSL from which these
+%% tasks are generated. Additionally, few of these tasks are concatenative ---
+%% many of them represent distinct operations.
+%% Tasks in this domain are solved by functions that take as input an integer
+%% or a list of integers, and have as output either a Boolean, an integer, a
+%% list of Booleans, or a list of integers.  There are 225 tasks in total, some
+%% of which are shown in Tbl.~\ref{listexamples}.
+
+We evaluate \system starting from two different initial DSLs, \emph{base} and
+\emph{rich}. The base DSL starts with only
 low-level primitives such as \code{mapi}, \code{reducei}, and
 \code{if}, whereas the rich DSL includes some common structure that can be
 built from these such as \code{all}, \code{filter}, \code{slice}, and
@@ -1193,12 +1204,12 @@ built from these such as \code{all}, \code{filter}, \code{slice}, and
 Both are capable of solving all tasks supplied by our dataset.
 See Supplement for details on these DSLs.
 
-We found that this domain was difficult to tackle without starting from a
-relatively rich DSL, and even then it was still hard to solve all tasks. Our
+We found  this domain  difficult to tackle without starting from 
+the rich DSL. Our
 algorithm, like human learners, requires a spectrum of problems ranging from
-easy to hard. Without this curriculum, \system cannot get off the ground.
-The behavior with the base DSL illustrates this, because the initial set of
-primitives is not paired with a sufficiently large and graded curriculum.
+easy to hard. Without this curriculum, we cannot get off the ground.
+%The behavior with the base DSL illustrates this phenomena  because the initial set of
+%primitives is not paired with a sufficiently large and graded curriculum.
 
 \begin{table}
 \centering
@@ -1215,9 +1226,10 @@ primitives is not paired with a sufficiently large and graded curriculum.
   drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
   \bottomrule
 \end{tabular}
-\caption{Simple tasks from our list function domain. We used 15 input/output
-  examples for each task to reduce ambiguity in the task's function,
-  ensuring solutions achieve the desired concept.}
+\caption{Sample tasks from our list function domain. %% We used 15 input/output
+  %% examples for each task to reduce ambiguity in the task's function,
+  %% ensuring solutions achieve the desired concept.
+}
 \label{listexamples}
 \end{table}
 
