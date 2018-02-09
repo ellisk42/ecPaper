@@ -1268,11 +1268,12 @@ This supports our view of the recognition model as a way of accelerating the sea
   Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
   \\\bottomrule
   \end{tabular}
-\caption{\% solved w/ 5 sec timeout. Solve time: averaged over solved tasks.
-  RF/DC: trained like RobustFill/DeepCoder.
-  PCFG: model w/o structure learning.
-  Enum: model w/o learning.
-  MDL: $-\expect\left[\probability[x|p] \right]$. For domains other than symbolic regression MDL is 0 nats. For symbolic regression MDL is a proxy for \# of continuous degrees of freedom.}\label{baselineComparisons}  \end{table}
+\caption{\% solved w/ 5 sec timeout. Solve time: averaged over solved
+  tasks.  RF/DC: trained like RobustFill/DeepCoder.  PCFG: model w/o
+  structure learning.  Enum: model w/o any learning.  MDL:
+  $-\expect\left[\probability[x|p] \right]$. For domains other than
+  symbolic regression MDL is 0 nats. For symbolic regression MDL is a
+  proxy for \# of continuous parameters.}\label{baselineComparisons} \end{table}
 
 \begin{figure}\centering
 \includegraphics[width = 3.5cm]{figures/regression.eps} 
