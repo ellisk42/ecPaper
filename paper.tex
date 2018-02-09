@@ -281,8 +281,8 @@ even as the DSL (and hence the search space for programs) expands.
 
 
 Viewed as a probabilistic inference problem,
-our goal is to infer the DSL (written $\mathcal{D}$)
-along with a program (written $p$) for each set of inputs/outputs (\emph{tasks}, written $x$).
+our goal is to jointly infer a single DSL (written $\mathcal{D}$)
+and many programs (written $p$), one for each set of inputs/outputs (\emph{tasks}, written $x$).
 A DSL $\mathcal{D}$ is a collection of domain-specific subroutines.
 We equip $\mathcal{D}$ with a real-valued weight vector $\theta$, and together
 $(\mathcal{D},\theta)$ define a distribution over programs.
@@ -965,8 +965,8 @@ suggesting that an agent can glean something about the structure of a circuit ju
 We show how to use \system to infer programs containing both discrete
 structure and continuous parameters. The high-level idea is to write programs with unspecified real-valued parameters, and to fit those parameters by differentiating through the program
 and optimizing using gradient descent.
-We have the algorithm 
-solve a set of 200 symbolic regression problems, each a polynomial of
+We task our model
+with solving 200 symbolic regression problems, each a polynomial of
 degree 1 to 4, where our observations $x$ are 10
 input/output examples.%, which we write as $x = \left\{(i_n,o_n)
 %\right\}_{n\leq N}$. %% For example, one task is to infer a program
@@ -995,15 +995,13 @@ and penalize the use of continuous parameters using the BIC~\cite{Bishop:2006:PR
 %% found by performing gradient ascent on the likelihood of the
 %% observations w.r.t. $\vec{\mathcal{R}}$.
 
-What DSL does \system learn?
-The learned DSL contains templates for polynomials of different orders,
-which lets the algorithm quickly hone in on the kinds of functions that are most appropriate to this domain (Tbl.~\ref{regressionDSL}).
-Examining the programs themselves,
-one finds that the algorithm discovers representations for each of the polynomials that minimizes the number of continuous degrees of freedom.
+\system learns a DSL containing templates for polynomials of different orders,
+which lets the algorithm quickly find the functions that are most appropriate to this domain (Tbl.~\ref{regressionDSL}).
+We also found that the algorithm discovers programs that minimize the number of continuous degrees of freedom.
 For example, it represents the linear function $-x+2$ with the program
 \code{(* (* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{) x)} which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
-which has five continuous degrees of freedom.
-This arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
+which has five continuous parameters.
+This phenomenon arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
 \begin{table}\centering
 \begin{tabular}{l}
   \toprule
@@ -1300,7 +1298,7 @@ This supports our view of the recognition model as a way of accelerating the sea
  \noindent \emph{Inventing new subroutines for program induction:}
  Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
  and extend it along two dimensions: (1) we propose a new algorithm for
- inducing reusable subroutines, based on Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing};
+ inducing reusable subroutines, based on Fragment Grammars~\cite{tim};
  and (2) we show how to combine these techniques with bottom-up neural recognition models.
  Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10}, Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, and predicate invention in ILP~\cite{DBLP:conf/ecai/LinDETM14}.
  
@@ -1310,18 +1308,22 @@ This supports our view of the recognition model as a way of accelerating the sea
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
  \section{Contribution and Outlook}
- We contributed a model, \systemEnding, that learns to program from examples by
+ We contributed a model, \systemEnding, that learns to program by
  bootstrapping a DSL with new domain-specific primitives that the algorithm itself discovers.
   Alongside this DSL, we train a bottom-up
  neural recognition model that learns how to efficiently deploy the
- DSL and hone in on the right programs.  We believe that this
- integration of top-down symbolic representation and bottom-up neural
- networks -- both of them learned -- is a useful general approach for
- getting program induction off the ground. 
-  
-
-
-
+ DSL and hone in on the right programs.
+ %% We believe that this
+ %% integration of top-down symbolic representation and bottom-up neural
+ %% networks -- both of them learned -- is a useful general approach for
+ %% getting program induction off the ground. 
+Many directions remain open for future work. Two immediate goals are to
+integrate more sophisticated neural recognition models~\cite{devlin2017robustfill} and
+program synthesizers~\cite{solar2008program}, which may improve performance in some
+domains over the simple, generic methods used here, and to explore DSL
+meta-learning: Can we find a \emph{single} universal primitive set that could
+effectively bootstrap DSLs for new domains, including the four domains
+considered but many others?
 
 \bibliography{main}
 \bibliographystyle{icml2018}
