@@ -190,9 +190,9 @@ list processing, and robot navigation and planning. However, all these
 approaches -- symbolic, neural and neural-symbolic -- rely upon a
 hand-engineered \emph{Domain Specific Language} (DSL). The DSL is an
 inventory of restricted programming primitives, encoding domain
-specific knowledge about the space of programs to be considered. In
+specific knowledge about the space of programs. In
 practice
-we are often given only one or a few examples of each
+we are often given only a few examples for each
 program to be induced, and thus success often hinges on having a good
 DSL, to
 provide a crucial inductive bias for what would otherwise be an
@@ -206,8 +206,7 @@ set of input/output examples. We do not assume that the tasks are
 annotated with ground-truth programs. We typically will not try to
 learn a DSL completely from scratch, but rather to start from a weaker
 or more general set of primitives in a Lisp-like representation and
-construct a richer, more powerful and better-tuned domain-specific
-language.
+construct a richer, more powerful and better-tuned DSL.
 
 Our algorithm is called \system because it is based on a
 novel kind of ``wake-sleep'' learning (c.f. \cite{hinton1995wake}), iterating
@@ -285,6 +284,26 @@ even as the DSL (and hence the search space for programs) expands.
 %% programs,
 %% which frames our problem as one of program induction.
 
+
+Viewed as an inference problem,
+our goal is to infer the DSL, written $\mathcal{D}$,
+along with a program (written $p$) for each set of inputs/outputs (\emph{tasks}, written $x$).
+A DSL $\mathcal{D}$ is a collection of domain specific subroutines.
+We equip $\mathcal{D}$ with a real-valued weight vector, $\theta$, and together
+$(\mathcal{D},\theta)$ define a distribution over programs.
+Fig.~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarchical Bayesian model.
+Inference in this model is
+difficult because the programs are unobserved,
+and so we must solve a hard search problem to recover them. To make
+search tractable we learn a bottom-up \emph{recognition
+  model}, written $q(\cdot )$
+(Fig.~\ref{graphicalModel}b).  The recognition model $q$ is a neural
+network that regresses from input/output pairs to a distribution over
+programs likely to explain the input/outputs. $q(\cdot )$ implements an amortized
+inference
+scheme~\cite{le2016inference} for the generative %ritchie2016deep
+model.
+
 \begin{figure}
   \centering
 
@@ -343,26 +362,8 @@ even as the DSL (and hence the search space for programs) expands.
 \end{figure}
 
 
-Viewed as an inference problem,
-our goal is to infer the DSL, written $\mathcal{D}$,
-along with a program (written $p$) for each set of inputs/outputs (\emph{tasks}, written $x$).
-A DSL $\mathcal{D}$ is a collection of domain specific subroutines.
-We equip $\mathcal{D}$ with a real-valued weight vector, $\theta$, and together
-$(\mathcal{D},\theta)$ define a distribution over programs.
-Fig.~\ref{graphicalModel}(a) the diagrams this inference problem as a hierarchical Bayesian model.
-Inference in this model is
-difficult because the programs are unobserved,
-and so we must solve a hard search problem to recover them. To make
-search tractable we learn a bottom-up \emph{recognition
-  model}, written $q(\cdot )$
-(Fig.~\ref{graphicalModel}b).  The recognition model $q$ is a neural
-network that regresses from input/output pairs to a distribution over
-programs likely to explain the input/outputs. $q(\cdot )$ implements an amortized
-inference
-scheme~\cite{le2016inference} for the generative %ritchie2016deep
-model.
 
-To perform inference, we take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
+To perform inference, we took inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
 which alternates between ``waking'', which draws samples from a recognition model (our $q$);
 and  ``sleeping'', which trains a recognition model on samples from the generative model (our $\mathcal{D},\theta$).
 For us, a wake cycle means using the recognition model to search for programs that solve the tasks.
@@ -372,8 +373,7 @@ An important difference from the Helmholtz machine
 is that our setup has two distinct sleep phases: a phase where we update the generative model
 $(\mathcal{D},\theta)$, which we call \textbf{Sleep-G},
 and a second phase where we update the recognition model $q$,
-which we call \textbf{Sleep-R}.
-This wake/sleep style of inference is the reason why we call our approach \systemEnding.
+ called \textbf{Sleep-R}.
 
 
 %% We take the intuitive strategy of exploiting the
