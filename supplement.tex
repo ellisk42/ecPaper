@@ -150,7 +150,7 @@
 %\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
 \printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
-\section{An illustration of the wake-sleep cycle}
+\section{An Illustration of the Wake-Sleep Cycle}
 Below we diagram the wake/sleep cycles employed by our algorithm. At each stage of the cycle,
 we have shaded the observed variables in gray and left the unobserved variables white.
 Black lines correspond to a connection from the top-down
@@ -273,7 +273,7 @@ but~\cite{pierce} offers a nice overview of lambda calculus and typing systems l
 %%     \end{align}
 %%   \end{figure}
 
-\section{Neural recognition model architecture}
+\section{Neural Recognition Model Architecture}
 
 The neural recognition model regresses from an observation (set of input/output pairs: $\left\{(i_n,o_n) \right\}_{n\leq N}$) to a $|\mathcal{D}| + 1$ dimensional vector. Each input/output pair is processed by an identical encoder network;
 the outputs of the encoders are max pooled and passed to an MLP with 1 hidden layer, 16 hidden units, and a ReLU activation:
@@ -292,7 +292,7 @@ We MaxPool the final hidden unit activations in the GRU along both passes of the
 
 \section{DSL Induction}
 
-\subsection{Structure learning}
+\subsection{Structure Learning}
 
 We use Alg.~\ref{grammarInductionAlgorithm} to search for the structure of the DSL that best explains the frontiers.
 
@@ -390,8 +390,8 @@ and exactly maximizing the likelihood with respect to $\theta$
 becomes intractable,
 so for domains with polymorphic types we use this estimator.
 
-\section{Initial domain-specific languages}
-\subsection{Boolean circuits}
+\section{Initial Domain-Specific Languages}
+\subsection{Boolean Circuits}
 \begin{center}
 \tt
 \begin{tabular}{| l | l |}
@@ -402,7 +402,7 @@ so for domains with polymorphic types we use this estimator.
 \end{tabular}
 \end{center}
 
-\subsection{Symbolic regression}
+\subsection{Symbolic Regression}
 \begin{center}
 \tt
 \begin{tabular}{| l | l |}
@@ -416,7 +416,7 @@ so for domains with polymorphic types we use this estimator.
 \end{center}
 
 
-\subsection{String editing}
+\subsection{String Editing}
 \begin{center}
 \tt
 \begin{tabular}{| l | l |}
@@ -447,7 +447,7 @@ constant characters which have the type char.
 \vfill
 
 
-\subsection{List functions}
+\subsection{List Functions}
 The lower section with seven primitives designates those given to the
 \emph{rich} DSL variant and not the \emph{base} variant. The rich variant is
 not supplied the \texttt{if} primitive, because its primary intention is to
@@ -498,7 +498,7 @@ Greek letters represent polymorphic types.
 
 \vfill
 
-\section{Hyperparameters \& Implementation details}
+\section{Hyperparameters \& Implementation Details}
 We set structure penalty $\lambda = 1$ (Eq.~5 of the main paper) and
 smoothness parameter $\alpha = 10$ (Eq.~6 of the main paper)
 for all experiments except for string editing.
@@ -520,7 +520,7 @@ we only keep around the top $10^4$ programs in the frontier $\mathcal{F}_x$ as m
 
 
 
-\section{Why not the ELBO bound?}
+\section{Why not the ELBO Bound?}
 
 If we were to maximize the ELBO bound to perform inference in
 our generative model,
@@ -549,14 +549,12 @@ leads to a kind of hysteresis effect,
 where the next generative model too closely matches the previous one,
 causing the algorithm to easily become trapped in local optima.
 
-\section{Example program induction tasks}
+\section{Example Program Induction Tasks}
 
-\subsection{String editing}
+\subsection{String Editing}
 
 We automatically generated 600 string editing problems split 75/25 train/test.
 The following are representative problems:
-
-\vfill
 
 
 \begin{center}
