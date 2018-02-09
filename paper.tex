@@ -688,10 +688,10 @@ by automatically differentiating through the program and setting the constants u
 
 \subsection{Sleep-R: Learning a Recognition Model}\label{recognitionSection}
 
-The purpose of the recognition model is to accelerate the search over
-programs.  It does this by learning to predict which programs both 
-assign high likelihood to a task, and at the same time 
-have high probability under $(\mathcal{D},\theta)$.
+The purpose of the recognition model is to accelerate the search for
+programs.  It does this by learning to predict programs which are probable
+under $(\mathcal{D},\theta)$ while also assigning high likelihood for a task
+according to $\probability[x|p]$.
 
 The recognition model $q$ is a neural network that predicts,
 for each task $x\in X$, a weight vector $q(x) = \theta^{(x)}\in \mathbb{R}^{|\mathcal{D}| + 1}$.
@@ -705,15 +705,15 @@ generating programs wholesale.
 We share this aspect with DeepCoder~\cite{balog2016deepcoder}.
 
 
-We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]||q(p|x) \right) \right]$,
-equivalently maximizing
+We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|q(p|x) \right) \right]$,
+or equivalently maximizing
 \begin{equation*}
   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
 \end{equation*}
 where the expectation is taken over tasks. One could take this expectation
 over the observed empirical distribution of tasks,
 like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
-We found it useful to maximize both an autoencoder-style objective (written $\mathcal{L}_{\text{AE}}$) and a Helmholtz-style objective ($\mathcal{L}_{\text{HM}}$), giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
+We found it useful to maximize both an autoencoder-style objective $\mathcal{L}_{\text{AE}}$ and a Helmholtz-style objective $\mathcal{L}_{\text{HM}}$, giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
 \begin{align}
 \mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
 \mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right],\text{ $p$ evaluates to $x$}\nonumber\\
@@ -722,9 +722,9 @@ We found it useful to maximize both an autoencoder-style objective (written $\ma
 \end{align}
 The $\mathcal{L}_{\text{HM}}$ objective is essential for data efficiency:
 all of our experiments train \system on only a few hundred tasks, which is too little for
-a high-capacity $q$.
-Once we have bootstrapped a $(\mathcal{D},\theta)$,
-we can draw unlimited samples from $(\mathcal{D},\theta)$,
+a high-capacity neural network $q$.
+Once we bootstrap a $(\mathcal{D},\theta)$,
+we can draw unlimited samples from $(\mathcal{D},\theta)$
 and train $q$ on those samples.
 
 Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
@@ -737,8 +737,8 @@ from the empirical observed distribution of inputs in $X$.
 
 The architecture of $q$ depends upon the domain.
 For domains with sequential structure like strings and lists,
-we use an RNN to encode each input/output example,
-and for domains with fixed-dimensionality inputs/outputs we use a multilayer perceptron.
+we use an RNN to encode each input/output example.
+For domains with fixed-dimensionality inputs/outputs we use a multilayer perceptron.
 We MaxPool across all of the input/output examples. See Supplement for details.
 
 \subsection{Sleep-G: Inducing the DSL}\label{grammarInductionSection}
