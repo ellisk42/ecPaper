@@ -522,7 +522,7 @@ we only keep around the top $10^4$ programs in the frontier $\mathcal{F}_x$ as m
 
 If we were to maximize the ELBO bound to perform inference in
 our generative model,
-then, during DSL induction, we would seek a new $(\mathcal{D}^*,\theta^*)$ maximizing the following lower bound on the likelihood (along an unimportant regularizing term on the DSL):
+then, during DSL induction, we would seek a new $(\mathcal{D}^*,\theta^*)$ maximizing the following lower bound on the likelihood (along with an unimportant regularizing term on the DSL):
 \begin{align}
   &  \sum_{x\in X}\expect_{p\sim Q_x}\left[\log \probability[p|\mathcal{D}^*,\theta^*] \right] \label{EM}\\
   & Q_x(p)\triangleq \probability[p|x,\mathcal{D},\theta]
@@ -533,10 +533,10 @@ could replace $Q_x(p)$ with the recognition model $q(p|x)$, either
 using importance sampling (so the expectation in Eq.~\ref{EM} is taken
 over $q$ and we reweigh using $Q_x$) or by directly using $q$ as our approximate posterior over the program that solves task $x$.
 
-How the recognition model is worked into this is unimportant to the reason why we do not maximize a bound of this form:
-this bound takes an expectation over the \emph{previous} sleep cycle's
+We do not maximize a bound of this form because it
+takes an expectation over the \emph{previous} sleep cycle's
 posterior over programs,
-and so the approximate posterior $Q_x$ at the next iteration
+so the approximate posterior $Q_x$ at the next iteration
 ends up being very close to previous approximate posterior.
 Intuitively,
 we want the DSL induction to be a function \emph{only} of the programs that we have found,
