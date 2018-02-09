@@ -583,12 +583,6 @@ fNA YWyL.JDD & YW \\
  YWozt TPW.nczz & TP \\
  RJwiT dpW.uFU & dp \\
  FTp gNMo.JsZB & gN \\
-%  \hline\multicolumn{2}{|c|}{Apply double to input delimited by '.'}\\
-%  \hline
-%FWhb.jYMdi & FWhbFWhbjYMdijYMdi \\
-% JZB.WEwgH & JZBJZBWEwgHWEwgH \\
-% SgA.Kxo.RyF & SgASgAKxoKxoRyFRyF \\
-% NMApj.OaPBs.uZm.iCZy & NMApjNMApjOaPBsOaPBsuZmuZmiCZyiCZy \\
   \hline\multicolumn{2}{|c|}{Apply strip to string delimited by ',','.'}\\
   \hline
 iNEP,  GigW .Xlm & GigW \\
@@ -605,6 +599,82 @@ WYPvm & YPvm \\
 \end{tabular}
 \end{center}
 
+
+\section{Learned DSLs}
+
+Here we present representative DSLs learned by
+our model. DSL primitives discovered by the algorithm are prefixed with \code{#}.
+Variables are prefixed with \$, and we use De Bruijn indices to model variables~\cite{pierce}.
+We abbreviate lambda as \textbackslash.
+
+\pagebreak
+\onecolumn
+\subsection{Boolean circuits}
+
+\begin{verbatim}
+#(\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $0 $2))))))
+#(\ (\ (nand (nand $0 $1) (nand $0 $1))))
+#(\ (\ (nand (nand $0 $0) (nand $1 $1))))
+#(\ (\ (\ (\ (nand (nand $0 $1) (nand $2 $3))))))
+#(\ (\ (\ (nand (nand $0 $0) (nand $1 (nand $2 $1))))))
+#(\ (\ (#(\ (\ (nand (nand $0 $1) (nand $0 $1)))) $0 (nand $1 $0))))
+#(\ (\ (\ (nand (nand $0 $1) (nand $0 (nand $2 $0))))))
+#(\ (\ (#(\ (\ (\ (nand (nand $0 $1) (nand $0 (nand $2 $0)))))) $0 $1 (nand $1 $1))))
+#(\ (\ (nand $0 (nand $1 $0))))
+#(\ (#(\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $0 $2)))))) (nand $0 $0)))
+#(\ (\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $3 $2)))))))
+\end{verbatim}
+
+\subsection{Symbolic regression}
+\begin{verbatim}
+#(\ (* (+ REAL $0) REAL))
+#(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0)))
+#(\ (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))
+#(\ (#(\ (#(\ (+ $0 REAL)) (#(\ (* (#(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0))) $0) $0)) $0))) (+ $0 $0)))
+#(\ (#(\ (+ $0 REAL)) (#(\ (* (#(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0))) $0) $0)) $0)))
+#(\ (* (#(\ (+ $0 REAL)) $0) (#(\ (+ (* $0 (* $0 REAL)) REAL)) $0)))
+#(\ (+ (* $0 (* $0 REAL)) REAL))
+#(* REAL)
+#(\ (* (#(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0))) $0) $0))
+#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0))))
+#(\ (+ $0 REAL))
+\end{verbatim}
+
+\subsection{String editing}
+\begin{verbatim}
+#(\ (\ (#(nth (incr 0)) (split $0 (#(\ (\ (join (chr->str $0) (map (\ (caseCapitalize $0)) $1)))) $1 $0)))))
+#(\ (\ (join (chr->str $0) (map (\ (strip $0)) $1))))
+#(\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (++ $0 $0))))
+#(\ (#(join empty) (split '.' $0)))
+#(#(\ (\ (\ (#(\ (\ (slice $0 (len $1) $1))) (nth $0 $1) (decr $2))))) (decr 0))
+#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (slice $2 (incr $2) $0)))))
+#(#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (\ (slice $0 (len $1) $1))) $0 $2))))) (incr 0))
+#(\ (\ (\ (#(\ (\ (slice $0 (len $1) $1))) (nth $0 $1) (decr $2)))))
+#(\ (\ (strip (nth 0 (split $0 (#(nth (incr 0)) $1))))))
+#(\ (#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (\ (slice $0 (len $1) $1))) $0 $2))))) (decr $0)))
+#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (slice $0 (incr (incr $0)))) $2 $0)))))
+#(\ (\ (slice $0 (incr $0) (nth (incr $0) $1))))
+#(\ (\ (#(\ (\ (slice $0 (len $1) $1))) (#(\ (\ (strip (nth 0 (split $0 (#(nth (incr 0)) $1)))))) $0 $1) (incr 0))))
+#(\ (\ (caseUpper (#(nth (incr 0)) (split $0 (#(\ (\ (join (chr->str $0) (map (\ (caseCapitalize $0)) $1)))) $1 $0))))))
+#(\ (\ (#(\ (\ (++ (chr->str $0) (#(nth (incr 0)) $1)))) (split $0 (nth 0 $1)) $0)))
+#(\ (#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (\ (slice $0 (len $1) $1))) $0 $2))))) (decr (decr $0))))
+#(\ (\ (join (chr->str $0) (map (\ (caseCapitalize $0)) $1))))
+#(\ (\ (#(\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (++ $0 $0)))) (split '.' (#(\ (\ (strip (nth 0 (split $0 (#(nth (incr 0)) $1)))))) $0 $1)) '.')))
+#(\ (\ (\ (#(\ (\ (++ (chr->str $0) (#(nth (incr 0)) $1)))) (split $0 (#(\ (\ (\ (++ (nth $0 (split $1 $2)) (chr->str $1))))) $1 $2 0)) $0))))
+#(\ (\ (slice $0 (incr (incr $0)) (#(nth (incr 0)) $1))))
+#(join empty)
+#(\ (\ (\ (++ (nth $0 (split $1 $2)) (chr->str $1)))))
+#(\ (\ (nth 0 (split $0 (#(nth (incr 0)) $1)))))
+#(\ (slice $0 (incr (incr $0))))
+#(nth (incr 0))
+#(\ (join empty (map (\ (caseCapitalize $0)) $0)))
+#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (\ (slice $0 (len $1) $1))) $0 $2)))))
+#(\ (\ (slice $0 (len $1) $1)))
+#(\ (\ (\ (join (chr->str $0) (map $1 $2)))))
+#(\ (\ (++ (chr->str $0) (#(nth (incr 0)) $1))))
+\end{verbatim}
+
+\subsection{List functions}
 
 \bibliography{main}
 \bibliographystyle{icml2018}
