@@ -333,7 +333,7 @@ Differentiate with respect to $\theta_e$ and set to zero:
 %  \frac{c(e, p)}{\theta_e} &= c(p)\frac{r(e, p)}{\sum_{e'\in\mathcal{D}} r(e', p)\theta_{e'}}
 %\end{align*}
 %or more succinctly,
-\begin{align*}
+\begin{align}
   \frac{c(x,p)}{\theta_x} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
 \end{align}
 where $N=c(p)$ and $a(x) = r(x, p)$. From here forward, we similarly let
@@ -424,6 +424,11 @@ constant characters which have the type char.
 
 
 \subsection{List functions}
+The lower section with seven primitives designates those given to the
+\emph{rich} DSL variant and not the \emph{base} variant. The rich variant is
+not supplied the \texttt{if} primitive, because its primary intention is to
+enable the learning of the lower five concepts.
+Greek letters represent polymorphic types.
 \begin{center}
 \tt
 \begin{tabular}{| l | l |}
@@ -442,8 +447,8 @@ constant characters which have the type char.
     \hline
     true & bool \\
     not & bool $\to$ bool \\
-    and & bool $\to$ bool $\to$ bool \\
-    or & bool $\to$ bool $\to$ bool \\
+%UNUSED+UNNECESSARY:    and & bool $\to$ bool $\to$ bool \\
+%UNUSED+UNNECESSARY:    or & bool $\to$ bool $\to$ bool \\
     0 $\cdots$ 5 & $\mathbb{Z}$ \\
     + & $\mathbb{Z} \to \mathbb{Z} \to \mathbb{Z}$ \\
     * & $\mathbb{Z} \to \mathbb{Z} \to \mathbb{Z}$ \\
@@ -466,12 +471,8 @@ constant characters which have the type char.
   \hline
 \end{tabular}
 \end{center}
-The lower section with seven primitives designates those given to the
-\emph{rich} DSL variant and not the \emph{base} variant. The rich variant is
-not supplied the \texttt{if} primitive, because its primary intention is to
-enable the learning of the \texttt{filter}, \texttt{index}, and
-\texttt{slice} concepts. Greek letters represent polymorphic types.
 
+\vfill
 
 \section{Hyperparameters \& Implementation details}
 We set $\alpha = 10$ and $\lambda = 1$ for all experiments except for string
