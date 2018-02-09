@@ -839,11 +839,11 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
      \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
      \FOR{$i=1$ {\bfseries to} $I$}
      %     \FOR{$x:\tau\in X$}
-     \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enumerate}(\mathcal{D},\theta,F)\text{ if }\probability[x|p] > 0\}$
- %    \ENDFOR
-     \STATE $q(\cdot )\gets \text{train recognition model to maximize }\mathcal{L}_{\text{RM}}$
-     \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enumerate}(\mathcal{D},q(x),F)\text{ if }\probability[x|p] > 0\}$
-     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$
+     \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enum}(\mathcal{D},\theta,F)\text{ if }\probability[x|p] > 0\}$ \footnotesize{(\textbf{Wake})}
+     \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ (\footnotesize{\textbf{Sleep-R}})
+     \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enum}(\mathcal{D},q(x),F)\text{ if }\probability[x|p] > 0\}$ \footnotesize{\textbf{(Wake)}}
+     
+     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$   \footnotesize{\textbf{(Sleep-G)}}
      %% \STATE Define $Q_x(z) \propto \begin{cases}
      %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
      %%   0&x\not \in \mathcal{F}_x
@@ -1196,7 +1196,7 @@ get \system off the ground.
 \subsection{Quantitative Results}\label{quantitative}
 
 We compare  with four baselines on  held-out tasks:
-\\\noindent \textbf{Ours (no $q$)}, which lesions the recognition model, $q$.
+\\\noindent \textbf{Ours (no NN)}, which lesions the recognition model, $q$.
 \\\noindent \textbf{RF/DC}, which holds $(\mathcal{D},\theta)$ fixed and learns
 a recognition model only from samples from the fixed generative model.
 This is equivalent to our algorithm with $\lambda = \infty$ (see Sec.~\ref{grammarInductionSection})
@@ -1236,7 +1236,7 @@ This supports our view of the recognition model as a way of accelerating the sea
 \renewcommand{\arraystretch}{0.5}
 \begin{tabular}{llllll}
   \toprule& Ours& \begin{tabular}{c}
-    Ours\\(no $q$)
+    Ours\\(no NN)
     \end{tabular}& RF/DC & PCFG & Enum
 
   \\\midrule\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
