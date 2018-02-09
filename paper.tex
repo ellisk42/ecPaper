@@ -921,13 +921,13 @@ We note the following implementation details:
 (2) on the first iteration, we do \emph{not} train the recognition model on samples from
 the generative model because a DSL has not yet been learned --
 we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
-(3) Because the frontiers can grow very large,
-we only keep around the top $10^4$ programs $p$ in each frontier $\mathcal{F}_x$
-with the highest likelihood $\probability[x,p|\mathcal{D},\theta]$.
-(4) During both DSL induction and neural net training, we calculate $\text{score}(\mathcal{D}')$ and $\mathcal{L}_{\text{RM}}$
+%% (3) Because the frontiers can grow very large,
+%% we only keep around the top $10^4$ programs $p$ in each frontier $\mathcal{F}_x$
+%% with the highest likelihood $\probability[x,p|\mathcal{D},\theta]$.
+(3) During both DSL induction and neural net training, we calculate $\text{score}(\mathcal{D}')$ and $\mathcal{L}_{\text{RM}}$
 by only summing over the top $K$
-programs in $\mathcal{F}_x$ -- we found that $K = 2$ sufficed.
-(5) For added robustness, we enumerate programs from both the generative model and the recognition model.
+programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]$ -- we found that $K = 2$ sufficed.
+(4) For added robustness, we enumerate programs from both the generative model and the recognition model.
 
 \begin{algorithm}[tb]
    \caption{The \system Algorithm}
@@ -1148,7 +1148,7 @@ or replacing one character with another.
 Instead, we provide list/string indexing primitives (\code{slice}, \code{nth}),
 basic arithmetic, and functions for splitting a string into a list (\code{split})
 or turning a list into a string (\code{join}).
-We automatically generated  600 string editing tasks along with input/output examples (Fig.~\ref{exampleTextProblem}). %, split  75/25 train/test.
+We automatically generated  600 string editing tasks  with 4 input/output examples each (Fig.~\ref{exampleTextProblem}). %, split  75/25 train/test.
 At first, \system cannot find any programs that
 work at all for most of the tasks.
 After three wake/sleep iterations,
@@ -1380,7 +1380,7 @@ This supports our view of the recognition model as a way of accelerating the sea
  and extend it along two dimensions: (1) we propose a new algorithm for
  inducing reusable subroutines, based on Fragment Grammars~\cite{tim} and Tree-Substitution Grammars~\cite{cohn2010inducing};
  and (2) we show how to combine these techniques with bottom-up neural recognition models.
- Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10} Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, and predicate invention in ILP~\cite{DBLP:conf/ecai/LinDETM14,muggleton2015meta}.
+ Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10}, Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, and predicate invention in ILP~\cite{DBLP:conf/ecai/LinDETM14}.
  
  Our work is an instance of
  Bayesian Program
