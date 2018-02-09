@@ -484,11 +484,13 @@ It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, w
 Its goal is to solve each of the tasks by writing a program,
 and also to infer a DSL $\mathcal{D}$.
 
-We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Fig.~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$, we want the $\mathcal{D}^*,\theta^*$ solving:
+We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed by Fig.~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
 \begin{align}\label{intractableObjectives}
-\nonumber  J(\mathcal{D},\theta)&\triangleq \probability[\mathcal{D}]P(\theta)\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
+  \nonumber
+    J(\mathcal{D},\theta)&\triangleq \probability[\mathcal{D}]\probability[\theta]\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
   \mathcal{D}^* &= \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta \\
-\nonumber  \theta^*& =\argmax_\theta J(\mathcal{D}^*,\theta)
+  \nonumber
+    \theta^*& =\argmax_\theta J(\mathcal{D}^*,\theta)
 \end{align}
 The above equations summarize the problem from the point of view of an ideal Bayesian learner.
 However, Eq.~\ref{intractableObjectives}
@@ -501,7 +503,7 @@ is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal
 
 Using the frontiers we  define the following intuitive lower bound on the joint probability, which we call $\lowerBound$:
 \begin{align}
- J\geq \lowerBound\triangleq\probability[\mathcal{D}]P(\theta)\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
+ J\geq \lowerBound\triangleq\probability[\mathcal{D}]\probability[\theta]\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
 \end{align}
 
 %% If we had a $(\mathcal{D},\theta)$ solving Eq.~\ref{intractableObjectives}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
@@ -522,7 +524,7 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
 \system does approximate MAP inference in the generative model of Fig.~\ref{graphicalModel}(a) by maximizing this lower bound on the joint probability,
-alternatingly maximizing w.r.t. the frontiers (Wake) and the DSL (Sleep-G):
+alternating maximization w.r.t. the frontiers (Wake) and the DSL (Sleep-G):
 %So interleaved with the DSL induction steps are program induction steps. Sec.~\ref{explorationSection}
 %explains how \system synthesizes new programs and given a DSL.
 \\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
@@ -544,12 +546,11 @@ during the Sleep-R phase:
 distribution over programs conditioned on a task. The objective of $q$
 is to assign high probability to programs $p$ where
 $\probability[x,p|\mathcal{D},\theta]$ is large, because including those programs
-in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can find programs for
+in the frontiers will most likely increase $\lowerBound$.  %% With $q$ in hand we can find programs for
 %% the frontier $\mathcal{F}_x$ by searching for programs that maximize
 %% $q(p|x)$.
-The recognition model exploits the structure of the DSL: %$\mathcal{D}$:
-rather than directly predicting a distribution over $p$ conditioned on $x$,
-it predicts a distribution over components of the DSL.
+Rather than directly predicting a distribution over $p$ conditioned on $x$,
+the recognition model predicts a distribution $\theta^{(x)}$ over components of the DSL.
 This taps into the intuition that programming is primarily a top-down activity:
 as human programmers, we often first decide what kind of
 programming constructs we might need to use,
