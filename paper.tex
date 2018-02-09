@@ -296,6 +296,9 @@ network that regresses from input/output pairs to a distribution over
 programs likely to explain the input/outputs. We can also view $q(\cdot )$ as implementing an amortized
 inference
 scheme~\cite{le2016inference}.
+ The neural recognition model and the
+generative model embodied in the DSL jointly train each other, as they
+iteratively learn to solve more programming tasks.
 
 \begin{figure}
   \centering
@@ -355,17 +358,19 @@ scheme~\cite{le2016inference}.
 \end{figure}
 
 
-To perform inference, we take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
-which alternates between ``waking'', which draws samples from a recognition model (our $q$);
-and  ``sleeping'', which trains a recognition model on samples from the generative model (our $\mathcal{D},\theta$).
-For us, a \textbf{Wake} cycle means using the recognition model to search for programs that solve the tasks.
-A sleep cycle means  updating these models so that the DSL and  recognition model
-more closely match the distribution of tasks.
-An important difference from the Helmholtz machine
-is that our setup has two distinct sleep phases: a phase where we update the generative model
-$(\mathcal{D},\theta)$, which we call \textbf{Sleep-G},
-and a second phase where we update the recognition model $q$,
- called \textbf{Sleep-R}.
+%% To perform inference, we take inspiration from the Helmholtz machine
+%% and the Wake/Sleep algorithm~\cite{hinton1995wake}, which alternates
+%% between ``waking'', which draws samples from a recognition model (our
+%% $q$); and ``sleeping'', which trains a recognition model on samples
+%% from the generative model (our $\mathcal{D},\theta$).  For us, a
+%% \textbf{Wake} cycle means using the recognition model to search for
+%% programs that solve the tasks.  A sleep cycle means updating these
+%% models so that the DSL and recognition model more closely match the
+%% distribution of tasks.  An important difference from the Helmholtz
+%% machine is that our setup has two distinct sleep phases: a phase where
+%% we update the generative model $(\mathcal{D},\theta)$, which we call
+%% \textbf{Sleep-G}, and a second phase where we update the recognition
+%% model $q$, called \textbf{Sleep-R}.
 
 
 %% We take the intuitive strategy of exploiting the
@@ -430,17 +435,50 @@ We apply \system to four domains:
 
 
 
-\section{The \system Algorithm}
+ \section{The \system Algorithm}
 
-Our goal  is to induce a DSL while finding programs solving each of the tasks.
-Our strategy is to iterate through three steps: (1) searching for programs; (2) learning a neural recognition model -- which we use
-to accelerate the search over programs -- and (3) improving the DSL.
-The key observation is that these steps bootstrap off each other (Fig.~\ref{feeding}):
-\\\noindent \textbf{Wake: Searching for programs.}  Our program search  is informed by both the DSL and the recognition model.
-When these improve, we find more programs solving the tasks.
-\\\noindent\textbf{Sleep-R: Learning a recognition model.} The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
-\\\noindent\textbf{Sleep-G: Improving the DSL.} We induce a DSL from the programs we found which solve the tasks.
-  As we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
+ Our goal is to induce a DSL while finding programs solving each of the
+tasks.  We take inspiration from the Wake/Sleep
+algorithm~\cite{hinton1995wake}, as well as the
+Exploration-Compression algorithm for bootstrap
+learning~\cite{Dechter:2013:BLV:2540128.2540316}.  Wake/Sleep
+alternates between training a generative model on samples from a
+recognition model (our $q$), and training a recognition model on
+samples from the generative model (our $\mathcal{D},\theta$).  EC
+alternates between exploring the space of solutions to a set of tasks,
+and compressing those solutions to suggest new search primitives
+for the next exploration stage.
+We combine these ideas into an inference strategy that iterates
+through three steps: a \textbf{Wake} cycle uses the current DSL and
+recognition model to search for programs that solve the tasks.  The
+\textbf{Sleep-G} and \textbf{Sleep-R} cycles update the DSL and the
+recognition model, respectively.  Crucially, these steps bootstrap 
+each off other (Fig.~\ref{feeding}):
+
+\\\noindent \textbf{Wake: Searching for programs.}  Our program search
+is informed by both the DSL and the recognition model. When these
+improve, we find more programs solving the tasks.
+\\\noindent\textbf{Sleep-G: Improving the DSL.} We induce the DSL
+from the programs found in the wake phase, aiming
+to maximally compress (or, raise the prior probability of) these
+programs.  As we solve more tasks, we hone in on richer DSLs that
+more closely match the domain.
+\\\noindent \textbf{Sleep-R: Learning a neural recognition model.}  We
+update the recognition model training on two data sources: samples
+from the DSL (as in the Helmholtz Machine's ``sleep'' phase), and
+programs found by the search procedure during waking. As the DSL
+improves and as search finds more programs, the recognition model gets
+both more data to train on, and better data.
+
+
+
+%% Our goal  is to induce a DSL while finding programs solving each of the tasks.
+%% Our strategy is to iterate through three steps: (1) searching for programs; (2) learning a neural recognition model -- which we use
+%% to accelerate the search over programs -- and (3) improving the DSL.
+%% The key observation is that these steps bootstrap off each other (Fig.~\ref{feeding}):
+%% \\\noindent \textbf{Wake: Searching for programs.}  Our program search  is informed by both the DSL and the recognition model.
+%% When these improve, we find more programs solving the tasks.
+%% \\\noindent\textbf{Sleep-R: Learning a recognition model.} The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
 
 %% The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternating between
 %% learning a generative model and training a recognition model on samples from the generative model.
@@ -550,11 +588,6 @@ and then we figure out how to assemble them in to the desired program.
 %% This approach implements an amortized
 %% inference scheme~\cite{le2016inference,ritchie2016deep} for the generative model in
 %% Fig.~\ref{graphicalModel}.
-
-Our lower bound $\lowerBound$ is unconventional,
-and one might wonder why we do not instead maximize an ELBO-style bound like in a VAE or in the EM algorithm.
-We explain in the Supplement that maximizing an ELBO-style bound
-leads to a pathological behavior that  causes the model to easily become trapped in local optima.
 
 
 

@@ -524,6 +524,12 @@ we only keep around the top $10^4$ programs in the frontier $\mathcal{F}_x$ as m
 
 \section{Why not the ELBO Bound?}
 
+Our lower bound $\lowerBound$ is unconventional,
+and one might wonder why we do not instead maximize an ELBO-style bound like in a VAE or in the EM algorithm.
+We explain in the Supplement that maximizing an ELBO-style bound
+leads to a pathological behavior that  causes the model to easily become trapped in local optima.
+
+
 If we were to maximize the ELBO bound to perform inference in
 our generative model,
 then, during DSL induction, we would seek a new $(\mathcal{D}^*,\theta^*)$ maximizing the following lower bound on the likelihood (along with an unimportant regularizing term on the DSL):
