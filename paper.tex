@@ -90,12 +90,12 @@
 
 % The \icmltitle you define below is probably too long as a header.
 % Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Inducing Domain-Specific Languages for Bayesian Program Learning}
+\icmltitlerunning{Inducing Domain Specific Languages for Bayesian Program Learning}
 
 \begin{document}
 
 \twocolumn[
-\icmltitle{Bootstrapping Domain-Specific Languages for Neurally-Guided Bayesian Program Learning}
+\icmltitle{Bootstrapping Domain Specific Languages for Neurally-Guided Bayesian Program Learning}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -167,7 +167,7 @@
   edit strings, do symbolic regression,
   and synthesize functions on lists,
   in each case showing that
-  \system learns a domain-specific vocabulary for expressing solutions to problems in the domain.
+  \system learns a domain-specific vocabulary for expressing solutions to the problems in the domain.
   
   
   
@@ -188,13 +188,13 @@ symbolic methods (e.g., Neural-guided deductive search~\cite{ngds}) to
 synthesize programs for task domains such as string transformations,
 list processing, and robot navigation and planning. However, all these
 approaches -- symbolic, neural and neural-symbolic -- rely upon a
-hand-engineered \emph{Domain-Specific Language} (DSL). The DSL is an
-inventory of restricted programming primitives, encoding domain-specific
-knowledge about the space of programs. In
+hand-engineered \emph{Domain Specific Language} (DSL). The DSL is an
+inventory of restricted programming primitives, encoding domain
+specific knowledge about the space of programs. In
 practice
 we are often given only a few examples for each
 program to be induced, and thus success often hinges on having a good
-DSL to
+DSL, to
 provide a crucial inductive bias for what would otherwise be an
 unconstrained search through the space of all computable functions.
 Here we ask, to what extent can we dispense with such highly
@@ -205,17 +205,17 @@ have a collection of related programming tasks, each specified by a
 set of input/output examples. We do not assume that the tasks are
 annotated with ground-truth programs. We typically will not try to
 learn a DSL completely from scratch, but rather to start from a weaker
-or more general set of primitives and
-construct a richer, more powerful, and better-tuned DSL.
+or more general set of primitives in a Lisp-like representation and
+construct a richer, more powerful and better-tuned DSL.
 
 Our algorithm is called \system because it is based on a
 novel kind of ``wake-sleep'' learning (c.f. \cite{hinton1995wake}), iterating
 between ``wake'' and ``sleep'' phases to achieve three goals: finding
-programs that solve tasks; creating a DSL by discovering
+programs that solve each of the tasks; creating a DSL by discovering
 and reusing domain-specific subroutines; and training a neural network
-that efficiently guides search for programs in the DSL. The learned DSL
-distills commonalities across programs that solve tasks, helping
-the agent solve related program learning problems. The neural
+that efficiently guides search for programs in the DSL. The DSL
+distills commonalities across programs that solve the tasks, letting
+the agent solve other related program learning problems. The neural
 network ensures that searching for program solutions remains tractable
 even as the DSL (and hence the search space for programs) expands.
 
@@ -288,8 +288,8 @@ even as the DSL (and hence the search space for programs) expands.
 Viewed as an inference problem,
 our goal is to infer the DSL (written $\mathcal{D}$)
 along with a program (written $p$) for each set of inputs/outputs (\emph{tasks}, written $x$).
-A DSL $\mathcal{D}$ is a collection of domain-specific subroutines.
-We equip $\mathcal{D}$ with a real-valued weight vector $\theta$, and together
+A DSL $\mathcal{D}$ is a collection of domain specific subroutines.
+We equip $\mathcal{D}$ with a real-valued weight vector, $\theta$, and together
 $(\mathcal{D},\theta)$ define a distribution over programs.
 Fig.~\ref{graphicalModel}(a) diagrams this inference problem as a hierarchical Bayesian model.
 Inference in this model is
@@ -334,7 +334,7 @@ model.
     \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.15,shift={+(-1,2.5)}}]
       \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
       \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-      \node[rectangle] at (1,1) {};
+      \node[rectangle,width=2cm] at (1,1) {};
       \foreach \name / \y in {1,...,4}
           \node[neuron] (I-\name) at (0,-\y) {};
       \foreach \name / \y in {1,...,3}
@@ -357,7 +357,7 @@ model.
 
 
   \end{tikzpicture}
-  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives according to probabilities $\theta$. From each program we observe a task $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
+  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives with probabilities $\theta$. Observe tasks $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
     $\theta^{(x)}$. Black/red arrows correspond to the generative/recognition models.}\label{graphicalModel}
 \end{figure}
 
@@ -365,7 +365,7 @@ model.
 To perform inference, we take inspiration from the Helmholtz machine and the Wake/Sleep algorithm~\cite{hinton1995wake},
 which alternates between ``waking'', which draws samples from a recognition model (our $q$);
 and  ``sleeping'', which trains a recognition model on samples from the generative model (our $\mathcal{D},\theta$).
-For us, a \textbf{Wake} cycle means using the recognition model to search for programs that solve tasks.
+For us, a wake cycle means using the recognition model to search for programs that solve the tasks.
 A sleep cycle means  updating these models so that the DSL and  recognition model
 more closely match the distribution of tasks.
 An important difference from the Helmholtz machine
@@ -389,7 +389,7 @@ We apply \system to four domains:
  set of programming primitives,
  and show that our algorithm discovers
  its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
- \begin{table}[b]
+ \begin{table}
     \begin{tabular}{ll}
    \toprule
    Domain&Part of the learned DSL\\\midrule
@@ -399,8 +399,8 @@ We apply \system to four domains:
       &\hspace{0.5cm} \emph{(a linear function of x)}\\
    Strings& \code{(join '' (split c s))}\\
    &\hspace{0.5cm} \emph{(delete occurrences of c in string s)}\\
-   Lists& \code{(map (lambda (x) (+ x k)) l)}\\
-   &\hspace{0.5cm} \emph{(add k to every element of list l)}
+   Lists& \code{(map (lambda (x) (+ x a)) l)}\\
+   &\hspace{0.5cm} \emph{(add a to every element of list l)}
    \\\bottomrule
     \end{tabular}
     \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
@@ -444,10 +444,10 @@ Our strategy is to iterate through three steps: (1) searching for programs; (2) 
 to accelerate the search over programs -- and (3) improving the DSL.
 The key observation is that these steps bootstrap off each other (Fig.~\ref{feeding}):
 \\\noindent \textbf{Wake: Searching for programs.}  Our program search  is informed by both the DSL and the recognition model.
-  When these improve, we find better programs.
+When these improve we find better programs.
 \\\noindent\textbf{Sleep-R: Learning a recognition model.} The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
-\\\noindent\textbf{Sleep-G: Improving the DSL.} We induce a DSL from the programs we found which solve the tasks.
-  As we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
+\\\noindent\textbf{Sleep-G: Improving the DSL.} We induce a DSL from the programs we have found so far which solve the tasks;
+  as we solve more tasks, we can hone in on richer DSLs that more closely match the domain.
 
 %% The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternating between
 %% learning a generative model and training a recognition model on samples from the generative model.
@@ -473,9 +473,9 @@ The key observation is that these steps bootstrap off each other (Fig.~\ref{feed
 
 Sec.~\ref{mathematicalFraming} frames this 3-step procedure as
 a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
-Sec.~\ref{explorationSection} explains how we search for programs that solve tasks;
-Sec.~\ref{recognitionSection} explains how we train a neural network to accelerate program search; and
-Sec.~\ref{grammarInductionSection} explains how we induce a DSL from programs.
+Sec.~\ref{explorationSection} explains how we search for programs that solve the tasks;
+Sec.~\ref{recognitionSection} how we train a neural network to accelerate the search over programs; and
+Sec.~\ref{grammarInductionSection}  how \system induces a DSL from programs.
 
 \subsection{Probabilistic Framing}\label{mathematicalFraming}
 
@@ -484,13 +484,11 @@ It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, w
 Its goal is to solve each of the tasks by writing a program,
 and also to infer a DSL $\mathcal{D}$.
 
-We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed by Fig.~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
+We frame this problem as maximum a posteriori (MAP) inference in the generative model diagrammed in Fig.~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$, we want the $\mathcal{D}^*,\theta^*$ solving:
 \begin{align}\label{intractableObjectives}
-  \nonumber
-    J(\mathcal{D},\theta)&\triangleq \probability[\mathcal{D}]\probability[\theta]\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
+\nonumber  J(\mathcal{D},\theta)&\triangleq \probability[\mathcal{D}]P(\theta)\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
   \mathcal{D}^* &= \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta \\
-  \nonumber
-    \theta^*& =\argmax_\theta J(\mathcal{D}^*,\theta)
+\nonumber  \theta^*& =\argmax_\theta J(\mathcal{D}^*,\theta)
 \end{align}
 The above equations summarize the problem from the point of view of an ideal Bayesian learner.
 However, Eq.~\ref{intractableObjectives}
@@ -503,7 +501,7 @@ is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal
 
 Using the frontiers we  define the following intuitive lower bound on the joint probability, which we call $\lowerBound$:
 \begin{align}
- J\geq \lowerBound\triangleq\probability[\mathcal{D}]\probability[\theta]\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
+ J\geq \lowerBound\triangleq\probability[\mathcal{D}]P(\theta)\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
 \end{align}
 
 %% If we had a $(\mathcal{D},\theta)$ solving Eq.~\ref{intractableObjectives}, then we could recover the most likely program for task $x$ by maximizing $\probability[x|p] \probability[p|\mathcal{D},\theta]$.
@@ -524,7 +522,7 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
 \system does approximate MAP inference in the generative model of Fig.~\ref{graphicalModel}(a) by maximizing this lower bound on the joint probability,
-alternating maximization w.r.t. the frontiers (Wake) and the DSL (Sleep-G):
+alternatingly maximizing w.r.t. the frontiers (Wake) and the DSL (Sleep-G):
 %So interleaved with the DSL induction steps are program induction steps. Sec.~\ref{explorationSection}
 %explains how \system synthesizes new programs and given a DSL.
 \\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
@@ -546,11 +544,12 @@ during the Sleep-R phase:
 distribution over programs conditioned on a task. The objective of $q$
 is to assign high probability to programs $p$ where
 $\probability[x,p|\mathcal{D},\theta]$ is large, because including those programs
-in the frontiers will most likely increase $\lowerBound$.  %% With $q$ in hand we can find programs for
+in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can find programs for
 %% the frontier $\mathcal{F}_x$ by searching for programs that maximize
 %% $q(p|x)$.
-Rather than directly predicting a distribution over $p$ conditioned on $x$,
-the recognition model predicts a distribution $\theta^{(x)}$ over components of the DSL.
+The recognition model exploits the structure of the DSL: %$\mathcal{D}$:
+rather than directly predicting a distribution over $p$ conditioned on $x$,
+it predicts a distribution over components of the DSL.
 This taps into the intuition that programming is primarily a top-down activity:
 as human programmers, we often first decide what kind of
 programming constructs we might need to use,
@@ -561,7 +560,7 @@ and then we figure out how to assemble them in to the desired program.
 
 Our lower bound $\lowerBound$ is unconventional,
 and one might wonder why we do not instead maximize an ELBO-style bound like in a VAE or in the EM algorithm.
-We explain in the Supplement that maximizing an ELBO-style bound
+We explain in the supplement that maximizing an ELBO-style bound
 leads to a pathological behavior that  causes the model to easily become trapped in local optima.
 
 
@@ -589,10 +588,9 @@ that closely resembles the Lisp programming language.
 $\lambda$-calculus includes variables, function application, and the ability to create new functions.
 Throughout this paper we will write $\lambda$-calculus expressions in Lisp syntax.
 Our programs are all strongly typed.
-We use the Hindley-Milner polymorphic typing system~\cite{pierce} which is
-used in functional programming languages like OCaml.
-Type variables are always written using lowercase Greek letters
-and we write $\alpha\to \beta$ to mean a function that takes an input of type $\alpha$
+We use the Hindley-Milner polymorphic typing system~\cite{pierce} which is used in functional languages like OCaml.
+Variables that range over types are always written using lowercase Greek letters
+and we write $\alpha\to \beta$ to mean a function that takes as input type $\alpha$
 and returns something of type $\beta$.
 We use the notation $p:\tau$ to mean that the $\lambda$-calculus expression $p$
 has the type $\tau$.
@@ -640,11 +638,11 @@ expressions in order of their probability.
    \STATE \textbf{return} \code{(lambda (}var\code{) }body\code{)}
    \ENDIF
    %   \ELSE
-   \STATE $\text{primitives} \gets\{p | p: \tau' \in \mathcal{D}\cup\mathcal{E}$ \\
-     \hspace*{6.9em}$\text{if }\tau\text{ can unify with yield}(\tau') \} $
+   \STATE $\text{primitives} \gets\{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
+   \STATE \hspace{2.5cm}$\text{if }\tau\text{ can unify with yield}(\tau') \} $
    
    \STATE Draw $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$
-   \STATE \hspace*{8.8em}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
+   \STATE \hspace{3.1cm}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
    \STATE Unify $\tau$ with yield$(\tau')$.
    \STATE $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{argTypes}(\tau')$ 
 %   \STATE unify$(\tau,\beta)$
@@ -653,13 +651,13 @@ expressions in order of their probability.
  \ENDFOR
  \STATE \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
  \STATE\textbf{where:}
- \STATE \quad yield$(\tau) = \begin{cases}
-    \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-    \tau   &\text{ otherwise.}
+ \STATE  yield$(\tau) = \begin{cases}
+\text{yield}(\beta)   &\text{ if }$\tau = \alpha\to \beta$\\
+\tau   &\text{ otherwise.}
  \end{cases}$ 
- \STATE \quad argTypes$(\tau) = \begin{cases}
-    [\alpha] + \text{argTypes}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-    []   &\text{ otherwise.}
+ \STATE\hspace{0cm} argTypes$(\tau) = \begin{cases}
+[\alpha] + \text{argTypes}(\beta)   &\text{ if }$\tau = \alpha\to \beta$\\
+[]   &\text{ otherwise.}
  \end{cases}$
 \end{algorithmic}
 \end{algorithm}
@@ -669,9 +667,9 @@ sophisticated algorithms that search for programs?~\cite{solar2008program,schkuf
 We have two reasons:
 (1) A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the search algorithm is very simple.
 (2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
-  the space of programs.
+  the space of of programs.
 
-A drawback of using an enumerative search algorithm is that we have no
+A main drawback of an enumerative search algorithm is that we have no
 efficient means of solving for arbitrary constants that might occur in the
 program. In Sec.~\ref{regressionSection},
 we will show how to find programs with real-valued constants
@@ -688,10 +686,10 @@ by automatically differentiating through the program and setting the constants u
 
 \subsection{Sleep-R: Learning a Recognition Model}\label{recognitionSection}
 
-The purpose of the recognition model is to accelerate the search for
-programs.  It does this by learning to predict programs which are probable
-under $(\mathcal{D},\theta)$ while also assigning high likelihood for a task
-according to $\probability[x|p]$.
+The purpose of the recognition model is to accelerate the search over
+programs.  It does this by learning to predict which programs both 
+assign high likelihood to a task, and at the same time 
+have high probability under $(\mathcal{D},\theta)$.
 
 The recognition model $q$ is a neural network that predicts,
 for each task $x\in X$, a weight vector $q(x) = \theta^{(x)}\in \mathbb{R}^{|\mathcal{D}| + 1}$.
@@ -705,15 +703,15 @@ generating programs wholesale.
 We share this aspect with DeepCoder~\cite{balog2016deepcoder}.
 
 
-We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|q(p|x) \right) \right]$,
-or equivalently maximizing
+We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]||q(p|x) \right) \right]$,
+equivalently maximizing
 \begin{equation*}
   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
 \end{equation*}
 where the expectation is taken over tasks. One could take this expectation
 over the observed empirical distribution of tasks,
 like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
-We found it useful to maximize both an autoencoder-style objective $\mathcal{L}_{\text{AE}}$ and a Helmholtz-style objective $\mathcal{L}_{\text{HM}}$, giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
+We found it useful to maximize both an autoencoder-style objective (written $\mathcal{L}_{\text{AE}}$) and a Helmholtz-style objective ($\mathcal{L}_{\text{HM}}$), giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
 \begin{align}
 \mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
 \mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right],\text{ $p$ evaluates to $x$}\nonumber\\
@@ -722,9 +720,9 @@ We found it useful to maximize both an autoencoder-style objective $\mathcal{L}_
 \end{align}
 The $\mathcal{L}_{\text{HM}}$ objective is essential for data efficiency:
 all of our experiments train \system on only a few hundred tasks, which is too little for
-a high-capacity neural network $q$.
-Once we bootstrap a $(\mathcal{D},\theta)$,
-we can draw unlimited samples from $(\mathcal{D},\theta)$
+a high-capacity $q$.
+Once we have bootstrapped a $(\mathcal{D},\theta)$,
+we can draw unlimited samples from $(\mathcal{D},\theta)$,
 and train $q$ on those samples.
 
 Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
@@ -737,9 +735,9 @@ from the empirical observed distribution of inputs in $X$.
 
 The architecture of $q$ depends upon the domain.
 For domains with sequential structure like strings and lists,
-we use an RNN to encode each input/output example.
-For domains with fixed-dimensionality inputs/outputs we use a multilayer perceptron.
-We MaxPool across all of the input/output examples. See Supplement for details.
+we use an RNN to encode each input/output example,
+and for domains with fixed-dimensionality inputs/outputs we use a multilayer perceptron.
+We MaxPool across all of the input/output examples. See supplement for details.
 
 \subsection{Sleep-G: Inducing the DSL}\label{grammarInductionSection}
 
@@ -758,9 +756,8 @@ discover more programs.
 Recall from Sec.~\ref{mathematicalFraming} that we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$.
 We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
 \begin{align}
-  \nonumber
-    \log \probability[\mathcal{D}] + \argmax_{\theta}&\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\\
-  &+ \log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \label{AIC}
+\nonumber  \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\\
+&+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
   \end{align}
 
 We induce a DSL by searching locally through the space of DSLs,
@@ -780,7 +777,7 @@ fragments of expressions comes from Fragment Grammars~\cite{tim} and Tree-Substi
 We define a prior distribution over DSLs which penalizes the sizes of the $\lambda$-calculus expressions in the DSL, and put a Dirichlet prior over the weight vector:
 \begin{align*}
   \probability[\mathcal{D}]&\propto\exp\left(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)\\
-  \probability[\theta|\mathcal{D}]& = \text{Dir}(\theta|\alpha)
+  P(\theta|\mathcal{D})& = \text{Dir}(\theta|\alpha)
 \end{align*}
 where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
 $\lambda$ is a hyperparameter that acts as a regularizer on the size of the DSL,
@@ -789,7 +786,7 @@ and $\alpha$ is a concentration parameter controlling the smoothness of the prio
 
 To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
 Although this problem may seem 
-very similar to estimating the parameters of a probabilistic context free grammar (PCFG),
+very similar to estimating the parameters of a probabilistic context free grammar,
 for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
 a DSL in \system may be context-sensitive due to the presence of variables
 in the programs and also due to the polymorphic typing system.
@@ -813,7 +810,7 @@ In the Supplement we derive a tractable MAP estimator for $\theta$.
     \end{tabular}&
     \code{(index 0 (split z s))}\\\bottomrule
   \end{tabular}
-  \caption{The DSL induction algorithm proposes subexpressions of programs to add to the DSL.
+  \caption{The DSL induction algorithm works by proposing subexpressions of programs to add to the DSL.
     These subexpressions are taken from programs in the frontiers (middle column), and can introduce new variables (\code{z} and \code{s} in the right column).} 
   \label{fragmentExample}
 \end{figure*}
@@ -823,8 +820,8 @@ In the Supplement we derive a tractable MAP estimator for $\theta$.
 Alg.~\ref{mainAlgorithm} describes how we combine program search,
 recognition model training, and DSL induction.
 We note the following implementation details:
-(1) We perform a wake cycle before each of the sleep cycles.
-(2) On the first iteration, we do \emph{not} train the recognition model on samples from
+(1) We interleave wake cycles with each of the sleep cycles;
+(2) on the first iteration, we do \emph{not} train the recognition model on samples from
 the generative model because a DSL has not yet been learned --
 we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
 %% (3) Because the frontiers can grow very large,
@@ -889,33 +886,33 @@ This experimental setup is an extension of one introduced in the EC algorithm~\c
 \system learns to build these
 circuits by creating new subroutines that correspond to
 logic gates and multiplexers (Fig.~\ref{multiplexer}).
-We will show that the neural recognition model
+We will show data showing that the neural recognition model
 assists in building these circuits (Sec.~\ref{quantitative}),
 suggesting that an agent can glean something about the structure of a circuit just by looking at its truth table.
 
 \begin{figure}\centering
   \begin{circuitikz} \draw
-    (0,0) node (x) {$x$}
-    (x)++(0,-0.3) node (y) {$y$}
-    (y)++(0,-0.5) node (z) {$z$}
+    (0,0) node[port] (x) {$x$}
+    (x)++(0,-0.3) node[port] (y) {$y$}
+    (y)++(0,-0.5) node[port] (z) {$z$}
     
-    (x)++(1.7,-0.14) node[nand port, scale = 0.5] (xy) {}
+    (x)++(1.7,-0.15) node[nand port, scale = 0.5] (xy) {}
     (xy) ++ (0,-1) node[nand port, scale = 0.5] (xz) {}
     (xz) ++ (1,0.2) node[nand port, scale = 0.5] (zxz) {}
     (zxz) ++ (1,0.2) node[nand port, scale = 0.5] (m) {}
-    (x) -- (xy.in 1)
-    (y) -- (xy.in 2)
+    (x.out) -- (xy.in 1)
+    (y.out) -- (xy.in 2)
 
-    (x) -| (xz.in 1)
-    (z.east) -- (xz.in 2)
+    (x.out) -| (xz.in 1)
+    (z.out) -- (xz.in 2)
 
     (xz.out) -- (zxz.in 2)
-    (z.east) |- (zxz.in 1)
+    (z.out) |- (zxz.in 1)
 
     (zxz.out) -- (m.in 2)
     (xy.out) |- (m.in 1)
 
-    (m)++(1.2,0) node (l) {\textsc{MUX}$(x,y,z)$}
+    (m)++(1.2,0) node [port] (l) {\textsc{MUX}$(x,y,z)$}
     ;
 %% (0,0) node[and port] (myand2) {}
 %% (2,1) node[xnor port] (myxnor) {}
@@ -923,34 +920,34 @@ suggesting that an agent can glean something about the structure of a circuit ju
 %% (myand2.out) -- (myxnor.in 2);
   \end{circuitikz}
   \begin{circuitikz} \draw
-    (0,0) node (a) {$a$}
-    (a)++(0,-0.7) node (b) {$b$}
+    (0,0) node[port] (a) {$a$}
+    (a)++(0,-0.7) node[port] (b) {$b$}
 
     
     (a)++(1,-0) node[nand port, scale = 0.5] (ab1) {}
     (b)++(1,-0) node[nand port, scale = 0.5] (ab2) {}
     (ab1)++(1,-0.35) node[nand port, scale = 0.5] (o) {}
 
-    (a.east) -| (ab1.in 1)
-    (a.east) -| (ab1.in 2)
-    (b.east) -| (ab2.in 1)
-    (b.east) -| (ab2.in 2)
+    (a.out) -| (ab1.in 1)
+    (a.out) -| (ab1.in 2)
+    (b.out) -| (ab2.in 1)
+    (b.out) -| (ab2.in 2)
 
     (ab1.out) -- (o.in 1)
     (ab2.out) -- (o.in 2)
 
-    (o)++(0.8,0) node (l) {\textsc{OR}$(a,b)$}
+    (o)++(0.8,0) node [port] (l) {\textsc{OR}$(a,b)$}
     ;
   \end{circuitikz}
   \begin{circuitikz}     \node(m)[draw] at (1,-1) {MUX}; \draw
-    (0,0) node (w) {$w$}
-    (w)++(0,-0.5) node (x) {$x$}
-    (x)++(0,-0.5) node (y) {$y$}
-    (y)++(0,-0.5) node (z) {$z$}
+    (0,0) node[port] (w) {$w$}
+    (w)++(0,-0.5) node[port] (x) {$x$}
+    (x)++(0,-0.5) node[port] (y) {$y$}
+    (y)++(0,-0.5) node[port] (z) {$z$}
 
-    (z.east) -| (m.south)
-    (y.east) -| (m.west)
-    (x.east) -| (m.north)
+    (z.out) -| (m.south)
+    (y.out) -| (m.west)
+    (x.out) -| (m.north)
 
     
     (y)++(2.5,0.13) node[or port, scale = 0.5] (z) {}
@@ -958,7 +955,7 @@ suggesting that an agent can glean something about the structure of a circuit ju
     (w.east) -| (z.in 1)
     ;
   \end{circuitikz}
-\caption{\system discovers multiplexers (above) and OR gates (bottom left), which it uses to make more complicated circuits (bottom right) that it was unable to build without discovering these new primitives.}\label{multiplexer}
+\caption{\system discovers multiplexers (above) and OR gates (bottom left), which it uses to make more complicated circuits (bottom right), which it was unable to build without discovering these new primitives.}\label{multiplexer}
   \end{figure}
 
 
@@ -1007,11 +1004,10 @@ What DSL does \system learn?
 The learned DSL contains templates for polynomials of different orders,
 which lets the algorithm quickly hone in on the kinds of functions that are most appropriate to this domain (Tbl.~\ref{regressionDSL}).
 Examining the programs themselves,
-one finds that the algorithm discovers representations for each of the polynomials that minimizes the number of continuous degrees of freedom.
-For example, it represents the linear function $-x+2$ with the program
-\code{(* (* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{) x)} which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
-which has five continuous degrees of freedom.
-This arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
+one finds that the algorithm discovers representations for each of the polynomials that minimizes the number of continuous degrees of freedom:
+for example, it represents the linear function $-x+2$ with the program 
+\code{(* (* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{) x)}, which has two continuous degrees of freedom -- while representing quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}.
+This falls out of our Bayesian framing -- both the bias towards shorter programs (more likely under $\mathcal{D},\theta$) and the likelihood model's BIC penalty.
 \begin{table}\centering
 \begin{tabular}{l}
   \toprule
@@ -1046,7 +1042,7 @@ and algorithms that learn string editing programs ship in Microsoft Excel~\cite{
 However, this prior work presumes a ready-made DSL,
 expertly crafted to suit string editing.
 We show in this experiment that we can instead start out with a
-less specialized set of primitives -- close to the string methods provided by Python --
+less specialized set of primitives -- close to the string routines provided by Python --
 and recover many of the higher-level building blocks that have made these
 other system successful.
 Tbl.~\ref{textPrimitives} (top) lists the primitive functions provided to \systemEnding.
@@ -1056,7 +1052,8 @@ Instead, we provide list/string indexing primitives (\code{slice}, \code{nth}),
 basic arithmetic, and functions for splitting a string into a list (\code{split})
 or turning a list into a string (\code{join}).
 We automatically generated  600 string editing tasks  with 4 input/output examples each (Fig.~\ref{exampleTextProblem}). %, split  75/25 train/test.
-At first, \system cannot find programs for most of the tasks.
+At first, \system cannot find any programs that
+work at all for most of the tasks.
 After three wake/sleep iterations,
 it assembles a DSL (Tbl.~\ref{textPrimitives}, bottom) that lets it rapidly explore the space of programs and find solutions to
 all of the tasks.
@@ -1105,11 +1102,10 @@ KfvTh$>$Dbl$<$OIJso 	&DBL
   
   \vspace{0.25cm}
   
-  \begin{minipage}{\linewidth}
-    \centering
+  \begin{minipage}{7.5cm}
     $f($\code{s}$) \,=\, $\code{(}$f_3$\code{ (split '>' (upper s)) '<')}
   \end{minipage}
-  \caption{A string edit task and the program \system writes for it. $f_3$ is a discovered DSL subroutine, defined in Tbl.~\ref{textPrimitives}.}\label{exampleTextProblem}
+  \caption{A string edit task and the program \system writes for it. $f_3$ is a discovered DSL subroutine, defined in Tbl.~\ref{textPrimitives}}\label{exampleTextProblem}.
   \end{figure}
 
 \subsection{List functions}
@@ -1223,8 +1219,11 @@ e.g. did the agent correctly explain a linear function
 using two numbers, or did it introduce extraneous parameters?
 Tbl.~\ref{baselineComparisons}
 compares our model against these baselines.
-Our full model consistently beats the baselines.
-Lesioning the recognition model slows down the convergence of the algorithm,
+Our full model consistently
+beats the baselines,
+and that the recognition model 
+consistently increases the number of solved held-out tasks.
+Lesioning the recognition model also slows down the convergence of the algorithm,
 taking more wake/sleep cycles to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
 This supports our view of the recognition model as a way of accelerating the search over programs.
 
@@ -1268,9 +1267,9 @@ This supports our view of the recognition model as a way of accelerating the sea
   \caption{Learning curves for \system both with (blue) and without (red) the recognition model as the frontier size is varied (solid/dashed/dotted lines).}\label{learningCurves} 
 \end{figure}
 
-\section{Related Work}
- Our work is far from the first for learning to learn programs,
- an idea that goes back to Solomonoff~\cite{solomonoff1989system}:
+ \section{Related Work}
+ Our work is far from the first to learn to learn programs,
+ an  idea that goes back to Solomonoff~\cite{solomonoff1989system}:
 
  \noindent \emph{Neural recognition models for program induction:} Much recent work in the ML community has
  focused on creating neural networks that regress from
@@ -1294,7 +1293,7 @@ This supports our view of the recognition model as a way of accelerating the sea
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
  \section{Contribution and Outlook}
- We contributed a model, \systemEnding, that learns to program from examples by
+ We contributed a model, \systemEnding, that learns to program by
  bootstrapping a DSL with new domain-specific primitives that the algorithm itself discovers.
   Alongside this DSL, we train a bottom-up
  neural recognition model that learns how to efficiently deploy the
