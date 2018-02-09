@@ -179,33 +179,75 @@
 \section{Introduction}
 
 Automatically inducing programs from examples is a long-standing goal
-of artificial intelligence.  Recent work in program induction show
-that deep networks can be very successful at learning to write certain
-kinds of programs (e.g., RobustFill:~\cite{devlin2017robustfill} and
-DeepCoder:~\cite{balog2016deepcoder}), as can symbolic search
-techniques (e.g., Metagol:~\cite{muggleton2015meta},
-FlashFill:~\cite{gulwani2011automating}, and Sketch~\cite{solar2008program}).
-However, the success of these approaches -- both symbolic and neural --
-relies crucially upon a hand-engineered \emph{Domain Specific Language} (DSL).
-The DSL is an inventory of restricted programming primitives,
-and imparts domain specific knowledge about the space of programs.
-To what extent can we dispense with hand-engineered DSLs?
+of artificial intelligence. Recent work has successfully used
+symbolic search techniques (e.g., Metagol:~\cite{muggleton2015meta},
+FlashFill:~\cite{gulwani2011automating}), neural networks trained from
+a corpus of examples (e.g., RobustFill:~\cite{devlin2017robustfill},
+DeepCoder:~\cite{balog2016deepcoder}), and hybrids of neural and
+symbolic methods (e.g., Neural-guided deductive search~\cite{ngds}) to
+synthesize programs for task domains such as string transformations,
+list processing, and robot navigation and planning. However, all these
+approaches -- symbolic, neural and neural-symbolic -- rely upon a
+hand-engineered \emph{Domain Specific Language} (DSL). The DSL is an
+inventory of restricted programming primitives, encoding domain
+specific knowledge about the space of programs to be considered. In
+practice
+we are often given only one or a few examples of each
+program to be induced, and thus success often hinges on having a good
+DSL, to
+provide a crucial inductive bias for what would otherwise be an
+unconstrained search through the space of all computable functions.
+Here we ask, to what extent can we dispense with such highly
+hand-engineered DSLs?
 
-This work proposes \emph{learning} the DSL.
-We consider the setting where we have a collection of related programming tasks,
-each specified by a set of input/output examples.
-We do not assume that the tasks are annotated with
-ground-truth programs.
-Our algorithm, called \systemEnding,
-does three things:
-it finds programs that solve each of the tasks;
-it creates its own DSL by discovering and reusing
-domain-specific subroutines;
-and it learns a neural network that
-efficiently searches for programs in the DSL.
-The purpose of the DSL
-is to expose the commonalities across the programs that solve tasks within a domain,
-letting the agent solve other related program learning problems.
+We propose \emph{learning} the DSL. We consider the setting where we
+have a collection of related programming tasks, each specified by a
+set of input/output examples. We do not assume that the tasks are
+annotated with ground-truth programs. We typically will not try to
+learn a DSL completely from scratch, but rather to start from a weaker
+or more general set of primitives in a Lisp-like representation and
+construct a richer, more powerful and better-tuned domain-specific
+language.
+
+Our algorithm is called \system because it is based on a
+novel kind of ``wake-sleep'' learning (c.f. \cite{hinton1995wake}), iterating
+between ``wake'' and ``sleep'' phases to achieve three goals: finding
+programs that solve each of the tasks; creating a DSL by discovering
+and reusing domain-specific subroutines; and learning a neural network
+that efficiently guides search for programs in the DSL. The DSL
+distills commonalities across programs that solve the tasks, letting
+the agent solve other related program learning problems. The neural
+network ensures that searching for program solutions remains tractable
+even as the DSL (and hence the search space for programs) expands.
+
+%% Automatically inducing programs from examples is a long-standing goal
+%% of artificial intelligence.  Recent work in program induction show
+%% that deep networks can be very successful at learning to write certain
+%% kinds of programs (e.g., RobustFill:~\cite{devlin2017robustfill} and
+%% DeepCoder:~\cite{balog2016deepcoder}), as can symbolic search
+%% techniques (e.g., Metagol:~\cite{muggleton2015meta},
+%% FlashFill:~\cite{gulwani2011automating}, and Sketch~\cite{solar2008program}).
+%% However, the success of these approaches -- both symbolic and neural --
+%% relies crucially upon a hand-engineered \emph{Domain Specific Language} (DSL).
+%% The DSL is an inventory of restricted programming primitives,
+%% and imparts domain specific knowledge about the space of programs.
+%% To what extent can we dispense with hand-engineered DSLs?
+
+%% This work proposes \emph{learning} the DSL.
+%% We consider the setting where we have a collection of related programming tasks,
+%% each specified by a set of input/output examples.
+%% We do not assume that the tasks are annotated with
+%% ground-truth programs.
+%% Our algorithm, called \systemEnding,
+%% does three things:
+%% it finds programs that solve each of the tasks;
+%% it creates its own DSL by discovering and reusing
+%% domain-specific subroutines;
+%% and it learns a neural network that
+%% efficiently searches for programs in the DSL.
+%% The purpose of the DSL
+%% is to expose the commonalities across the programs that solve tasks within a domain,
+%% letting the agent solve other related program learning problems.
 
 
 
