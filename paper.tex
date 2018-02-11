@@ -291,7 +291,7 @@ difficult because the programs are unobserved,
 and so we must solve a hard search problem to recover them. To make
 search tractable we learn a bottom-up \emph{recognition
   model} (written $q(\cdot )$, Fig.~\ref{graphicalModel}(b)).
-The recognition model $q$ is a neural
+The recognition model $q(\cdot )$ is a neural
 network that regresses from input/output pairs to a distribution over
 programs likely to explain the input/outputs. We can also view $q(\cdot )$ as implementing an amortized
 inference
@@ -440,7 +440,7 @@ We apply \system to four domains:
  Our goal is to induce a DSL while finding programs solving each of the
 tasks.  We take inspiration from the Wake/Sleep
 algorithm~\cite{hinton1995wake}, as well as the
-Exploration-Compression algorithm for bootstrap
+Exploration-Compression algorithm (EC) for bootstrap
 learning~\cite{Dechter:2013:BLV:2540128.2540316}.  Wake/Sleep
 alternates between training a generative model on samples from a
 recognition model (our $q$), and training a recognition model on
@@ -453,7 +453,7 @@ through three steps: a \textbf{Wake} cycle uses the current DSL and
 recognition model to search for programs that solve the tasks.  The
 \textbf{Sleep-G} and \textbf{Sleep-R} cycles update the DSL and the
 recognition model, respectively.  Crucially, these steps bootstrap 
-each off other (Fig.~\ref{feeding}):
+off each other (Fig.~\ref{feeding}):
 
 \\\noindent \textbf{Wake: Searching for programs.}  Our program search
 is informed by both the DSL and the recognition model. When these
@@ -462,13 +462,18 @@ improve, we find more programs solving the tasks.
 from the programs found in the wake phase, aiming
 to maximally compress (or, raise the prior probability of) these
 programs.  As we solve more tasks, we hone in on richer DSLs that
-more closely match the domain.
+more closely match the domain.\footnote{This is loosely biologically
+    inspired by the formation of abstractions during sleep memory
+    consolidation~\cite{DUDAI201520}}
 \\\noindent \textbf{Sleep-R: Learning a neural recognition model.}  We
-update the recognition model training on two data sources: samples
+update the recognition model by training on two data sources: samples
 from the DSL (as in the Helmholtz Machine's ``sleep'' phase), and
 programs found by the search procedure during waking. As the DSL
 improves and as search finds more programs, the recognition model gets
-both more data to train on, and better data.
+both more data to train on, and better data.\footnote{These two sources are also
+    loosely biologically inspired by the distinct episodic replay and
+    hallucination components of dream sleep~\cite{fosse2003dreaming}}
+    
 
 
 
@@ -505,7 +510,7 @@ both more data to train on, and better data.
 Sec.~\ref{mathematicalFraming} frames this 3-step procedure as
 a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
 Sec.~\ref{explorationSection} explains how we search for programs that solve the tasks;
-Sec.~\ref{recognitionSection} explains how we train a neural network to accelerate program search; and
+Sec.~\ref{recognitionSection} explains how we train a neural network to  search for programs; and
 Sec.~\ref{grammarInductionSection} explains how we induce a DSL from programs.
 
 \subsection{Probabilistic Framing}\label{mathematicalFraming}
@@ -1265,7 +1270,7 @@ The recognition model
 consistently increases the number of solved held-out tasks,
 and lesioning it also slows down the convergence of the algorithm,
 taking more wake/sleep cycles to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
-This supports our view of the recognition model as a way of accelerating the search over programs.
+This supports the view of the recognition model as a way of accelerating the search over programs.
 
 \begin{table}
 %% This radically shrinks the table
@@ -1350,10 +1355,11 @@ goals
 are to integrate more sophisticated neural recognition
 models~\cite{devlin2017robustfill} and program
 synthesizers~\cite{solar2008program}, which may improve performance in
-some domains over the generic methods used here, and to
+some domains over the generic methods used here.
+Another direction is to
 explore DSL meta-learning: Can we find a \emph{single} universal
 primitive set that could effectively bootstrap DSLs for new domains,
-including the four domains considered but many others?
+including the four domains considered,  but also many others?
 \bibliography{main}
 \bibliographystyle{icml2018}
 
