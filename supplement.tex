@@ -322,66 +322,55 @@ We use Alg.~\ref{grammarInductionAlgorithm} to search for the structure of the D
 
 \subsection{Estimating $\theta$}
 
-%% We use an EM algorithm to estimate the continuous parameters of the DSL, e.g. $\theta$.
-%% Suppressing dependencies on $\mathcal{D}$, the EM updates are
-%% \begin{align}
-%% \label{maximizeStep}  \theta& = \argmax_\theta \log P(\theta) + \sum_x \expect_{Q_x}\left[\log \probability\left[p|\theta \right] \right]\\
-%%   Q_x(p)&\propto \probability[x|p]\probability[p|\theta]
-%%   \end{align}
-%% In the M step of EM we will update $\theta$ by instead maximizing a lower bound on $\log \probability[p|\theta]$.
-We write $c(e,p)$ to mean the number of times that primitive $e$ was used in program $p$; $c(p)= \sum_{e\in \mathcal{D}}c(e,p)$ to mean the total number of primitives used in program $p$; $R(p)$ to mean the sequence of types input to sample in Alg.~1 of the main paper. Jensen's inequality gives an intuitive lower bound on the likelihood of a program $p$:
+We use an EM algorithm to estimate the continuous parameters of the DSL, e.g. $\theta$.
+Suppressing dependencies on $\mathcal{D}$, the EM updates are
+\begin{align}
+\label{maximizeStep}  \theta& = \argmax_\theta \log P(\theta) + \sum_x \expect_{Q_x}\left[\log \probability\left[p|\theta \right] \right]\\
+  Q_x(p)&\propto \probability[x|p]\probability[p|\theta]
+  \end{align}
+In the M step of EM we will update $\theta$ by instead maximizing a lower bound on $\log \probability[p|\theta]$,
+making our approach an instance of Generalized EM.
+
+We write $c(e,p)$ to mean the number of times that primitive $e$ was used in program $p$; $c(p)= \sum_{e\in \mathcal{D}}c(e,p)$ to mean the total number of primitives used in program $p$; $R(p)$ to mean the sequence of types input to sample in Alg.~1 of the main paper. Jensen's inequality gives a lower bound on the likelihood:
 \begin{align*}
-  \log \probability[p|\theta]&\stackrel{+}{ = }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - \sum_{\tau\in R(p)} \log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
-  &\stackrel{+}{\geq }\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \sum_{\tau\in R(p)} \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
-  & = \sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \sum_{e\in \mathcal{D}} r(e,p)\theta_e
+  &\sum_x\expect_{Q_x}\left[  \log \probability[p|\theta] \right] =\\
+  &\sum_{e\in \mathcal{D}} \log \theta_e \sum_x\expect\left[c(e,p_x) \right] -
+  \sum_\tau\expect\left[\sum_x c(\tau,p_x)  \right]\log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
+ =   &\sum_e C(e)\log \theta_e  - \beta\sum_\tau\frac{\expect\left[\sum_x c(\tau,p_x)  \right]}{\beta}\log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
+ \geq    &\sum_e C(e)\log \theta_e  - \beta\log \sum_\tau\frac{\expect\left[\sum_x c(\tau,p_x)  \right]}{\beta}\sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
+     =     &\sum_e C(e)\log \theta_e  - \beta\log \sum_\tau\frac{R(\tau)}{\beta}\sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  
+  %% &\geq\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \frac{1}{c(p)}\sum_{\tau\in R(p)} \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
+  %% & = \sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log\frac{1}{c(p)} \sum_{e\in \mathcal{D}} r(e,p)\theta_e
 \end{align*}
 where we have defined
-$$r(e:\tau',p)\triangleq\sum_{\tau\in R(p)} \indicator[\text{canUnify}(\tau,\tau')]$$
-
-%% Returning to equation~\ref{maximizeStep}:
-%% \begin{align*}
-%% \log P(\theta) +& \sum_x \expect_{Q_x}\left[\log \probability\left[p|\theta \right] \right]\geq \\
-%% \log   \text{Dir}(\theta|\alpha) +& \sum_x\sum_{e\in \mathcal{D}}\expect_{Q_x}\left[ c(e,p)\right]\log \theta_e -\\
-%% &\sum_x  \expect_{Q_x}\left[c(p)\log \sum_{e\in \mathcal{D}}r(e,p)\theta_e \right]
-%%   \end{align*}
-
-
-
-
-Differentiating with respect to $\theta_e$ and setting to zero:
-%% \begin{align}
-%%   & \frac{\alpha + \sum_x\expect_{Q_x}\left[ c(e,p)\right]}{\theta_e} -
-%% \theta_e\sum_x  \expect_{Q_x}\left[c(p)\frac{r(p,e)}{\sum_{e'\in \mathcal{D}} r(e',p)\theta_{e'}} \right]  
-%%   \end{align}
-%%
 \begin{align*}
-  \frac{c(e, p)}{\theta_e} &= c(p)\frac{r(e, p)}{\sum_{e'\in\mathcal{D}} r(e', p)\theta_{e'}} \\
-  \frac{c(x,p)}{\theta_x} &= N\frac{a(x)}{\sum_y a(y)\theta_y}
+  C(e)&\triangleq  \sum_x\expect\left[c(e,p_x) \right]\\
+  R(\tau)&\triangleq \expect\left[\sum_x c(\tau,p_x)  \right]\\
+  \beta&\triangleq\sum_\tau \expect\left[\sum_x c(\tau,p_x)  \right]
 \end{align*}
-where $N=c(p)$ and $a(x) = r(x, p)$. From here forward, we similarly let
-$c(x)=c(x,p)$ for notational convenience.
-
-%% This equality holds if $\theta_x = c(x)/a(x)$:
-%% \begin{align}
-%%   \frac{c(x)}{\theta_x} &= a(x).\\
-%% N\frac{a(x)}{\sum_y a(y)\theta_y}& = N\frac{a(x)}{\sum_y c(y)}   = N\frac{a(x)}{N} = a(x).
-%% \end{align}
-If the above equality holds then $\theta_x \propto c(x)/a(x)$:
+Crucially it was defining $\beta$ that let us use Jensen's inequality. 
+Recalling from the main paper that $P(\theta)\triangleq\text{Dir}(\alpha)$,
+we have the following lower bound on M-step objective:
 \begin{align}
-  \theta_x = \frac{c(x)}{a(x)}\times \underbrace{\frac{\sum_y a(y)\theta_y}{N}}_{\text{Independent of $x$}}
+\sum_e (C(e) + \alpha)\log \theta_e  - \beta\log \sum_\tau\frac{R(\tau)}{\beta}\sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e    
 \end{align}
-
-Now what we are actually after is the parameters that maximize the joint log probability of the data and parameters $\theta$, which we  write $J$:
+Differentiate with respect to $\theta_e$, where $e:\tau$, and set to zero to obtain:
 \begin{align}
-  \nonumber J& = L + \log \text{Dir}(\theta|\alpha)\\
-  \nonumber&\stackrel{+}{\geq } \sum_x c(x)\log \theta_x - N \log \sum_x a(x)\theta_x \\
-  \nonumber&\qquad\quad+ \sum_x(\alpha_x - 1)\log \theta_x\\
-  & = \sum_x (c(x) + \alpha_x - 1)\log \theta_x -  N \log \sum_x a(x)\theta_x
+  &  \frac{C(e) + \alpha}{\theta_e}\propto\sum_{\tau'}\indicator\left[\text{unify}(\tau,\tau') \right] R(\tau')\\
+&  \theta_e\propto\frac{C(e) + \alpha}{\sum_{\tau'}\indicator\left[\text{unify}(\tau,\tau') \right] R(\tau')}
 \end{align}
-We identify the parameters of the prior over $\theta$, $\alpha$, as  pseudocounts that are added to the \emph{counts} $c(x)$, but not to the \emph{possible counts} $a(x)$,
-and so we estimate $\theta_e$ as the ratio of the sum of the number of times that $e$ was used plus the pseudocounts $\alpha$, with the number of times that it could have been used, $a(e)$.
+The above is our estimator for $\theta_e$.
+Despite the convoluted derivation, the above estimator has an intuitive interpretation.
+The quantity $C(e)$ is the expected number of times that we used $e$.
+The quantity $\sum_{\tau'}\indicator\left[\text{unify}(\tau,\tau') \right] R(\tau')$
+is the expected number of times that we \emph{could have} used $e$.
+The hyperparameter $\alpha$ acts as pseudocounts that are
+added to the number of times that we used each primitive,
+and are not added to the number of times that we could have used each primitive.
 
 
+We are only maximizing a lower bound on the log posterior; when is this lower bound tight?
+Whenever the DSL does not contain polymorphic types,
 
 This lower bound is tight whenever all
 of the types of the expressions in the DSL are not polymorphic, in which case our DSL is equivalent to a PCFG
