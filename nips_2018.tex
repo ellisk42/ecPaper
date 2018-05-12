@@ -126,12 +126,12 @@
   Successful approaches to program induction require a hand-engineered
   domain-specific language (DSL), constraining the space of allowed
   programs and imparting prior knowledge of the domain.  We contribute
-  a program induction algorithm called \system that learns a DSL and
-  trains a neural network to efficiently search for programs in the
-  learned DSL.  We use our model to build circuits, solve
-  symbolic regression problems, edit strings, and synthesize functions on lists, in each case
-  showing the model learns a domain-specific vocabulary for expressing
-  solutions to problems in the domain.
+  a program induction algorithm called \system that learns a DSL while
+  jointly training a neural network to efficiently search for programs
+  in the learned DSL.  We use our model to solve symbolic regression
+  problems, edit strings, and synthesize functions on lists, showing
+  how the model learns a domain-specific library of program components
+  for expressing solutions to problems in the domain.
 \end{abstract}
 
 
@@ -146,7 +146,7 @@ symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~
 synthesize programs for task domains such as string transformations,
 list processing, and robot navigation and planning. However, all these
 approaches -- symbolic, neural and neural-symbolic -- rely upon a
-hand-engineered \emph{Domain-Specific Language} (DSL). The DSL is an
+hand-engineered \emph{Domain-Specific Language} (DSL). DSLs contain an
 inventory of restricted programming primitives, encoding domain-specific
 knowledge about the space of programs. In
 practice
@@ -157,24 +157,37 @@ unconstrained search through the space of all computable functions.
 Here we ask, to what extent can we dispense with such highly
 hand-engineered domain-specific languages?
 
-We propose \emph{learning} the DSL. We consider the setting where we
-have a collection of related programming tasks, each specified by a
-set of input/output examples. We do not assume that the tasks are
-annotated with ground-truth programs. We typically will not try to
-learn a DSL completely from scratch, but rather to start from a weaker
-or more general set of primitives and
-construct a richer, more powerful, and better-tuned DSL.
-
-Our algorithm is called \system because it is based on a
-novel kind of ``wake-sleep'' learning (c.f. \cite{hinton1995wake}), iterating
-between ``wake'' and ``sleep'' phases to achieve three goals: finding
-programs that solve tasks; creating a DSL by discovering
-and reusing domain-specific subroutines; and training a neural network
-that efficiently guides search for programs in the DSL. The learned DSL
+We propose \emph{learning} the DSL by inducing a library of domain--specific
+subroutines. We consider the setting where we have a collection of
+related programming tasks, each specified by a set of input/output
+examples. %% We do not assume that the tasks are annotated with
+%% ground-truth programs.
+Start from a weaker or more
+general library of primitives, we give an algorithm for constructing a richer, more powerful,
+and better-tuned DSL.
+Our algorithm is called \textbf{Explore/Compress/Compile} (\systemEnding)
+because it iterates between three different phases: an
+\textbf{Explore} phase uses the DSL to explore the space of programs,
+searching for ones that solve the tasks; a \textbf{Compress} phase
+modifies the DSL by discovering regularities in the programs found by
+the previous Explore phase; and a \textbf{Compile} phase, which
+improves the program search procedure by training a neural network to
+write programs in the current DSL, in the spirit of ``amortized'' or
+``compiled'' inference~\cite{le2016inference}.
+The learned DSL
 distills commonalities across programs that solve tasks, helping
 the agent solve related program induction problems. The neural
 network ensures that searching for programs remains tractable
 even as the DSL (and hence the search space for programs) expands.
+
+Because any model may be encoded as a (deterministic or probabilistic) program,
+we carefully delineate the scope of program learning problems considered here.
+We think of \system as learning to solve the kinds of problems that humans
+can solve relatively quickly -- once they acquire the relevant domain expertise.
+These correspond to short programs -- once you have the right DSL.
+Even with the right DSL, program search may be intractable, so
+we amortize the cost of program search by training a neural network to
+assist the search procedure.
 
 %% Automatically inducing programs from examples is a long-standing goal
 %% of artificial intelligence.  Recent work in program induction show
@@ -242,83 +255,63 @@ even as the DSL (and hence the search space for programs) expands.
 %% which frames our problem as one of program induction.
 
 
-Viewed as a probabilistic inference problem,
-our goal is to jointly infer a single DSL (written $\mathcal{D}$)
-and many programs (written $p$), one for each set of inputs/outputs (\emph{tasks}, written $x$).
-A DSL $\mathcal{D}$ is a collection of domain-specific subroutines.
-We equip $\mathcal{D}$ with a real-valued weight vector $\theta$, and together
-$(\mathcal{D},\theta)$ define a distribution over programs.
-Fig.~\ref{graphicalModel}(a) diagrams this inference problem as a hierarchical Bayesian model.
-Inference in this model is
-difficult because the programs are unobserved,
-and so we must solve a hard search problem to recover them. To make
-search tractable we learn a bottom-up \emph{recognition
-  model} (written $q(\cdot )$, Fig.~\ref{graphicalModel}(b)).
-The recognition model $q(\cdot )$ is a neural
-network that regresses from input/output pairs to a distribution over
-programs likely to explain the input/outputs. We can also view $q(\cdot )$ as implementing an amortized
-inference
-scheme~\cite{le2016inference}.
- The neural recognition model and the
-generative model embodied in the DSL jointly train each other, as they
-iteratively learn to solve more programming tasks.
 
-\begin{figure}
-  \centering
+%% \begin{figure}
+%%   \centering
 
-  \begin{tikzpicture}
+%%   \begin{tikzpicture}
 
-  \node[latent] at (0.5,3) (d){$\mathcal{D}$};
-  \node[latent] at (1.5,3) (t){$\theta$};
-  \node[latent] at (1,1.75) (z){$p$};
-%  \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
-  \node[obs] at (1,0.5) (x) {$x$};
-  \edge {z}{x};
-  \edge {d,t}{z};
-  \plate {}{(z)(x)}{$x\in X$};
-  \node[align = center] at ([yshift = -1.3cm]x.south) {(a) \\generative model};
+%%   \node[latent] at (0.5,3) (d){$\mathcal{D}$};
+%%   \node[latent] at (1.5,3) (t){$\theta$};
+%%   \node[latent] at (1,1.75) (z){$p$};
+%% %  \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
+%%   \node[obs] at (1,0.5) (x) {$x$};
+%%   \edge {z}{x};
+%%   \edge {d,t}{z};
+%%   \plate {}{(z)(x)}{$x\in X$};
+%%   \node[align = center] at ([yshift = -1.3cm]x.south) {(a) \\generative model};
 
-  \begin{scope}[shift = {(0.7,0)}]  
-  \node[obs] at (3.5,3) (dx){$\mathcal{D}$};
-  \node[latent] at (3.5,1.9) (zp){$p$};
-  \node[latent] at (5,1.9) (tx){$\theta^{(x)}$};
-  \node[obs] at (3.5,0.5) (xp) {$x$};
-  \plate {}{(zp)(xp)(tx)}{$x\in X$};
-  \node[align = center] at ([yshift = -1.2cm,xshift = 1cm]xp.south) {(b) \\recognition model};
-  \draw [->,red] (xp.east) to[out = 0,in = -90] node(nn){} (tx.south);
-  \draw [->,red] (tx.west) -- (zp.east);
-  \draw [->,red] (dx.south) -- (zp.north);
+%%   \begin{scope}[shift = {(0.7,0)}]  
+%%   \node[obs] at (3.5,3) (dx){$\mathcal{D}$};
+%%   \node[latent] at (3.5,1.9) (zp){$p$};
+%%   \node[latent] at (5,1.9) (tx){$\theta^{(x)}$};
+%%   \node[obs] at (3.5,0.5) (xp) {$x$};
+%%   \plate {}{(zp)(xp)(tx)}{$x\in X$};
+%%   \node[align = center] at ([yshift = -1.2cm,xshift = 1cm]xp.south) {(b) \\recognition model};
+%%   \draw [->,red] (xp.east) to[out = 0,in = -90] node(nn){} (tx.south);
+%%   \draw [->,red] (tx.west) -- (zp.east);
+%%   \draw [->,red] (dx.south) -- (zp.north);
 
-  \node at (nn) {
-    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.15,shift={+(-1,2.5)}}]
-      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-      \node[rectangle] at (1,1) {};
-      \foreach \name / \y in {1,...,4}
-          \node[neuron] (I-\name) at (0,-\y) {};
-      \foreach \name / \y in {1,...,3}
-          \node[neuron] (H-\name) at (1,-\y-0.5) {};
-      \foreach \name / \y in {1,...,4}
-          \node[neuron] (O-\name) at (2,-\y) {};
-      \foreach \source in {1,...,4}
-          \foreach \dest in {1,...,3}
-              \draw [-latex] (I-\source) -- (H-\dest);
-      \foreach \source in {1,...,3}
-          \foreach \dest in {1,...,4}
-              \draw [-latex] (H-\source) -- (O-\dest);
-    \end{tikzpicture}
-  };
-  \node[shift={+(0,-0.55)}] at (nn) { $q(x)$ };
+%%   \node at (nn) {
+%%     \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.15,shift={+(-1,2.5)}}]
+%%       \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+%%       \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+%%       \node[rectangle] at (1,1) {};
+%%       \foreach \name / \y in {1,...,4}
+%%           \node[neuron] (I-\name) at (0,-\y) {};
+%%       \foreach \name / \y in {1,...,3}
+%%           \node[neuron] (H-\name) at (1,-\y-0.5) {};
+%%       \foreach \name / \y in {1,...,4}
+%%           \node[neuron] (O-\name) at (2,-\y) {};
+%%       \foreach \source in {1,...,4}
+%%           \foreach \dest in {1,...,3}
+%%               \draw [-latex] (I-\source) -- (H-\dest);
+%%       \foreach \source in {1,...,3}
+%%           \foreach \dest in {1,...,4}
+%%               \draw [-latex] (H-\source) -- (O-\dest);
+%%     \end{tikzpicture}
+%%   };
+%%   \node[shift={+(0,-0.55)}] at (nn) { $q(x)$ };
 
-  \end{scope}
+%%   \end{scope}
 
   
 
 
-  \end{tikzpicture}
-  \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives according to probabilities $\theta$. From each program we observe a task $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
-    $\theta^{(x)}$. Black/red arrows correspond to the generative/recognition models.}\label{graphicalModel}
-\end{figure}
+%%   \end{tikzpicture}
+%%   \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives according to probabilities $\theta$. From each program we observe a task $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
+%%     $\theta^{(x)}$. Black/red arrows correspond to the generative/recognition models.}\label{graphicalModel}
+%% \end{figure}
 
 
 %% To perform inference, we take inspiration from the Helmholtz machine
@@ -344,18 +337,20 @@ iteratively learn to solve more programming tasks.
 %% programs is difficult, so we use the recognition model to
 %% learn how to search efficiently.
 
-We apply \system to four domains:
- building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and Lisp-style functions on lists.
- For each of these we deliberately provide an impoverished
- set of programming primitives,
- and show that our algorithm discovers
+We apply \system to three domains:
+ symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing; and Lisp-style functions on lists.
+ For each of these we provide a generic
+ set of programming primitives in a Lisp-like language,
+ including conditionals, variables, and higher-order functions.
+ Our algorithm then discovers
  its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
- \begin{table}[b]
+
+ \begin{wrapfig}
     \begin{tabular}{ll}
    \toprule
    Domain&Part of the learned DSL\\\midrule
-   Circuits&\code{(nand (nand a a) (nand b b))}\\
-   &\hspace{0.5cm} \emph{(an OR gate)}\\
+   %% Circuits&\code{(nand (nand a a) (nand b b))}\\
+   %% &\hspace{0.5cm} \emph{(an OR gate)}\\
    Regression& \code{(+ (* real x) real)} \\
       &\hspace{0.5cm} \emph{(a linear function of x)}\\
    Strings& \code{(join '' (split c s))}\\
@@ -365,7 +360,7 @@ We apply \system to four domains:
    \\\bottomrule
     \end{tabular}
     \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
- \end{table}
+ \end{wrapfig}
 
 
  
@@ -401,20 +396,16 @@ We apply \system to four domains:
  \section{The \system Algorithm}
 
  Our goal is to induce a DSL while finding programs solving each of the
-tasks.  We take inspiration from the Wake/Sleep
-algorithm~\cite{hinton1995wake}, as well as the
-Exploration-Compression algorithm (EC) for bootstrap
-learning~\cite{Dechter:2013:BLV:2540128.2540316}.  Wake/Sleep
-alternates between training a generative model on samples from a
-recognition model (our $q$), and training a recognition model on
-samples from the generative model (our $\mathcal{D},\theta$).  EC
+tasks.  We take inspiration primarily from the
+Exploration-Compression algorithm for bootstrap
+learning~\cite{Dechter:2013:BLV:2540128.2540316}.  Exploration-Compression
 alternates between exploring the space of solutions to a set of tasks,
 and compressing those solutions to suggest new search primitives
 for the next exploration stage.
-We combine these ideas into an inference strategy that iterates
-through three steps: a \textbf{Wake} cycle uses the current DSL and
+We extend these ideas into an inference strategy that iterates
+through three steps: an \textbf{Explore} cycle uses the current DSL and
 recognition model to search for programs that solve the tasks.  The
-\textbf{Sleep-G} and \textbf{Sleep-R} cycles update the DSL and the
+\textbf{Compress} and \textbf{Compile} cycles update the DSL and the
 recognition model, respectively.  Crucially, these steps bootstrap 
 off each other (Fig.~\ref{feeding}):
 
@@ -452,23 +443,23 @@ both more data to train on, and better data.\footnote{These two sources are also
 %% learning a generative model and training a recognition model on samples from the generative model.
 %% We apply this idea to program induction, motivating why we call our algorithm the \system.
 
-\begin{figure}\centering
+\begin{wrapfig}\centering
   \begin{tikzpicture}
     \begin{scope}[shift = {(1,-1)}]
-    \node[align = center](synthesis) at (6,4) {Search for \\programs: $p$};
-    \node[align = center](DSL) at (3,1) {DSL: $\mathcal{D}$};
-    \node[align = center](recognitionModel) at (9,1) {Recognition \\model: $q$};
+    \node[align = center](synthesis) at (6,4) {Search for \\programs};
+    \node[align = center](DSL) at (3,1) {DSL};
+    \node[align = center](recognitionModel) at (9,1) {Recognition \\model};
 
-    \draw [->,thick] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-G)}} (DSL.30);
-    \draw [->,thick] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.150);
-    \draw [->,thick] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.west);
+    \draw [->,thick] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Compression)}} (DSL.30);
+    \draw [->,thick] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Compilation)}} (recognitionModel.150);
+    \draw [->,thick] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Compilation)}} (recognitionModel.west);
 
-    \draw [->,thick,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Inductive bias}\\\footnotesize{(Wake)}} (synthesis.west);
-    \draw [->,thick,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Wake)}} (synthesis.east);
+    \draw [->,thick,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Inductive bias}\\\footnotesize{(Exploration)}} (synthesis.west);
+    \draw [->,thick,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Exploration)}} (synthesis.east);
   \end{scope}
     \end{tikzpicture}
-  \caption{\system solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
-\end{figure}
+  \caption{\system solves for programs, the DSL, and a neural network called the \emph{recognition model}. Each of these steps bootstrap off of the others in an iterative inference algorithm.}  \label{feeding}
+\end{wrapfigure}
 
 Sec.~\ref{mathematicalFraming} frames this 3-step procedure as
 a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
@@ -477,6 +468,26 @@ Sec.~\ref{recognitionSection} explains how we train a neural network to  search 
 Sec.~\ref{grammarInductionSection} explains how we induce a DSL from programs.
 
 \subsection{Probabilistic Framing}\label{mathematicalFraming}
+Viewed as a probabilistic inference problem,
+our goal is to jointly infer a single DSL (written $\mathcal{D}$)
+and many programs (written $p$), one for each set of inputs/outputs (\emph{tasks}, written $x$).
+A DSL $\mathcal{D}$ is a collection of domain-specific subroutines.
+We equip $\mathcal{D}$ with a real-valued weight vector $\theta$, and together
+$(\mathcal{D},\theta)$ define a distribution over programs.
+Fig.~\ref{graphicalModel}(a) diagrams this inference problem as a hierarchical Bayesian model.
+Inference in this model is
+difficult because the programs are unobserved,
+and so we must solve a hard search problem to recover them. To make
+search tractable we learn a bottom-up \emph{recognition
+  model} (written $q(\cdot )$, Fig.~\ref{graphicalModel}(b)).
+The recognition model $q(\cdot )$ is a neural
+network that regresses from input/output pairs to a distribution over
+programs likely to explain the input/outputs. We can also view $q(\cdot )$ as implementing an amortized
+inference
+scheme~\cite{le2016inference}.
+ The neural recognition model and the
+generative model embodied in the DSL jointly train each other, as they
+iteratively learn to solve more programming tasks.
 
 \system takes as input a set of \emph{tasks}, written $X$, each of which is a program induction problem.
 It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$.
@@ -750,12 +761,9 @@ discover more programs.
 
 Recall from Sec.~\ref{mathematicalFraming} that we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$.
 We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
-\begin{align}
-  \nonumber
-    \log \probability[\mathcal{D}] + \argmax_{\theta}&\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\\
-  &+ \log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \label{AIC}
-  \end{align}
-
+\begin{equation}
+      \log \probability[\mathcal{D}] + \argmax_{\theta}\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta] + \log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \label{AIC}
+  \end{equation}
 We induce a DSL by searching locally through the space of DSLs,
 proposing small local changes to $\mathcal{D}$ until Eq.~\ref{AIC} fails to increase.
 The search moves work by introducing new
@@ -771,10 +779,10 @@ fragments of expressions comes from Fragment Grammars~\cite{tim} and Tree-Substi
 
 
 We define a prior distribution over DSLs which penalizes the sizes of the $\lambda$-calculus expressions in the DSL, and put a Dirichlet prior over the weight vector:
-\begin{align}
-  \probability[\mathcal{D}]&\propto\exp\left(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)\\
-  \probability[\theta|\mathcal{D}]& = \text{Dir}(\theta|\alpha)
-\end{align}
+\begin{equation}
+    \probability[\mathcal{D}]\propto\exp\left(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)\hspace{1cm}  \probability[\theta|\mathcal{D}] = \text{Dir}(\theta|\alpha)
+  \end{equation}
+
 where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
 $\lambda$ is a hyperparameter that acts as a regularizer on the size of the DSL,
 and $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
@@ -859,105 +867,6 @@ illustrating the learned DSLs.
 We then show quantitative results (Sec.~\ref{quantitative})
 comparing \system with lesioned versions
 of our model that are analogous to prior work.
-
-\subsection{Boolean Circuits}
-We consider the problem of learning
-to build  Boolean circuits out of logic gates.
-If we gave our agent the full repertoire of
-circuit primitives -- XOR gates, multiplexers, etc. -- this problem would be easy,
-and we could use sophisticated symbolic search algorithms like SMT solvers to synthesize circuits.
-Instead, we gave \system only a NAND gate,
-and tasked it with building a set of 250 random circuits made out of
-AND, NOT, and OR gates, along with a multiplexer.
-\system observes the input/output truth table of the circuits,
-and we define the likelihood 
-$  \probability[x|p]\triangleq\indicator\left[p\text{ has  the same truth table as }x \right]$,
-where $x$ is a truth table and $p$ a program implementing a circuit.
-
-
-This experimental setup is an extension of one introduced in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
-%% For this domain our recognition model is a simple multilayer perceptron 
-%% whose inputs are the input/output examples.
-\system learns to build these
-circuits by creating new subroutines that correspond to
-logic gates and multiplexers (Fig.~\ref{multiplexer}).
-We will show that the neural recognition model
-assists in building these circuits (Sec.~\ref{quantitative}),
-suggesting that an agent can glean something about the structure of a circuit just by looking at its truth table.
-
-\begin{figure}\centering
-  \begin{circuitikz} \draw
-    (0,0) node (x) {$x$}
-    (x)++(0,-0.3) node (y) {$y$}
-    (y)++(0,-0.5) node (z) {$z$}
-    
-    (x)++(1.7,-0.14) node[nand port, scale = 0.5] (xy) {}
-    (xy) ++ (0,-1) node[nand port, scale = 0.5] (xz) {}
-    (xz) ++ (1,0.2) node[nand port, scale = 0.5] (zxz) {}
-    (zxz) ++ (1,0.2) node[nand port, scale = 0.5] (m) {}
-    (x) -- (xy.in 1)
-    (y) -- (xy.in 2)
-
-    (x) -| (xz.in 1)
-    (z.east) -- (xz.in 2)
-
-    (xz.out) -- (zxz.in 2)
-    (z.east) |- (zxz.in 1)
-
-    (zxz.out) -- (m.in 2)
-    (xy.out) |- (m.in 1)
-
-    (m)++(1.2,0) node (l) {\textsc{MUX}$(x,y,z)$}
-    ;
-%% (0,0) node[and port] (myand2) {}
-%% (2,1) node[xnor port] (myxnor) {}
-%% (myand1.out) -- (myxnor.in 1)
-%% (myand2.out) -- (myxnor.in 2);
-  \end{circuitikz}
-  \begin{circuitikz} \draw
-    (0,0) node (a) {$a$}
-    (a)++(0,-0.7) node (b) {$b$}
-
-    
-    (a)++(1,-0) node[nand port, scale = 0.5] (ab1) {}
-    (b)++(1,-0) node[nand port, scale = 0.5] (ab2) {}
-    (ab1)++(1,-0.35) node[nand port, scale = 0.5] (o) {}
-
-    (a.east) -| (ab1.in 1)
-    (a.east) -| (ab1.in 2)
-    (b.east) -| (ab2.in 1)
-    (b.east) -| (ab2.in 2)
-
-    (ab1.out) -- (o.in 1)
-    (ab2.out) -- (o.in 2)
-
-    (o)++(0.8,0) node (l) {\textsc{OR}$(a,b)$}
-    ;
-  \end{circuitikz}
-  \begin{circuitikz}     \node(m)[draw] at (1,-1) {MUX}; \draw
-    (0,0) node (w) {$w$}
-    (w)++(0,-0.5) node (x) {$x$}
-    (x)++(0,-0.5) node (y) {$y$}
-    (y)++(0,-0.5) node (z) {$z$}
-
-    (z.east) -| (m.south)
-    (y.east) -| (m.west)
-    (x.east) -| (m.north)
-
-    
-    (y)++(2.5,0.13) node[or port, scale = 0.5] (z) {}
-    (m.east) -- (z.in 2)
-    (w.east) -| (z.in 1)
-    ;
-  \end{circuitikz}
-\caption{\system discovers multiplexers (above) and OR gates (bottom left), which it uses to make more complicated circuits (bottom right) that it was unable to build without discovering these new primitives.}\label{multiplexer}
-  \end{figure}
-
-
-%% \begin{figure}
-%%   \includegraphics[width = \columnwidth]{figures/circuit.png}
-%%   \caption{\system learning to build Boolean circuits. We start out with only NAND gates and learn DSL that contains ...}\label{circuitLearningCurve}
-%% \end{figure}
 
 
 
