@@ -25,10 +25,10 @@
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
-
+\usepackage{stmaryrd}
 
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
-
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
 \newcommand{\system}{\textsc{ECC}~}
 \newcommand{\systemEnding}{\textsc{ECC}}
 \newcommand{\lowerBound}{\mathscr{L}}
@@ -485,7 +485,7 @@ summing over the  infinite set of all programs.
 In practice we will only ever be able to sum over a finite set of programs.
 So, for each task, we define a finite set of programs, called a \emph{frontier}, and only marginalize over the frontiers:
 \\\noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
-is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
+is a finite set of programs s.t. $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
 
 Using the frontiers we  define the following intuitive lower bound on the joint probability, called $\lowerBound$:
 \begin{align}
@@ -522,8 +522,10 @@ Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowe
 
 
 Searching for programs is hard because
-of the large combinatorial search space. We ease this difficulty by training a neural recognition model
-during the compilation phase:
+of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $q(\cdot |\cdot )$,
+during the compilation phase: $q$ is trained to approximate the
+posterior over programs, $q(p|x)\propto\probability[x,p|\mathcal{D},\theta}]$,
+  thus amortizing the cost of finding programs with high posterior probability.
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
   frontiers.}  Here we train a neural network, $q$, to predict a
@@ -665,7 +667,7 @@ by automatically differentiating through the program and setting the constants u
 
 
 
-\subsection{Compilation: Learning a Recognition Model}\label{recognitionSection}
+\subsection{Compilation: Learning a Neural Recognition Model}\label{recognitionSection}
 
 The purpose of the recognition model is to accelerate the search for
 programs.  It does this by learning to predict programs which are
@@ -679,7 +681,7 @@ a distribution over programs, $\probability[p|\mathcal{D},\theta =
 aspect of this framing is that the neural network leverages the
 structure of the learned DSL, so it is \emph{not} responsible for
 generating programs wholesale.  We share this aspect with
-DeepCoder~\cite{balog2016deepcoder}.
+DeepCoder~\cite{balog2016deepcoder} and~\cite{menon2013machine}.
 
 
 We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|q(p|x) \right) \right]$,
@@ -691,8 +693,8 @@ where the expectation is taken over tasks. One could take this expectation
 over the observed empirical distribution of tasks,
 like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
 We found it useful to maximize both an autoencoder-style objective $\mathcal{L}_{\text{AE}}$ and a Helmholtz-style objective $\mathcal{L}_{\text{HM}}$, giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}} = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}$:
-\begin{align}
-\mathcal{L}_{\text{HM}} = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right],\text{ $p$ evaluates to $x$}\nonumber\qquad
+\begin{align}\nonumber
+\mathcal{L}_{\text{HM}} = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right]\text{ s.t. $x = \sem{p}$}\quad
 \mathcal{L}_{\text{AE}} = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
   \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\log q(p|x)\right]
 \end{align}
@@ -770,24 +772,17 @@ In the Supplement we derive a tractable MAP estimator for $\theta$.
  
 
 \begin{figure*}
-\centering  \begin{tabular}{lll}
+\centering  \begin{tabular}{ll}
     \toprule
-    Domain&Example programs in frontiers&Example proposed subexpression\\\midrule
-    Circuits&
+    Example programs in frontiers&Proposed subexpression\\\midrule
     \begin{tabular}{l}
-      \code{(lambda x (nand x x))}\\
-      \code{(lambda x (lambda y (nand x (nand y y))}
+      \code{(lambda (a b) (fold b (cons "," a) (lambda (x z) (cons x z))))}\\
+      \code{(lambda (a b) (fold a b (lambda (x z) (cons x z))))}
     \end{tabular}&
-    \code{(nand z z)}\\\midrule
-    Strings&
-    \begin{tabular}{l}
-      \code{(lambda s (+ ',' (index 0 (split ',' s))))}\\
-      \code{(lambda s (index 0 (split ' ' s)))}
-    \end{tabular}&
-    \code{(index 0 (split z s))}\\\bottomrule
+    \code{(fold a b (lambda (x z) (cons x z)))}\\\bottomrule
   \end{tabular}
   \caption{The DSL induction algorithm proposes subexpressions of programs to add to the DSL.
-    These subexpressions are taken from programs in the frontiers (middle column), and can introduce new variables (\code{z} and \code{s} in the right column).} 
+    These subexpressions are taken from programs in the frontiers (left column), and can introduce new variables (right column: \code{a} and \code{b}). Here, the proposed subexpression appends two lists.} 
   \label{fragmentExample}
 \end{figure*}
 
