@@ -114,26 +114,18 @@
 \icmlsetsymbol{equal}{*}
 
 \begin{icmlauthorlist}
-\icmlauthor{Aeiau Zzzz}{equal,to}
-\icmlauthor{Bauiu C.~Yyyy}{equal,to,goo}
-\icmlauthor{Cieua Vvvvv}{goo}
-\icmlauthor{Iaesut Saoeu}{ed}
-\icmlauthor{Fiuea Rrrr}{to}
-\icmlauthor{Tateu H.~Yasehe}{ed,to,goo}
-\icmlauthor{Aaoeu Iasoh}{goo}
-\icmlauthor{Buiui Eueu}{ed}
-\icmlauthor{Aeuia Zzzz}{ed}
-\icmlauthor{Bieea C.~Yyyy}{to,goo}
-\icmlauthor{Teoau Xxxx}{ed}
-\icmlauthor{Eee Pppp}{ed}
+\icmlauthor{Kevin Ellis}{equal,MIT}
+\icmlauthor{Lucas Morales}{equal,MIT}
+\icmlauthor{Armando Solar-Lezama}{MIT}
+\icmlauthor{Joshua B. Tenenbaum}{MIT}
 \end{icmlauthorlist}
 
-\icmlaffiliation{to}{Department of Computation, University of Torontoland, Torontoland, Canada}
-\icmlaffiliation{goo}{Googol ShallowMind, New London, Michigan, USA}
-\icmlaffiliation{ed}{School of Computation, University of Edenborrow, Edenborrow, United Kingdom}
+%\icmlaffiliation{to}{Department of Computation, University of Torontoland, Torontoland, Canada}
+\icmlaffiliation{MIT}{MIT}
+%\icmlaffiliation{ed}{School of Computation, University of Edenborrow, Edenborrow, United Kingdom}
 
-\icmlcorrespondingauthor{Cieua Vvvvv}{c.vvvvv@googol.com}
-\icmlcorrespondingauthor{Eee Pppp}{ep@eden.co.uk}
+\icmlcorrespondingauthor{Kevin Ellis}{ellisk@mit.edu}
+%\icmlcorrespondingauthor{Eee Pppp}{ep@eden.co.uk}
 
 % You may provide any keywords that you
 % find helpful for describing your paper; these are used to populate
@@ -581,7 +573,7 @@ during the Sleep-R phase:
 distribution over programs conditioned on a task. The objective of $q$
 is to assign high probability to programs $p$ where
 $\probability[x,p|\mathcal{D},\theta]$ is large, because including those programs
-in the frontiers will most likely increase $\lowerBound$.  %% With $q$ in hand we can find programs for
+in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can find programs for
 %% the frontier $\mathcal{F}_x$ by searching for programs that maximize
 %% $q(p|x)$.
 Rather than directly predicting a distribution over $p$ conditioned on $x$,
@@ -1036,7 +1028,7 @@ and penalize the use of continuous parameters using the BIC~\cite{Bishop:2006:PR
 which lets the algorithm quickly find the functions that are most appropriate to this domain (Tbl.~\ref{regressionDSL}).
 We also found that the algorithm discovers programs that minimize the number of continuous degrees of freedom.
 For example, it represents the linear function $-x+2$ with the program
-\code{(* (* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{) x)} which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
+\code{(* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{)} which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
 which has five continuous parameters.
 This phenomenon arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
 \begin{table}\centering
