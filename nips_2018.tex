@@ -842,14 +842,29 @@ We show how to use \system to infer programs containing both discrete
 structure and continuous parameters. The high-level idea is to write programs with unspecified real-valued parameters, and to fit those parameters by differentiating through the program
 and optimizing using gradient descent.
 We task our model
-with solving 200 symbolic regression problems, each a polynomial of
-degree 1 to 4, where our observations $x$ are 10
-input/output examples.%, which we write as $x = \left\{(i_n,o_n)
-%\right\}_{n\leq N}$. %% For example, one task is to infer a program
-%% calculating $3x + 2$, and the observations are the input-output
-%% examples $\left\{(-1,-1),(0,2),(1,5) \right\}$.
+with solving 200 symbolic regression problems, each either a polynomial of
+degree 1 to 4 or a rational function.
+The recognition model is a convolutional network that observes an image
+of the target function's graph (Fig.~\ref{functions}) --
+visually, different kinds of polynomials and rational functions
+produce different kinds of graphs,
+and so the recognition model must learn to
+look at a graph and predict what kind of function best explains it.
+\begin{wrapfigure}{r}{0.3\textwidth} \newcommand{\functionSize}{0.75cm}
+  \includegraphics[width = \functionSize]{figures/functions/0.png}
+  \includegraphics[width = \functionSize]{figures/functions/6.png}
+  \includegraphics[width = \functionSize]{figures/functions/207.png}
+  \includegraphics[width = \functionSize]{figures/functions/160.png}
+  \includegraphics[width = \functionSize]{figures/functions/303.png}\\  
+  \includegraphics[width = \functionSize]{figures/functions/402.png}
+  \includegraphics[width = \functionSize]{figures/functions/415.png}
+  \includegraphics[width = \functionSize]{figures/functions/426.png}
+  \includegraphics[width = \functionSize]{figures/functions/597.png}
+  \includegraphics[width = \functionSize]{figures/functions/591.png}
+  \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
+  \end{wrapfigure}
 
-We initially give our system only addition and multiplication,
+We initially give our system addition, multiplication, and division,
 along with the possibility of introducing real-valued parameters, which we write as $\mathcal{R}$.
 We define the likelihood of an observation $x$ by assuming a Gaussian noise model for the input/output examples,
 and penalize the use of continuous parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
@@ -904,7 +919,6 @@ This phenomenon arises from our Bayesian framing -- both the bias towards shorte
 %% a lesioned version without the recognition model eventually comes close to catching up (green curves in Fig.~\ref{regressionLearningCurve}; No NN in Tbl.~\ref{regressionComparison}).
 %% We compare our model on held-out tasks against 4 baselines (Tbl.~\ref{regressionComparison}).
 
-
 \subsection{String Editing}\label{textSection}
 Synthesizing programs that manipulate strings is a classic problem in the
 programming languages and AI literatures~\cite{menon2013machine,lau2001programming},
@@ -931,32 +945,17 @@ all of the tasks.
 
 \begin{table}[t]
   \centering
-  \begin{tabular}{c}
-    String editing primitives\\
-    \begin{tabular}{l}
-    \toprule
-    \code{0}, \code{+1},\code{-1},\codechar{},\codechar{,},\codechar{ },\codechar{<},\codechar{>}  \\
-    \code{split}, \code{join}, \code{map}, 
-    \code{+}, \code{chr->str}, \code{trim}, \code{nth}\\
-    \code{length}, \code{slice},    \code{lower}, \code{upper}, \code{capitalize}
-  \\\bottomrule
-    \end{tabular}\\
-\\    Subset of learned DSL\\
     \begin{tabular}{l}
       \toprule
-      $f_0($\code{c}$) \,=\, $\code{(+ (chr->str c))}\\
-      $f_1($\code{i$,$c$,$s}$) \,=\, $\code{(+ (nth i (split c s))}\\
-        \phantom{$f_1($\code{i$,$c$,$s}$) \,=\, $\code{(+ }}\code{(chr->str c))}\\
-      $f_2($\code{s$,$c}$) \,=\, $\code{((}$f_0$\code{ c) (}$f_1$\code{ (+1 0) c s))} \\
-        \hspace{0.5cm}($f_2$: \emph{Extract substring delimited by character})\\
-      $f_3($\code{c$,$s}$) \,=\, $\code{(nth (+1 0) (split c (nth 0 s)))}\\
-        \hspace{0.5cm}($f_3$: \emph{2nd substring delimited by character})
-    %% $f_0($\code{i,c,s}$) = $    \code{(+ (index i (split c s)) (chr->str c))}\\
-    %% $f_1 = $\code{(join "")}
+      $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b (lambda (x y) (cons x y))))))}\\
+      \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
+      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (a x) (cdr (if (= c x) s a))))}\\
+        \hspace{0.5cm}($f_1$: \emph{Drop first characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
+      $f_2($\code{s}$) \,=\, $\code{(unfold s empty? car (lambda (z) (}$f_1$\code{ z SPACE)))}\\
+        \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words})
   \\\bottomrule
     \end{tabular}
-  \end{tabular}
-  \caption{Top: provided string editing primitives. Bottom: some learned DSL primitives.}\label{textPrimitives}
+  \caption{Some learned DSL primitives for string editing}\label{textPrimitives}
   \end{table}
 
 \begin{figure}
