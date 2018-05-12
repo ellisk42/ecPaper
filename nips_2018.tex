@@ -713,11 +713,11 @@ we need to sample the inputs as well.
 Our solution is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
 
-The architecture of $q$ depends upon the domain.
-For domains with sequential structure like strings and lists,
-we use an RNN to encode each input/output example.
-For domains with fixed-dimensionality inputs/outputs we use a multilayer perceptron.
-We MaxPool across all of the input/output examples. See Supplement for details.
+%% The architecture of $q$ depends upon the domain.  For domains with
+%% sequential structure like strings and lists, we use an RNN to encode
+%% each input/output example.  For domains with fixed-dimensionality
+%% inputs/outputs we use a multilayer perceptron.  We MaxPool across all
+%% of the input/output examples. See Supplement for details.
 
 \subsection{Compression: Learning a Generative Model (a DSL)}\label{grammarInductionSection}
 
@@ -829,27 +829,15 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 
 
 \section{Experiments}
-We first present our experimental results qualitatively,
-illustrating the learned DSLs.
-We then show quantitative results (Sec.~\ref{quantitative})
-comparing \system with lesioned versions
-of our model that are analogous to prior work.
+%% We first present our experimental results qualitatively,
+%% illustrating the learned DSLs.
+%% We then show quantitative results (Sec.~\ref{quantitative})
+%% comparing \system with lesioned versions
+%% of our model that are analogous to prior work.
 
 
 
 \subsection{Symbolic Regression}\label{regressionSection}
-We show how to use \system to infer programs containing both discrete
-structure and continuous parameters. The high-level idea is to write programs with unspecified real-valued parameters, and to fit those parameters by differentiating through the program
-and optimizing using gradient descent.
-We task our model
-with solving 200 symbolic regression problems, each either a polynomial of
-degree 1 to 4 or a rational function.
-The recognition model is a convolutional network that observes an image
-of the target function's graph (Fig.~\ref{functions}) --
-visually, different kinds of polynomials and rational functions
-produce different kinds of graphs,
-and so the recognition model must learn to
-look at a graph and predict what kind of function best explains it.
 \begin{wrapfigure}{r}{0.3\textwidth} \newcommand{\functionSize}{0.75cm}
   \includegraphics[width = \functionSize]{figures/functions/0.png}
   \includegraphics[width = \functionSize]{figures/functions/6.png}
@@ -862,7 +850,19 @@ look at a graph and predict what kind of function best explains it.
   \includegraphics[width = \functionSize]{figures/functions/597.png}
   \includegraphics[width = \functionSize]{figures/functions/591.png}
   \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
-  \end{wrapfigure}
+  \end{wrapfigure}We show how to use \system to infer programs containing both discrete
+structure and continuous parameters. The high-level idea is to write programs with unspecified real-valued parameters, and to fit those parameters by differentiating through the program
+and optimizing using gradient descent.
+We task our model
+with solving 200 symbolic regression problems, each either a polynomial of
+degree 1 to 4 or a rational function.
+The recognition model is a convolutional network that observes an image
+of the target function's graph (Fig.~\ref{functions}) --
+visually, different kinds of polynomials and rational functions
+produce different kinds of graphs,
+and so the recognition model can learn to
+look at a graph and predict what kind of function best explains it.
+
 
 We initially give our system addition, multiplication, and division,
 along with the possibility of introducing real-valued parameters, which we write as $\mathcal{R}$.
@@ -919,26 +919,26 @@ This phenomenon arises from our Bayesian framing -- both the bias towards shorte
 %% a lesioned version without the recognition model eventually comes close to catching up (green curves in Fig.~\ref{regressionLearningCurve}; No NN in Tbl.~\ref{regressionComparison}).
 %% We compare our model on held-out tasks against 4 baselines (Tbl.~\ref{regressionComparison}).
 
-\subsection{String Editing}\label{textSection}
+\subsection{Programs that manipulate sequences}\label{sequences}
+We apply \system to text editing (Section~\ref{textSection}) and list processing (Section~\ref{listSection})  problems.
+For both these domains we initially provide the system with a generic
+minimal set of programming primitives,
+and use a bidirectional GRU~\cite{cho2014learning} for the recognition model.
+The initial set of primitives includes \code{fold}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
+
+
+\subsubsection{String Editing}\label{textSection}
 Synthesizing programs that manipulate strings is a classic problem in the
 programming languages and AI literatures~\cite{menon2013machine,lau2001programming},
 and algorithms that learn string editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
 However, this prior work presumes a ready-made DSL,
 expertly crafted to suit string editing.
-We show in this experiment that we can instead start out with a
-less specialized set of primitives -- close to the string methods provided by Python --
+We show \system can instead start out with generic primitives
 and recover many of the higher-level building blocks that have made these
 other system successful.
-Tbl.~\ref{textPrimitives} (top) lists the primitive functions provided to \systemEnding.
-Absent are any routines for searching for characters, extracting substrings,
-or replacing one character with another.
-Instead, we provide list/string indexing primitives (\code{slice}, \code{nth}),
-basic arithmetic, and functions for splitting a string into a list (\code{split})
-or turning a list into a string (\code{join}).
 We automatically generated  600 string editing tasks  with 4 input/output examples each (Fig.~\ref{exampleTextProblem}). %, split  75/25 train/test.
 At first, \system cannot find any correct programs for most of the tasks.
-After three wake/sleep iterations,
-it assembles a DSL (Tbl.~\ref{textPrimitives}, bottom) that lets it rapidly explore the space of programs and find solutions to
+It assembles a DSL (Tbl.~\ref{textPrimitives}) that lets it rapidly explore the space of programs and find solutions to
 all of the tasks.
 
 
@@ -986,7 +986,7 @@ Lara Gregori Bradford&LGB& Rudolf&Akiyama&Rudolf Akiyama
 
 
 
-\subsection{List Functions}
+\subsubsection{List Functions}\label{listSection}
 Synthesizing programs that manipulate data structures is
 a widely studied problem in the programming languages community~\cite{feser2015synthesizing}.
 %with applications to computer aided programming~\cite{solar2008program}.
