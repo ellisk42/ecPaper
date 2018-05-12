@@ -739,12 +739,12 @@ We replace this marginal with an AIC approximation, giving the following objecti
       \log \probability[\mathcal{D}] + \argmax_{\theta}\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta] + \log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \label{AIC}
   \end{equation}
 We induce a DSL by searching locally through the space of DSLs,
-proposing small local changes to $\mathcal{D}$ until Eq.~\ref{AIC} fails to increase.
+proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC} fails to increase.
 The search moves work by introducing new
 $\lambda$-expressions into the DSL.
 We propose these new expressions by extracting subexpressions from
-programs already in the frontier.
-These extracted subexpressions
+programs already in the frontiers.
+These subexpressions
 are fragments of the original programs, and can introduce new variables (Fig.~\ref{fragmentExample}),
 which then become new functions in the DSL.
 The idea of storing and reusing
@@ -920,11 +920,11 @@ This phenomenon arises from our Bayesian framing -- both the bias towards shorte
 %% We compare our model on held-out tasks against 4 baselines (Tbl.~\ref{regressionComparison}).
 
 \subsection{Programs that manipulate sequences}\label{sequences}
-We apply \system to text editing (Section~\ref{textSection}) and list processing (Section~\ref{listSection})  problems.
+We apply \system to text editing (Section~\ref{textSection}) and list processing (Section~\ref{listSection}).
 For both these domains we initially provide the system with a generic
 minimal set of programming primitives,
 and use a bidirectional GRU~\cite{cho2014learning} for the recognition model.
-The initial set of primitives includes \code{fold}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
+The initial set of primitives includes routines commonly found in Lisp or Scheme interpreters: \code{fold}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
 
 
 \subsubsection{String Editing}\label{textSection}
@@ -933,7 +933,7 @@ programming languages and AI literatures~\cite{menon2013machine,lau2001programmi
 and algorithms that learn string editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
 However, this prior work presumes a ready-made DSL,
 expertly crafted to suit string editing.
-We show \system can instead start out with generic primitives
+We show \system can instead start out with generic Lisp primitives
 and recover many of the higher-level building blocks that have made these
 other system successful.
 We automatically generated  600 string editing tasks  with 4 input/output examples each (Fig.~\ref{exampleTextProblem}). %, split  75/25 train/test.
@@ -1181,7 +1181,7 @@ This supports the view of the recognition model as a way of accelerating the sea
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
  \section{Contribution and Outlook}
-We contribute a model, \systemEnding, that learns to program by bootstrapping a DSL with new
+We contribute an algorithm, \systemEnding, that learns to program by bootstrapping a DSL with new
 domain-specific primitives that the algorithm itself discovers,
 together with a neural recognition model that learns how to
 efficiently deploy the DSL on new tasks. We believe this integration
