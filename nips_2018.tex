@@ -162,7 +162,7 @@ subroutines. We consider the setting where we have a collection of
 related programming tasks, each specified by a set of input/output
 examples. %% We do not assume that the tasks are annotated with
 %% ground-truth programs.
-Start from a weaker or more
+Starting from a weaker or more
 general library of primitives, we give an algorithm for constructing a richer, more powerful,
 and better-tuned DSL.
 Our algorithm is called \textbf{Explore/Compress/Compile} (\systemEnding)
@@ -174,10 +174,11 @@ the previous Explore phase; and a \textbf{Compile} phase, which
 improves the program search procedure by training a neural network to
 write programs in the current DSL, in the spirit of ``amortized'' or
 ``compiled'' inference~\cite{le2016inference}.
+We call the neural net a \textbf{recognition model} (c.f. Hinton 1995~\cite{hinton1995wake}).
 The learned DSL
 distills commonalities across programs that solve tasks, helping
 the agent solve related program induction problems. The neural
-network ensures that searching for programs remains tractable
+recognition model ensures that searching for programs remains tractable
 even as the DSL (and hence the search space for programs) expands.
 
 Because any model may be encoded as a (deterministic or probabilistic) program,
@@ -344,8 +345,7 @@ We apply \system to three domains:
  including conditionals, variables, and higher-order functions.
  Our algorithm then discovers
  its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
-
- \begin{wrapfig}
+\begin{wrapfigure}{r}{0.6\textwidth}
     \begin{tabular}{ll}
    \toprule
    Domain&Part of the learned DSL\\\midrule
@@ -360,7 +360,7 @@ We apply \system to three domains:
    \\\bottomrule
     \end{tabular}
     \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
- \end{wrapfig}
+ \end{wrapfigure}
 
 
  
@@ -409,41 +409,21 @@ recognition model to search for programs that solve the tasks.  The
 recognition model, respectively.  Crucially, these steps bootstrap 
 off each other (Fig.~\ref{feeding}):
 
-\\\noindent \textbf{Wake: Searching for programs.}  Our program search
+\\\noindent \textbf{Exploration: Searching for programs.}  Our program search
 is informed by both the DSL and the recognition model. When these
 improve, we find more programs solving the tasks.
-\\\noindent\textbf{Sleep-G: Improving the DSL.} We induce the DSL
-from the programs found in the wake phase, aiming
+\\\noindent\textbf{Compression: Improving the DSL.} We induce the DSL
+from the programs found in the exploration phase, aiming
 to maximally compress (or, raise the prior probability of) these
 programs.  As we solve more tasks, we hone in on richer DSLs that
-more closely match the domain.\footnote{This is loosely biologically
-    inspired by the formation of abstractions during sleep memory
-    consolidation~\cite{DUDAI201520}}
-\\\noindent \textbf{Sleep-R: Learning a neural recognition model.}  We
+more closely match the domain.
+\\\noindent \textbf{Compilation: Learning a neural recognition model.}  We
 update the recognition model by training on two data sources: samples
 from the DSL (as in the Helmholtz Machine's ``sleep'' phase), and
-programs found by the search procedure during waking. As the DSL
+programs found by the search procedure during exploration. As the DSL
 improves and as search finds more programs, the recognition model gets
-both more data to train on, and better data.\footnote{These two sources are also
-    loosely biologically inspired by the distinct episodic replay and
-    hallucination components of dream sleep~\cite{fosse2003dreaming}}
-    
-
-
-
-%% Our goal  is to induce a DSL while finding programs solving each of the tasks.
-%% Our strategy is to iterate through three steps: (1) searching for programs; (2) learning a neural recognition model -- which we use
-%% to accelerate the search over programs -- and (3) improving the DSL.
-%% The key observation is that these steps bootstrap off each other (Fig.~\ref{feeding}):
-%% \\\noindent \textbf{Wake: Searching for programs.}  Our program search  is informed by both the DSL and the recognition model.
-%% When these improve, we find more programs solving the tasks.
-%% \\\noindent\textbf{Sleep-R: Learning a recognition model.} The recognition model is trained both on samples from the DSL and on programs found by the search procedure. As the DSL improves and as search finds more programs, the recognition model gets both more data to train on and better data.
-
-%% The Helmholtz machine~\cite{dayan1995helmholtz} introduced the idea of alternating between
-%% learning a generative model and training a recognition model on samples from the generative model.
-%% We apply this idea to program induction, motivating why we call our algorithm the \system.
-
-\begin{wrapfig}\centering
+both more data to train on, and better data.
+\begin{wrapfigure}{r}{0.6\textwidth}
   \begin{tikzpicture}
     \begin{scope}[shift = {(1,-1)}]
     \node[align = center](synthesis) at (6,4) {Search for \\programs};
@@ -461,56 +441,53 @@ both more data to train on, and better data.\footnote{These two sources are also
   \caption{\system solves for programs, the DSL, and a neural network called the \emph{recognition model}. Each of these steps bootstrap off of the others in an iterative inference algorithm.}  \label{feeding}
 \end{wrapfigure}
 
-Sec.~\ref{mathematicalFraming} frames this 3-step procedure as
-a means of maximizing a lower bound on the posterior probability of the DSL given the tasks.
+Sec.~\ref{mathematicalFraming} frames this 3-step procedure as probabilistic inference.
 Sec.~\ref{explorationSection} explains how we search for programs that solve the tasks;
 Sec.~\ref{recognitionSection} explains how we train a neural network to  search for programs; and
 Sec.~\ref{grammarInductionSection} explains how we induce a DSL from programs.
 
 \subsection{Probabilistic Framing}\label{mathematicalFraming}
-Viewed as a probabilistic inference problem,
-our goal is to jointly infer a single DSL (written $\mathcal{D}$)
-and many programs (written $p$), one for each set of inputs/outputs (\emph{tasks}, written $x$).
-A DSL $\mathcal{D}$ is a collection of domain-specific subroutines.
-We equip $\mathcal{D}$ with a real-valued weight vector $\theta$, and together
-$(\mathcal{D},\theta)$ define a distribution over programs.
-Fig.~\ref{graphicalModel}(a) diagrams this inference problem as a hierarchical Bayesian model.
-Inference in this model is
-difficult because the programs are unobserved,
-and so we must solve a hard search problem to recover them. To make
-search tractable we learn a bottom-up \emph{recognition
-  model} (written $q(\cdot )$, Fig.~\ref{graphicalModel}(b)).
-The recognition model $q(\cdot )$ is a neural
-network that regresses from input/output pairs to a distribution over
-programs likely to explain the input/outputs. We can also view $q(\cdot )$ as implementing an amortized
-inference
-scheme~\cite{le2016inference}.
- The neural recognition model and the
-generative model embodied in the DSL jointly train each other, as they
-iteratively learn to solve more programming tasks.
 
 \system takes as input a set of \emph{tasks}, written $X$, each of which is a program induction problem.
 It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$.
 Its goal is to solve each of the tasks by writing a program,
-and also to infer a DSL $\mathcal{D}$.
-
-We frame this problem as maximum a posteriori (MAP) inference in the
-generative model diagrammed by Fig.~\ref{graphicalModel}(a). Writing $J$ for the joint probability of $(\mathcal{D},\theta)$ and $X$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
+and also to infer a DSL, written $\mathcal{D}$.
+We equip $\mathcal{D}$ with a real-valued weight vector $\theta$, and together
+$(\mathcal{D},\theta)$ define a generative model over programs.
+We frame our goal as maximum a posteriori (MAP) inference of $(\mathcal{D},\theta)$ given $X$.
+Writing $J$ for the joint probability of $(\mathcal{D},\theta)$ and $X$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
 \begin{align}\label{intractableObjectives}
-\nonumber  J(\mathcal{D},\theta)&\triangleq \probability[\mathcal{D},\theta]\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
-  \mathcal{D}^* &= \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta \\
-\nonumber  \theta^*& =\argmax_\theta J(\mathcal{D}^*,\theta)
+  J(\mathcal{D},\theta)\triangleq \probability[\mathcal{D},\theta]\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta],\quad
+  \mathcal{D}^* = \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta, \quad
+  \theta^* =\argmax_\theta J(\mathcal{D}^*,\theta)
 \end{align}
+
+%% Inference in this model is
+%% difficult because the programs are unobserved,
+%% and so we must solve a hard search problem to recover them. To make
+%% search tractable we learn a bottom-up \emph{recognition
+%%   model} (written $q(\cdot )$, Fig.~\ref{graphicalModel}(b)).
+%% The recognition model $q(\cdot )$ is a neural
+%% network that regresses from input/output pairs to a distribution over
+%% programs likely to explain the input/outputs. We can also view $q(\cdot )$ as implementing an amortized
+%% inference
+%% scheme~\cite{le2016inference}.
+%%  The neural recognition model and the
+%% generative model embodied in the DSL jointly train each other, as they
+%% iteratively learn to solve more programming tasks.
+
+
+
 The above equations summarize the problem from the point of view of an ideal Bayesian learner.
 However, Eq.~\ref{intractableObjectives}
 is wildly intractable because evaluating $J(\mathcal{D},\theta)$ involves
-summing over the  infinite set of all possible programs.
+summing over the  infinite set of all programs.
 In practice we will only ever be able to sum over a finite set of programs.
 So, for each task, we define a finite set of programs, called a \emph{frontier}, and only marginalize over the frontiers:
 \\\noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
 is a finite set of programs where $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
 
-Using the frontiers we  define the following intuitive lower bound on the joint probability, which we call $\lowerBound$:
+Using the frontiers we  define the following intuitive lower bound on the joint probability, called $\lowerBound$:
 \begin{align}
  J\geq \lowerBound\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
 \end{align}
@@ -532,10 +509,8 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %%   A =   \log \probability[\mathcal{D}] + \argmax_{\theta}& \sum_{x\in X}\log \sum_p\probability[x|p]\probability[p|\mathcal{D},\theta]\nonumber\\
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
-\system does approximate MAP inference in the generative model of Fig.~\ref{graphicalModel}(a) by maximizing this lower bound on the joint probability,
-alternating maximization w.r.t. the frontiers (Wake) and the DSL (Sleep-G):
-%So interleaved with the DSL induction steps are program induction steps. Sec.~\ref{explorationSection}
-%explains how \system synthesizes new programs and given a DSL.
+\system does approximate MAP inference  by maximizing this lower bound on the joint probability,
+alternating maximization w.r.t. the frontiers (Exploration) and the DSL (Compression):
 \\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
 $\lowerBound$ most increases by finding programs where $\probability[x,p|\mathcal{D},\theta]$
@@ -548,7 +523,7 @@ Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowe
 
 Searching for programs is hard because
 of the large combinatorial search space. We ease this difficulty by training a neural recognition model
-during the Sleep-R phase:
+during the compilation phase:
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
   frontiers.}  Here we train a neural network, $q$, to predict a
@@ -558,12 +533,12 @@ $\probability[x,p|\mathcal{D},\theta]$ is large, because including those program
 in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can find programs for
 %% the frontier $\mathcal{F}_x$ by searching for programs that maximize
 %% $q(p|x)$.
-Rather than directly predicting a distribution over $p$ conditioned on $x$,
-the recognition model predicts a distribution $\theta^{(x)}$ over components of the DSL.
-This taps into the intuition that programming is primarily a top-down activity:
-as human programmers, we often first decide what kind of
-programming constructs we might need to use,
-and then we figure out how to assemble them in to the desired program.
+%% Rather than directly predicting a distribution over $p$ conditioned on $x$,
+%% the recognition model predicts a distribution $\theta^{(x)}$ over components of the DSL.
+%% This taps into the intuition that programming is primarily a top-down activity:
+%% as human programmers, we often first decide what kind of
+%% programming constructs we might need to use,
+%% and then we figure out how to assemble them in to the desired program.
 %% This approach implements an amortized
 %% inference scheme~\cite{le2016inference,ritchie2016deep} for the generative model in
 %% Fig.~\ref{graphicalModel}.
@@ -576,7 +551,7 @@ and then we figure out how to assemble them in to the desired program.
 %% Another complementary means of meeting search is to learn a
 %% bottom-up \emph{recognition model}
 
-\subsection{Wake Phase: Searching for Programs}\label{explorationSection}
+\subsection{Exploration: Searching for Programs}\label{explorationSection}
 
 Now our goal is to search for programs that solve the tasks.  In this
 work we use the simple search strategy of enumerating programs from
@@ -690,23 +665,21 @@ by automatically differentiating through the program and setting the constants u
 
 
 
-\subsection{Sleep-R: Learning a Recognition Model}\label{recognitionSection}
+\subsection{Compilation: Learning a Recognition Model}\label{recognitionSection}
 
 The purpose of the recognition model is to accelerate the search for
-programs.  It does this by learning to predict programs which are probable
-under $(\mathcal{D},\theta)$ while also assigning high likelihood for a task
-according to $\probability[x|p]$.
-
-The recognition model $q$ is a neural network that predicts,
-for each task $x\in X$, a weight vector $q(x) = \theta^{(x)}\in \mathbb{R}^{|\mathcal{D}| + 1}$.
-Together with the DSL, this defines a distribution over programs,
-$\probability[p|\mathcal{D},\theta = q(x)]$.
-We abbreviate this distribution as $q(p|x)$.
-The crucial aspect of this framing is that the neural network
-leverages the structure of the learned DSL,
-so it is \emph{not} responsible for
-generating programs wholesale.
-We share this aspect with DeepCoder~\cite{balog2016deepcoder}.
+programs.  It does this by learning to predict programs which are
+probable under $(\mathcal{D},\theta)$ while also assigning high
+likelihood for a task according to $\probability[x|p]$.  Concretely,
+the recognition model $q$ is a neural network that predicts, for each
+task $x\in X$, a weight vector $q(x) = \theta^{(x)}\in
+\mathbb{R}^{|\mathcal{D}| + 1}$.  Together with the DSL, this defines
+a distribution over programs, $\probability[p|\mathcal{D},\theta =
+  q(x)]$.  We abbreviate this distribution as $q(p|x)$.  The crucial
+aspect of this framing is that the neural network leverages the
+structure of the learned DSL, so it is \emph{not} responsible for
+generating programs wholesale.  We share this aspect with
+DeepCoder~\cite{balog2016deepcoder}.
 
 
 We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|q(p|x) \right) \right]$,
@@ -717,12 +690,11 @@ or equivalently maximizing
 where the expectation is taken over tasks. One could take this expectation
 over the observed empirical distribution of tasks,
 like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
-We found it useful to maximize both an autoencoder-style objective $\mathcal{L}_{\text{AE}}$ and a Helmholtz-style objective $\mathcal{L}_{\text{HM}}$, giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}}$:
+We found it useful to maximize both an autoencoder-style objective $\mathcal{L}_{\text{AE}}$ and a Helmholtz-style objective $\mathcal{L}_{\text{HM}}$, giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}} = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}$:
 \begin{align}
-\mathcal{L}_{\text{RM}}& = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}\\
-\mathcal{L}_{\text{HM}}& = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right],\text{ $p$ evaluates to $x$}\nonumber\\
-\mathcal{L}_{\text{AE}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
-  \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\log q(p|x)\right]\nonumber
+\mathcal{L}_{\text{HM}} = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right],\text{ $p$ evaluates to $x$}\nonumber\qquad
+\mathcal{L}_{\text{AE}} = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
+  \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\log q(p|x)\right]
 \end{align}
 The $\mathcal{L}_{\text{HM}}$ objective is essential for data efficiency:
 all of our experiments train \system on only a few hundred tasks, which is too little for
@@ -745,7 +717,7 @@ we use an RNN to encode each input/output example.
 For domains with fixed-dimensionality inputs/outputs we use a multilayer perceptron.
 We MaxPool across all of the input/output examples. See Supplement for details.
 
-\subsection{Sleep-G: Learning a Generative Model (a DSL)}\label{grammarInductionSection}
+\subsection{Compression: Learning a Generative Model (a DSL)}\label{grammarInductionSection}
 
 The purpose of the DSL is to
 offer a set of abstractions
@@ -791,7 +763,7 @@ and $\alpha$ is a concentration parameter controlling the smoothness of the prio
 To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
 Although this problem may seem 
 very similar to estimating the parameters of a probabilistic context free grammar (PCFG),
-for which we have effective approaches like the Inside/Outside algorithm~(Lafferty,~2000), %\cite{international2000derivation},
+for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
 a DSL in \system may be context-sensitive due to the presence of variables
 in the programs and also due to the polymorphic typing system.
 In the Supplement we derive a tractable MAP estimator for $\theta$.
@@ -824,7 +796,7 @@ In the Supplement we derive a tractable MAP estimator for $\theta$.
 Alg.~\ref{mainAlgorithm} describes how we combine program search,
 recognition model training, and DSL induction.
 We note the following implementation details:
-(1) We perform a wake cycle before each of the sleep cycles.
+(1) We perform an exploration cycle before each compression and compilation  cycle.
 (2) On the first iteration, we do \emph{not} train the recognition model on samples from
 the generative model because a generative model has not yet been learned --
 we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
@@ -834,23 +806,23 @@ we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
 (3) During both DSL induction and neural net training, we calculate Eq.~\ref{AIC} and $\mathcal{L}_{\text{RM}}$
 by only summing over the top $K$
 programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]$ -- we found that $K = 2$ sufficed.
-(4) For added robustness, we enumerate programs from both the generative model and the recognition model.
+(4) For added robustness, we enumerate programs from both the generative model $(\mathcal{D},\theta)$ and the recognition model.
 
 \begin{algorithm}[tb]
    \caption{The \system Algorithm}
    \label{mainAlgorithm}
    \begin{algorithmic}
      \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
-     \STATE \textbf{Hyperparameters:} Maximum frontier size $F$
+     \STATE \textbf{Hyperparameters:} Enumeration timeout $T$
      \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
      \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
      \FOR{$i=1$ {\bfseries to} $I$}
      %     \FOR{$x:\tau\in X$}
-     \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enum}(\mathcal{D},\theta,F)\text{ if }\probability[x|p] > 0\}$ \footnotesize{(\textbf{Wake})}
-     \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ (\footnotesize{\textbf{Sleep-R}})
-     \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enum}(\mathcal{D},q(x),F)\text{ if }\probability[x|p] > 0\}$ \footnotesize{\textbf{(Wake)}}
+     \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{(\textbf{Explore})}
+     \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ (\footnotesize{\textbf{Compile}})
+     \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{\textbf{(Explore)}}
      
-     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Sleep-G)}}
+     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Compress)}}
      %% \STATE Define $Q_x(z) \propto \begin{cases}
      %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
      %%   0&x\not \in \mathcal{F}_x
