@@ -595,25 +595,20 @@ and a weight controlling the probability of a variable occurring in a program, $
 
 Alg.~\ref{programGenerativeModel} is a procedure for drawing
 samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
-enumerate programs rather than sampling them.  Enumeration proceeds by
-a depth-first search over the random choices made by
-Alg.~\ref{programGenerativeModel}; we wrap the depth-first search
-in iterative deepening to build $\lambda$-calculus
-expressions in order of their probability.
-
-
-
-\begin{algorithm}[tb]
+enumerate programs in order of their probability under  Alg.~\ref{programGenerativeModel} rather than sampling them.
+\begin{wrapfigure}{L}{0.5\textwidth}
+  \begin{minipage}{0.49\textwidth}    
+\begin{algorithm}[H]
    \caption{Generative model over programs}
    \label{programGenerativeModel}
    \begin{algorithmic}
-     \STATE \textbf{function} sampleProgramFromDSL$(\mathcal{D}, \theta, \tau)$:
-  \STATE {\bfseries Input:} DSL $\mathcal{D}$, weight vector $\theta$, type $\tau$
-  \STATE \textbf{Output:} a program whose type unifies with $\tau$
-  \STATE \textbf{return} sample$(\mathcal{D}, \theta, \varnothing, \tau)$
-\STATE
+%%      \STATE \textbf{function} sampleProgramFromDSL$(\mathcal{D}, \theta, \tau)$:
+%%   \STATE {\bfseries Input:} DSL $\mathcal{D}$, weight vector $\theta$, type $\tau$
+%%   \STATE \textbf{Output:} a program whose type unifies with $\tau$
+%%   \STATE \textbf{return} sample$(\mathcal{D}, \theta, \varnothing, \tau)$
+%% \STATE
      \STATE \textbf{function} sample$(\mathcal{D}, \theta, \mathcal{E}, \tau)$:
-  \STATE {\bfseries Input:} DSL $\mathcal{D}$, weight vector $\theta$, environment $\mathcal{E}$, type $\tau$
+  \STATE {\bfseries Input:} DSL $(\mathcal{D},\theta)$, environment $\mathcal{E}$, type $\tau$
   \STATE \textbf{Output:} a program whose type unifies with $\tau$
   \IF{$\tau = \alpha\to\beta$}
   \STATE var $\gets$ an unused variable name
@@ -627,23 +622,25 @@ expressions in order of their probability.
    \STATE Draw $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$ \\
       \hspace*{8.8em}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
    \STATE Unify $\tau$ with yield$(\tau')$.
-   \STATE $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{argTypes}(\tau')$ 
+   \STATE $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{args}(\tau')$ 
 %   \STATE unify$(\tau,\beta)$
    \FOR{$k=1$ {\bfseries to} $K$}
  \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
  \ENDFOR
  \STATE \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
  \STATE\textbf{where:}
- \STATE \quad yield$(\tau) = \begin{cases}
+ \STATE yield$(\tau) = \begin{cases}
    \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
    \tau   &\text{ otherwise.}
  \end{cases}$ 
- \STATE \quad argTypes$(\tau) = \begin{cases}
-   [\alpha] + \text{argTypes}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+ \STATE  args$(\tau) = \begin{cases}
+   [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
    []   &\text{ otherwise.}
  \end{cases}$
 \end{algorithmic}
 \end{algorithm}
+    \end{minipage}
+  \end{wrapfigure}
 
 Why enumerate, when the program synthesis community has invented many
 sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
@@ -685,10 +682,10 @@ DeepCoder~\cite{balog2016deepcoder} and~\cite{menon2013machine}.
 
 
 We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|q(p|x) \right) \right]$,
-or equivalently maximizing
-\begin{equation*}
-  \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
-\end{equation*}
+or equivalently maximizing $  \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]$,
+%% \begin{equation*}
+%%   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
+%% \end{equation*}
 where the expectation is taken over tasks. One could take this expectation
 over the observed empirical distribution of tasks,
 like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
@@ -776,16 +773,24 @@ In the Supplement we derive a tractable MAP estimator for $\theta$.
     \toprule
     Example programs in frontiers&Proposed subexpression\\\midrule
     \begin{tabular}{l}
-      \code{(lambda (a b) (fold b (cons "," a) (lambda (x z) (cons x z))))}\\
+      \code{(lambda (a b) (fold b (cons "," a)}\\
+      \phantom{\code{(lambda }}\code{(lambda (x z) (cons x z))))}\\
       \code{(lambda (a b) (fold a b (lambda (x z) (cons x z))))}
     \end{tabular}&
-    \code{(fold a b (lambda (x z) (cons x z)))}\\\bottomrule
+    \begin{tabular}{l}
+      \code{(fold a b (lambda (x z) }\\
+      \phantom{\code{(fold a b }}\code{(cons x z)))}
+      \end{tabular}
+\\\bottomrule
   \end{tabular}
   \caption{The DSL induction algorithm proposes subexpressions of programs to add to the DSL.
     These subexpressions are taken from programs in the frontiers (left column), and can introduce new variables (right column: \code{a} and \code{b}). Here, the proposed subexpression appends two lists.} 
   \label{fragmentExample}
 \end{figure*}
 
+Alg.~\ref{mainAlgorithm} describes how we combine program search,
+recognition model training, and DSL induction.
+\begin{comment}
 \subsection{Implementing \system}
 
 Alg.~\ref{mainAlgorithm} describes how we combine program search,
@@ -802,8 +807,10 @@ we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
 by only summing over the top $K$
 programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]$ -- we found that $K = 2$ sufficed.
 (4) For added robustness, we enumerate programs from both the generative model $(\mathcal{D},\theta)$ and the recognition model.
-
-\begin{algorithm}[tb]
+\end{comment}
+\begin{wrapfigure}{L}{0.6\textwidth}
+  \begin{minipage}{0.6\textwidth}    
+\begin{algorithm}[H]
    \caption{The \system Algorithm}
    \label{mainAlgorithm}
    \begin{algorithmic}
@@ -814,7 +821,7 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
      \FOR{$i=1$ {\bfseries to} $I$}
      %     \FOR{$x:\tau\in X$}
      \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{(\textbf{Explore})}
-     \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ (\footnotesize{\textbf{Compile}})
+     \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ \hspace{0.2cm}(\footnotesize{\textbf{Compile}})
      \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{\textbf{(Explore)}}
      
      \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Compress)}}
@@ -826,6 +833,8 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
  \STATE \textbf{return} $\mathcal{D},\theta,q$
 \end{algorithmic}
 \end{algorithm}
+    \end{minipage}
+  \end{wrapfigure}
 
 
 \section{Experiments}
@@ -838,35 +847,37 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 
 
 \subsection{Symbolic Regression}\label{regressionSection}
-\begin{wrapfigure}{r}{0.3\textwidth} \newcommand{\functionSize}{0.75cm}
+\begin{wrapfigure}{r}{0.3\textwidth} \newcommand{\functionSize}{0.75cm}\vspace{-0.5cm}
   \includegraphics[width = \functionSize]{figures/functions/0.png}
   \includegraphics[width = \functionSize]{figures/functions/6.png}
   \includegraphics[width = \functionSize]{figures/functions/207.png}
   \includegraphics[width = \functionSize]{figures/functions/160.png}
-  \includegraphics[width = \functionSize]{figures/functions/303.png}\\  
-  \includegraphics[width = \functionSize]{figures/functions/402.png}
+  \includegraphics[width = \functionSize]{figures/functions/317.png}\\  
+  \includegraphics[width = \functionSize]{figures/functions/432.png}
   \includegraphics[width = \functionSize]{figures/functions/415.png}
   \includegraphics[width = \functionSize]{figures/functions/426.png}
   \includegraphics[width = \functionSize]{figures/functions/597.png}
   \includegraphics[width = \functionSize]{figures/functions/591.png}
   \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
-  \end{wrapfigure}We show how to use \system to infer programs containing both discrete
-structure and continuous parameters. The high-level idea is to write programs with unspecified real-valued parameters, and to fit those parameters by differentiating through the program
-and optimizing using gradient descent.
-We task our model
-with solving 200 symbolic regression problems, each either a polynomial of
-degree 1 to 4 or a rational function.
-The recognition model is a convolutional network that observes an image
-of the target function's graph (Fig.~\ref{functions}) --
-visually, different kinds of polynomials and rational functions
-produce different kinds of graphs,
-and so the recognition model can learn to
-look at a graph and predict what kind of function best explains it.
-
-
-We initially give our system addition, multiplication, and division,
-along with the possibility of introducing real-valued parameters, which we write as $\mathcal{R}$.
-We define the likelihood of an observation $x$ by assuming a Gaussian noise model for the input/output examples,
+\end{wrapfigure}
+As a simple first example of how our algorithm works, we apply \system
+to symbolic regression problems.  For each of these problems, the
+agent observes points along the curve of a function, and must write a
+program that fits those points.  We initially equip our learner with
+addition, multiplication, and division, and task it with solving
+200 symbolic regression problems, each either a polynomial of degree
+1--4 or a rational function.  Our recognition model here is a
+convolutional network that observes an image of the target function's
+graph (Fig.~\ref{functions}) -- visually, different kinds of
+polynomials and rational functions produce different kinds of graphs,
+and so the recognition model can learn to look at a graph and predict
+what kind of function best explains it.  A key difficulty, however, is
+that these problems are best solved with programs containing real
+numbers.  Our solution to this difficulty is to allow the system to
+write programs with real-valued parameters, and then fit those
+parameters by automatically differentiating through the programs the
+system writes and use gradient descent.
+We define the likelihood model, $\probability[x|p]$, by assuming a Gaussian noise model for the input/output examples,
 and penalize the use of continuous parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
 %% \begin{align*}
 %%   \log \probability[x|p] \triangleq& \sum_{n\leq N}\log
@@ -886,22 +897,17 @@ and penalize the use of continuous parameters using the BIC~\cite{Bishop:2006:PR
 %% found by performing gradient ascent on the likelihood of the
 %% observations w.r.t. $\vec{\mathcal{R}}$.
 
-\system learns a DSL containing templates for polynomials of different orders,
+\system learns a DSL containing templates for polynomials of different orders, as well as
+
 which lets the algorithm quickly find the functions that are most appropriate to this domain (Tbl.~\ref{regressionDSL}).
 We also found that the algorithm discovers programs that minimize the number of continuous degrees of freedom.
 For example, it represents the linear function $-x+2$ with the program
 \code{(* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{)} which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
 which has five continuous parameters.
 This phenomenon arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
-\begin{table}\centering
+\begin{wrapfigure}{l}{0.5\textwidth}\centering
 \begin{tabular}{l}
   \toprule
-  %% Primitives& $+,\times:\mathbb{R}\to \mathbb{R}\to \mathbb{R}$\\
-  %% & $\mathcal{R}:\mathbb{R}$ (real valued parameter)\\\midrule
-  %% Observation $x$& $N$ input/output examples: $\left\{(i_n,o_n) \right\}_{n\leq N}$\\
-  %% \midrule
-  %% Likelihood $\probability[x|p]$& $\propto\exp\left( - D\log N \right)\prod_{n\leq N}\mathcal{N}(p(i_n)|o_n)$
-  %% \\\midrule
   $f_0\,=\,$\code{(+ $\mathcal{R}$)}\\
   $f_1($\code{x}$)\,=\,$\code{(* (* (+ x $\mathcal{R}$) $\mathcal{R}$) x)} \\
   $f_2($\code{x}$)\,=\,$\code{(+ $\mathcal{R}$ ($f_1$ x))} \\
@@ -912,7 +918,7 @@ This phenomenon arises from our Bayesian framing -- both the bias towards shorte
   \\\bottomrule
 \end{tabular}
 \caption{Some learned DSL primitives for symbolic regression. The system starts with addition, multiplication, and real numbers, and learns to build polynomials up to 4th order.}\label{regressionDSL}
-\end{table}
+\end{wrapfigure}
 
 %% The neural recognition model accelerates inference,
 %% but given enough iterations of our algorithm,
