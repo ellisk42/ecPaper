@@ -165,12 +165,12 @@ examples. %% We do not assume that the tasks are annotated with
 Starting from a weaker or more
 general library of primitives, we give an algorithm for constructing a richer, more powerful,
 and better-tuned DSL.
-Our algorithm is called \textbf{Explore/Compress/Compile} (\systemEnding)
-because it iterates between three different phases: an
-\textbf{Explore} phase uses the DSL to explore the space of programs,
-searching for ones that solve the tasks; a \textbf{Compress} phase
+Our algorithm is called \textbf{Explore/Compress/Compile} (\systemEnding),
+and iterates between three different steps: an
+\textbf{Explore} step uses the DSL to explore the space of programs,
+searching for ones that solve the tasks; a \textbf{Compress} step
 modifies the DSL by discovering regularities in the programs found by
-the previous Explore phase; and a \textbf{Compile} phase, which
+the previous Explore step; and a \textbf{Compile} step, which
 improves the program search procedure by training a neural network to
 write programs in the current DSL, in the spirit of ``amortized'' or
 ``compiled'' inference~\cite{le2016inference}.
@@ -340,9 +340,9 @@ assist the search procedure.
 
 We apply \system to three domains:
  symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing; and Lisp-style functions on lists.
- For each of these we provide a generic
- set of programming primitives in a Lisp-like language,
- including conditionals, variables, and higher-order functions.
+ For each of these we initially provide a generic
+ set of programming primitives in a Lisp-like language.
+% including conditionals, variables, and higher-order functions.
  Our algorithm then discovers
  its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
 \begin{wrapfigure}{r}{0.6\textwidth}
@@ -359,7 +359,7 @@ We apply \system to three domains:
    &\hspace{0.5cm} \emph{(add k to every element of list l)}
    \\\bottomrule
     \end{tabular}
-    \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
+    \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}\vspace{-1cm}
  \end{wrapfigure}
 
 
@@ -403,27 +403,13 @@ alternates between exploring the space of solutions to a set of tasks,
 and compressing those solutions to suggest new search primitives
 for the next exploration stage.
 We extend these ideas into an inference strategy that iterates
-through three steps: an \textbf{Explore} cycle uses the current DSL and
+through three steps: an \textbf{Explore} step uses the current DSL and
 recognition model to search for programs that solve the tasks.  The
-\textbf{Compress} and \textbf{Compile} cycles update the DSL and the
+\textbf{Compress} and \textbf{Compile} steps update the DSL and the
 recognition model, respectively.  Crucially, these steps bootstrap 
 off each other (Fig.~\ref{feeding}):
 
-\\\noindent \textbf{Exploration: Searching for programs.}  Our program search
-is informed by both the DSL and the recognition model. When these
-improve, we find more programs solving the tasks.
-\\\noindent\textbf{Compression: Improving the DSL.} We induce the DSL
-from the programs found in the exploration phase, aiming
-to maximally compress (or, raise the prior probability of) these
-programs.  As we solve more tasks, we hone in on richer DSLs that
-more closely match the domain.
-\\\noindent \textbf{Compilation: Learning a neural recognition model.}  We
-update the recognition model by training on two data sources: samples
-from the DSL (as in the Helmholtz Machine's ``sleep'' phase), and
-programs found by the search procedure during exploration. As the DSL
-improves and as search finds more programs, the recognition model gets
-both more data to train on, and better data.
-\begin{wrapfigure}{r}{0.6\textwidth}
+\begin{wrapfigure}{r}{0.5\textwidth}\vspace{-0.5}
   \begin{tikzpicture}
     \begin{scope}[shift = {(1,-1)}]
     \node[align = center](synthesis) at (6,4) {Search for \\programs};
@@ -438,15 +424,31 @@ both more data to train on, and better data.
     \draw [->,thick,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Exploration)}} (synthesis.east);
   \end{scope}
     \end{tikzpicture}
-  \caption{\system solves for programs, the DSL, and a neural network called the \emph{recognition model}. Each of these steps bootstrap off of the others in an iterative inference algorithm.}  \label{feeding}
-\end{wrapfigure}
+  \caption{\system solves for programs, the DSL, and a neural network (recognition model). Each of these steps iteratively bootstraps off of the others.}  \label{feeding}\vspace{-0.4cm}
+\end{wrapfigure}%
+\\\noindent \textbf{Exploration: Searching for programs.}  Our program search
+is informed by both the DSL and the recognition model. When these
+improve, we find more programs solving the tasks.
+\\\noindent\textbf{Compression: Improving the DSL.} We induce the DSL
+from the programs found in the exploration phase, aiming
+to maximally compress (or, raise the prior probability of) these
+programs.  As we solve more tasks, we hone in on DSLs that
+more closely match the domain.
+\\\noindent \textbf{Compilation: Learning a neural recognition model.}  We
+update the recognition model by training on two data sources: samples
+from the DSL (as in the Helmholtz Machine's ``sleep'' phase), and
+programs found by the search procedure during exploration. As the DSL
+improves and as search finds more programs, the recognition model gets
+more data to train on, and better data.
 
+
+\begin{comment}
 Sec.~\ref{mathematicalFraming} frames this 3-step procedure as probabilistic inference.
 Sec.~\ref{explorationSection} explains how we search for programs that solve the tasks;
 Sec.~\ref{recognitionSection} explains how we train a neural network to  search for programs; and
 Sec.~\ref{grammarInductionSection} explains how we induce a DSL from programs.
-
-\subsection{Probabilistic Framing}\label{mathematicalFraming}
+  \end{comment}
+\subsection{Hierarchical Bayesian Framing}\label{mathematicalFraming}
 
 \system takes as input a set of \emph{tasks}, written $X$, each of which is a program induction problem.
 It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$.
@@ -524,7 +526,7 @@ Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowe
 Searching for programs is hard because
 of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $q(\cdot |\cdot )$,
 during the compilation phase: $q$ is trained to approximate the
-posterior over programs, $q(p|x)\propto\probability[x,p|\mathcal{D},\theta}]$,
+posterior over programs, $q(p|x)\propto\probability[p|x,\mathcal{D},\theta}]=\probability[x|p]\probability[p|\mathcal{D},\theta}]$,
   thus amortizing the cost of finding programs with high posterior probability.
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
@@ -555,8 +557,7 @@ in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can f
 
 \subsection{Exploration: Searching for Programs}\label{explorationSection}
 
-Now our goal is to search for programs that solve the tasks.  In this
-work we use the simple search strategy of enumerating programs from
+Now our goal is to search for programs solving the tasks.  We use the simple search strategy of enumerating programs from
 the DSL  in decreasing order of their probability,
 and then checking if an enumerated program $p$ assigns positive
 probability to a task ($\probability[x|p] > 0$); if so, we incorporate $p$ 
@@ -649,7 +650,7 @@ We have two reasons:
 (2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
   the space of  programs.
 
-A drawback of using an enumerative search algorithm is that we have no
+  A drawback of using an enumerative search algorithm is that we have no
 efficient means of solving for arbitrary constants that might occur in the
 program. In Sec.~\ref{regressionSection},
 we will show how to find programs with real-valued constants
@@ -666,7 +667,7 @@ by automatically differentiating through the program and setting the constants u
 
 \subsection{Compilation: Learning a Neural Recognition Model}\label{recognitionSection}
 
-The purpose of the recognition model is to accelerate the search for
+The purpose of the recognition model is to amortize the cost of searching for
 programs.  It does this by learning to predict programs which are
 probable under $(\mathcal{D},\theta)$ while also assigning high
 likelihood for a task according to $\probability[x|p]$.  Concretely,
@@ -687,7 +688,7 @@ or equivalently maximizing $  \expect\left[\sum_p\probability[p|x,\mathcal{D},\t
 %%   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
 %% \end{equation*}
 where the expectation is taken over tasks. One could take this expectation
-over the observed empirical distribution of tasks,
+over the empirical distribution of tasks,
 like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
 We found it useful to maximize both an autoencoder-style objective $\mathcal{L}_{\text{AE}}$ and a Helmholtz-style objective $\mathcal{L}_{\text{HM}}$, giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}} = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}$:
 \begin{align}\nonumber
@@ -785,13 +786,14 @@ and $\alpha$ is a concentration parameter controlling the smoothness of the prio
     \end{algorithm}
   \end{minipage}
 \vspace{-0.7cm}\end{wrapfigure}To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
-Although this problem may seem 
-very similar to estimating the parameters of a probabilistic context free grammar (PCFG),
+Although this  may seem 
+very similar to estimating the parameters of a probabilistic context free grammar,
 for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
 our DSLs are context-sensitive due to the presence of variables
 in the programs and also due to the polymorphic typing system.
 In the Supplement we derive a tractable MAP estimator for $\theta$.
-
+Putting it all together, Alg.~\ref{mainAlgorithm} describes how we combine program search,
+recognition model training, and DSL induction.
 \begin{figure*}
 \centering  \begin{tabular}{ll}
     \toprule
@@ -811,8 +813,7 @@ In the Supplement we derive a tractable MAP estimator for $\theta$.
     These subexpressions are taken from programs in the frontiers (left column), and can introduce new variables (right column: \code{a} and \code{b}). Here, the proposed subexpression appends two lists.} 
   \label{fragmentExample}
 \end{figure*}
-Alg.~\ref{mainAlgorithm} describes how we combine program search,
-recognition model training, and DSL induction.
+
 \begin{comment}
 \subsection{Implementing \system}
 
@@ -834,7 +835,7 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 
 
 
-\section{Experiments}
+%\section{Experiments}
 %% We first present our experimental results qualitatively,
 %% illustrating the learned DSLs.
 %% We then show quantitative results (Sec.~\ref{quantitative})
@@ -843,7 +844,7 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 
 
 
-\subsection{Symbolic Regression}\label{regressionSection}
+\section{Symbolic Regression Experiments}\label{regressionSection}
 \begin{wrapfigure}{r}{0.3\textwidth} \newcommand{\functionSize}{0.75cm}\vspace{-0.5cm}
   \includegraphics[width = \functionSize]{figures/functions/0.png}
   \includegraphics[width = \functionSize]{figures/functions/6.png}
@@ -894,27 +895,20 @@ and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:P
 %% found by performing gradient ascent on the likelihood of the
 %% observations w.r.t. $\vec{\mathcal{R}}$.
 
-\system learns a DSL containing templates for polynomials of different orders, as well as
-
-which lets the algorithm quickly find the functions that are most appropriate to this domain (Tbl.~\ref{regressionDSL}).
-We also found that the algorithm discovers programs that minimize the number of continuous degrees of freedom.
+\system learns a DSL containing templates for polynomials of different orders, as well as ratios of polynomials (Fig.~\ref{regressionDSL}).
+The algorithm also discovers programs that minimize the number of continuous degrees of freedom.
 For example, it represents the linear function $-x+2$ with the program
-\code{(* (+ x }$\mathcal{R}$\code{) }$\mathcal{R}$\code{)} which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
+\code{(* real (+ x real))}}, which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
 which has five continuous parameters.
 This phenomenon arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
-\begin{wrapfigure}{l}{0.5\textwidth}\centering
+\begin{wrapfigure}{l}{0.4\textwidth}\centering
 \begin{tabular}{l}
   \toprule
-  $f_0\,=\,$\code{(+ $\mathcal{R}$)}\\
-  $f_1($\code{x}$)\,=\,$\code{(* (* (+ x $\mathcal{R}$) $\mathcal{R}$) x)} \\
-  $f_2($\code{x}$)\,=\,$\code{(+ $\mathcal{R}$ ($f_1$ x))} \\
-  $f_3($\code{x}$)\,=\,$\code{(* x ($f_2$ x))}\\
-  $f_4($\code{x}$)\,=\,$\code{($f_0$ ($f_3$ x))}\\
-  $f_5($\code{x}$)\,=\,$\code{(* x ($f_4$ x))}\\
-  $f_6($\code{x}$)\,=\,$\code{($f_0$ ($f_4$ x))} (\emph{4th order polynomial})
+  $f_0($\code{x}$)\,=\,$\code{(* real (+ x real))}\\
+  $f_1($\code{x}$)\,=\,$\code{($f_0$ (* x (+ real x))} \\
   \\\bottomrule
 \end{tabular}
-\caption{Some learned DSL primitives for symbolic regression. The system starts with addition, multiplication, and real numbers, and learns to build polynomials up to 4th order.}\label{regressionDSL}
+\caption{Some learned subroutines for symbolic regression. The system starts with addition, multiplication, and real numbers, and learns to build polynomials up to 4th order.}\label{regressionDSL}
 \end{wrapfigure}
 
 %% The neural recognition model accelerates inference,
@@ -922,7 +916,7 @@ This phenomenon arises from our Bayesian framing -- both the bias towards shorte
 %% a lesioned version without the recognition model eventually comes close to catching up (green curves in Fig.~\ref{regressionLearningCurve}; No NN in Tbl.~\ref{regressionComparison}).
 %% We compare our model on held-out tasks against 4 baselines (Tbl.~\ref{regressionComparison}).
 
-\subsection{Programs that manipulate sequences}\label{sequences}
+\section{Sequence manipulating programs}\label{sequences}
 We apply \system to text editing (Section~\ref{textSection}) and list processing (Section~\ref{listSection}).
 For both these domains we initially provide the system with a generic
 minimal set of programming primitives,
@@ -930,7 +924,7 @@ and use a bidirectional GRU~\cite{cho2014learning} for the recognition model.
 The initial set of primitives includes routines commonly found in Lisp or Scheme interpreters: \code{fold}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
 
 
-\subsubsection{String Editing}\label{textSection}
+\subsection{String Editing}\label{textSection}
 Synthesizing programs that manipulate strings is a classic problem in the
 programming languages and AI literatures~\cite{menon2013machine,lau2001programming},
 and algorithms that learn string editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
@@ -943,6 +937,13 @@ We automatically generated  600 string editing tasks  with 4 input/output exampl
 At first, \system cannot find any correct programs for most of the tasks.
 It assembles a DSL (Tbl.~\ref{textPrimitives}) that lets it rapidly explore the space of programs and find solutions to
 all of the tasks.
+
+How well does the  learned DSL generalized to real text-editing scenarios?
+We tested, but did not train, our model on problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
+our system solves 32/108 of the problems with an average search time of 11 minutes.
+After learning,
+our system solves 80/108, and does so much faster,
+solving them in an average of 29 seconds.
 
 
 
@@ -958,7 +959,7 @@ all of the tasks.
         \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words})
   \\\bottomrule
     \end{tabular}
-  \caption{Some learned DSL primitives for string editing}\label{textPrimitives}
+  \caption{Some string editing learned subroutines }\label{textPrimitives}
   \end{table}
 
 \begin{figure}
@@ -989,7 +990,7 @@ Lara Gregori Bradford&LGB& Rudolf&Akiyama&Rudolf Akiyama
 
 
 
-\subsubsection{List Functions}\label{listSection}
+\subsection{List Functions}\label{listSection}
 Synthesizing programs that manipulate data structures is
 a widely studied problem in the programming languages community~\cite{feser2015synthesizing}.
 %with applications to computer aided programming~\cite{solar2008program}.
@@ -1155,7 +1156,6 @@ This supports the view of the recognition model as a way of accelerating the sea
 \includegraphics[width = 3.5cm]{figures/regression.eps} 
   \includegraphics[width = 3.5cm]{figures/list.eps}
   \includegraphics[width = 3.5cm]{figures/textLearningCurve.eps}        
-  \includegraphics[width = 3.5cm]{figures/circuitLearningCurve.eps}  
   \caption{Learning curves for \system both with (blue) and without (red) the recognition model as the frontier size is varied (solid/dashed/dotted lines).}\label{learningCurves} 
 \end{figure}
 
