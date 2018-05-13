@@ -457,8 +457,8 @@ $(\mathcal{D},\theta)$ define a generative model over programs.
 We frame our goal as maximum a posteriori (MAP) inference of $(\mathcal{D},\theta)$ given $X$.
 Writing $J$ for the joint probability of $(\mathcal{D},\theta)$ and $X$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
 \begin{align}\label{intractableObjectives}
-  J(\mathcal{D},\theta)\triangleq \probability[\mathcal{D},\theta]\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta],\quad
-  \mathcal{D}^* = \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta, \quad
+\nonumber  J(\mathcal{D},\theta)\triangleq \probability[\mathcal{D},\theta]\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
+  \mathcal{D}^* = \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta \qquad
   \theta^* =\argmax_\theta J(\mathcal{D}^*,\theta)
 \end{align}
 
@@ -593,9 +593,6 @@ A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| +
 one number for each DSL primitive $e\in \mathcal{D}$, written $\theta_e$,
 and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
 
-Alg.~\ref{programGenerativeModel} is a procedure for drawing
-samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
-enumerate programs in order of their probability under  Alg.~\ref{programGenerativeModel} rather than sampling them.
 \begin{wrapfigure}{L}{0.5\textwidth}
   \begin{minipage}{0.49\textwidth}    
 \begin{algorithm}[H]
@@ -639,8 +636,11 @@ enumerate programs in order of their probability under  Alg.~\ref{programGenerat
  \end{cases}$
 \end{algorithmic}
 \end{algorithm}
-    \end{minipage}
-  \end{wrapfigure}
+\vspace{-1.8cm}    \end{minipage}
+  \end{wrapfigure}Alg.~\ref{programGenerativeModel} is a procedure for drawing
+samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
+enumerate programs in order of their probability under  Alg.~\ref{programGenerativeModel} rather than sample them.
+
 
 Why enumerate, when the program synthesis community has invented many
 sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
@@ -691,7 +691,7 @@ over the observed empirical distribution of tasks,
 like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
 We found it useful to maximize both an autoencoder-style objective $\mathcal{L}_{\text{AE}}$ and a Helmholtz-style objective $\mathcal{L}_{\text{HM}}$, giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}} = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}$:
 \begin{align}\nonumber
-\mathcal{L}_{\text{HM}} = \expect_{p\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right]\text{ s.t. $x = \sem{p}$}\quad
+\mathcal{L}_{\text{HM}} = \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right]\quad
 \mathcal{L}_{\text{AE}} = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
   \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\log q(p|x)\right]
 \end{align}
@@ -753,20 +753,44 @@ We define a prior distribution over DSLs which penalizes the sizes of the $\lamb
 \begin{equation}
     \probability[\mathcal{D}]\propto\exp\left(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)\hspace{1cm}  \probability[\theta|\mathcal{D}] = \text{Dir}(\theta|\alpha)
   \end{equation}
-
 where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
-$\lambda$ is a hyperparameter that acts as a regularizer on the size of the DSL,
+$\lambda$ acts as a regularizer on the size of the DSL,
 and $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
 %Alg.~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
 
-To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
+\begin{wrapfigure}{R}{0.6\textwidth}\vspace{-0.7cm}
+  \begin{minipage}{0.6\textwidth}    
+    \begin{algorithm}[H]
+      \caption{The \system Algorithm}
+      \label{mainAlgorithm}
+      \begin{algorithmic}
+        \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
+        \STATE \textbf{Hyperparameters:} Enumeration timeout $T$
+        %     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
+        \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
+        \FOR{$i=1$ {\bfseries to} $I$}
+        %     \FOR{$x:\tau\in X$}
+        \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{(\textbf{Explore})}
+        \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ \hspace{0.2cm}(\footnotesize{\textbf{Compile}})
+        \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{\textbf{(Explore)}}
+        
+        \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Compress)}}
+        %% \STATE Define $Q_x(z) \propto \begin{cases}
+        %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
+        %%   0&x\not \in \mathcal{F}_x
+        %% \end{cases}
+        \ENDFOR
+        \STATE \textbf{return} $\mathcal{D},\theta,q$
+      \end{algorithmic}
+    \end{algorithm}
+  \end{minipage}
+\vspace{-0.7cm}\end{wrapfigure}To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
 Although this problem may seem 
 very similar to estimating the parameters of a probabilistic context free grammar (PCFG),
 for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
-a DSL in \system may be context-sensitive due to the presence of variables
+our DSLs are context-sensitive due to the presence of variables
 in the programs and also due to the polymorphic typing system.
 In the Supplement we derive a tractable MAP estimator for $\theta$.
- 
 
 \begin{figure*}
 \centering  \begin{tabular}{ll}
@@ -787,7 +811,6 @@ In the Supplement we derive a tractable MAP estimator for $\theta$.
     These subexpressions are taken from programs in the frontiers (left column), and can introduce new variables (right column: \code{a} and \code{b}). Here, the proposed subexpression appends two lists.} 
   \label{fragmentExample}
 \end{figure*}
-
 Alg.~\ref{mainAlgorithm} describes how we combine program search,
 recognition model training, and DSL induction.
 \begin{comment}
@@ -808,33 +831,7 @@ by only summing over the top $K$
 programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]$ -- we found that $K = 2$ sufficed.
 (4) For added robustness, we enumerate programs from both the generative model $(\mathcal{D},\theta)$ and the recognition model.
 \end{comment}
-\begin{wrapfigure}{L}{0.6\textwidth}
-  \begin{minipage}{0.6\textwidth}    
-\begin{algorithm}[H]
-   \caption{The \system Algorithm}
-   \label{mainAlgorithm}
-   \begin{algorithmic}
-     \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
-     \STATE \textbf{Hyperparameters:} Enumeration timeout $T$
-     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
-     \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
-     \FOR{$i=1$ {\bfseries to} $I$}
-     %     \FOR{$x:\tau\in X$}
-     \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{(\textbf{Explore})}
-     \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ \hspace{0.2cm}(\footnotesize{\textbf{Compile}})
-     \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{\textbf{(Explore)}}
-     
-     \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Compress)}}
-     %% \STATE Define $Q_x(z) \propto \begin{cases}
-     %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
-     %%   0&x\not \in \mathcal{F}_x
-     %% \end{cases}
-      \ENDFOR
- \STATE \textbf{return} $\mathcal{D},\theta,q$
-\end{algorithmic}
-\end{algorithm}
-    \end{minipage}
-  \end{wrapfigure}
+
 
 
 \section{Experiments}
