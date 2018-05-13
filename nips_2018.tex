@@ -353,8 +353,8 @@ We apply \system to three domains:
    %% &\hspace{0.5cm} \emph{(an OR gate)}\\
    Regression& \code{(+ (* real x) real)} \\
       &\hspace{0.5cm} \emph{(a linear function of x)}\\
-   Strings& \code{(join '' (split c s))}\\
-   &\hspace{0.5cm} \emph{(delete occurrences of c in string s)}\\
+   Strings& \code{(map (lambda (x) (if (= x a) b x)))}\\
+   &\hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
    Lists& \code{(map (lambda (x) (+ x k)) l)}\\
    &\hspace{0.5cm} \emph{(add k to every element of list l)}
    \\\bottomrule
@@ -876,9 +876,9 @@ that these problems are best solved with programs containing real
 numbers.  Our solution to this difficulty is to allow the system to
 write programs with real-valued parameters, and then fit those
 parameters by automatically differentiating through the programs the
-system writes and use gradient descent.
+system writes and use gradient descent to fit the parameters.
 We define the likelihood model, $\probability[x|p]$, by assuming a Gaussian noise model for the input/output examples,
-and penalize the use of continuous parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
+and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
 %% \begin{align*}
 %%   \log \probability[x|p] \triangleq& \sum_{n\leq N}\log
 %%   \mathcal{N}(p(i_n,\vec{\mathcal{R}}^*)|o_n) - \frac{D\log N}{2}
@@ -930,7 +930,7 @@ We apply \system to text editing (Section~\ref{textSection}) and list processing
 For both these domains we initially provide the system with a generic
 minimal set of programming primitives,
 and use a bidirectional GRU~\cite{cho2014learning} for the recognition model.
-The initial set of primitives includes routines commonly found in Lisp or Scheme interpreters: \code{fold}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
+The initial set of primitives includes routines commonly found in Lisp or Scheme interpreters: \code{fold}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
 
 
 \subsubsection{String Editing}\label{textSection}
@@ -942,7 +942,7 @@ expertly crafted to suit string editing.
 We show \system can instead start out with generic Lisp primitives
 and recover many of the higher-level building blocks that have made these
 other system successful.
-We automatically generated  600 string editing tasks  with 4 input/output examples each (Fig.~\ref{exampleTextProblem}). %, split  75/25 train/test.
+We automatically generated  600 string editing tasks  with 4 input/output examples each (Fig.~\ref{exampleTextProblem}) and model strings as lists of characters.
 At first, \system cannot find any correct programs for most of the tasks.
 It assembles a DSL (Tbl.~\ref{textPrimitives}) that lets it rapidly explore the space of programs and find solutions to
 all of the tasks.
