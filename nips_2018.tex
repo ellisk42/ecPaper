@@ -557,9 +557,9 @@ in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can f
 
 \subsection{Exploration: Searching for Programs}\label{explorationSection}
 
-Now our goal is to search for programs solving the tasks.  We use the simple search strategy of enumerating programs from
+Now our goal is to search for programs solving the tasks.  We use the simple approach of enumerating programs from
 the DSL  in decreasing order of their probability,
-and then checking if an enumerated program $p$ assigns positive
+and then checking if a program $p$ assigns positive
 probability to a task ($\probability[x|p] > 0$); if so, we incorporate $p$ 
 into the frontier $\mathcal{F}_x$.
 
@@ -670,7 +670,7 @@ by automatically differentiating through the program and setting the constants u
 The purpose of the recognition model is to amortize the cost of searching for
 programs.  It does this by learning to predict programs which are
 probable under $(\mathcal{D},\theta)$ while also assigning high
-likelihood for a task according to $\probability[x|p]$.  Concretely,
+likelihood to a task according to $\probability[x|p]$.  Concretely,
 the recognition model $q$ is a neural network that predicts, for each
 task $x\in X$, a weight vector $q(x) = \theta^{(x)}\in
 \mathbb{R}^{|\mathcal{D}| + 1}$.  Together with the DSL, this defines
@@ -722,7 +722,7 @@ from the empirical observed distribution of inputs in $X$.
 The purpose of the DSL is to
 offer a set of abstractions
 that allow an agent to easily express solutions to the tasks at hand.
-In the \system algorithm we infer the DSL from a collection of frontiers.
+%In the \system algorithm we infer the DSL from a collection of frontiers.
 Intuitively, we want the algorithm to
 look at  the frontiers and
 generalize beyond them, 
@@ -730,8 +730,7 @@ both so the DSL can better express the current solutions,
 and  also so that the DSL might expose new abstractions
 which will later be used to
 discover more programs.
-
-Recall from Sec.~\ref{mathematicalFraming} that we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$.
+ Formally, we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{mathematicalFraming}).
 We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
 \begin{equation}
       \log \probability[\mathcal{D}] + \argmax_{\theta}\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta] + \log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \label{AIC}
@@ -858,13 +857,13 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
   \includegraphics[width = \functionSize]{figures/functions/591.png}
   \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
 \end{wrapfigure}
-As a simple first example of how our algorithm works, we apply \system
-to symbolic regression problems.  For each of these problems, the
+As a simple first example, we apply \system
+to symbolic regression problems.  Here, the
 agent observes points along the curve of a function, and must write a
 program that fits those points.  We initially equip our learner with
 addition, multiplication, and division, and task it with solving
-200 symbolic regression problems, each either a polynomial of degree
-1--4 or a rational function.  Our recognition model here is a
+100 symbolic regression problems, each either a polynomial of degree
+1--4 or a rational function.  The recognition model is a
 convolutional network that observes an image of the target function's
 graph (Fig.~\ref{functions}) -- visually, different kinds of
 polynomials and rational functions produce different kinds of graphs,
@@ -919,22 +918,22 @@ This phenomenon arises from our Bayesian framing -- both the bias towards shorte
 
 \section{Sequence manipulating programs}\label{sequences}
 We apply \system to text editing (Section~\ref{textSection}) and list processing (Section~\ref{listSection}).
-For both these domains we initially provide the system with a generic
-minimal set of programming primitives,
-and use a bidirectional GRU~\cite{cho2014learning} for the recognition model.
-The initial set of primitives includes routines commonly found in Lisp or Scheme interpreters: \code{fold}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
+For both these domains we use a bidirectional GRU~\cite{cho2014learning} for the recognition model,
+and initially provide the system with a generic
+set of list processing primitives: \code{fold}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
 
 
 \subsection{String Editing}\label{textSection}
 Synthesizing programs that manipulate strings is a classic problem in the
 programming languages and AI literatures~\cite{menon2013machine,lau2001programming},
 and algorithms that learn string editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
-However, this prior work presumes a ready-made DSL,
+This prior work presumes a ready-made DSL,
 expertly crafted to suit string editing.
 We show \system can instead start out with generic Lisp primitives
 and recover many of the higher-level building blocks that have made these
 other system successful.
-We automatically generated  600 string editing tasks  with 4 input/output examples each (Fig.~\ref{exampleTextProblem}) and model strings as lists of characters.
+We automatically generated 109 string editing tasks  %% with 4 input/output examples each
+(Fig.~\ref{exampleTextProblem}) and model strings as lists of characters.
 At first, \system cannot find any correct programs for most of the tasks.
 It assembles a DSL (Tbl.~\ref{textPrimitives}) that lets it rapidly explore the space of programs and find solutions to
 all of the tasks.
