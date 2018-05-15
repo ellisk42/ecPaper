@@ -1205,6 +1205,19 @@ This supports a view of the recognition model as a way of amortizing the cost of
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
  \section{Contribution and Outlook}
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \begin{center}
+    \includegraphics[width = 0.4\textwidth]{figures/geomCompiled.eps} 
+  \end{center}
+  \caption{
+  Future: dreams.
+  Top left: hand crafted traning targets. Top right: examples of
+  discovered compiled new programs. Bottom: compiled programm across iterations
+  to highlight structure emergence.
+  }\label{geomCompiled} 
+\end{wrapfigure}
+
 We contribute an algorithm, \systemEnding, that learns to program by bootstrapping a DSL with new
 domain-specific primitives that the algorithm itself discovers,
 together with a neural recognition model that learns how to
