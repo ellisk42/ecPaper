@@ -957,11 +957,23 @@ expertly crafted to suit string editing.
 We show \system can instead start out with generic Lisp primitives
 and recover many of the higher-level building blocks that have made these
 other system successful.
+An obstacle here, however,
+is that
+our enumerative search procedure
+has no means of generating string constants,
+and so we incorporate  string-valued parameters as a primitive,
+  defining $\probability[x|p]$ by marginalizing out the
+  values of the string via dynamic programming.
+  In  Section~\ref{regressionSection},
+  we will use a similar trick to synthesize programs containing real numbers using gradient descent.
+
 We automatically generated 109 string editing tasks  %% with 4 input/output examples each
 (Fig.~\ref{exampleTextProblem}) and model strings as lists of characters.
 At first, \system cannot find any correct programs for most of the tasks.
 It assembles a DSL (Tbl.~\ref{textPrimitives}) that lets it rapidly explore the space of programs and find solutions to
 all of the tasks.
+
+
 
 How well does the  learned DSL generalized to real text-editing scenarios?
 We tested, but did not train, our system on problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
@@ -986,25 +998,27 @@ prior work.
       \toprule
       $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b (lambda (x y) (cons x y))))))}\\
       \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
-      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (a x) (cdr (if (= c x) s a))))}\\
+      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (x a) (cdr (if (= c x) s a))))}\\
         \hspace{0.5cm}($f_1$: \emph{Drop first characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
       $f_2($\code{s}$) \,=\, $\code{(unfold s empty? car (lambda (z) (}$f_1$\code{ z SPACE)))}\\
-        \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words})
+        \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words})\\
+        $f_3($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (x a) (if (= c x) nil (cons x a))))}\\
+        \hspace{0.5cm}($f_3$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
+        %(lambda (lambda (fold $0 $0 (lambda (lambda (if (char-eq? $1 $3) empty (cons $1 $0)))))))
   \\\bottomrule
     \end{tabular}
   \caption{Some string editing learned subroutines }\label{textPrimitives}
   \end{table}
 
 \begin{figure}
-  \centering\begin{tabular}{ll|lll}\toprule
-    Input&Output&Input 1&Input 2&Output\\\midrule
-Temple Annalisa Haven 185&TAH1&Launa&Withers&Launa Withers\\
-Lara Gregori Bradford&LGB& Rudolf&Akiyama&Rudolf Akiyama
+  \centering\begin{tabular}{r|r}\toprule
+Temple Annalisa Haven 185 $\longrightarrow$ TAH1&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
+Lara Gregori Bradford $\longrightarrow$ LGB& Andrew Cencici $\longrightarrow$ Dr. Andrew
 %DkI$>$DwKI$<$xaPoc& 	DWKI\\
 %KfvTh$>$Dbl$<$OIJso 	&DBL
 \\\midrule
-\multicolumn{2}{l|}{$f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}}&
-\multicolumn{3}{l}{$f(\text{\code{a}},\text{\code{b}}) = $\code{(}$f_0$\code{ a (cons " " b))}}
+\multicolumn{1}{l|}{$f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}}&
+\multicolumn{1}{l}{$f(\text{\code{s}}) = $\code{(}$f_0$\code{ "Dr. " (}$f_3$\code{ s " "))}}
 \\
 \bottomrule
   \end{tabular}
@@ -1022,20 +1036,7 @@ Lara Gregori Bradford&LGB& Rudolf&Akiyama&Rudolf Akiyama
 \end{figure}
 
 
-\section{Symbolic Regression Experiments}\label{regressionSection}
-\begin{wrapfigure}{r}{0.3\textwidth} \newcommand{\functionSize}{0.75cm}\vspace{-0.5cm}
-  \includegraphics[width = \functionSize]{figures/functions/0.png}
-  \includegraphics[width = \functionSize]{figures/functions/6.png}
-  \includegraphics[width = \functionSize]{figures/functions/207.png}
-  \includegraphics[width = \functionSize]{figures/functions/160.png}
-  \includegraphics[width = \functionSize]{figures/functions/317.png}\\  
-  \includegraphics[width = \functionSize]{figures/functions/432.png}
-  \includegraphics[width = \functionSize]{figures/functions/415.png}
-  \includegraphics[width = \functionSize]{figures/functions/426.png}
-  \includegraphics[width = \functionSize]{figures/functions/597.png}
-  \includegraphics[width = \functionSize]{figures/functions/591.png}
-  \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
-\end{wrapfigure}
+\section{Symbolic Regression: Programs from visual input}\label{regressionSection}
 We apply \system
 to symbolic regression problems.  Here, the
 agent observes points along the curve of a function, and must write a
@@ -1055,6 +1056,20 @@ parameters by automatically differentiating through the programs the
 system writes and use gradient descent to fit the parameters.
 We define the likelihood model, $\probability[x|p]$, by assuming a Gaussian noise model for the input/output examples,
 and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
+
+\begin{wrapfigure}{r}{0.3\textwidth} \newcommand{\functionSize}{0.75cm}\vspace{-0.5cm}
+  \includegraphics[width = \functionSize]{figures/functions/0.png}
+  \includegraphics[width = \functionSize]{figures/functions/6.png}
+  \includegraphics[width = \functionSize]{figures/functions/207.png}
+  \includegraphics[width = \functionSize]{figures/functions/160.png}
+  \includegraphics[width = \functionSize]{figures/functions/317.png}\\  
+  \includegraphics[width = \functionSize]{figures/functions/432.png}
+  \includegraphics[width = \functionSize]{figures/functions/415.png}
+  \includegraphics[width = \functionSize]{figures/functions/426.png}
+  \includegraphics[width = \functionSize]{figures/functions/597.png}
+  \includegraphics[width = \functionSize]{figures/functions/591.png}
+  \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
+\end{wrapfigure}
 %% \begin{align*}
 %%   \log \probability[x|p] \triangleq& \sum_{n\leq N}\log
 %%   \mathcal{N}(p(i_n,\vec{\mathcal{R}}^*)|o_n) - \frac{D\log N}{2}
@@ -1079,15 +1094,18 @@ For example, it learns to represent linear functions with the program
 \code{(* real (+ x real))}}, which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
 which has five continuous parameters.
 This phenomenon arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
-\begin{wrapfigure}{l}{0.4\textwidth}\centering
+\begin{wrapfigure}{l}{0.35\textwidth}\centering
 \begin{tabular}{l}
   \toprule
-  $f_0($\code{x}$)\,=\,$\code{(* real (+ x real))}\\
-  $f_1($\code{x}$)\,=\,$\code{($f_0$ (* x (+ real x))} \\
-  $f_2($\code{x}$)\,=\,$\code{(/ (/ x real) x)}
+  $f_0($\code{x}$)\,=\,$\code{(+ x real)}\\
+  $f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} \\
+  $f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}\\
+  \hspace{0.5cm}\emph{($f_2$: quadratics)}\\
+  $f_3($\code{x}$)\,=\,$\code{(/ (}$f_2$\code{ x) (}$f_0$\code{ x))}\\
+    \hspace{0.5cm}\emph{($f_3$: ratio of polynomials)}
   \\\bottomrule
 \end{tabular}
-\caption{Some learned subroutines for symbolic regression. The system starts with addition, multiplication, division, and real numbers, and learns to build rational functions and polynomials up to 4th order.}\label{regressionDSL}
+\caption{Some learned subroutines for symbolic regression. System starts with addition, multiplication, division, and real numbers, and learns to build rational functions and polynomials up to 4th order.}\label{regressionDSL}
 \end{wrapfigure}
 
 %% The neural recognition model accelerates inference,
@@ -1147,8 +1165,8 @@ This supports a view of the recognition model as a way of amortizing the cost of
   %% Solve time&  0.9s&  1.1s&1.2s&1.3s&1.3s
 
   \\\midrule\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
-  \% solved&   \textbf{98\% }&94\%&0.7\%&0\%&2\% \\
-  Solve time&  2.7s& 2.8s  &3.6s&--&2.1s\\
+  \% solved&   \textbf{84\% }&75\%&38\%&38\%&37\% \\
+  Solve time&  24s& 40s  &31s&55s&29s\\
   %% MDL (nats)&   9.3 &11.0&2.3&--&4.6
 
   \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
@@ -1174,7 +1192,7 @@ This supports a view of the recognition model as a way of amortizing the cost of
 }\vspace{-0.5cm}\label{baselineComparisons} \end{wraptable}
 
 \begin{figure}\centering
-\includegraphics[width = 3.5cm]{figures/regression.eps} 
+\includegraphics[width = 3.5cm]{figures/rationalCurve.eps} 
   \includegraphics[width = 3.5cm]{figures/list.eps}
   \includegraphics[width = 3.5cm]{figures/textLearningCurve.eps}        
   \caption{Learning curves for \system both with (blue) and without (red) the recognition model as the frontier size is varied (solid/dashed/dotted lines).}\label{learningCurves} 
