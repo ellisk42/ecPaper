@@ -1110,18 +1110,17 @@ We can not compare directly with these systems,
 because they are engineered for one specific domain, and 
 do not have publicly available code and datasets.
 \\\noindent \textbf{PCFG}, which lesions the recognition model, learns $\theta$, and fixes $\mathcal{D}$.
-This is equivalent to our algorithm with $q(x) = \theta$ and $\lambda = \infty$,
-and is like learning the parameters of a PCFG while not learning any of the structure.
-\\\noindent \textbf{Enum}, which does no learning and just enumerates a frontier.
-This is equivalent to our first wake cycle.
+This is equivalent to \system with $q(x) = \theta$ and $\lambda = \infty$,
+and is like learning the parameters of a PCFG while not learning its structure.
+\\\noindent \textbf{Enum}, which enumerates a frontier without any learning -- equivalently, our first exploration cycle.
 
 For each domain,
 we are interested both in how many tasks the
 agent can solve and how quickly it can find those solutions.
-For symbolic regression, we also care about the quality
-of the solution, as measured by the likelihood model $\probability[x|p]$,
-e.g. did the agent correctly explain a linear function
-using two numbers, or did it introduce extraneous parameters?
+%% For symbolic regression, we also care about the quality
+%% of the solution, as measured by the likelihood model $\probability[x|p]$,
+%% e.g. did the agent correctly explain a linear function
+%% using two numbers, or did it introduce extraneous parameters?
 Tbl.~\ref{baselineComparisons}
 compares our model against these baselines.
 Our full model consistently
@@ -1130,10 +1129,10 @@ sometimes dramatically (string editing and symbolic regression).
 The recognition model 
 consistently increases the number of solved held-out tasks,
 and lesioning it also slows down the convergence of the algorithm,
-taking more wake/sleep cycles to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
-This supports the view of the recognition model as a way of accelerating the search over programs.
+taking more iterations to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
+This supports a view of the recognition model as a way of amortizing the cost of searching for programs.
 
-\begin{table}
+\begin{wraptable}{r}{0.6\textwidth}
 %% This radically shrinks the table
 \tabcolsep=4pt
 \renewcommand{\arraystretch}{0.5}
@@ -1150,7 +1149,7 @@ This supports the view of the recognition model as a way of accelerating the sea
   \\\midrule\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
   \% solved&   \textbf{98\% }&94\%&0.7\%&0\%&2\% \\
   Solve time&  2.7s& 2.8s  &3.6s&--&2.1s\\
-  MDL (nats)&   9.3 &11.0&2.3&--&4.6
+  %% MDL (nats)&   9.3 &11.0&2.3&--&4.6
 
   \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
   \% solved&\textbf{99\%} &82\% &9\%&24\%&18\%\\
@@ -1167,10 +1166,12 @@ This supports the view of the recognition model as a way of accelerating the sea
   \end{tabular}
 \caption{\% solved w/ 5 sec timeout. Solve time: averaged over solved
   tasks.  RF/DC: trained like RobustFill/DeepCoder.  PCFG: model w/o
-  structure learning.  Enum: model w/o any learning.  MDL:
-  $-\expect\left[\probability[x|p] \right]$. For domains other than
-  symbolic regression MDL is 0 nats. For symbolic regression MDL is a
-  proxy for \# of continuous parameters.}\vspace{-0.5cm}\label{baselineComparisons} \end{table}
+  structure learning.  Enum: model w/o any learning.  %% MDL:
+  %% $-\expect\left[\probability[x|p] \right]$. For domains other than
+  %% symbolic regression MDL is 0 nats.
+  %% For symbolic regression MDL is a
+  %% proxy for \# of continuous parameters.
+}\vspace{-0.5cm}\label{baselineComparisons} \end{wraptable}
 
 \begin{figure}\centering
 \includegraphics[width = 3.5cm]{figures/regression.eps} 
