@@ -526,7 +526,7 @@ Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowe
 Searching for programs is hard because
 of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $q(\cdot |\cdot )$,
 during the compilation phase: $q$ is trained to approximate the
-posterior over programs, $q(p|x)\propto\probability[p|x,\mathcal{D},\theta}]=\probability[x|p]\probability[p|\mathcal{D},\theta}]$,
+posterior over programs, $q(p|x)\approx \probability[p|x,\mathcal{D},\theta}]\propto\probability[x|p]\probability[p|\mathcal{D},\theta}]$,
   thus amortizing the cost of finding programs with high posterior probability.
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
@@ -573,74 +573,35 @@ Throughout this paper we will write $\lambda$-calculus expressions in Lisp synta
 Our programs are all strongly typed.
 We use the Hindley-Milner polymorphic typing system~\cite{pierce} which is
 used in functional programming languages like OCaml.
-Type variables are always written using lowercase Greek letters
-and we write $\alpha\to \beta$ to mean a function that takes an input of type $\alpha$
-and returns something of type $\beta$.
-We use the notation $p:\tau$ to mean that the $\lambda$-calculus expression $p$
-has the type $\tau$.
-For example, to describe the type of the identity function
-we would say \code{(lambda (x) x)}$:\alpha\to \alpha$.
-We say a type $\alpha$ \emph{unifies} with $\tau$ if every expression
-$p:\alpha$ also satisfies $p:\tau$. Furthermore, the act of \emph{unifying}
-a type $\alpha$ with $\tau$ is to introduce constraints on the type
-variables of $\alpha$ to ensure that $\alpha$ unifies with $\tau$.
-See Supplement for more detail on program representation.
-With this notation in hand we now define DSLs:
+%% Type variables are always written using lowercase Greek letters
+%% and we write $\alpha\to \beta$ to mean a function that takes an input of type $\alpha$
+%% and returns something of type $\beta$.
+%% We use the notation $p:\tau$ to mean that the $\lambda$-calculus expression $p$
+%% has the type $\tau$.
+%% For example, to describe the type of the identity function
+%% we would say \code{(lambda (x) x)}$:\alpha\to \alpha$.
+%% We say a type $\alpha$ \emph{unifies} with $\tau$ if every expression
+%% $p:\alpha$ also satisfies $p:\tau$. Furthermore, the act of \emph{unifying}
+%% a type $\alpha$ with $\tau$ is to introduce constraints on the type
+%% variables of $\alpha$ to ensure that $\alpha$ unifies with $\tau$.
+%% See Supplement for more detail on program representation.
+We now define DSLs:
 
 \noindent\textbf{Definition: $(\mathcal{D},\theta)$.}
 A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
 %\\\noindent\textbf{Definition.}
 A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| + 1$ real numbers:
-one number for each DSL primitive $e\in \mathcal{D}$, written $\theta_e$,
+one number for each DSL primitive $e\in \mathcal{D}$, written $\theta_e$ and controlling the probability of primitive $e$ occurring in a program,
 and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
 
-\begin{wrapfigure}{L}{0.5\textwidth}
-  \begin{minipage}{0.49\textwidth}    
-\begin{algorithm}[H]
-   \caption{Generative model over programs}
-   \label{programGenerativeModel}
-   \begin{algorithmic}
-%%      \STATE \textbf{function} sampleProgramFromDSL$(\mathcal{D}, \theta, \tau)$:
-%%   \STATE {\bfseries Input:} DSL $\mathcal{D}$, weight vector $\theta$, type $\tau$
-%%   \STATE \textbf{Output:} a program whose type unifies with $\tau$
-%%   \STATE \textbf{return} sample$(\mathcal{D}, \theta, \varnothing, \tau)$
-%% \STATE
-     \STATE \textbf{function} sample$(\mathcal{D}, \theta, \mathcal{E}, \tau)$:
-  \STATE {\bfseries Input:} DSL $(\mathcal{D},\theta)$, environment $\mathcal{E}$, type $\tau$
-  \STATE \textbf{Output:} a program whose type unifies with $\tau$
-  \IF{$\tau = \alpha\to\beta$}
-  \STATE var $\gets$ an unused variable name
-  \STATE body $\sim$ sample$(\mathcal{D},\theta,\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$
-   \STATE \textbf{return} \code{(lambda (}var\code{) }body\code{)}
-   \ENDIF
-   %   \ELSE
-   \STATE $\text{primitives} \gets\{p | p: \tau' \in \mathcal{D}\cup\mathcal{E}$ \\
-      \hspace*{6.9em}$\text{if }\tau\text{ can unify with yield}(\tau') \} $
-   
-   \STATE Draw $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$ \\
-      \hspace*{8.8em}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
-   \STATE Unify $\tau$ with yield$(\tau')$.
-   \STATE $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{args}(\tau')$ 
-%   \STATE unify$(\tau,\beta)$
-   \FOR{$k=1$ {\bfseries to} $K$}
- \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
- \ENDFOR
- \STATE \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
- \STATE\textbf{where:}
- \STATE yield$(\tau) = \begin{cases}
-   \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-   \tau   &\text{ otherwise.}
- \end{cases}$ 
- \STATE  args$(\tau) = \begin{cases}
-   [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-   []   &\text{ otherwise.}
- \end{cases}$
-\end{algorithmic}
-\end{algorithm}
-\vspace{-1.8cm}    \end{minipage}
-  \end{wrapfigure}Alg.~\ref{programGenerativeModel} is a procedure for drawing
-samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
-enumerate programs in order of their probability under  Alg.~\ref{programGenerativeModel} rather than sample them.
+Together with its weight vector,
+a DSL defines a distribution over programs, $\probability[p|\mathcal{D},\theta]$.
+In the supplement, we define this distribution  
+by specifying a procedure for drawing samples from $\probability[p|\mathcal{D},\theta]$. Care must be taken to ensure that programs are well-typed
+and that variable scoping rules are obeyed.
+With this distribution in hand, we search for programs by enumerating
+$\lambda$-calculus expressions in decreasing order of their probability under
+$(\mathcal{D},\theta)$.
 
 
 Why enumerate, when the program synthesis community has invented many
@@ -781,13 +742,13 @@ and place a symmetric Dirichlet prior over the weight vector $\theta$.
       \end{algorithmic}
     \end{algorithm}
   \end{minipage}
-\vspace{-0.7cm}\end{wrapfigure}To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
-Although this  may seem 
-very similar to estimating the parameters of a probabilistic context free grammar,
-for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
-our DSLs are context-sensitive due to the presence of variables
-in the programs and also due to the polymorphic typing system.
-In the Supplement we derive a tractable MAP estimator for $\theta$.
+\vspace{-0.7cm}\end{wrapfigure}%% To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
+%% Although this  may seem 
+%% very similar to estimating the parameters of a probabilistic context free grammar,
+%% for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
+%% our DSLs are context-sensitive due to the presence of variables
+%% in the programs and also due to the polymorphic typing system.
+%% In the Supplement we derive a tractable MAP estimator for $\theta$.
 Putting all these ingredients together, Alg.~\ref{mainAlgorithm} describes how we combine program search,
 recognition model training, and DSL induction.
 \begin{figure*}

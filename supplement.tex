@@ -238,7 +238,54 @@ generative model, while red lines correspond to connections from the bottom-up r
 \end{tikzpicture}
 \end{figure}
 
-
+\section{Generative model over the programs}
+\begin{wrapfigure}{L}{0.5\textwidth}
+  \begin{minipage}{0.49\textwidth}    
+\begin{algorithm}[H]
+   \caption{Generative model over programs}
+   \label{programGenerativeModel}
+   \begin{algorithmic}
+%%      \STATE \textbf{function} sampleProgramFromDSL$(\mathcal{D}, \theta, \tau)$:
+%%   \STATE {\bfseries Input:} DSL $\mathcal{D}$, weight vector $\theta$, type $\tau$
+%%   \STATE \textbf{Output:} a program whose type unifies with $\tau$
+%%   \STATE \textbf{return} sample$(\mathcal{D}, \theta, \varnothing, \tau)$
+%% \STATE
+     \STATE \textbf{function} sample$(\mathcal{D}, \theta, \mathcal{E}, \tau)$:
+  \STATE {\bfseries Input:} DSL $(\mathcal{D},\theta)$, environment $\mathcal{E}$, type $\tau$
+  \STATE \textbf{Output:} a program whose type unifies with $\tau$
+  \IF{$\tau = \alpha\to\beta$}
+  \STATE var $\gets$ an unused variable name
+  \STATE body $\sim$ sample$(\mathcal{D},\theta,\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$
+   \STATE \textbf{return} \code{(lambda (}var\code{) }body\code{)}
+   \ENDIF
+   %   \ELSE
+   \STATE $\text{primitives} \gets\{p | p: \tau' \in \mathcal{D}\cup\mathcal{E}$ \\
+      \hspace*{6.9em}$\text{if }\tau\text{ can unify with yield}(\tau') \} $
+   
+   \STATE Draw $e\sim \text{primitives}$, w.p. $\propto\theta_e$ if $e\in \mathcal{D}$ \\
+      \hspace*{8.8em}w.p. $\propto\frac{\theta_{var}}{|\text{variables}|}$ if $e\in \mathcal{E}$
+   \STATE Unify $\tau$ with yield$(\tau')$.
+   \STATE $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{args}(\tau')$ 
+%   \STATE unify$(\tau,\beta)$
+   \FOR{$k=1$ {\bfseries to} $K$}
+ \STATE $a_k\sim\text{sample}(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
+ \ENDFOR
+ \STATE \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
+ \STATE\textbf{where:}
+ \STATE yield$(\tau) = \begin{cases}
+   \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+   \tau   &\text{ otherwise.}
+ \end{cases}$ 
+ \STATE  args$(\tau) = \begin{cases}
+   [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+   []   &\text{ otherwise.}
+ \end{cases}$
+\end{algorithmic}
+\end{algorithm}
+\vspace{-1.8cm}    \end{minipage}
+  \end{wrapfigure}Alg.~\ref{programGenerativeModel} is a procedure for drawing
+samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
+enumerate programs in order of their probability under  Alg.~\ref{programGenerativeModel} rather than sample them.
 
 \section{Program Representation}\label{programrepresentation}
 We choose to represent programs using $\lambda$-calculus~\cite{pierce}.
