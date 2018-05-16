@@ -246,11 +246,21 @@ search for programs in the DSL.
 %% general library of primitives, we give an algorithm for constructing a richer, more powerful,
 %% and better-tuned DSL.
 
+Because any model may be encoded as a (deterministic or probabilistic) program,
+we carefully delineate the scope of program learning problems considered here.
+We think of \system as learning to solve the kinds of problems that humans
+can solve relatively quickly -- once they acquire the relevant domain expertise.
+These correspond to short programs -- if you have an expressive DSL.
+Even with a good DSL, program search may be intractable, so
+we amortize the cost of program search by training a neural network to
+assist the search procedure.
+
+
 Our algorithm is called \textbf{Explore/Compress/Compile} (\systemEnding),
 because it iterates between three different steps: an
 \textbf{Explore} step uses the DSL to explore the space of programs,
 searching for ones that solve the tasks; a \textbf{Compress} step
-modifies the DSL by discovering regularities in the programs found by
+modifies the structure of the DSL by discovering regularities across programs found by
 the previous Explore step; and a \textbf{Compile} step, which
 improves the program search procedure by training a neural network to
 write programs in the current DSL, in the spirit of ``amortized'' or
@@ -262,14 +272,6 @@ the agent solve related program induction problems. The neural
 recognition model ensures that searching for programs remains tractable
 even as the DSL (and hence the search space for programs) expands.
 
-Because any model may be encoded as a (deterministic or probabilistic) program,
-we carefully delineate the scope of program learning problems considered here.
-We think of \system as learning to solve the kinds of problems that humans
-can solve relatively quickly -- once they acquire the relevant domain expertise.
-These correspond to short programs if you have an expressive DSL.
-Even with such an expressive DSL, program search may be intractable, so
-we amortize the cost of program search by training a neural network to
-assist the search procedure.
 
 We apply \system to four domains:
 list processing; FlashFill-style~\cite{gulwani2011automating} string editing;  symbolic regression; and turtle graphics~\cite{turtle}.
@@ -277,21 +279,43 @@ list processing; FlashFill-style~\cite{gulwani2011automating} string editing;  s
  set of programming primitives.
 Our algorithm then discovers
 its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
-\begin{wrapfigure}{r}{0.6\textwidth}
-    \begin{tabular}{ll}
-   \toprule
-   Domain&Part of the learned DSL\\\midrule
-   Lists& \code{(foldr nil (lambda (a b) (cons a b)))}\\
-   &\hspace{0.5cm} \emph{(reverses a list)}\\
-   Strings& \code{(map (lambda (x) (if (= x a) b x)))}\\
-   &\hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
-   Regression& \code{(+ (* real x) real)} \\
-      &\hspace{0.5cm} \emph{(a linear function of x)}\\
-   \\\bottomrule
+\begin{figure}
+  \begin{tabular}{lcl}
+    \toprule
+    Domain&Example Task&Part of the learned DSL\\\midrule
+    Lists&
+    \begin{tabular}{rcl}
+      \code{[7\, 0\, 2]}&$\longrightarrow$&\code{[7\, 0\, 2\, 4]} \\
+      \code{[3\, 9]}&$\longrightarrow$&\code{[3\, 9\, 4]}
     \end{tabular}
-    \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
-    \vspace{-4em}
- \end{wrapfigure}
+    &
+    \begin{tabular}{l}
+      \code{(foldr nil (lambda (a b) (cons a b)))}\\
+          \hspace{0.5cm} \emph{(appends lists)}
+      \end{tabular}
+
+
+    \\    Strings&
+    \begin{tabular}{rcl}
+      Temple Anna H& $\longrightarrow$& TAH\\
+      Lara Gregori&$\longrightarrow$&LG
+      \end{tabular}
+    &
+    \begin{tabular}{l}
+      \code{(map (lambda (x) (if (= x a) b x)))}\\
+      \hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
+      \end{tabular}
+    
+    \\Regression&\includegraphics[width = 1cm]{figures/functions/476.png}&\begin{tabular}{l}
+      \code{(+ (* real x) real)} \\
+          \hspace{0.5cm} \emph{(a linear function of x)}
+      \end{tabular}
+
+    \\\bottomrule
+  \end{tabular}
+  \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
+%  \vspace{-4em}
+\end{figure}
 
 
  
@@ -337,10 +361,10 @@ We extend these ideas into an inference strategy that iterates
 through three steps: an \textbf{Explore} step uses the current DSL and
 recognition model to search for programs that solve the tasks.  The
 \textbf{Compress} and \textbf{Compile} steps update the DSL and the
-recognition model, respectively.  Crucially, these steps bootstrap 
-off each other (Fig.~\ref{feeding}):
-
-\begin{wrapfigure}{r}{0.5\textwidth}
+recognition model, respectively.  Crucially, these steps synergistically bootstrap 
+off each other:
+\begin{comment}
+  \begin{wrapfigure}{r}{0.5\textwidth}
   \begin{tikzpicture}
     \begin{scope}[shift = {(1,-1)}]
     \node[align = center](synthesis) at (6,4) {Search for \\programs};
@@ -356,10 +380,11 @@ off each other (Fig.~\ref{feeding}):
   \end{scope}
     \end{tikzpicture}
   \caption{\system solves for programs, the DSL, and a neural network (recognition model). Each of these steps iteratively bootstraps off of the others.}  \label{feeding}\vspace{-0.4cm}
-\end{wrapfigure}%
+\end{wrapfigure}
+  \end{comment}
 \\\noindent \textbf{Exploration: Searching for programs.}  Our program search
 is informed by both the DSL and the recognition model. When these
-improve, we find more programs solving the tasks.
+improve, we can solve more tasks.
 \\\noindent\textbf{Compression: Improving the DSL.} We induce the DSL
 from the programs found in the exploration phase, aiming
 to maximally compress (or, raise the prior probability of) these
@@ -381,8 +406,10 @@ Sec.~\ref{grammarInductionSection} explains how we induce a DSL from programs.
   \end{comment}
 \subsection{Hierarchical Bayesian Framing}\label{mathematicalFraming}
 
-\system takes as input a set of \emph{tasks}, written $X$, each of which is a program induction problem.
-It has at its disposal a \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$.
+\system takes as input a set of \emph{tasks}, written $X$, each of which is a program synthesis problem.
+It has at its disposal a domain-specific \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$.\footnote{For example, for string editing,
+  the likelihood is 1 if the program predicts the observed outputs on the observed inputs,
+and 0 otherwise.}
 Its goal is to solve each of the tasks by writing a program,
 and also to infer a DSL, written $\mathcal{D}$.
 We equip $\mathcal{D}$ with a real-valued weight vector $\theta$, and together
