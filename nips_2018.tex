@@ -151,7 +151,7 @@ and also the problem of acquiring
 the prior knowledge necessary to quickly
 solve these tasks (Figure~\ref{firstPageFigure}).
 We think of
-solutions to these tasks as being best represented by programs,
+solutions to these tasks as being well represented by programs,
 and so our problem can be stated as follows:
 how should an agent learn to write programs?
 We take inspiration from two sources:
@@ -488,9 +488,10 @@ posterior over programs, $q(p|x)\approx \probability[p|x,\mathcal{D},\theta}]\pr
   thus amortizing the cost of finding programs with high posterior probability.
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
-  frontiers.}  Here we train a neural network, $q$, to predict a
-distribution over programs conditioned on a task. The objective of $q$
-is to assign high probability to programs $p$ where
+  frontiers.}  Here we train %% a neural network, $q$, to predict a
+%% distribution over programs conditioned on a task. The objective of $q$
+%% is
+$q(p|x)$ to assign high probability to programs $p$ where
 $\probability[x,p|\mathcal{D},\theta]$ is large, because including those programs
 in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can find programs for
 %% the frontier $\mathcal{F}_x$ by searching for programs that maximize
@@ -549,7 +550,7 @@ We now define DSLs:
 A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
 %\\\noindent\textbf{Definition.}
 A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| + 1$ real numbers:
-one number for each DSL primitive $e\in \mathcal{D}$, written $\theta_e$ and controlling the probability of primitive $e$ occurring in a program,
+one number for each DSL element $e\in \mathcal{D}$, written $\theta_e$ and controlling the probability of  $e$ occurring in a program,
 and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
 
 Together with its weight vector,
@@ -586,11 +587,12 @@ by automatically differentiating through the program and setting the constants u
 
 \subsection{Compilation: Learning a Neural Recognition Model}\label{recognitionSection}
 
-The purpose of the recognition model is to amortize the cost of searching for
-programs.  It does this by learning to predict programs which are
-probable under $(\mathcal{D},\theta)$ while also assigning high
-likelihood to a task according to $\probability[x|p]$.  Concretely,
-the recognition model $q$ is a neural network that predicts, for each
+The purpose of training the recognition model is to amortize the cost of searching for
+programs.  It does this by learning to predict, for each task,
+programs with high likelihood according to 
+$\probability[x|p]$ while also being
+probable under the prior $(\mathcal{D},\theta)$.  Concretely,
+the recognition model $q$ predicts, for each
 task $x\in X$, a weight vector $q(x) = \theta^{(x)}\in
 \mathbb{R}^{|\mathcal{D}| + 1}$.  Together with the DSL, this defines
 a distribution over programs, $\probability[p|\mathcal{D},\theta =
@@ -600,28 +602,46 @@ structure of the learned DSL, so it is \emph{not} responsible for
 generating programs wholesale.  We share this aspect with
 DeepCoder~\cite{balog2016deepcoder} and~\cite{menon2013machine}.
 
+How should we get the data to train $q$?
+This is nonobvious  because \system is only weakly supervised (i.e., learns only from tasks and not from (program, task) pairs).
+One approach is to sample programs from the DSL,
+run them to get their input/outputs,
+and then train $q$ to predict the program from the input/outputs.
+This approach is like how a Helmholtz machine
+trains its recognition model during its ``sleep'' phase~\cite{dayan1995helmholtz}.
+The advantage of ``Helmholtz machine'' training is that
+we can draw unlimited samples from the DSL,
+training on a large amount of data.
+Another approach is
+ self-supervised learning,
+training $q$ on the (program, task)
+pairs discovered by the algorithm so far.
+The advantage of self-supervised learning
+is that the training data is much higher quality,
+because we are training on the actual tasks.
+Due to these complementary advantages,
+we train on both these sources of data.
 
-We want a recognition model that closely approximates the true posteriors over programs. We formulate this as minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|q(p|x) \right) \right]$,
-or equivalently maximizing $  \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]$,
+Formally, $q$ should approximate the true posteriors over programs: minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|q(p|x) \right) \right]$,
+ equivalently maximizing $  \expect[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) ]$,
 %% \begin{equation*}
 %%   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
 %% \end{equation*}
-where the expectation is taken over tasks. One could take this expectation
-over the empirical distribution of tasks,
-like how an autoencoder is trained~\cite{hinton2006reducing}; or, one could take this expectation over samples from the generative model, like how a Helmholtz machine is trained~\cite{dayan1995helmholtz}.
-We found it useful to maximize both an autoencoder-style objective $\mathcal{L}_{\text{AE}}$ and a Helmholtz-style objective $\mathcal{L}_{\text{HM}}$, giving the  objective for a recognition model, $\mathcal{L}_{\text{RM}} = \mathcal{L}_\text{AE} + \mathcal{L}_\text{HM}$:
+ where the expectation is taken over tasks. Taking this expectation over the empirical distribution of tasks gives self-supervised training; taking it over samples from the generative model gives  Helmholtz-machine style training.
+ The  objective for a recognition model ($\mathcal{L}_{\text{RM}}$) combines the Helmholtz machine ($\mathcal{L}_{\text{HM}}$) and self supervised ($\mathcal{L}_{\text{SS}}$) objectives, $\mathcal{L}_{\text{RM}} = \mathcal{L}_\text{SS} + \mathcal{L}_\text{HM}$:
 \begin{align}\nonumber
 \mathcal{L}_{\text{HM}} = \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right]\quad
-\mathcal{L}_{\text{AE}} = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
+\mathcal{L}_{\text{SS}} = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
   \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\log q(p|x)\right]
 \end{align}
-The $\mathcal{L}_{\text{HM}}$ objective is essential for data efficiency:
+\begin{comment}
+  The $\mathcal{L}_{\text{HM}}$ objective is essential for data efficiency:
 all of our experiments train \system on only a few hundred tasks, which is too little for
 a high-capacity neural network $q$.
 Once we bootstrap a $(\mathcal{D},\theta)$,
 we can draw unlimited samples from $(\mathcal{D},\theta)$
 and train $q$ on those samples.
-
+  \end{comment}
 Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
 the current DSL, running them to get their outputs,
 and then training $q$ to regress from the input/outputs to the program.
