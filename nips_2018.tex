@@ -149,9 +149,9 @@
     \sc{Program}& $f(\text{\code{s}})\,=\,$\code{(}$f_0$\code{ "Dr." (}$f_2$\code{ s " "))}
       \\\midrule
     \sc{DSL}& \begin{tabular}{l}
-      $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b (lambda (x y) (cons x y)))}\\
+      $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(foldr a b (lambda (x y) (cons x y)))}\\
       \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
-      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (x a)}\\
+      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s (lambda (x a)}\\
       \phantom{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{  }}\code{(if (= c x) nil (cons x a))))}\\
       \hspace{0.5cm}($f_1$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
     \end{tabular}
@@ -229,7 +229,7 @@ We apply \system to three domains:
       &\hspace{0.5cm} \emph{(a linear function of x)}\\
    Strings& \code{(map (lambda (x) (if (= x a) b x)))}\\
    &\hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
-   Lists& \code{(fold nil (lambda (a b) (cons a b)))}\\
+   Lists& \code{(foldr nil (lambda (a b) (cons a b)))}\\
    &\hspace{0.5cm} \emph{(reverses a list)}
    \\\bottomrule
     \end{tabular}
@@ -631,13 +631,13 @@ recognition model training, and DSL induction.
     \toprule
     Example programs in frontiers&Proposed subexpression\\\midrule
     \begin{tabular}{l}
-      \code{(lambda (a b) (fold b (cons "," a)}\\
+      \code{(lambda (a b) (foldr b (cons "," a)}\\
       \phantom{\code{(lambda }}\code{(lambda (x z) (cons x z))))}\\
-      \code{(lambda (a b) (fold a b (lambda (x z) (cons x z))))}
+      \code{(lambda (a b) (foldr a b (lambda (x z) (cons x z))))}
     \end{tabular}&
     \begin{tabular}{l}
-      \code{(fold a b (lambda (x z) }\\
-      \phantom{\code{(fold a b }}\code{(cons x z)))}
+      \code{(foldr a b (lambda (x z) }\\
+      \phantom{\code{(foldr a b }}\code{(cons x z)))}
       \end{tabular}
 \\\bottomrule
   \end{tabular}
@@ -679,7 +679,7 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 We apply \system to list processing (Section~\ref{textSection}) and text editing (Section~\ref{listSection}).
 For both these domains we use a bidirectional GRU~\cite{cho2014learning} for the recognition model,
 and initially provide the system with a generic
-set of list processing primitives: \code{fold}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
+set of list processing primitives: \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
 
 
 
@@ -700,7 +700,7 @@ and so, in addition to the Lisp primitives provided for the text editing experim
 
 A complete repertoire of higher-order functions is a staple of functional programming standard libraries.
 Although we provided \system with some of the standard higher-order functions,
-like \code{fold} and \code{unfold},
+like \code{foldr} and \code{unfold},
 we did not include others.
 When trained on these list functions,
 our system rediscovers
@@ -832,13 +832,13 @@ prior work.
   \centering
     \begin{tabular}{l}
       \toprule
-      $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b (lambda (x y) (cons x y))))))}\\
+      $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(foldr a b (lambda (x y) (cons x y))))))}\\
       \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
-      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (x a) (cdr (if (= c x) s a))))}\\
+      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s (lambda (x a) (cdr (if (= c x) s a))))}\\
         \hspace{0.5cm}($f_1$: \emph{Drop first characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
       $f_2($\code{s}$) \,=\, $\code{(unfold s empty? car (lambda (z) (}$f_1$\code{ z SPACE)))}\\
         \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words})\\
-        $f_3($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (x a) (if (= c x) nil (cons x a))))}\\
+        $f_3($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s (lambda (x a) (if (= c x) nil (cons x a))))}\\
         \hspace{0.5cm}($f_3$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
         %(lambda (lambda (fold $0 $0 (lambda (lambda (if (char-eq? $1 $3) empty (cons $1 $0)))))))
   \\\bottomrule
