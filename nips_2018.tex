@@ -137,34 +137,32 @@
 
 \section{Introduction}
 
-Imagine that you are asked to edit some text,
-and told that you should change the text ``Nancy FreeHafer'' to ``Dr. Nancy''.
-From this example,
-you likely infer that ``Pushmeet Kohli'' should be changed to ``Dr. Pushmeet'',
-drawing upon your prior knowledge of text,
-like that words are separated by spaces and that
-one commonly prepends titles like ``Dr.''
+Imagine that you are asked to write a program to edit some text, and
+told that you should change the text ``Nancy FreeHafer'' to
+``Dr. Nancy''.  From this example, you likely infer that ``Jane
+Goodall'' should be ``Dr. Jane'', drawing upon your prior knowledge of
+text, like that words are separated by spaces. For few-shot program learning problems
+like these, the program synthesis and AI communities have had great
+success engineering program learning systems,
+not just for text editing~\cite{gulwani2011automating} but also for graphics
+programs~\cite{ellis2017learning}, planning
+procedures~\cite{devlin2017neural}, and many others.  However, the
+success of these systems hinges upon having a carefully
+hand-engineered \textbf{Domain Specific Language (DSL)}.  DSLs
+impart prior knowledge of a domain
+by providing a restricted set
+of finely-tuned programming primitives: for
+%that are finely tuned to the problems in the domain: for
+text editing,
+these are primitives like appending and splitting on characters.
 In this work,
 we consider the problem of
-building agents that solve few-shot learning tasks like these,
+building agents that solve program learning tasks,
 and also the problem of acquiring
 the prior knowledge necessary to quickly
 solve these tasks (Figure~\ref{firstPageFigure}).
-We think of
-solutions to these tasks as being well represented by programs,
-and so our problem can be stated as follows:
-how should an agent learn to write programs?
-We take inspiration from two sources:
-(1) Good software engineers compose libraries
-of reusable subroutines
-that are shared across
-related programming tasks.
-Returning to Figure~\ref{firstPageFigure},
-a good string processing library should support appending strings and splitting on spaces --
-exactly the prior knowledge needed to solve the task in Figure~\ref{firstPageFigure}.
-(2) Skilled human programmers
-can quickly recognize what kinds of programming idioms and library routines would be useful for solving
-the task at hand, even if they cannot instantly work out the details.
+Our solution is an algorithm that learns a DSL
+while jointly training a neural network to write programs in that learned DSL.
 \begin{figure}[h]
   \begin{minipage}[c]{0.68\textwidth}
 \hspace{-0.5cm}      \begin{tabular}{r|c|}\cmidrule{2-2}
@@ -172,7 +170,7 @@ the task at hand, even if they cannot instantly work out the details.
   \begin{tabular}{rcl}
   Nancy FreeHafer&$\longrightarrow$& Dr. Nancy\\
 % Andrew Cencici&$\longrightarrow$&Dr. Andrew\\
- Pushmeet Kohli&$\longrightarrow$&???
+ Jane Goodall&$\longrightarrow$&???
   \end{tabular}\\\cmidrule{2-2}
   \sc{Program}&$f(\text{\code{s}})\,=\,$\code{(}$f_0$\code{ "Dr." (}$f_2$\code{ s " "))}\\\cmidrule{2-2}
   \begin{tabular}{c}
@@ -192,8 +190,25 @@ the task at hand, even if they cannot instantly work out the details.
       \caption{\textbf{Task}: Few-shot learning problem. Model solves tasks by writing \textbf{program}s, and jointly learns a \textbf{library} of reusable subroutines that are shared across multiple tasks, called a \textbf{Domain Specific Language (DSL)}. Program writing is guided by a neural network trained jointly with the library.}\label{firstPageFigure}
     \end{minipage}
 \end{figure}
+
+
+%% We think of
+%% solutions to these tasks as being well represented by programs,
+%% and so our problem can be stated as follows:
+%% how should an agent learn to write programs?
+We take inspiration from two sources:
+(1) Good software engineers compose libraries
+of reusable subroutines
+that are shared across
+related programming tasks.
+Returning to Figure~\ref{firstPageFigure},
+a good string processing library should support appending strings and splitting on spaces --
+exactly the prior knowledge needed to solve the task in Figure~\ref{firstPageFigure}.
+(2) Skilled human programmers
+can quickly recognize what kinds of programming idioms and library routines would be useful for solving
+the task at hand, even if they cannot instantly work out the details.
 We combine these two ideas into
-a new algorithm called \systemEnding,
+an algorithm called \systemEnding,
 which takes as input a collection of
 programming \textbf{tasks},
 and then jointly
@@ -211,17 +226,6 @@ Together, the library and neural net
 encode the domain specific knowledge needed to
 quickly write programs.
 
-We call the learned library of subroutines a \textbf{Domain-Specific
-  Language} (\textbf{DSL}), a term widely used in the program
-synthesis community~\cite{polozov2015flashmeta}.
-Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
-both in classic symbolic program learning approaches (e.g., Metagol:~\cite{muggleton2015meta},
-FlashFill:~\cite{gulwani2011automating}),
-neural approaches  (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids of neural and
-symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}).
-The contribution of this work is
-an algorithm for learning DSLs while jointly training a neural net to
-search for programs in the DSL.
 
 %% synthesize programs for task domains such as string transformations,
 %% list processing, and robot navigation and planning. However, all these
@@ -246,19 +250,9 @@ search for programs in the DSL.
 %% general library of primitives, we give an algorithm for constructing a richer, more powerful,
 %% and better-tuned DSL.
 
-Because any model may be encoded as a (deterministic or probabilistic) program,
-we carefully delineate the scope of program learning problems considered here.
-We think of \system as learning to solve the kinds of problems that humans
-can solve relatively quickly -- once they acquire the relevant domain expertise.
-These correspond to short programs -- if you have an expressive DSL.
-Even with a good DSL, program search may be intractable, so
-we amortize the cost of program search by training a neural network to
-assist the search procedure.
-
-
 Our algorithm is called \textbf{Explore/Compress/Compile} (\systemEnding),
 because it iterates between three different steps: an
-\textbf{Explore} step uses the DSL to explore the space of programs,
+\textbf{Explore} step uses the DSL and neural network to explore the space of programs,
 searching for ones that solve the tasks; a \textbf{Compress} step
 modifies the structure of the DSL by discovering regularities across programs found by
 the previous Explore step; and a \textbf{Compile} step, which
@@ -273,12 +267,22 @@ recognition model ensures that searching for programs remains tractable
 even as the DSL (and hence the search space for programs) expands.
 
 
+Because any model may be encoded as a (deterministic or probabilistic) program,
+we carefully delineate the scope of problems considered here.
+We think of \system as learning to solve the kinds of problems that humans
+can solve relatively quickly -- once they acquire the relevant domain expertise.
+These correspond to short programs -- if you have an expressive DSL.
+Even with a good DSL, program search may be intractable, so
+we amortize the cost of program search by training a neural network to
+assist the search procedure.
+
+
 We apply \system to four domains:
-list processing; FlashFill-style~\cite{gulwani2011automating} string editing;  symbolic regression; and turtle graphics~\cite{turtle}.
+list processing; FlashFill-style~\cite{gulwani2011automating} string editing; and symbolic regression.
  For each of these we initially provide a generic
  set of programming primitives.
 Our algorithm then discovers
-its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
+its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
 \begin{figure}
   \begin{tabular}{lcl}
     \toprule
@@ -316,6 +320,24 @@ its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~
   \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
 %  \vspace{-4em}
 \end{figure}
+
+Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
+both in classic symbolic program learning approaches (e.g., Metagol:~\cite{muggleton2015meta},
+FlashFill:~\cite{gulwani2011automating}),
+neural approaches  (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids of neural and
+symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}).
+A notable exception is the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316},
+which also learns a library of subroutines.
+We were inspired by EC,
+and go beyond it by giving a new algorithm for learning DSLs, as well as a way of combining DSL learning with
+neurally guided program search.
+In the experiments section,
+we compared directly with EC,
+showing empirical improvements.
+The contribution of this work is
+then
+an effective algorithm for learning DSLs which also trains a neural net to
+search for programs in the DSL.
 
 
  
@@ -526,8 +548,8 @@ To make this concrete we need to define what programs actually are and
 what form $\probability[p |\mathcal{D},\theta]$ takes.
 We represent programs as $\lambda$-calculus expressions.
 $\lambda$-calculus is a formalism for expressing functional programs
-that closely resembles the Lisp programming language.
-$\lambda$-calculus includes variables, function application, and the ability to create new functions.
+that closely resembles Lisp,
+including variables, function application, and the ability to create new functions.
 Throughout this paper we will write $\lambda$-calculus expressions in Lisp syntax.
 Our programs are all strongly typed.
 We use the Hindley-Milner polymorphic typing system~\cite{pierce} which is
