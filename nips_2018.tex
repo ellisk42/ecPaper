@@ -137,58 +137,117 @@
 
 \section{Introduction}
 
-\begin{figure*}[h]
-  \centering
-  \begin{tabular}{rc}\toprule
-    \sc{Task}& \begin{tabular}{rcl}
-      Nancy FreeHafer&$\longrightarrow$&Dr. Nancy\\
-      Andrew Cencici&$\longrightarrow$&Dr. Andrew\\
-      Pushmeet Kohli&$\longrightarrow$&???
-    \end{tabular}
-      \\\midrule
-    \sc{Program}& $f(\text{\code{s}})\,=\,$\code{(}$f_0$\code{ "Dr." (}$f_2$\code{ s " "))}
-      \\\midrule
-    \sc{DSL}& \begin{tabular}{l}
-      $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(foldr a b (lambda (x y) (cons x y)))}\\
-      \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
-      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s (lambda (x a)}\\
-      \phantom{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{  }}\code{(if (= c x) nil (cons x a))))}\\
-      \hspace{0.5cm}($f_1$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
-    \end{tabular}
-      \\\bottomrule
+Imagine that you are asked to edit some text,
+and told that you should change the text ``Nancy FreeHafer'' to ``Dr. Nancy''.
+From this example,
+you likely infer that ``Pushmeet Kohli'' should be changed to ``Dr. Pushmeet'',
+drawing upon your prior knowledge of text,
+like that words are separated by spaces and that
+one commonly prepends titles like ``Dr.''
+In this work,
+we consider the problem of
+building agents that solve few-shot learning tasks like these,
+and also the problem of acquiring
+the prior knowledge necessary to quickly
+solve these tasks (Figure~\ref{firstPageFigure}).
+We think of
+solutions to these tasks as being best represented by programs,
+and so our problem can be stated as follows:
+how should an agent learn to write programs?
+We take inspiration from two sources:
+(1) Good software engineers compose libraries
+of reusable subroutines
+that are shared across
+related programming tasks.
+Returning to Figure~\ref{firstPageFigure},
+a good string processing library should support appending strings and splitting on spaces --
+exactly the prior knowledge needed to solve the task in Figure~\ref{firstPageFigure}.
+(2) Skilled human programmers
+can quickly recognize what kinds of programming idioms and library routines would be useful for solving
+the task at hand, even if they cannot instantly work out the details.
+\begin{figure}[h]
+  \begin{minipage}[c]{0.68\textwidth}
+\hspace{-0.5cm}      \begin{tabular}{r|c|}\cmidrule{2-2}
+  \sc{Task}&
+  \begin{tabular}{rcl}
+  Nancy FreeHafer&$\longrightarrow$& Dr. Nancy\\
+% Andrew Cencici&$\longrightarrow$&Dr. Andrew\\
+ Pushmeet Kohli&$\longrightarrow$&???
+  \end{tabular}\\\cmidrule{2-2}
+  \sc{Program}&$f(\text{\code{s}})\,=\,$\code{(}$f_0$\code{ "Dr." (}$f_2$\code{ s " "))}\\\cmidrule{2-2}
+  \begin{tabular}{c}
+    \sc{Library}\\
+    \sc{(DSL)}
+    \end{tabular}&\begin{tabular}{l}
+    $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b (lambda (x y)}\\
+    \phantom{$f_0($\code{a}$,$\code{b}$) \,=\, $\code{(}}\code{(cons x y)))}\\
+    \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
+    $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (x a)}\\
+    \phantom{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{  }}\code{(if (= c x) nil (cons x a))))}\\
+        \hspace{0.5cm}($f_1$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
+    \end{tabular}\\\cmidrule{2-2}
   \end{tabular}
-\end{figure*}
+  \end{minipage}%
+  \begin{minipage}[c]{0.31\textwidth}
+      \caption{\textbf{Task}: Few-shot learning problem. Model solves tasks by writing \textbf{program}s, and jointly learns a \textbf{library} of reusable subroutines that are shared across multiple tasks, called a \textbf{Domain Specific Language (DSL)}. Program writing is guided by a neural network trained jointly with the library.}\label{firstPageFigure}
+    \end{minipage}
+\end{figure}
+We combine these two ideas into
+a new algorithm called \systemEnding,
+which takes as input a collection of
+programming \textbf{tasks},
+and then jointly
+solves three problems:
+(1) Writing programs that solve the tasks;
+(2) Composing a library of
+domain-specific
+subroutines -- which allow the agent to
+more compactly write programs in the domain,
+and (3) Training a neural network
+to recognize
+which library components are
+useful for which kinds of tasks.
+Together, the library and neural net
+encode the domain specific knowledge needed to
+quickly write programs.
 
-Automatically inducing programs from examples is a long-standing goal
-of artificial intelligence. Recent work has successfully used
-symbolic search techniques (e.g., Metagol:~\cite{muggleton2015meta},
-FlashFill:~\cite{gulwani2011automating}), neural networks trained from
-a corpus of examples (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids of neural and
-symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}) to
-synthesize programs for task domains such as string transformations,
-list processing, and robot navigation and planning. However, all these
-approaches -- symbolic, neural and neural-symbolic -- rely upon a
-hand-engineered \emph{Domain-Specific Language} (DSL). DSLs contain an
-inventory of restricted programming primitives, encoding domain-specific
-knowledge about the space of programs. In
-practice
-we often have only a few input/output examples for each
-program to be induced, and thus success often hinges on having a good
-DSL that provides a crucial inductive bias for what would otherwise be an
-unconstrained search through the space of all computable functions.
-Here we ask, to what extent can we dispense with such highly
-hand-engineered domain-specific languages?
+We call the learned library of subroutines a \textbf{Domain-Specific
+  Language} (\textbf{DSL}), a term widely used in the program
+synthesis community~\cite{polozov2015flashmeta}.
+Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
+both in classic symbolic program learning approaches (e.g., Metagol:~\cite{muggleton2015meta},
+FlashFill:~\cite{gulwani2011automating}),
+neural approaches  (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids of neural and
+symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}).
+The contribution of this work is
+an algorithm for learning DSLs while jointly training a neural net to
+search for programs in the DSL.
 
-We propose \emph{learning} the DSL by inducing a library of domain--specific
-subroutines. We consider the setting where we have a collection of
-related programming tasks, each specified by a set of input/output
-examples. %% We do not assume that the tasks are annotated with
-%% ground-truth programs.
-Starting from a weaker or more
-general library of primitives, we give an algorithm for constructing a richer, more powerful,
-and better-tuned DSL.
+%% synthesize programs for task domains such as string transformations,
+%% list processing, and robot navigation and planning. However, all these
+%% approaches -- symbolic, neural and neural-symbolic -- rely upon a
+%% hand-engineered \emph{Domain-Specific Language} (DSL). DSLs contain an
+%% inventory of restricted programming primitives, encoding domain-specific
+%% knowledge about the space of programs. In
+%% practice
+%% we often have only a few input/output examples for each
+%% program to be induced, and thus success often hinges on having a good
+%% DSL that provides a crucial inductive bias for what would otherwise be an
+%% unconstrained search through the space of all computable functions.
+%% Here we ask, to what extent can we dispense with such highly
+%% hand-engineered domain-specific languages?
+
+%% We propose \emph{learning} the DSL by inducing a library of domain--specific
+%% subroutines. We consider the setting where we have a collection of
+%% related programming tasks, each specified by a set of input/output
+%% examples. %% We do not assume that the tasks are annotated with
+%% %% ground-truth programs.
+%% Starting from a weaker or more
+%% general library of primitives, we give an algorithm for constructing a richer, more powerful,
+%% and better-tuned DSL.
+
 Our algorithm is called \textbf{Explore/Compress/Compile} (\systemEnding),
-and iterates between three different steps: an
+because it iterates between three different steps: an
 \textbf{Explore} step uses the DSL to explore the space of programs,
 searching for ones that solve the tasks; a \textbf{Compress} step
 modifies the DSL by discovering regularities in the programs found by
@@ -212,23 +271,18 @@ Even with such an expressive DSL, program search may be intractable, so
 we amortize the cost of program search by training a neural network to
 assist the search procedure.
 
-We apply \system to three domains:
-Lisp-style functions on lists;
-FlashFill-style~\cite{gulwani2011automating} string processing; and
-symbolic regression;
-For each of these we initially provide a generic
-set of programming primitives in a Lisp-like language. % TODO: we don't actually give lisp primitives for regression..
-% including conditionals, variables, and higher-order functions.
+We apply \system to four domains:
+list processing; FlashFill-style~\cite{gulwani2011automating} string editing;  symbolic regression; and turtle graphics~\cite{turtle}.
+ For each of these we initially provide a generic
+ set of programming primitives.
 Our algorithm then discovers
 its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
 \begin{wrapfigure}{r}{0.6\textwidth}
     \begin{tabular}{ll}
    \toprule
    Domain&Part of the learned DSL\\\midrule
-   %% Circuits&\code{(nand (nand a a) (nand b b))}\\
-   %% &\hspace{0.5cm} \emph{(an OR gate)}\\
    Lists& \code{(foldr nil (lambda (a b) (cons a b)))}\\
-   &\hspace{0.5cm} \emph{(reverses a list)}
+   &\hspace{0.5cm} \emph{(reverses a list)}\\
    Strings& \code{(map (lambda (x) (if (= x a) b x)))}\\
    &\hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
    Regression& \code{(+ (* real x) real)} \\
@@ -1003,13 +1057,14 @@ This supports a view of the recognition model as a way of amortizing the cost of
   %% \textbf{84\%} &76\%& 63\%&62\%&62\%\\
   %% Solve time&  0.9s&  1.1s&1.2s&1.3s&1.3s
 
+
   \\\midrule\multicolumn{6}{c}{\emph{List functions}}\\\midrule
   \% solved&\textbf{86\%} &84\% &60\%&74\%&70\%\\
   Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
 
   \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
-  \% solved&\textbf{99\%} &82\% &9\%&24\%&18\%\\
-  Solve time&  0.9s&2.2s&2.7s&2.3s&2.4s
+  \% solved&\textbf{75\%} &\% &33\%&0\%&30\%\\
+  Solve time&  29s&s&80s&--&
 
   %% \\\midrule\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
   %% \% solved&\textbf{52\%} &\textbf{52\%} &40\%&44\%&42\%\\
