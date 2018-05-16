@@ -137,22 +137,27 @@
 
 \section{Introduction}
 
-\begin{tabular}{r|c|}\cmidrule{2-2}
-  Task&
-  \begin{tabular}{rcl}
-  Nancy FreeHafer&$\longrightarrow$& Dr. Nancy\\
- Andrew Cencici&$\longrightarrow$&Dr. Andrew\\
- Pushmeet Kohli&$\longrightarrow$&???
-  \end{tabular}\\\cmidrule{2-2}
-  Program&$f(\text{\code{s}})\,=\,$\code{(}$f_0$\code{ "Dr." (}$f_2$\code{ s " "))}\\\cmidrule{2-2}
-  DSL&\begin{tabular}{l}
-    $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b (lambda (x y) (cons x y)))}\\
-    \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
-    $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (x a)}\\
-    \phantom{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{  }}\code{(if (= c x) nil (cons x a))))}\\
-        \hspace{0.5cm}($f_1$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
-    \end{tabular}\\\cmidrule{2-2}
-  \end{tabular}
+\begin{figure*}[h]
+  \centering
+  \begin{tabular}{rc}\toprule
+    \sc{Task}& \begin{tabular}{rcl}
+      Nancy FreeHafer&$\longrightarrow$&Dr. Nancy\\
+      Andrew Cencici&$\longrightarrow$&Dr. Andrew\\
+      Pushmeet Kohli&$\longrightarrow$&???
+    \end{tabular}
+      \\\midrule
+    \sc{Program}& $f(\text{\code{s}})\,=\,$\code{(}$f_0$\code{ "Dr." (}$f_2$\code{ s " "))}
+      \\\midrule
+    \sc{DSL}& \begin{tabular}{l}
+      $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b (lambda (x y) (cons x y)))}\\
+      \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
+      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (x a)}\\
+      \phantom{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{  }}\code{(if (= c x) nil (cons x a))))}\\
+      \hspace{0.5cm}($f_1$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
+    \end{tabular}
+      \\\bottomrule
+  \end{tabular}\right.
+\end{figure*}
 
 Automatically inducing programs from examples is a long-standing goal
 of artificial intelligence. Recent work has successfully used
@@ -202,8 +207,8 @@ Because any model may be encoded as a (deterministic or probabilistic) program,
 we carefully delineate the scope of program learning problems considered here.
 We think of \system as learning to solve the kinds of problems that humans
 can solve relatively quickly -- once they acquire the relevant domain expertise.
-These correspond to short programs -- once you have the right DSL.
-Even with the right DSL, program search may be intractable, so
+These correspond to short programs if you have an expressive DSL.
+Even with such an expressive DSL, program search may be intractable, so
 we amortize the cost of program search by training a neural network to
 assist the search procedure.
 
@@ -228,7 +233,8 @@ We apply \system to three domains:
    &\hspace{0.5cm} \emph{(reverses a list)}
    \\\bottomrule
     \end{tabular}
-    \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}\vspace{-1cm}
+    \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
+    \vspace{-4em}
  \end{wrapfigure}
 
 
@@ -278,7 +284,7 @@ recognition model to search for programs that solve the tasks.  The
 recognition model, respectively.  Crucially, these steps bootstrap 
 off each other (Fig.~\ref{feeding}):
 
-\begin{wrapfigure}{r}{0.5\textwidth}\vspace{-0.5}
+\begin{wrapfigure}{r}{0.5\textwidth}
   \begin{tikzpicture}
     \begin{scope}[shift = {(1,-1)}]
     \node[align = center](synthesis) at (6,4) {Search for \\programs};
