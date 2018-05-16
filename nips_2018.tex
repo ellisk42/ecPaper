@@ -137,6 +137,23 @@
 
 \section{Introduction}
 
+\begin{tabular}{r|c|}\cmidrule{2-2}
+  Task&
+  \begin{tabular}{rcl}
+  Nancy FreeHafer&$\longrightarrow$& Dr. Nancy\\
+ Andrew Cencici&$\longrightarrow$&Dr. Andrew\\
+ Pushmeet Kohli&$\longrightarrow$&???
+  \end{tabular}\\\cmidrule{2-2}
+  Program&$f(\text{\code{s}})\,=\,$\code{(}$f_0$\code{ "Dr." (}$f_2$\code{ s " "))}\\\cmidrule{2-2}
+  DSL&\begin{tabular}{l}
+    $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b (lambda (x y) (cons x y)))}\\
+    \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
+    $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s (lambda (x a)}\\
+    \phantom{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{  }}\code{(if (= c x) nil (cons x a))))}\\
+        \hspace{0.5cm}($f_1$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
+    \end{tabular}\\\cmidrule{2-2}
+  \end{tabular}
+
 Automatically inducing programs from examples is a long-standing goal
 of artificial intelligence. Recent work has successfully used
 symbolic search techniques (e.g., Metagol:~\cite{muggleton2015meta},
@@ -189,154 +206,6 @@ These correspond to short programs -- once you have the right DSL.
 Even with the right DSL, program search may be intractable, so
 we amortize the cost of program search by training a neural network to
 assist the search procedure.
-
-%% Automatically inducing programs from examples is a long-standing goal
-%% of artificial intelligence.  Recent work in program induction show
-%% that deep networks can be very successful at learning to write certain
-%% kinds of programs (e.g., RobustFill:~\cite{devlin2017robustfill} and
-%% DeepCoder:~\cite{balog2016deepcoder}), as can symbolic search
-%% techniques (e.g., Metagol:~\cite{muggleton2015meta},
-%% FlashFill:~\cite{gulwani2011automating}, and Sketch~\cite{solar2008program}).
-%% However, the success of these approaches -- both symbolic and neural --
-%% relies crucially upon a hand-engineered \emph{Domain Specific Language} (DSL).
-%% The DSL is an inventory of restricted programming primitives,
-%% and imparts domain specific knowledge about the space of programs.
-%% To what extent can we dispense with hand-engineered DSLs?
-
-%% This work proposes \emph{learning} the DSL.
-%% We consider the setting where we have a collection of related programming tasks,
-%% each specified by a set of input/output examples.
-%% We do not assume that the tasks are annotated with
-%% ground-truth programs.
-%% Our algorithm, called \systemEnding,
-%% does three things:
-%% it finds programs that solve each of the tasks;
-%% it creates its own DSL by discovering and reusing
-%% domain-specific subroutines;
-%% and it learns a neural network that
-%% efficiently searches for programs in the DSL.
-%% The purpose of the DSL
-%% is to expose the commonalities across the programs that solve tasks within a domain,
-%% letting the agent solve other related program learning problems.
-
-
-
-%% starting with a Lisp-like representation.
-%% We introduce an algorithm, called the \system,
-%% which creates its own DSL by discovering and then reusing
-%% new useful programming idioms and subroutines.
-
-
-
-
-
-%% Imagine an agent faced with a new domain of unfamiliar tasks: think
-%% playing new kinds of videogames, authoring Python code, or navigating
-%% through mazes.  Our agent has at its disposal a basis of primitive
-%% actions it can compose to propose solutions to these tasks, but it is
-%% no idea what kinds of primitives are appropriate for which tasks
-%% nor does it know the higher-level vocabulary in which solutions are
-%% best expressed.  How can our agent learn to solve problems in this new
-%% domain?
-
-
-%% The AI and machine learning literature contains two broad takes on this problem.
-%% The first take is that the agent should come up with a better representation of the space of solutions,
-%% for example, by inventing new primitive actions: see \emph{options} in reinforcement learning~\cite{stolle2002learning}, the EC algorithm in program synthesis~\cite{Dechter:2013:BLV:2540128.2540316}, or predicate invention in inductive logic programming~\cite{muggleton2015meta}.
-%% The second take is that the agent should learn a discriminative model mapping problems to a distribution over solutions: for example, policy gradient methods in reinforcement learning or neural models of program synthesis~\cite{devlin2017robustfill,balog2016deepcoder}.
-%% Our contribution is a general algorithm for fusing these two takes on the problem:
-%% we propose jointly inducing a representation language, called a \emph{Domain Specific Language} (DSL),
-%% alongside a bottom-up discriminative model that regresses from problems to solutions.
-%% We evaluate our algorithm on four domains:
-%% building Boolean circuits; symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing problems; and functions on lists.
-%% %Because we want a domain-general
-%% %approach,
-%% We model solutions to tasks as
-%% programs,
-%% which frames our problem as one of program induction.
-
-
-
-%% \begin{figure}
-%%   \centering
-
-%%   \begin{tikzpicture}
-
-%%   \node[latent] at (0.5,3) (d){$\mathcal{D}$};
-%%   \node[latent] at (1.5,3) (t){$\theta$};
-%%   \node[latent] at (1,1.75) (z){$p$};
-%% %  \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
-%%   \node[obs] at (1,0.5) (x) {$x$};
-%%   \edge {z}{x};
-%%   \edge {d,t}{z};
-%%   \plate {}{(z)(x)}{$x\in X$};
-%%   \node[align = center] at ([yshift = -1.3cm]x.south) {(a) \\generative model};
-
-%%   \begin{scope}[shift = {(0.7,0)}]  
-%%   \node[obs] at (3.5,3) (dx){$\mathcal{D}$};
-%%   \node[latent] at (3.5,1.9) (zp){$p$};
-%%   \node[latent] at (5,1.9) (tx){$\theta^{(x)}$};
-%%   \node[obs] at (3.5,0.5) (xp) {$x$};
-%%   \plate {}{(zp)(xp)(tx)}{$x\in X$};
-%%   \node[align = center] at ([yshift = -1.2cm,xshift = 1cm]xp.south) {(b) \\recognition model};
-%%   \draw [->,red] (xp.east) to[out = 0,in = -90] node(nn){} (tx.south);
-%%   \draw [->,red] (tx.west) -- (zp.east);
-%%   \draw [->,red] (dx.south) -- (zp.north);
-
-%%   \node at (nn) {
-%%     \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.15,shift={+(-1,2.5)}}]
-%%       \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-%%       \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-%%       \node[rectangle] at (1,1) {};
-%%       \foreach \name / \y in {1,...,4}
-%%           \node[neuron] (I-\name) at (0,-\y) {};
-%%       \foreach \name / \y in {1,...,3}
-%%           \node[neuron] (H-\name) at (1,-\y-0.5) {};
-%%       \foreach \name / \y in {1,...,4}
-%%           \node[neuron] (O-\name) at (2,-\y) {};
-%%       \foreach \source in {1,...,4}
-%%           \foreach \dest in {1,...,3}
-%%               \draw [-latex] (I-\source) -- (H-\dest);
-%%       \foreach \source in {1,...,3}
-%%           \foreach \dest in {1,...,4}
-%%               \draw [-latex] (H-\source) -- (O-\dest);
-%%     \end{tikzpicture}
-%%   };
-%%   \node[shift={+(0,-0.55)}] at (nn) { $q(x)$ };
-
-%%   \end{scope}
-
-  
-
-
-%%   \end{tikzpicture}
-%%   \caption{(a) DSL $\mathcal{D}$ generates programs $p$ by sampling DSL primitives according to probabilities $\theta$. From each program we observe a task $x$ (program inputs/outputs). (b)  Neural network $q(\cdot )$, the \emph{recognition model}, regresses from $x$ to the parameters of a distribution over programs,
-%%     $\theta^{(x)}$. Black/red arrows correspond to the generative/recognition models.}\label{graphicalModel}
-%% \end{figure}
-
-
-%% To perform inference, we take inspiration from the Helmholtz machine
-%% and the Wake/Sleep algorithm~\cite{hinton1995wake}, which alternates
-%% between ``waking'', which draws samples from a recognition model (our
-%% $q$); and ``sleeping'', which trains a recognition model on samples
-%% from the generative model (our $\mathcal{D},\theta$).  For us, a
-%% \textbf{Wake} cycle means using the recognition model to search for
-%% programs that solve the tasks.  A sleep cycle means updating these
-%% models so that the DSL and recognition model more closely match the
-%% distribution of tasks.  An important difference from the Helmholtz
-%% machine is that our setup has two distinct sleep phases: a phase where
-%% we update the generative model $(\mathcal{D},\theta)$, which we call
-%% \textbf{Sleep-G}, and a second phase where we update the recognition
-%% model $q$, called \textbf{Sleep-R}.
-
-
-%% We take the intuitive strategy of exploiting the
-%% conditional independence of the programs conditioned on the DSL, and
-%% so alternate between estimating the DSL ($\mathcal{D},\theta$) and
-%% estimating a posterior distribution over $p$ by searching for
-%% programs.  In practice searching for
-%% programs is difficult, so we use the recognition model to
-%% learn how to search efficiently.
 
 We apply \system to three domains:
  symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing; and Lisp-style functions on lists.
@@ -572,7 +441,7 @@ $\lambda$-calculus includes variables, function application, and the ability to 
 Throughout this paper we will write $\lambda$-calculus expressions in Lisp syntax.
 Our programs are all strongly typed.
 We use the Hindley-Milner polymorphic typing system~\cite{pierce} which is
-used in functional programming languages like OCaml.
+used in functional programming languages like OCaml and Haskell.
 %% Type variables are always written using lowercase Greek letters
 %% and we write $\alpha\to \beta$ to mean a function that takes an input of type $\alpha$
 %% and returns something of type $\beta$.
