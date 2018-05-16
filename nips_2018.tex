@@ -128,10 +128,10 @@
   programs and imparting prior knowledge of the domain.  We contribute
   a program induction algorithm called \system that learns a DSL while
   jointly training a neural network to efficiently search for programs
-  in the learned DSL.  We use our model to solve symbolic regression
-  problems, edit strings, and synthesize functions on lists, showing
-  how the model learns a domain-specific library of program components
-  for expressing solutions to problems in the domain.
+  in the learned DSL.  We use our model to synthesize functions on lists,
+  edit strings, and solve symbolic regression problems, showing how the
+  model learns a domain-specific library of program components for
+  expressing solutions to problems in the domain.
 \end{abstract}
 
 
@@ -156,7 +156,7 @@
       \hspace{0.5cm}($f_1$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
     \end{tabular}
       \\\bottomrule
-  \end{tabular}\right.
+  \end{tabular}
 \end{figure*}
 
 Automatically inducing programs from examples is a long-standing goal
@@ -213,24 +213,26 @@ we amortize the cost of program search by training a neural network to
 assist the search procedure.
 
 We apply \system to three domains:
- symbolic regression; FlashFill-style~\cite{gulwani2011automating} string processing; and Lisp-style functions on lists.
- For each of these we initially provide a generic
- set of programming primitives in a Lisp-like language.
+Lisp-style functions on lists;
+FlashFill-style~\cite{gulwani2011automating} string processing; and
+symbolic regression;
+For each of these we initially provide a generic
+set of programming primitives in a Lisp-like language. % TODO: we don't actually give lisp primitives for regression..
 % including conditionals, variables, and higher-order functions.
- Our algorithm then discovers
- its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
+Our algorithm then discovers
+its own domain-specific vocabulary for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
 \begin{wrapfigure}{r}{0.6\textwidth}
     \begin{tabular}{ll}
    \toprule
    Domain&Part of the learned DSL\\\midrule
    %% Circuits&\code{(nand (nand a a) (nand b b))}\\
    %% &\hspace{0.5cm} \emph{(an OR gate)}\\
-   Regression& \code{(+ (* real x) real)} \\
-      &\hspace{0.5cm} \emph{(a linear function of x)}\\
-   Strings& \code{(map (lambda (x) (if (= x a) b x)))}\\
-   &\hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
    Lists& \code{(foldr nil (lambda (a b) (cons a b)))}\\
    &\hspace{0.5cm} \emph{(reverses a list)}
+   Strings& \code{(map (lambda (x) (if (= x a) b x)))}\\
+   &\hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
+   Regression& \code{(+ (* real x) real)} \\
+      &\hspace{0.5cm} \emph{(a linear function of x)}\\
    \\\bottomrule
     \end{tabular}
     \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
@@ -676,7 +678,7 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 
 
 \section{Sequence manipulating programs}\label{sequences}
-We apply \system to list processing (Section~\ref{textSection}) and text editing (Section~\ref{listSection}).
+We apply \system to list processing (Section~\ref{listSection}) and text editing (Section~\ref{textSection}).
 For both these domains we use a bidirectional GRU~\cite{cho2014learning} for the recognition model,
 and initially provide the system with a generic
 set of list processing primitives: \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
@@ -689,14 +691,15 @@ a widely studied problem in the programming languages community~\cite{feser2015s
 %with applications to computer aided programming~\cite{solar2008program}.
 We consider this problem within the context of
 learning functions that manipulate lists.
-We created 225 Lisp-style list manipulation tasks,
+We created 244 Lisp-style list manipulation tasks,
 each with 15 input/output examples (Tbl.~\ref{listexamples}).
 Our data set is challenging along two dimensions:
 many of the functions are very complicated,
-and the agent must learn to solve these complicated problems from only 225 tasks.
+and the agent must learn to solve these complicated problems from only 244 tasks.
 Our data set primarily consists of arithmetic operations upon sequences,
 and so, in addition to the Lisp primitives provided for the text editing experiments, we additionally start the system out with the following primitives:
-\code{mod}, \code{*}, \code{>}, \code{is-square}, \code{is-prime}.
+\code{mod}, \code{*}, \code{>}, \code{is-square}, \code{is-prime}, \code{2},
+\code{3}, \code{4}, \code{5}.
 
 A complete repertoire of higher-order functions is a staple of functional programming standard libraries.
 Although we provided \system with some of the standard higher-order functions,
@@ -1000,10 +1003,9 @@ This supports a view of the recognition model as a way of amortizing the cost of
   %% \textbf{84\%} &76\%& 63\%&62\%&62\%\\
   %% Solve time&  0.9s&  1.1s&1.2s&1.3s&1.3s
 
-  \\\midrule\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
-  \% solved&   \textbf{84\% }&75\%&38\%&38\%&37\% \\
-  Solve time&  24s& 40s  &31s&55s&29s\\
-  %% MDL (nats)&   9.3 &11.0&2.3&--&4.6
+  \\\midrule\multicolumn{6}{c}{\emph{List functions}}\\\midrule
+  \% solved&\textbf{86\%} &84\% &60\%&74\%&70\%\\
+  Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
 
   \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
   \% solved&\textbf{99\%} &82\% &9\%&24\%&18\%\\
@@ -1013,9 +1015,11 @@ This supports a view of the recognition model as a way of amortizing the cost of
   %% \% solved&\textbf{52\%} &\textbf{52\%} &40\%&44\%&42\%\\
   %% Solve time&  0.4s&0.7s&1.2s&0.9s&1.0s
 
-  \\\midrule\multicolumn{6}{c}{\emph{List functions}}\\\midrule
-  \% solved&\textbf{86\%} &84\% &60\%&74\%&70\%\\
-  Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
+  \\\midrule\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
+  \% solved&   \textbf{84\% }&75\%&38\%&38\%&37\% \\
+  Solve time&  24s& 40s  &31s&55s&29s\\
+  %% MDL (nats)&   9.3 &11.0&2.3&--&4.6
+
   \\\bottomrule
   \end{tabular}
 \caption{\% solved w/ 5 sec timeout. Solve time: averaged over solved
