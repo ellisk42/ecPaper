@@ -377,10 +377,10 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
     $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}\\
     \vspace{2ex}
       \hspace{0.5cm}($f_0$: \emph{Concatenate }\code{r}\emph{ with $\ell$})\\
-    $f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k empty) $\ell$)}\\
+    $f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k nil) $\ell$)}\\
     \vspace{2ex}
       \hspace{0.5cm}($f_1$: \emph{Append }\code{k}\emph{ to $\ell$})\\
-    $f_2(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (empty$?$ $\ell$)}\\
+    $f_2(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
     \phantom{$f_1(\ell,$\code{k}}
     \code{($\lambda$ (x a) (if a a (= k x))))}\\
       \hspace{0.5cm}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
@@ -392,7 +392,7 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
       \hspace{0.5cm}($f_0$: \emph{Performs character substitution)}\\
       $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a)}\\\hspace{1.1cm}\code{ (cdr (if (= c x) s a))))}\\
         \hspace{0.5cm}($f_1$: \emph{Drop characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
-      $f_2($\code{s}$) \,=\, $\code{(unfold s empty$?$ car }\\\hspace{1cm}\code{($\lambda$ (z) (}$f_1$\code{ z \codechar{ })))}\\
+      $f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car }\\\hspace{1cm}\code{($\lambda$ (z) (}$f_1$\code{ z \codechar{ })))}\\
         \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words})\\
     \end{tabular}&
 
@@ -1076,11 +1076,11 @@ prior work.
       \hspace{0.5cm}($f_0$: \emph{Performs character substitution)}\\
       $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a) (cdr (if (= c x) s a))))}\\
         \hspace{0.5cm}($f_1$: \emph{Drop first characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
-      $f_2($\code{s}$) \,=\, $\code{(unfold s empty? car ($\lambda$ (z) (}$f_1$\code{ z SPACE)))}\\
+      $f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car ($\lambda$ (z) (}$f_1$\code{ z SPACE)))}\\
         \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words. See Fig.~\ref{initialExampleDSL}})\\
         $f_3($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a) (if (= c x) nil (cons x a))))}\\
         \hspace{0.5cm}($f_3$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
-        %($\lambda$ ($\lambda$ (fold $0 $0 ($\lambda$ ($\lambda$ (if (char-eq? $1 $3) empty (cons $1 $0)))))))
+        %($\lambda$ ($\lambda$ (fold $0 $0 ($\lambda$ ($\lambda$ (if (char-eq? $1 $3) nil (cons $1 $0)))))))
   \\\bottomrule
     \end{tabular}
   \caption{Some text editing learned subroutines }\label{textPrimitives}
