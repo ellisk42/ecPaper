@@ -122,6 +122,88 @@
 
 \maketitle
 
+\section{Learning abstract geometry}
+The brifly presented geometry project is a recent addition to the set of
+problems adressed with our method. The original DSL, while inspired by the
+Logo~\cite{abelson1974logo} in the sense that ones controls a moving on-off
+point, was designed to be congitively plausible in the sense that some
+abstractions are baked in for curves and a few structures --- it was first
+described in~\cite{sablemeyer2017geom}.
+
+It is to be thought as a turtle with as internal state a position, a facing
+direction, a speed, an acceleration, an angular speed and an angular
+acceleration.
+
+The DSL is the following:
+
+\begin{center}
+\tt
+\begin{tabular}{rr}
+  \toprule
+  \textrm{\emph{name}}    & \textrm{\emph{type}} \\
+  \midrule
+  Concat    & \text{prog}      \to \text{prog}      \to \text{prog} \\
+  Repeat    & var option        \to \text{prog}      \to \text{prog} \\
+  Embed     & \text{prog}      \to \text{prog}                       \\
+  Define    & \text{var}        \to \text{prog}                       \\
+  Turn      & \text{var option} \to \text{prog}                       \\
+  Integrate & \text{var option} \to \text{bool}       \to              \\
+            & \text{var option} \to \text{var option} \to              \\
+            & \text{prog}                                             \\
+  \midrule
+  True      & bool                                                     \\
+  False     & bool                                                     \\
+  \midrule
+  Nothing   & \text{var option}                                        \\
+  Just      & \text{var}        \to \text{var option}                  \\
+  \midrule
+  Unit      & var                                                      \\
+  Name      & var                                                      \\
+  Next      & \text{var}        \to \text{var}                         \\
+  Prev      & \text{var}        \to \text{var}                         \\
+  Double    & \text{var}        \to \text{var}                         \\
+  Half      & \text{var}        \to \text{var}                         \\
+  Opposite  & \text{var}        \to \text{var}                         \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+In this context programs to be learned are directly resulting shapes, since they
+don't take an input, and all tasks will be unique in the sense that each program
+ignores input and produces a single output.
+
+Some elements of the semantics are common, the others are as follow.
+\texttt{Repeat} takes a \texttt{variable} and a \texttt{prog} and repeats
+said \texttt{prog} $n$ times where $n$ is the evaluation of the
+\texttt{variable} --- if not set it is defaulted to two. \texttt{Embed} of a
+\texttt{prog} means that said \texttt{prog} will be executed and then returns to
+the current state --- leaving what has been drawn in the meantime on the canvas.
+\texttt{Integrate} is the main instruction and the only one that draws anything:
+\texttt{Integrate(t,p,a,c)} takes a time \texttt{var}, a pen \texttt{bool}, an
+acceleration \texttt{var} and an angular speed \texttt{var}, and it moves the
+turtle according to these parameters --- with or without actually drawing
+depending on the pen variable \texttt{p}.
+
+\begin{wrapfigure}{r}{0.25\textwidth}
+  \begin{center}
+    \includegraphics[width = 0.25\textwidth]{figures/DSLGeom.eps}
+  \end{center}\label{dslgeom}\caption{Some defaults for \texttt{Integrate}}
+\end{wrapfigure}
+
+The default values of these parameters are set such that \texttt{Integrate(nothing,
+true, nothing, nothing)} draws a unit segment, \texttt{Integrate(nothing, true,
+nothing, Just(Unit))} draws a circle of unit length, and
+\texttt{Integrate(nothing, true, Just(Unit), Just(unit))} draws the first spire
+of a spiral.
+
+The training was done on the following set of tasks
+
+\begin{figure}[h]
+\centering
+\includegraphics[width = \textwidth]{figures/geomAllTasks.png}
+  \caption{The set of tasks for the geometry domain}
+\end{figure}
+
 \section{An Illustration of the 3 iterations of our algorithm}
 Below we diagram the iterations employed by our algorithm. At each stage of the algorithm,
 we have shaded the observed variables in gray and left the unobserved variables white.
