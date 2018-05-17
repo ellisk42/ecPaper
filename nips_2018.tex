@@ -278,8 +278,8 @@ list processing; text editing (in the style of FlashFill~\cite{gulwani2011automa
  For each of these we initially provide a generic
  set of programming primitives.
 Our algorithm then constructs
-its own DSL for expressing solutions in the domain (Fig.~\ref{initialExampleDSL}).
-\begin{figure}[hb]
+its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
+\begin{table}[hb]
 \makebox[\textwidth][c]{
 \scriptsize
 \renewcommand\code\texttt
@@ -366,13 +366,11 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
     $f_6($\code{x}$)\,=\,$\code{($f_4$ ($f_0$ x))} \\
     \hspace{0.5cm}\emph{($f_6$: rational function)}\\
 
-    \end{tabular}
-      
-      \\\bottomrule 
-  
-\end{tabular}}
+  \end{tabular}
+  \\\bottomrule 
+\end{tabular}}\\\\
 \caption{Top: Example tasks from each domain, each followed by the programs \system discovers for them. Bottom: Subset of learned DSL. Notice that learned DSL primitives can call each other.}\label{initialExampleDSL}
-\end{figure}
+\end{table}
 
 Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
 both in classic symbolic program learning approaches (e.g., Metagol:~\cite{muggleton2015meta},
@@ -784,7 +782,7 @@ proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC} fails to increase.
 The search moves work by introducing new
 $\lambda$-expressions into the DSL.
 We propose these new expressions by extracting fragments of
-programs already in the frontiers (Fig.~\ref{fragmentExample}).
+programs already in the frontiers (Tbl.~\ref{fragmentExample}).
 An important point here is that we are \emph{not} simply adding
 subexpressions of programs to $\mathcal{D}$, as done in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316} and other prior work~\cite{DBLP:conf/ecai/LinDETM14}.  Instead, we are
 extracting fragments that unify with programs in the frontiers.  This
@@ -793,7 +791,7 @@ Fragment Grammars~\cite{tim} and Tree-Substitution
 Grammars~\cite{cohn2010inducing}, and is closely related to the idea
 of antiunification~\cite{henderson2013cumulative}.
 
-\begin{figure}[b]
+\begin{table}[b]
 \centering  \begin{tabular}{ll}
     \toprule
     Example programs in frontiers&Proposed $\lambda$-expression\\\midrule
@@ -820,7 +818,7 @@ of antiunification~\cite{henderson2013cumulative}.
   \caption{The DSL induction algorithm proposes fragments of programs to add to the DSL.
     These fragments are taken from programs in the frontiers (left column). Here, the proposed subexpression (top) appends two lists or (bottom) performs character substitutions.} 
   \label{fragmentExample}
-\end{figure}
+\end{table}
 
 
 To define the prior distribution over $(\mathcal{D},\theta})$, we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
@@ -1075,19 +1073,6 @@ system writes and use gradient descent to fit the parameters.
 We define the likelihood model, $\probability[x|p]$, by assuming a Gaussian noise model for the input/output examples,
 and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
 
-\begin{wrapfigure}{r}{6.4cm} \newcommand{\functionSize}{1.5cm}\vspace{-0.5cm}\centering
-%  \includegraphics[width = \functionSize]{figures/functions/0.png}
-  \includegraphics[width = \functionSize]{figures/functions/6.png}
-  \includegraphics[width = \functionSize]{figures/functions/116.png}
-  \includegraphics[width = \functionSize]{figures/functions/160.png}
-  \includegraphics[width = \functionSize]{figures/functions/149.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/432.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/415.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/426.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/597.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/591.png}
-  \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
-\end{wrapfigure}
 %% \begin{align*}
 %%   \log \probability[x|p] \triangleq& \sum_{n\leq N}\log
 %%   \mathcal{N}(p(i_n,\vec{\mathcal{R}}^*)|o_n) - \frac{D\log N}{2}
@@ -1106,14 +1091,36 @@ and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:P
 %% found by performing gradient ascent on the likelihood of the
 %% observations w.r.t. $\vec{\mathcal{R}}$.
 
-\system learns a DSL containing templates for polynomials of different orders, as well as ratios of polynomials (Fig.~\ref{regressionDSL}).
+\system learns a DSL containing templates for polynomials of different orders, as well as ratios of polynomials (Tbl.~\ref{regressionDSL}).
 The algorithm also discovers programs that minimize the number of continuous degrees of freedom.
 For example, it learns to represent linear functions with the program
 \code{(* real (+ x real))}}, which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
 which has five continuous parameters.
 This phenomenon arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
-\begin{wrapfigure}{l}{0.35\textwidth}\centering
-\begin{tabular}{l}
+
+%% The neural recognition model accelerates inference,
+%% but given enough iterations of our algorithm,
+%% a lesioned version without the recognition model eventually comes close to catching up (green curves in Fig.~\ref{regressionLearningCurve}; No NN in Tbl.~\ref{regressionComparison}).
+%% We compare our model on held-out tasks against 4 baselines (Tbl.~\ref{regressionComparison}).
+
+\begin{figure*}[h]
+\makebox[\textwidth][c]{
+\begin{minipage}{0.55\textwidth} \newcommand{\functionSize}{1.5cm}\centering
+%  \includegraphics[width = \functionSize]{figures/functions/0.png}
+  \includegraphics[width = \functionSize]{figures/functions/6.png}
+  \includegraphics[width = \functionSize]{figures/functions/116.png}
+  \includegraphics[width = \functionSize]{figures/functions/160.png}
+  \includegraphics[width = \functionSize]{figures/functions/149.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/432.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/415.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/426.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/597.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/591.png}
+  \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
+\end{minipage}
+\hspace{1em}
+\begin{minipage}{0.5\textwidth}
+  \centering\begin{tabular}{l}
   \toprule
   $f_0($\code{x}$)\,=\,$\code{(+ x real)}\\
   $f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} \\
@@ -1123,14 +1130,10 @@ This phenomenon arises from our Bayesian framing -- both the bias towards shorte
     \hspace{0.5cm}\emph{($f_3$: ratio of polynomials)}
   \\\bottomrule
 \end{tabular}
-\caption{Some learned subroutines for symbolic regression. System starts with addition, multiplication, division, and real numbers, and learns to build rational functions and polynomials up to 4th order.}\label{regressionDSL}
-\end{wrapfigure}
-
-%% The neural recognition model accelerates inference,
-%% but given enough iterations of our algorithm,
-%% a lesioned version without the recognition model eventually comes close to catching up (green curves in Fig.~\ref{regressionLearningCurve}; No NN in Tbl.~\ref{regressionComparison}).
-%% We compare our model on held-out tasks against 4 baselines (Tbl.~\ref{regressionComparison}).
-
+  \captionof{table}{Some learned subroutines for symbolic regression. System starts with addition, multiplication, division, and real numbers, and learns to build rational functions and polynomials up to 4th order.}\label{regressionDSL}
+\end{minipage}
+}
+\end{figure*}
 
 \section{Quantitative Results}\label{quantitative}
 
@@ -1249,17 +1252,7 @@ We see these prior works as operating in a different regime: typically, they tra
  
  \section{Contribution and Outlook}
 
-\begin{wrapfigure}{r}{0.4\textwidth}
-  \begin{center}
-    \includegraphics[width = 0.4\textwidth]{figures/geomCompiled.eps} 
-  \end{center}
-  \caption{
-  Top left: hand crafted traning targets. Top right: examples of
-  discovered compiled new programs. Bottom: compiled programm across iterations
-  to highlight structure emergence.
-  }\label{geomCompiled} 
-\end{wrapfigure}
-
+\parbox{0.58\textwidth}{
 We contribute an algorithm, \systemEnding, that learns to program by bootstrapping a DSL with new
 domain-specific primitives that the algorithm itself discovers,
 together with a neural recognition model that learns how to
@@ -1276,6 +1269,14 @@ Another direction is to
 explore DSL meta-learning: Can we find a \emph{single} universal
 primitive set that could effectively bootstrap DSLs for new domains,
 including the three domains considered,  but also many others?
+}\hfill\begin{minipage}{0.4\textwidth}\centering
+  \includegraphics[width=0.8\textwidth]{figures/geomCompiled.eps} 
+  \captionof{figure}{
+  Top left: hand crafted traning targets. Top right: examples of
+  discovered compiled new programs. Bottom: compiled programm across iterations
+  to highlight structure emergence.
+  }\label{geomCompiled}
+\end{minipage}
 
 \bibliographystyle{unsrt}
 {\small \bibliography{main}}
