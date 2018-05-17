@@ -376,8 +376,10 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
     %NOTE: this is the actual invention, but I removed a redundant lambda
     % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
     $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}\\
+    \vspace{2ex}
       \hspace{0.5cm}($f_0$: \emph{Concatenate }\code{r}\emph{ with $\ell$})\\
     $f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k empty) $\ell$)}\\
+    \vspace{2ex}
       \hspace{0.5cm}($f_1$: \emph{Append }\code{k}\emph{ to $\ell$})\\
     $f_2(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (empty$?$ $\ell$)}\\
     \phantom{$f_1(\ell,$\code{k}}
