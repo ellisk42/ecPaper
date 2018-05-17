@@ -200,7 +200,7 @@ of reusable subroutines
 that are shared across
 related programming tasks.
 Returning to Figure~\ref{firstPageFigure},
-a good string processing library should support appending strings and splitting on spaces --
+a good text editing library should support appending strings and splitting on spaces --
 exactly the prior knowledge needed to solve the task in Figure~\ref{firstPageFigure}.
 (2) Skilled human programmers
 can quickly recognize what kinds of programming idioms and library routines would be useful for solving
@@ -276,11 +276,12 @@ assist the search procedure.
 
 
 We apply \system to four domains:
-list processing; FlashFill-style~\cite{gulwani2011automating} string editing; and symbolic regression.
- For each of these we initially provide a generic
- set of programming primitives.
-Our algorithm then discovers
-its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
+list processing;
+text editing (in the style of FlashFill~\cite{gulwani2011automating});
+and symbolic regression.
+For each of these we initially provide a generic set of programming primitives.
+Our algorithm then discovers its own DSL for expressing solutions in the
+domain (Tbl.~\ref{initialExampleDSL}).
 %% \begin{figure}
 %%   \begin{tabular}{lcl}
 %%     \toprule
@@ -325,7 +326,7 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
 \renewcommand\code\texttt
 \renewcommand\codechar[1]{\texttt{"#1"}}
 \begin{tabular}{>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}}\toprule
-  {\normalsize Lists}&{\normalsize Strings}&{\normalsize Symbolic Regression}\\\midrule
+  {\normalsize Lists}&{\normalsize Text}&{\normalsize Symbolic Regression}\\\midrule
   \begin{tabular}{c}
       % \code{[7\, 0\, 2]}$\to $\code{[2\, 0\, 7]} \\
       % \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2]}\\
@@ -397,7 +398,7 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
 
   \begin{tabular}{l}
     $f_0($\code{x}$)\,=\,$\code{(+ x real)}\\
-  $f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} \\
+    $f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} \\
     $f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}\\
     $f_3($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_2$\code{ x)))}\\
     $f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}\\
@@ -411,7 +412,10 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
       \\\bottomrule 
   
 \end{tabular}}
-\caption{Top: Example tasks from each domain, each followed by the programs \system discovers for them. Bottom: Subset of learned DSL. Notice that learned DSL primitives can call each other ($f_1$/$f_2$ in Strings \& Regression)}
+\caption{Top: Example tasks from each domain, each followed by the programs
+  \system discovers for them. Bottom: Subset of learned DSL. Notice that
+  learned DSL primitives can call each other
+  ($f_0$/$f_1$ in Lists, $f_1$/$f_2$ in Text \& Regression)}
 \end{figure}
 
 Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
@@ -906,35 +910,41 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 
 \section{Sequence manipulating programs}\label{sequences}
 We apply \system to list processing (Section~\ref{listSection}) and text editing (Section~\ref{textSection}).
-For both these domains we use a bidirectional GRU~\cite{cho2014learning} for the recognition model,
-and initially provide the system with a generic
-set of list processing primitives: \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
+For both these domains we use a bidirectional GRU~\cite{cho2014learning} for
+the recognition model, and initially provide the system with a generic set
+of list processing primitives:
+\code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
+\code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
+\code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
 
 
 
-\subsection{List Functions}\label{listSection}
-Synthesizing programs that manipulate data structures is
-a widely studied problem in the programming languages community~\cite{feser2015synthesizing}.
+\subsection{List Processing}\label{listSection}
+Synthesizing programs that manipulate data structures is a widely studied
+problem in the programming languages community~\cite{feser2015synthesizing}.
 %with applications to computer aided programming~\cite{solar2008program}.
-We consider this problem within the context of
-learning functions that manipulate lists.
-We created 244 Lisp-style list manipulation tasks,
-each with 15 input/output examples (Tbl.~\ref{listexamples}).
-Our data set is challenging along two dimensions:
-many of the functions are very complicated,
-and the agent must learn to solve these complicated problems from only 244 tasks.
-Our data set primarily consists of arithmetic operations upon sequences,
-and so, in addition to the Lisp primitives provided for the text editing experiments, we additionally start the system out with the following primitives:
+We consider this problem within the context of learning functions that
+manipulate lists.
+We created 236 Lisp-style list manipulation tasks, each with 15 input/output
+examples (Tbl.~\ref{listexamples}).
+Our data set is challenging along two dimensions: many of the functions are
+very complicated, and the agent must learn to solve these complicated
+problems from only 236 tasks.
+Our data set primarily consists of arithmetic operations upon sequences, and
+so, in addition to the Lisp primitives provided for the text editing
+experiments, we additionally start the system out with the following
+primitives:
 \code{mod}, \code{*}, \code{>}, \code{is-square}, \code{is-prime}, \code{2},
 \code{3}, \code{4}, \code{5}.
 
-A complete repertoire of higher-order functions is a staple of functional programming standard libraries.
-Although we provided \system with some of the standard higher-order functions,
-like \code{foldr} and \code{unfold},
-we did not include others.
-When trained on these list functions,
-our system rediscovers
-and then reuses the higher-order function \code{filter} \textbf{Lucas: not sure if it actually does this! It would be cool if we can write something like this though.}
+A complete repertoire of higher-order functions is a staple of functional
+programming standard libraries.
+Although we provided \system with some of the standard higher-order
+functions, like \code{foldr} and \code{unfold}, we did not include others.
+When trained on these list functions, our system rediscovers and then reuses
+the higher-order function \code{filter} \textbf{Lucas: not sure if it
+actually does this! It would be cool if we can write something like this
+though.}
 
 
 %% Our list function domain consists of hand-designed concepts from which we
@@ -1014,10 +1024,10 @@ and then reuses the higher-order function \code{filter} \textbf{Lucas: not sure 
 
   \end{comment}
 
-\subsection{String Editing}\label{textSection}
-Synthesizing programs that edit strings is a classic problem in the
+\subsection{Text Editing}\label{textSection}
+Synthesizing programs that edit text is a classic problem in the
 programming languages and AI literatures~\cite{menon2013machine,lau2001programming},
-and algorithms that learn string editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
+and algorithms that learn text editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
 This prior work presumes a hand-engineered DSL.
 We show \system can instead start out with generic Lisp primitives
 and recover many of the higher-level building blocks that have made these
@@ -1032,7 +1042,7 @@ strings via dynamic programming.  In Section~\ref{regressionSection},
 we will use a similar trick to synthesize programs containing real
 numbers, but using gradient descent instead of dynamic programming.
 
-We automatically generated 109 string editing tasks  %% with 4 input/output examples each
+We automatically generated 109 text editing tasks  %% with 4 input/output examples each
 (Fig.~\ref{exampleTextProblem}).
 At first, \system cannot find any correct programs for most of the tasks.
 After three iterations, it assembles a DSL (Tbl.~\ref{textPrimitives}) that lets it rapidly explore the space of programs and find solutions to
@@ -1070,7 +1080,7 @@ prior work.
         %($\lambda$ ($\lambda$ (fold $0 $0 ($\lambda$ ($\lambda$ (if (char-eq? $1 $3) empty (cons $1 $0)))))))
   \\\bottomrule
     \end{tabular}
-  \caption{Some string editing learned subroutines }\label{textPrimitives}
+  \caption{Some text editing learned subroutines }\label{textPrimitives}
   \end{table}
 
 %% \begin{wrapfigure}{r}{0.6\textwidth}
@@ -1205,7 +1215,7 @@ Tbl.~\ref{baselineComparisons}
 compares our model against these baselines.
 Our full model consistently
 improves on the baselines,
-sometimes dramatically (string editing and symbolic regression).
+sometimes dramatically (text editing and symbolic regression).
 The recognition model 
 consistently increases the number of solved held-out tasks,
 and lesioning it also slows down the convergence of the algorithm,
@@ -1227,11 +1237,11 @@ This supports a view of the recognition model as a way of amortizing the cost of
   %% Solve time&  0.9s&  1.1s&1.2s&1.3s&1.3s
 
 
-  \\\midrule\multicolumn{6}{c}{\emph{List functions}}\\\midrule
+  \\\midrule\multicolumn{6}{c}{\emph{List Processing}}\\\midrule
   \% solved&\textbf{86\%} &84\% &60\%&74\%&70\%\\
   Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
 
-  \\\midrule\multicolumn{6}{c}{\emph{String Editing}}\\\midrule
+  \\\midrule\multicolumn{6}{c}{\emph{Text Editing}}\\\midrule
   \% solved&\textbf{75\%} &\% &33\%&0\%&4\%\\
   Solve time&  29s&s&80s&--&235s
 
