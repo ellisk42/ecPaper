@@ -178,8 +178,7 @@ while jointly training a neural network to help write programs in the learned DS
   \sc{Program}&$f(\text{\code{s}})\,=\,$\code{(}$f_0$\code{ "Dr." (}$f_1$\code{ s ' '))}\\\cmidrule{2-2}
     \sc{DSL}
 &\begin{tabular}{l}
-    $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b ($\lambda$ (x y)}\\
-    \phantom{$f_0($\code{a}$,$\code{b}$) \,=\, $\code{(}}\code{(cons x y)))}\\
+    $f_0($\code{a}$,$\code{b}$) \,=\, $\code{(fold a b ($\lambda$ (x y) (cons x y)))}\\
     \hspace{0.5cm}($f_0$: \emph{Appends lists (of characters))}\\
     $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(fold s s ($\lambda$ (x a)}\\
     \phantom{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{  }}\code{(if (= c x) nil (cons x a))))}\\
@@ -284,43 +283,43 @@ list processing; FlashFill-style~\cite{gulwani2011automating} string editing; an
  set of programming primitives.
 Our algorithm then discovers
 its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
-\begin{figure}
-  \begin{tabular}{lcl}
-    \toprule
-    Domain&Example Task&Part of the learned DSL\\\midrule
-    Lists&
-    \begin{tabular}{rcl}
-      \code{[7\, 0\, 2]}&$\longrightarrow$&\code{[7\, 0\, 2\, 4]} \\
-      \code{[3\, 9]}&$\longrightarrow$&\code{[3\, 9\, 4]}
-    \end{tabular}
-    &
-    \begin{tabular}{l}
-      \code{(foldr nil ($\lambda$ (a b) (cons a b)))}\\
-          \hspace{0.5cm} \emph{(appends lists)}
-      \end{tabular}
+%% \begin{figure}
+%%   \begin{tabular}{lcl}
+%%     \toprule
+%%     Domain&Example Task&Part of the learned DSL\\\midrule
+%%     Lists&
+%%     \begin{tabular}{rcl}
+%%       \code{[7\, 0\, 2]}&$\longrightarrow$&\code{[7\, 0\, 2\, 4]} \\
+%%       \code{[3\, 9]}&$\longrightarrow$&\code{[3\, 9\, 4]}
+%%     \end{tabular}
+%%     &
+%%     \begin{tabular}{l}
+%%       \code{(foldr nil ($\lambda$ (a b) (cons a b)))}\\
+%%           \hspace{0.5cm} \emph{(appends lists)}
+%%       \end{tabular}
 
 
-    \\    Strings&
-    \begin{tabular}{rcl}
-      Temple Anna H& $\longrightarrow$& TAH\\
-      Lara Gregori&$\longrightarrow$&LG
-      \end{tabular}
-    &
-    \begin{tabular}{l}
-      \code{(map ($\lambda$ (x) (if (= x a) b x)))}\\
-      \hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
-      \end{tabular}
+%%     \\    Strings&
+%%     \begin{tabular}{rcl}
+%%       Temple Anna H& $\longrightarrow$& TAH\\
+%%       Lara Gregori&$\longrightarrow$&LG
+%%       \end{tabular}
+%%     &
+%%     \begin{tabular}{l}
+%%       \code{(map ($\lambda$ (x) (if (= x a) b x)))}\\
+%%       \hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
+%%       \end{tabular}
     
-    \\Regression&\includegraphics[width = 1cm]{figures/functions/476.png}&\begin{tabular}{l}
-      \code{(+ (* real x) real)} \\
-          \hspace{0.5cm} \emph{(a linear function of x)}
-      \end{tabular}
+%%     \\Regression&\includegraphics[width = 1cm]{figures/functions/476.png}&\begin{tabular}{l}
+%%       \code{(+ (* real x) real)} \\
+%%           \hspace{0.5cm} \emph{(a linear function of x)}
+%%       \end{tabular}
 
-    \\\bottomrule
-  \end{tabular}
-  \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
-%  \vspace{-4em}
-\end{figure}
+%%     \\\bottomrule
+%%   \end{tabular}
+%%   \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
+%% %  \vspace{-4em}
+%% \end{figure}
 
 \begin{figure}[hb]
 \makebox[\textwidth][c]{
@@ -328,7 +327,7 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
 \renewcommand\code\texttt
 \renewcommand\codechar[1]{\texttt{"#1"}}
 \begin{tabular}{>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}}\toprule
-  Lists&Strings&Symbolic Regression\\\midrule
+  {\normalsize Lists}&{\normalsize Strings}&{\normalsize Symbolic Regression}\\\midrule
   \begin{tabular}{c}
       % \code{[7\, 0\, 2]}$\to $\code{[2\, 0\, 7]} \\
       % \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2]}\\
@@ -344,18 +343,22 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
   \begin{tabular}{c}
     +106 769-438$\to $106.769.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
     +83 973-831$\to $83.973.831\\
-    $f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{,} ($f_0$ \codechar{.} \codechar{ } (cdr s)))}\\\\
+    $f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{,} }\\
+    \hspace{1cm}\code{($f_0$ \codechar{.} \codechar{ } (cdr s)))}\\\\
 Temple Anna H $\to $TAH\\
 Lara Gregori$\to $LG\\
 $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
 
   \end{tabular}&
 
-  \begin{tabular}{c}
-    \includegraphics[width = 3em]{figures/functions/4.png}\\
-    \code{$f($x$) = $($f_1$ -0.8 1.6)}\\
-    \includegraphics[width = 3em]{figures/functions/112.png}\\
-    \code{$f($x$) = $($f_0$ -0.8 1.6)}\\
+  \begin{tabular}{cc}
+    \includegraphics[width = 3em]{figures/functions/4.png}&
+    \includegraphics[width = 3em]{figures/functions/146}\\
+    \code{$f($x$) = $($f_1$ x)}&    \code{$f($x$) = $($f_6$ x)}\\
+    \includegraphics[width = 3em]{figures/functions/112.png}&
+        \includegraphics[width = 3em]{figures/functions/92.png}
+    \\
+    \code{$f($x$) = $($f_4$ x)}&    \code{$f($x$) = $($f_3$ x)}\\
     
     \end{tabular}
 
@@ -365,33 +368,41 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
     % $f_0($\code{r}$,\ell) \,=\, $\code{(fold $\ell$ r ($\lambda$ (x a)}\\
     % \phantom{$f_0($\code{r}$,\ell) \,=\, $\code{(fold}}\code{(cons (index (length a) $\ell$) a)))}\\
       % \hspace{0.5cm}($f_1$: \emph{Get the largest number})\\
-    $f_0(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a) (if (> a x) a x)))}\\
+    $f_0(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}\\\hspace{0.8cm}\code{ (if (> a x) a x)))}\\
       \hspace{0.5cm}($f_1$: \emph{Get the largest number in $\ell$})\\
     $f_1(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (empty$?$ $\ell$)}\\
-    \phantom{$f_1(\ell,$\code{k}$) \,=\, $\code{(foldr}}
+    \phantom{$f_1(\ell,$\code{k}}
     \code{($\lambda$ (x a) (if a a (= k x))))}\\
       \hspace{0.5cm}($f_1$: \emph{Whether $\ell$ contains $k$})\\
   \end{tabular}&
 
 
   \begin{tabular}{l}
-          $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$ (x) (if (= x a) b x)) s)}\\
+          $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$ (x)}\\\hspace{1cm}\code{ (if (= x a) b x)) s)}\\
       \hspace{0.5cm}($f_0$: \emph{Performs character substitution)}\\
-      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a) (cdr (if (= c x) s a))))}\\
-        \hspace{0.5cm}($f_1$: \emph{Drop first characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
-      $f_2($\code{s}$) \,=\, $\code{(unfold s empty$?$ car ($\lambda$ (z) (}$f_1$\code{ z SPACE)))}\\
+      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a)}\\\hspace{1.1cm}\code{ (cdr (if (= c x) s a))))}\\
+        \hspace{0.5cm}($f_1$: \emph{Drop characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
+      $f_2($\code{s}$) \,=\, $\code{(unfold s empty$?$ car }\\\hspace{1cm}\code{($\lambda$ (z) (}$f_1$\code{ z \codechar{ })))}\\
         \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words})\\
     \end{tabular}&
 
   \begin{tabular}{l}
     $f_0($\code{x}$)\,=\,$\code{(+ x real)}\\
   $f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} \\
-  $f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}\\
+    $f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}\\
+    $f_3($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_2$\code{ x)))}\\
+    $f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}\\
+    \hspace{0.5cm}\emph{($f_4$: 4th order polynomial)}\\
+        $f_5($\code{x}$)\,=\,$\code{(/ real x)}\\
+    $f_6($\code{x}$)\,=\,$\code{($f_4$ ($f_0$ x))} \\
+    \hspace{0.5cm}\emph{($f_6$: rational function)}\\
+
     \end{tabular}
       
       \\\bottomrule 
   
 \end{tabular}}
+\caption{Top: Example tasks from each domain, each followed by the programs \system discovers for them. Bottom: Subset of learned DSL. Notice that learned DSL primitives can call each other ($f_1$/$f_2$ in Strings \& Regression)}
 \end{figure}
 
 Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
