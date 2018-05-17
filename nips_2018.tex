@@ -457,18 +457,18 @@ each other:
   \caption{\system solves for programs, the DSL, and a neural network (recognition model). Each of these steps iteratively bootstraps off of the others.}  \label{feeding}\vspace{-0.4cm}
 \end{wrapfigure}
   \end{comment}
-\\\noindent \textbf{Exploration: Searching for programs.}  Our program search
+\\\noindent \textbf{Search: Solving tasks.}  Our program search
 is informed by both the DSL and the recognition model. When these
 improve, we can solve more tasks.
 \\\noindent\textbf{Compression: Improving the DSL.} We induce the DSL
-from the programs found in the exploration phase, aiming
+from the programs found in the search phase, aiming
 to maximally compress (or, raise the prior probability of) these
 programs.  As we solve more tasks, we hone in on DSLs that
 more closely match the domain.
 \\\noindent \textbf{Compilation: Learning a neural recognition model.}  We
 update the recognition model by training on two data sources: samples
 from the DSL (as in the Helmholtz Machine's ``sleep'' phase), and
-programs found by the search procedure during exploration. As the DSL
+programs found by the search procedure during search. As the DSL
 improves and as search finds more programs, the recognition model gets
 more data to train on, and better data.
 
@@ -545,7 +545,7 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
 \system does approximate MAP inference  by maximizing this lower bound on the joint probability,
-alternating maximization w.r.t. the frontiers (Exploration) and the DSL (Compression):
+alternating maximization w.r.t. the frontiers (Search) and the DSL (Compression):
 \\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
 $\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]$
@@ -589,7 +589,7 @@ in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can f
 %% Another complementary means of meeting search is to learn a
 %% bottom-up \emph{recognition model}
 
-\subsection{Exploration: Searching for Programs}\label{explorationSection}
+\subsection{Searching for Programs}\label{explorationSection}
 
 Now our goal is to search for programs solving the tasks.  We use the simple approach of enumerating programs from
 the DSL  in decreasing order of their probability,
@@ -844,7 +844,7 @@ recognition model training, and DSL induction.
 Alg.~\ref{mainAlgorithm} describes how we combine program search,
 recognition model training, and DSL induction.
 We note the following implementation details:
-(1) We perform an exploration cycle before each compression and compilation  cycle.
+(1) We perform an search cycle before each compression and compilation  cycle.
 (2) On the first iteration, we do \emph{not} train the recognition model on samples from
 the generative model because a generative model has not yet been learned --
 we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
@@ -1161,7 +1161,7 @@ We can not compare directly with these systems,
 because they are engineered for one specific domain, and 
 do not have publicly available code and datasets.
 \\\noindent \textbf{EC}, an implementation of the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, publicly available at...
-\\\noindent \textbf{Enum}, which enumerates a frontier without any learning -- equivalently, our first exploration step.
+\\\noindent \textbf{Enum}, which enumerates a frontier without any learning -- equivalently, our first search step.
 
 For each domain,
 we are interested both in how many tasks the
