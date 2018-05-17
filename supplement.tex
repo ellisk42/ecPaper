@@ -1,56 +1,51 @@
-%%%%%%%% ICML 2018 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
-
 \documentclass{article}
 
-% Recommended, but optional, packages for figures and better typesetting:
-\usepackage{microtype}
-\usepackage{graphicx}
-%\usepackage{subfigure}
-\usepackage{booktabs} % for professional tables
+% if you need to pass options to natbib, use, e.g.:
+% \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading nips_2018
 
-% hyperref makes hyperlinks in the resulting PDF.
-% If your build breaks (sometimes temporarily if a hyperlink spans a page)
-% please comment out the following usepackage line and replace
-% \usepackage{icml2018} with \usepackage[nohyperref]{icml2018} above.
-\usepackage{hyperref}
+% ready for submission
+\usepackage{nips_2018}
 
-% Attempt to make hyperref and algorithmic work together better:
-\newcommand{\theHalgorithm}{\arabic{algorithm}}
+% to compile a preprint version, e.g., for submission to arXiv, add
+% add the [preprint] option:
+% \usepackage[preprint]{nips_2018}
 
-\newcommand{\system}{\textsc{DreamCoder}~}
+% to compile a camera-ready version, add the [final] option, e.g.:
+% \usepackage[final]{nips_2018}
 
-% Use the following line for the initial blind version submitted for review:
-\usepackage{icml2018}
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{nips_2018}
 
-
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 \usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
+\usepackage{stmaryrd}
 
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\system}{\textsc{CoCoSea}~}
+\newcommand{\systemEnding}{\textsc{CoCoSea}}
+\newcommand{\lowerBound}{\mathscr{L}}
+\newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
+\newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
+
+\usepackage{mathrsfs}
 \usepackage{listings}
 \usepackage{amsthm}
-% use Times
-\usepackage{times}
-% For figures
-\usepackage{graphicx} % more modern
-%\usepackage{epsfig} % less modern
-%\usepackage{subfig}
+
+\usepackage{subfig} 
 \usepackage{fancyvrb}
 
 
 \usepackage{caption}
-\usepackage{subcaption}
-
-\fvset{fontsize=\footnotesize}
-
 \usepackage{amssymb}
 \usepackage{listings}
-\lstset{%
-  basicstyle=\footnotesize\ttfamily,
-  breaklines=true}
 \usepackage{wrapfig}
 \usepackage{tabularx}
 
@@ -61,18 +56,14 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{tikz}
+\usepackage{circuitikz}
 \usetikzlibrary{fit,bayesnet}
-%\usetikzlibrary{arrows.meta}
-%\usetikzlibrary{positioning}
-%\usetikzlibrary{decorations.text}
-%\usetikzlibrary{decorations.pathmorphing}
 \usepackage{dsfont}
 \usepackage{amsmath}
-\usepackage{hyperref}
-%\DeclareMathOperator*{\argmin}{arg\,min} % thin space, limits underneath in displays
-\DeclareMathOperator*{\argmax}{arg\,max} % thin space, limits underneath in displays
-\DeclareMathOperator{\argmin}{argmin} % no space, limits underneath in displays
 
+\DeclareMathOperator*{\argmin}{arg\,min} % thin space, limits underneath in displays
+\DeclareMathOperator*{\argmax}{arg\,max} % thin space, limits underneath in displays
+ 
 
 
 % Packages hyperref and algorithmic misbehave sometimes.  We can fix
@@ -83,78 +74,56 @@
 \newcommand{\expect}{\mathds{E}} %{{\rm I\kern-.3em E}}
 \newcommand{\probability}{\mathds{P}} %{{\rm I\kern-.3em P}}
 
+\title{Supplement to: Learning Libraries of Subroutines for Neurally--Guided Bayesian Program Learning}
 
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
 
-% If accepted, instead use the following line for the camera-ready submission:
-%\usepackage[accepted]{icml2018}
-
-% The \icmltitle you define below is probably too long as a header.
-% Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{\textsc{DreamCoder}: Bootstrapping Domain Specific Languages for Neurally-Guided Bayesian Program Learning}
+\author{
+  David S.~Hippocampus\thanks{Use footnote for providing further
+    information about author (webpage, alternative
+    address)---\emph{not} for acknowledging funding agencies.} \\
+  Department of Computer Science\\
+  Cranberry-Lemon University\\
+  Pittsburgh, PA 15213 \\
+  \texttt{hippo@cs.cranberry-lemon.edu} \\
+  %% examples of more authors
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \AND
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+}
 
 \begin{document}
+% \nipsfinalcopy is no longer used
 
-\twocolumn[
-\icmltitle{Supplement: Bootstrapping Domain Specific Languages for Neurally-Guided Bayesian Program Learning}
+\maketitle
 
-% It is OKAY to include author information, even for blind
-% submissions: the style file will automatically remove it for you
-% unless you've provided the [accepted] option to the icml2018
-% package.
-
-% List of affiliations: The first argument should be a (short)
-% identifier you will use later to specify author affiliations
-% Academic affiliations should list Department, University, City, Region, Country
-% Industry affiliations should list Company, City, Region, Country
-
-% You can specify symbols, otherwise they are numbered in order.
-% Ideally, you should not use this facility. Affiliations will be numbered
-% in order of appearance and this is the preferred way.
-\icmlsetsymbol{equal}{*}
-
-\begin{icmlauthorlist}
-\icmlauthor{Aeiau Zzzz}{equal,to}
-\icmlauthor{Bauiu C.~Yyyy}{equal,to,goo}
-\icmlauthor{Cieua Vvvvv}{goo}
-\icmlauthor{Iaesut Saoeu}{ed}
-\icmlauthor{Fiuea Rrrr}{to}
-\icmlauthor{Tateu H.~Yasehe}{ed,to,goo}
-\icmlauthor{Aaoeu Iasoh}{goo}
-\icmlauthor{Buiui Eueu}{ed}
-\icmlauthor{Aeuia Zzzz}{ed}
-\icmlauthor{Bieea C.~Yyyy}{to,goo}
-\icmlauthor{Teoau Xxxx}{ed}
-\icmlauthor{Eee Pppp}{ed}
-\end{icmlauthorlist}
-
-\icmlaffiliation{to}{Department of Computation, University of Torontoland, Torontoland, Canada}
-\icmlaffiliation{goo}{Googol ShallowMind, New London, Michigan, USA}
-\icmlaffiliation{ed}{School of Computation, University of Edenborrow, Edenborrow, United Kingdom}
-
-\icmlcorrespondingauthor{Cieua Vvvvv}{c.vvvvv@googol.com}
-\icmlcorrespondingauthor{Eee Pppp}{ep@eden.co.uk}
-
-% You may provide any keywords that you
-% find helpful for describing your paper; these are used to populate
-% the "keywords" metadata in the PDF but will not be shown in the document
-\icmlkeywords{Machine Learning, ICML}
-
-\vskip 0.3in
-]
-
-% this must go after the closing bracket ] following \twocolumn[ ...
-
-% This command actually creates the footnote in the first column
-% listing the affiliations and the copyright notice.
-% The command takes one argument, which is text to display at the start of the footnote.
-% The \icmlEqualContribution command is standard text for equal contribution.
-% Remove it (just {}) if you do not need this facility.
-
-%\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
-\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
-
-\section{An Illustration of the Wake-Sleep Cycle}
-Below we diagram the wake/sleep cycles employed by our algorithm. At each stage of the cycle,
+\section{An Illustration of the 3 iterations of our algorithm}
+Below we diagram the iterations employed by our algorithm. At each stage of the algorithm,
 we have shaded the observed variables in gray and left the unobserved variables white.
 Black lines correspond to a connection from the top-down
 generative model, while red lines correspond to connections from the bottom-up recognition model.
@@ -167,7 +136,7 @@ generative model, while red lines correspond to connections from the bottom-up r
     \node[latent] at (3.5,1.75) (zp){$p$};
     \node[obs] at (4,3) (tx){$\theta^{(x)}$};
     \node[obs] at (3.5,0.7) (xp) {$x$};
-    \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Wake: Infer $p$};
+    \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Search: Infer $p$};
     \draw [->,red] (xp.east) to[out = 0,in = 0] node(nn){} (tx.east);
     \draw [->,red] (tx) -- (zp);
     \draw [->] (dx) -- (zp);
@@ -220,7 +189,7 @@ generative model, while red lines correspond to connections from the bottom-up r
     \plate {}{(zp)(xp)}{$x\in X$};
 
     \draw[dashed,cyan,very thick] ([yshift = 0.5cm,xshift = -0.5]p1.west) rectangle  ([yshift = -0.5cm,xshift = -0.5]xp.east);
-    \node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Sleep-R: Train $q$\\training data: cyan $(x,p)$};
+    \node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Compile: Train $q$\\training data: cyan $(x,p)$};
   \end{scope}
     
   \begin{scope}[shift={(7.7,-4)}]
@@ -232,7 +201,7 @@ generative model, while red lines correspond to connections from the bottom-up r
     \edge {z}{x};
     \edge {d,t}{z};
     \plate {}{(z)(x)}{$x\in X$};
-    \node[align = center] at ([yshift = -1cm]x.south) {Sleep-G: Induce $(\mathcal{D},\theta)$};
+    \node[align = center] at ([yshift = -1cm]x.south) {Compress: Induce $(\mathcal{D},\theta)$};
   \end{scope}
 
 \end{tikzpicture}
@@ -282,7 +251,7 @@ generative model, while red lines correspond to connections from the bottom-up r
  \end{cases}$
 \end{algorithmic}
 \end{algorithm}
-\vspace{-1.8cm}    \end{minipage}
+    \end{minipage}
   \end{wrapfigure}Alg.~\ref{programGenerativeModel} is a procedure for drawing
 samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
 enumerate programs in order of their probability under  Alg.~\ref{programGenerativeModel} rather than sample them.
@@ -326,19 +295,23 @@ but~\cite{pierce} offers a nice overview of lambda calculus and typing systems l
 \section{Neural Recognition Model Architecture}
 
 The neural recognition model regresses from an observation (set of input/output pairs: $\left\{(i_n,o_n) \right\}_{n\leq N}$) to a $|\mathcal{D}| + 1$ dimensional vector. Each input/output pair is processed by an identical encoder network;
-the outputs of the encoders are max pooled and passed to an MLP with 1 hidden layer, 16 hidden units, and a ReLU activation:
+the outputs of the encoders are average and passed to an MLP with 1 hidden layer, 32 hidden units, and a ReLU activation:
 \begin{align}
-  q(x) = \text{MLP}\left(\text{MaxPool}\left(\left\{\text{encoder}\left(i_n,o_n \right) \right\}_{n\leq N} \right) \right)
+  q(x) = \text{MLP}\left(\text{Average}\left(\left\{\text{encoder}\left(i_n,o_n \right) \right\}_{n\leq N} \right) \right)
 \end{align}
-For the Boolean circuits and symbolic regression domains,
-the inputs and outputs have a fixed dimensionality,
-and the set of possible inputs is prespecified. For these fixed-dimensionality domains our encoder is an MLP with 1 hidden layer having 16  units and a ReLU activation function. The input to the encoder is
-the sequence of program outputs $\left\{o_n \right\}_{n\leq N}$.
+
+
 
 For the string editing and list domains,
-the inputs and outputs are sequences. Our encoder for these domains is a bidirectional GRU with 16 hidden units that reads each input/output pair; we concatenate the input and output along with a special delimiter
+the inputs and outputs are sequences. Our encoder for these domains is a bidirectional GRU with 64 hidden units that reads each input/output pair; we concatenate the input and output along with a special delimiter
 symbol between them.
 We MaxPool the final hidden unit activations in the GRU along both passes of the bidirectional GRU.
+
+For symbolic regression,
+the input/outputs are densely sampled points along the curve of the function.
+We rendered these points to a graph,
+and pass the image of the graph to a convolutional network,
+which acts as the encoder.
 
 \section{DSL Induction}
 
@@ -359,7 +332,7 @@ We use Alg.~\ref{grammarInductionAlgorithm} to search for the structure of the D
      \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - \|\theta\|_0$
      \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
      \WHILE {true}
-     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, p\in \mathcal{F}_x, s\text{ subexpression of }p\}$
+     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, p\in \mathcal{F}_x, s\text{ a fragment  of }p\}$
      \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
      \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$
      \STATE $\mathcal{D}\gets\mathcal{D}'$
@@ -417,8 +390,6 @@ and are not added to the number of times that we could have used each primitive.
 
 
 We are only maximizing a lower bound on the log posterior; when is this lower bound tight?
-Whenever the DSL does not contain polymorphic types,
-
 This lower bound is tight whenever all
 of the types of the expressions in the DSL are not polymorphic, in which case our DSL is equivalent to a PCFG
 and this estimator is equivalent to the inside/outside algorithm.
@@ -427,6 +398,7 @@ and exactly maximizing the likelihood with respect to $\theta$
 becomes intractable,
 so for domains with polymorphic types we use this estimator.
 
+\begin{comment}
 \section{Initial Domain-Specific Languages}
 \subsection{Boolean Circuits}
 \begin{center}
@@ -533,23 +505,16 @@ Greek letters represent polymorphic types.
   \hline
 \end{tabular}
 \end{center}
-
+  \end{comment}
 \vfill
 
 \section{Hyperparameters \& Implementation Details}
 We set structure penalty $\lambda = 1$ (Eq.~5 of the main paper) and
 smoothness parameter $\alpha = 10$ (Eq.~6 of the main paper)
-for all experiments except for string editing.
-For string editing we found that more strongly regularizing
-the DSL was necessary,
-so we set $\lambda = 5$.
-We believe this is because
-we have many more tasks for string editing than we do for the other domains.
-The frontier size used for Boolean circuits was $5000$,
-for symbolic regression we used $500$,
-for string editing we used $10^5$,
-and for list functions we used $10^4$.
-
+for all experiments.
+For list processing and text editing we used a search timeout of two hours;
+because the symbolic regression problems are easier,
+we used a timeout of only five minutes for these.
 
 
 Because the frontiers can become very large in later iterations of the algorithm,
@@ -562,7 +527,7 @@ we only keep around the top $10^4$ programs in the frontier $\mathcal{F}_x$ as m
 
 Our lower bound $\lowerBound$ is unconventional,
 and one might wonder why we do not instead maximize an ELBO-style bound like in a VAE or in the EM algorithm.
-We explain in the Supplement that maximizing an ELBO-style bound
+Surprisingly, maximizing an ELBO-style bound
 leads to a pathological behavior that  causes the model to easily become trapped in local optima.
 
 
@@ -580,7 +545,7 @@ using importance sampling (so the expectation in Eq.~\ref{EM} is taken
 over $q$ and we reweigh using $Q_x$) or by directly using $q$ as our approximate posterior over the program that solves task $x$.
 
 We do not maximize a bound of this form because it
-takes an expectation over the \emph{previous} sleep cycle's
+takes an expectation over the \emph{previous} iteration's
 posterior over programs,
 so the approximate posterior $Q_x$ at the next iteration
 ends up being very close to previous approximate posterior.
@@ -593,6 +558,8 @@ leads to a kind of hysteresis effect,
 where the next generative model too closely matches the previous one,
 causing the algorithm to easily become trapped in local optima.
 
+\begin{comment}
+b
 \section{Example String Editing Tasks}
 
 
@@ -643,7 +610,7 @@ WYPvm & YPvm \\
 \hline
 \end{tabular}
 \end{center}
-
+  \end{comment}
 \vfill
 
 
@@ -657,69 +624,35 @@ We abbreviate lambda as \lstinline!\!.
 
 \pagebreak
 \onecolumn
-\subsection{Boolean circuits}
-
-\begin{lstlisting}
-#(\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $0 $2))))))
-#(\ (\ (nand (nand $0 $1) (nand $0 $1))))
-#(\ (\ (nand (nand $0 $0) (nand $1 $1))))
-#(\ (\ (\ (\ (nand (nand $0 $1) (nand $2 $3))))))
-#(\ (\ (\ (nand (nand $0 $0) (nand $1 (nand $2 $1))))))
-#(\ (\ (#(\ (\ (nand (nand $0 $1) (nand $0 $1)))) $0 (nand $1 $0))))
-#(\ (\ (\ (nand (nand $0 $1) (nand $0 (nand $2 $0))))))
-#(\ (\ (#(\ (\ (\ (nand (nand $0 $1) (nand $0 (nand $2 $0)))))) $0 $1 (nand $1 $1))))
-#(\ (\ (nand $0 (nand $1 $0))))
-#(\ (#(\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $0 $2)))))) (nand $0 $0)))
-#(\ (\ (\ (\ (nand (nand $0 $1) (nand $2 (nand $3 $2)))))))
-\end{lstlisting}
-
 \subsection{Symbolic regression}
 \begin{lstlisting}
-#(\ (* (+ REAL $0) REAL))
-#(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0)))
-#(\ (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))
-#(\ (#(\ (#(\ (+ $0 REAL)) (#(\ (* (#(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0))) $0) $0)) $0))) (+ $0 $0)))
-#(\ (#(\ (+ $0 REAL)) (#(\ (* (#(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0))) $0) $0)) $0)))
-#(\ (* (#(\ (+ $0 REAL)) $0) (#(\ (+ (* $0 (* $0 REAL)) REAL)) $0)))
-#(\ (+ (* $0 (* $0 REAL)) REAL))
-#(* REAL)
-#(\ (* (#(\ (#(\ (+ $0 REAL)) (#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0)))) $0))) $0) $0))
-#(\ (* $0 (#(\ (+ (* $0 (* $0 REAL)) REAL)) (#(\ (+ $0 REAL)) $0))))
-#(\ (+ $0 REAL))
+#(\ (#(\ (+. $0 REAL)) (*. $0 REAL)))
+#(\ (#(\ (#(\ (+. $0 REAL)) (*. $0 REAL))) (*. (#(\ (+. $0 REAL)) $0) $0)))
+#(\ (#(\ (+. $0 REAL)) (*. (#(\ (#(\ (#(\ (+. $0 REAL)) (*. $0 REAL))) (*. (#(\ (+. $0 REAL)) $0) $0))) $0) $0)))
+#(\ (#(/. REAL) (#(\ (+. $0 REAL)) $0)))
+#(/. REAL)
+#(\ (/. (/. REAL $0) $0))
+#(\ (+. $0 REAL))
+#(\ (#(\ (+. $0 REAL)) (*. $0 (#(\ (#(\ (+. $0 REAL)) (*. (#(\ (#(\ (#(\ (+. $0 REAL)) (*. $0 REAL))) (*. (#(\ (+. $0 REAL)) $0) $0))) $0) $0))) $0))))
+#(\ (/. (#(\ (/. (/. REAL $0) $0)) $0) $0))
+#(\ (\ (#(/. REAL) (/. (#(\ (+. $0 REAL)) $0) $1))))
+#(\ (#(\ (+. $0 REAL)) (#(\ (#(/. REAL) (#(\ (+. $0 REAL)) $0))) $0)))
+#(#(\ (\ (#(/. REAL) (/. (#(\ (+. $0 REAL)) $0) $1)))) (#(\ (/. (#(\ (/. (/. REAL $0) $0)) $0) $0)) REAL))
+#(\ (/. (#(\ (#(\ (#(\ (+. $0 REAL)) (*. $0 REAL))) (*. (#(\ (+. $0 REAL)) $0) $0))) $0) (#(\ (+. $0 REAL)) $0)))
 \end{lstlisting}
 
 \subsection{String editing}
 \begin{lstlisting}
-#(\ (\ (#(nth (incr 0)) (split $0 (#(\ (\ (join (chr->str $0) (map (\ (caseCapitalize $0)) $1)))) $1 $0)))))
-#(\ (\ (join (chr->str $0) (map (\ (strip $0)) $1))))
-#(\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (++ $0 $0))))
-#(\ (#(join empty) (split '.' $0)))
-#(#(\ (\ (\ (#(\ (\ (slice $0 (len $1) $1))) (nth $0 $1) (decr $2))))) (decr 0))
-#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (slice $2 (incr $2) $0)))))
-#(#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (\ (slice $0 (len $1) $1))) $0 $2))))) (incr 0))
-#(\ (\ (\ (#(\ (\ (slice $0 (len $1) $1))) (nth $0 $1) (decr $2)))))
-#(\ (\ (strip (nth 0 (split $0 (#(nth (incr 0)) $1))))))
-#(\ (#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (\ (slice $0 (len $1) $1))) $0 $2))))) (decr $0)))
-#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (slice $0 (incr (incr $0)))) $2 $0)))))
-#(\ (\ (slice $0 (incr $0) (nth (incr $0) $1))))
-#(\ (\ (#(\ (\ (slice $0 (len $1) $1))) (#(\ (\ (strip (nth 0 (split $0 (#(nth (incr 0)) $1)))))) $0 $1) (incr 0))))
-#(\ (\ (caseUpper (#(nth (incr 0)) (split $0 (#(\ (\ (join (chr->str $0) (map (\ (caseCapitalize $0)) $1)))) $1 $0))))))
-#(\ (\ (#(\ (\ (++ (chr->str $0) (#(nth (incr 0)) $1)))) (split $0 (nth 0 $1)) $0)))
-#(\ (#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (\ (slice $0 (len $1) $1))) $0 $2))))) (decr (decr $0))))
-#(\ (\ (join (chr->str $0) (map (\ (caseCapitalize $0)) $1))))
-#(\ (\ (#(\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (++ $0 $0)))) (split '.' (#(\ (\ (strip (nth 0 (split $0 (#(nth (incr 0)) $1)))))) $0 $1)) '.')))
-#(\ (\ (\ (#(\ (\ (++ (chr->str $0) (#(nth (incr 0)) $1)))) (split $0 (#(\ (\ (\ (++ (nth $0 (split $1 $2)) (chr->str $1))))) $1 $2 0)) $0))))
-#(\ (\ (slice $0 (incr (incr $0)) (#(nth (incr 0)) $1))))
-#(join empty)
-#(\ (\ (\ (++ (nth $0 (split $1 $2)) (chr->str $1)))))
-#(\ (\ (nth 0 (split $0 (#(nth (incr 0)) $1)))))
-#(\ (slice $0 (incr (incr $0))))
-#(nth (incr 0))
-#(\ (join empty (map (\ (caseCapitalize $0)) $0)))
-#(\ (\ (#(\ (\ (\ (join (chr->str $0) (map $1 $2))))) $0 (\ (#(\ (\ (slice $0 (len $1) $1))) $0 $2)))))
-#(\ (\ (slice $0 (len $1) $1)))
-#(\ (\ (\ (join (chr->str $0) (map $1 $2)))))
-#(\ (\ (++ (chr->str $0) (#(nth (incr 0)) $1))))
+#(\ (\ (fold $0 $0 (\ (\ (if (char-eq? $1 $3) empty (cons $1 $0)))))))
+#(\ (\ (fold $0 $1 (\ (\ (cons $1 $0))))))
+#(\ (\ (fold $0 $0 (\ (\ (cdr (if (char-eq? $1 $3) $2 $0)))))))
+#(\ (\ (#(\ (\ (fold $0 $1 (\ (\ (cons $1 $0)))))) (cons $0 $1))))
+#(\ (\ (fold $0 $0 (\ (\ (fold $0 $0 (\ (\ (if (char-eq? $1 $5) (cdr $2) $0)))))))))
+#(\ (#(\ (\ (\ (cons (car $0) (cons $1 $2))))) (#(#(\ (\ (\ (cons (car $0) (cons $1 $2))))) empty) '.' $0) '.'))
+#(\ (\ (map (\ (if (char-eq? $1 $0) $2 $0)))))
+#(\ (map (\ (index $0 $1))))
+#(\ (unfold $0 (\ (empty? $0)) (\ (car $0)) (\ (#(\ (\ (fold $0 $0 (\ (\ (cdr (if (char-eq? $1 $3) $2 $0))))))) SPACE $0))))
+#(#(\ (\ (\ (cons (car $0) (cons $1 $2))))) empty)
 \end{lstlisting}
 
 \subsection{List functions}
