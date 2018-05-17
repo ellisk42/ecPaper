@@ -793,29 +793,9 @@ We replace this marginal with an AIC approximation, giving the following objecti
 \begin{equation}
       \log \probability[\mathcal{D}] + \argmax_{\theta}\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta] + \log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \label{AIC}
   \end{equation}
-We induce a DSL by searching locally through the space of DSLs,
-proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC} fails to increase.
-The search moves work by introducing new
-$\lambda$-expressions into the DSL.
-We propose these new expressions by extracting fragments of
-programs already in the frontiers (Fig.~\ref{fragmentExample}).
-An important point here is that we are \emph{not} simply adding
-subexpressions of programs to $\mathcal{D}$.  Instead, we are
-extracting fragments that unify with programs in the frontiers.  This
-idea of storing and reusing fragments of expressions comes from
-Fragment Grammars~\cite{tim} and Tree-Substitution
-Grammars~\cite{cohn2010inducing}, and is closely related to the idea
-of antiunification~\cite{henderson2013cumulative}.
 
 
-
-To define the prior distribution over $(\mathcal{D},\theta})$, we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp\left(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) \right)$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
-and place a symmetric Dirichlet prior over the weight vector $\theta$.
-%% , $  \probability[\theta|\mathcal{D}] = \text{Dir}(\theta|\alpha)$, where
- %% $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
-%Alg.~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
-
-\begin{wrapfigure}{R}{0.6\textwidth}\vspace{-0.7cm}
+\begin{wrapfigure}{R}{0.6\textwidth}
   \begin{minipage}{0.6\textwidth}    
     \begin{algorithm}[H]
       \caption{The \system Algorithm}
@@ -841,16 +821,23 @@ and place a symmetric Dirichlet prior over the weight vector $\theta$.
       \end{algorithmic}
     \end{algorithm}
   \end{minipage}
-\vspace{-0.7cm}\end{wrapfigure}%% To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
-%% Although this  may seem 
-%% very similar to estimating the parameters of a probabilistic context free grammar,
-%% for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
-%% our DSLs are context-sensitive due to the presence of variables
-%% in the programs and also due to the polymorphic typing system.
-%% In the Supplement we derive a tractable MAP estimator for $\theta$.
-Putting all these ingredients together, Alg.~\ref{mainAlgorithm} describes how we combine program search,
-recognition model training, and DSL induction.
-\begin{figure*}[b]
+\end{wrapfigure}%% To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
+
+We induce a DSL by searching locally through the space of DSLs,
+proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC} fails to increase.
+The search moves work by introducing new
+$\lambda$-expressions into the DSL.
+We propose these new expressions by extracting fragments of
+programs already in the frontiers (Fig.~\ref{fragmentExample}).
+An important point here is that we are \emph{not} simply adding
+subexpressions of programs to $\mathcal{D}$.  Instead, we are
+extracting fragments that unify with programs in the frontiers.  This
+idea of storing and reusing fragments of expressions comes from
+Fragment Grammars~\cite{tim} and Tree-Substitution
+Grammars~\cite{cohn2010inducing}, and is closely related to the idea
+of antiunification~\cite{henderson2013cumulative}.
+
+\begin{figure}[b]
 \centering  \begin{tabular}{ll}
     \toprule
     Example programs in frontiers&Proposed $\lambda$-expression\\\midrule
@@ -877,7 +864,23 @@ recognition model training, and DSL induction.
   \caption{The DSL induction algorithm proposes fragments of programs to add to the DSL.
     These fragments are taken from programs in the frontiers (left column). Here, the proposed subexpression (top) appends two lists or (bottom) performs character substitutions.} 
   \label{fragmentExample}
-\end{figure*}
+\end{figure}
+
+
+To define the prior distribution over $(\mathcal{D},\theta})$, we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
+and place a symmetric Dirichlet prior over the weight vector $\theta$.
+%% , $  \probability[\theta|\mathcal{D}] = \text{Dir}(\theta|\alpha)$, where
+ %% $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
+%Alg.~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
+
+%% Although this  may seem 
+%% very similar to estimating the parameters of a probabilistic context free grammar,
+%% for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
+%% our DSLs are context-sensitive due to the presence of variables
+%% in the programs and also due to the polymorphic typing system.
+%% In the Supplement we derive a tractable MAP estimator for $\theta$.
+Putting all these ingredients together, Alg.~\ref{mainAlgorithm} describes how we combine program search,
+recognition model training, and DSL induction.
 
 \begin{comment}
 \subsection{Implementing \system}
