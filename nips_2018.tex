@@ -29,8 +29,8 @@
 
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 \newcommand{\sem}[1]{\llbracket #1 \rrbracket}
-\newcommand{\system}{\textsc{ECC}~}
-\newcommand{\systemEnding}{\textsc{ECC}}
+\newcommand{\system}{\textsc{CoCoSea}~}
+\newcommand{\systemEnding}{\textsc{CoCoSea}}
 \newcommand{\lowerBound}{\mathscr{L}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
 \newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
@@ -145,7 +145,7 @@ text, like that words are separated by spaces. Few-shot learning problems
 like these
 are commonplace in both human and machine learning.
 We cast these few-shot learning problems as each being a program synthesis problem.
-The program synthesis and AI communities have built many successful program synthesis algorithms,
+The programming languages and AI communities have built many successful program synthesis algorithms,
 spanning text editing (e.g., FlashFill~\cite{gulwani2011automating}), motor programs~\cite{lake2015human}, procedural graphics~\cite{ellis2017learning}, planning
 procedures~\cite{devlin2017neural}, and many others.  However, the
 success of these systems hinges upon a carefully
@@ -205,13 +205,13 @@ exactly the prior knowledge needed to solve the task in Figure~\ref{firstPageFig
 (2) Skilled human programmers
 can quickly recognize what kinds of programming idioms and library routines would be useful for solving
 the task at hand, even if they cannot instantly work out the details.
-We combine these two ideas into
-an algorithm called \systemEnding,
+We weave these ideas together into
+an algorithm called \system (\textbf{Co}mpress/\textbf{Co}mpile/\textbf{Sea}rch),
 which takes as input a collection of
 programming \textbf{tasks},
 and then jointly
 solves three problems:
-(1) Writing programs that solve the tasks;
+(1) Searching for programs that solve the tasks;
 (2) Composing a library (DSL) of
 domain-specific
 subroutines -- which allow the agent to
@@ -248,78 +248,37 @@ quickly write programs.
 %% general library of primitives, we give an algorithm for constructing a richer, more powerful,
 %% and better-tuned DSL.
 
-Our algorithm is called \textbf{Explore/Compress/Compile} (\systemEnding),
-because it iterates between three different steps: an
-\textbf{Explore} step uses the DSL and neural network to explore the space of programs,
+%% Our algorithm is called \textbf{Explore/Compress/Compile} (\systemEnding),
+%% because it
+\system iterates through three different steps: a
+\textbf{Search} step uses the DSL and neural network to explore the space of programs,
 searching for ones that solve the tasks; a \textbf{Compress} step
-modifies the structure of the DSL by discovering regularities across programs found by
-the previous Explore step; and a \textbf{Compile} step, which
-improves the program search procedure by training a neural network to
+modifies the structure of the DSL by discovering regularities across programs found during search; and a \textbf{Compile} step, which
+improves the search procedure by training a neural network to
 write programs in the current DSL, in the spirit of ``amortized'' or
 ``compiled'' inference~\cite{le2016inference}.
 We call the neural net a \textbf{recognition model} (c.f. Hinton 1995~\cite{hinton1995wake}).
 The learned DSL
 distills commonalities across programs that solve tasks, helping
-the agent solve related program induction problems. The neural
+the agent solve related programming problems. The neural
 recognition model ensures that searching for programs remains tractable
 even as the DSL (and hence the search space for programs) expands.
-
-
-Because any model may be encoded as a (deterministic or probabilistic) program,
-we carefully delineate the scope of problems considered here.
+%% Because any model may be encoded as a (deterministic or probabilistic) program,
+%% we carefully delineate the scope of problems considered here.
 We think of \system as learning to solve the kinds of problems that humans
 can solve relatively quickly -- once they acquire the relevant domain expertise.
 These correspond to short programs -- if you have an expressive DSL.
 Even with a good DSL, program search may be intractable, so
-we amortize the cost of program search by training a neural network to
+we amortize the cost of search by training a neural network to
 assist the search procedure.
 
 
-We apply \system to four domains:
-list processing;
-text editing (in the style of FlashFill~\cite{gulwani2011automating});
-and symbolic regression.
-For each of these we initially provide a generic set of programming primitives.
-Our algorithm then discovers its own DSL for expressing solutions in the
-domain (Tbl.~\ref{initialExampleDSL}).
-%% \begin{figure}
-%%   \begin{tabular}{lcl}
-%%     \toprule
-%%     Domain&Example Task&Part of the learned DSL\\\midrule
-%%     Lists&
-%%     \begin{tabular}{rcl}
-%%       \code{[7\, 0\, 2]}&$\longrightarrow$&\code{[7\, 0\, 2\, 4]} \\
-%%       \code{[3\, 9]}&$\longrightarrow$&\code{[3\, 9\, 4]}
-%%     \end{tabular}
-%%     &
-%%     \begin{tabular}{l}
-%%       \code{(foldr nil ($\lambda$ (a b) (cons a b)))}\\
-%%           \hspace{0.5cm} \emph{(appends lists)}
-%%       \end{tabular}
-
-
-%%     \\    Strings&
-%%     \begin{tabular}{rcl}
-%%       Temple Anna H& $\longrightarrow$& TAH\\
-%%       Lara Gregori&$\longrightarrow$&LG
-%%       \end{tabular}
-%%     &
-%%     \begin{tabular}{l}
-%%       \code{(map ($\lambda$ (x) (if (= x a) b x)))}\\
-%%       \hspace{0.5cm} \emph{(replace occurrences of a w/ b)}\\
-%%       \end{tabular}
-    
-%%     \\Regression&\includegraphics[width = 1cm]{figures/functions/476.png}&\begin{tabular}{l}
-%%       \code{(+ (* real x) real)} \\
-%%           \hspace{0.5cm} \emph{(a linear function of x)}
-%%       \end{tabular}
-
-%%     \\\bottomrule
-%%   \end{tabular}
-%%   \caption{ Examples of structure found in DSLs  learned by our algorithm. \system builds a new DSL by discovering and reusing useful subroutines.}\label{initialExampleDSL}
-%% %  \vspace{-4em}
-%% \end{figure}
-
+We apply \system to three domains:
+list processing; text editing (in the style of FlashFill~\cite{gulwani2011automating}); and symbolic regression.
+ For each of these we initially provide a generic
+ set of programming primitives.
+Our algorithm then constructs
+its own DSL for expressing solutions in the domain (Fig.~\ref{initialExampleDSL}).
 \begin{figure}[hb]
 \makebox[\textwidth][c]{
 \scriptsize
@@ -412,10 +371,7 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
       \\\bottomrule 
   
 \end{tabular}}
-\caption{Top: Example tasks from each domain, each followed by the programs
-  \system discovers for them. Bottom: Subset of learned DSL. Notice that
-  learned DSL primitives can call each other
-  ($f_0$/$f_1$ in Lists, $f_1$/$f_2$ in Text \& Regression)}
+\caption{Top: Example tasks from each domain, each followed by the programs \system discovers for them. Bottom: Subset of learned DSL. Notice that learned DSL primitives can call each other.}\label{initialExampleDSL}
 \end{figure}
 
 Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
@@ -426,14 +382,14 @@ symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~
 A notable exception is the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316},
 which also learns a library of subroutines.
 We were inspired by EC,
-and go beyond it by giving a new algorithm for learning DSLs, as well as a way of combining DSL learning with
+and go beyond it by giving a new algorithm that learns DSLs, as well as a way of combining DSL learning with
 neurally guided program search.
 In the experiments section,
 we compared directly with EC,
 showing empirical improvements.
-The contribution of this work is
-then
-an effective algorithm for learning DSLs which jointly trains a neural net to
+
+The new contribution of this work is
+thus an  algorithm for learning DSLs which jointly trains a neural net to
 search for programs in the DSL.
 
 
@@ -477,7 +433,7 @@ alternates between exploring the space of solutions to a set of tasks,
 and compressing those solutions to suggest new search primitives
 for the next exploration stage.
 We extend these ideas into an inference strategy that iterates
-through three steps: an \textbf{Explore} step uses the current DSL and
+through three steps: a \textbf{Search} step uses the current DSL and
 recognition model to search for programs that solve the tasks.  The
 \textbf{Compress} and \textbf{Compile} steps update the DSL and the
 recognition model, respectively.  Crucially, these steps bootstrap 
@@ -807,9 +763,9 @@ We replace this marginal with an AIC approximation, giving the following objecti
         \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
         \FOR{$i=1$ {\bfseries to} $I$}
         %     \FOR{$x:\tau\in X$}
-        \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{(\textbf{Explore})}
+        \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{(\textbf{Search})}
         \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ \hspace{0.2cm}(\footnotesize{\textbf{Compile}})
-        \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{\textbf{(Explore)}}
+        \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$ \footnotesize{\textbf{(Search)}}
         
         \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Compress)}}
         %% \STATE Define $Q_x(z) \propto \begin{cases}
@@ -1221,7 +1177,7 @@ improves on the baselines,
 sometimes dramatically (text editing and symbolic regression).
 The recognition model 
 consistently increases the number of solved held-out tasks,
-and lesioning it also slows down the convergence of the algorithm,
+and lesioning it also slows down the convergence of the algorithm,
 taking more iterations to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
 This supports a view of the recognition model as a way of amortizing the cost of searching for programs.
 
