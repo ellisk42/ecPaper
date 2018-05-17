@@ -367,8 +367,8 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
     \hspace{0.5cm}\emph{($f_6$: rational function)}\\
 
   \end{tabular}
-  \\\bottomrule 
-\end{tabular}}\\\\
+  \\\bottomrule\\
+\end{tabular}}
 \caption{Top: Example tasks from each domain, each followed by the programs \system discovers for them. Bottom: Subset of learned DSL. Notice that learned DSL primitives can call each other.}\label{initialExampleDSL}
 \end{table}
 
@@ -813,7 +813,7 @@ of antiunification~\cite{henderson2013cumulative}.
       \end{tabular}&
     \begin{tabular}{l}      \code{($\lambda$ (s) (map ($\lambda$ (x)}\\\hspace{0.2cm}\code{   (if (= x '-') ',' x))) s)}
       \end{tabular}
-\\\bottomrule
+\\\bottomrule\\
   \end{tabular}
   \caption{The DSL induction algorithm proposes fragments of programs to add to the DSL.
     These fragments are taken from programs in the frontiers (left column). Here, the proposed subexpression (top) appends two lists or (bottom) performs character substitutions.} 
@@ -932,7 +932,7 @@ numbers, but using gradient descent instead of dynamic programming.
 We automatically generated 109 text editing tasks with 4 input/output examples each
 %(Fig.~\ref{exampleTextProblem}).
 At first, \system cannot find any correct programs for most of the tasks.
-After three iterations, it assembles a DSL (Fig.~\ref{firstPageFigure} \& center of Fig.~\ref{initialExampleDSL}) that lets it rapidly explore the space of programs and find solutions to
+After three iterations, it assembles a DSL (Fig.~\ref{firstPageFigure} \& center of Tbl.~\ref{initialExampleDSL}) that lets it rapidly explore the space of programs and find solutions to
 all of the tasks. The learned DSL contains \textbf{X} new functions, listed in the supplement.
 
 How well does the  learned DSL generalized to real text-editing scenarios?
