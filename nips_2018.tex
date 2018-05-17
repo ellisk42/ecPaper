@@ -318,20 +318,29 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
 %  \vspace{-4em}
 \end{figure}
 
-\begin{tabular}{ccc}\toprule
+\begin{figure}[hb]
+\makebox[\textwidth][c]{
+\scriptsize
+\renewcommand\code\texttt
+\renewcommand\codechar[1]{\texttt{"#1"}}
+\begin{tabular}{>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}}\toprule
+  Lists&Strings&Symbolic Regression\\\midrule
   \begin{tabular}{c}
-    \code{[7\, 0\, 2]}$\to $\code{[2\, 0\, 7]} \\
-      \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2]}\\
-      \code{$f(x) = $}\code{($f_0$ nil)}\\\\
+      % \code{[7\, 0\, 2]}$\to $\code{[2\, 0\, 7]} \\
+      % \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2]}\\
+      % \code{$f(x) = $}\code{($f_0$ nil $x$)}\\\\
       \code{[99\, 4\, 2]}$\to $\code{99}\\
       \code{[2\, 1\, 4\, 6]}$\to $\code{6}\\
       \code{[8\, 7\, 7\, 7]}$\to $\code{8}\\
-      \code{($f_1$ )}
+      \code{$f(\ell) = $}\code{($f_0$ $\ell$)}\\\\
+      \code{[7\, 3\, 14\, 6\, 9]}$\to $\code{false}\\
+      \code{[9\, 4\, 3\, 4]}$\to $\code{true}\\
+      \code{$f(\ell) = $}\code{($f_1$ $\ell$ k)}
   \end{tabular}&
   \begin{tabular}{c}
     +106 769-438$\to $106.769.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
     +83 973-831$\to $83.973.831\\
-    $f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{,} ($f_0$ \codechar{.} \codechar{ } (cdr s)))}    \\\\
+    $f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{,} ($f_0$ \codechar{.} \codechar{ } (cdr s)))}\\\\
 Temple Anna H $\to $TAH\\
 Lara Gregori$\to $LG\\
 $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
@@ -339,14 +348,26 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
   \end{tabular}&
 
   \begin{tabular}{c}
-    \includegraphics[width = 1cm]{figures/functions/4.png}\\
+    \includegraphics[width = 3em]{figures/functions/4.png}\\
     \code{$f($x$) = $($f_1$ -0.8 1.6)}\\
-    \includegraphics[width = 1cm]{figures/functions/112.png}\\
+    \includegraphics[width = 3em]{figures/functions/112.png}\\
     \code{$f($x$) = $($f_0$ -0.8 1.6)}\\
     
     \end{tabular}
 
-  \\\midrule&
+  \\\midrule
+
+  \begin{tabular}{l}
+    % $f_0($\code{r}$,\ell) \,=\, $\code{(fold $\ell$ r ($\lambda$ (x a)}\\
+    % \phantom{$f_0($\code{r}$,\ell) \,=\, $\code{(fold}}\code{(cons (index (length a) $\ell$) a)))}\\
+      % \hspace{0.5cm}($f_1$: \emph{Get the largest number})\\
+    $f_0(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a) (if (> a x) a x)))}\\
+      \hspace{0.5cm}($f_1$: \emph{Get the largest number in $\ell$})\\
+    $f_1(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (empty$?$ $\ell$)}\\
+    \phantom{$f_1(\ell,$\code{k}$) \,=\, $\code{(foldr}}
+    \code{($\lambda$ (x a) (if a a (= k x))))}\\
+      \hspace{0.5cm}($f_1$: \emph{Whether $\ell$ contains $k$})\\
+  \end{tabular}&
 
 
   \begin{tabular}{l}
@@ -354,19 +375,20 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
       \hspace{0.5cm}($f_0$: \emph{Performs character substitution)}\\
       $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a) (cdr (if (= c x) s a))))}\\
         \hspace{0.5cm}($f_1$: \emph{Drop first characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
-      $f_2($\code{s}$) \,=\, $\code{(unfold s empty? car ($\lambda$ (z) (}$f_1$\code{ z SPACE)))}\\
+      $f_2($\code{s}$) \,=\, $\code{(unfold s empty$?$ car ($\lambda$ (z) (}$f_1$\code{ z SPACE)))}\\
         \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words})\\
     \end{tabular}&
 
   \begin{tabular}{l}
-    $f_0($\code{x}$)\,=\,$\code{(+ x real)}\quad
+    $f_0($\code{x}$)\,=\,$\code{(+ x real)}\\
   $f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} \\
   $f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}\\
     \end{tabular}
       
       \\\bottomrule 
   
-  \end{tabular}
+\end{tabular}}
+\end{figure}
 
 Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
 both in classic symbolic program learning approaches (e.g., Metagol:~\cite{muggleton2015meta},
