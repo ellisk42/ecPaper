@@ -129,7 +129,7 @@
   a program induction algorithm called \system that learns a DSL while
   jointly training a neural network to efficiently search for programs
   in the learned DSL.  We use our model to synthesize functions on lists,
-  edit strings, and solve symbolic regression problems, showing how the
+  edit text, and solve symbolic regression problems, showing how the
   model learns a domain-specific library of program components for
   expressing solutions to problems in the domain.
 \end{abstract}
@@ -1053,7 +1053,9 @@ This phenomenon arises from our Bayesian framing -- both the implicit bias towar
 
 \section{Quantitative Results}\label{quantitative}
 
-We compare  with four baselines on  held-out tasks:
+We compare with ablations of our model on held out tasks.
+Each of these ablations is chosen to approximate
+a prior approach in the program learning literature:
 \\\noindent \textbf{Ours (no NN)}, which lesions the recognition model.
 \\\noindent \textbf{RF/DC}, which holds the generative model $(\mathcal{D},\theta)$ fixed and learns
 a recognition model only from samples from the fixed generative model.
