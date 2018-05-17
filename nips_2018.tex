@@ -137,12 +137,16 @@
 
 \section{Introduction}
 
-Imagine that you are asked to write a program to edit some text, and
+Imagine you are asked  to edit some text, and
 told that you should change the text ``Nancy FreeHafer'' to
 ``Dr. Nancy''.  From this example, you likely infer that ``Jane
 Goodall'' goes to ``Dr. Jane'', drawing upon your prior knowledge of
-text, like that words are separated by spaces. For few-shot program learning problems
-like these, the program synthesis and AI communities have had many successes,
+text, like that words are separated by spaces. Few-shot learning problems
+like these
+are commonplace in both human and machine learning,
+
+
+, the program synthesis and AI communities have had many successes,
 not just for text editing~\cite{gulwani2011automating} but also for graphics
 programs~\cite{ellis2017learning}, planning
 procedures~\cite{devlin2017neural}, and many others.  However, the
@@ -827,22 +831,22 @@ recognition model training, and DSL induction.
     \toprule
     Example programs in frontiers&Proposed $\lambda$-expression\\\midrule
     \begin{tabular}{l}
-      \code{(lambda (a b) (foldr b (cons "," a)}\\
-      \phantom{\code{(lambda }}\code{(lambda (x z) (cons x z))))}\\
-      \code{(lambda (a b) (foldr a b }\\
-      \phantom{\code{(lambda }}\code{(lambda (x z) (cons x z))))}
+      \code{($\lambda$ (a b) (foldr b (cons "," a)}\\
+      \phantom{\code{($\lambda$ }}\code{($\lambda$ (x z) (cons x z))))}\\
+      \code{($\lambda$ (a b) (foldr a b }\\
+      \phantom{\code{($\lambda$ }}\code{($\lambda$ (x z) (cons x z))))}
     \end{tabular}&
     \begin{tabular}{l}
-      \code{(foldr a b (lambda (x z) }\\
+      \code{(foldr a b ($\lambda$ (x z) }\\
       \phantom{\code{(foldr a b }}\code{(cons x z)))}
     \end{tabular}\\\midrule
     \begin{tabular}{l}
-      \code{(lambda (s) (map (lambda (x)}\\
+      \code{($\lambda$ (s) (map ($\lambda$ (x)}\\
       \hspace{0.4cm}\code{ (if (= x '.') '-' x))) s)}\\
-      \code{(lambda (s) (map (lambda (x) }\\
+      \code{($\lambda$ (s) (map ($\lambda$ (x) }\\
       \hspace{0.4cm}\code{ (if (= x '-') ',' x))) s)}\\
       \end{tabular}&
-    \begin{tabular}{l}      \code{(lambda (s) (map (lambda (x)}\\\hspace{0.2cm}\code{   (if (= x '-') ',' x))) s)}
+    \begin{tabular}{l}      \code{($\lambda$ (s) (map ($\lambda$ (x)}\\\hspace{0.2cm}\code{   (if (= x '-') ',' x))) s)}
       \end{tabular}
 \\\bottomrule
   \end{tabular}
@@ -975,12 +979,12 @@ and then reuses the higher-order function \code{filter} \textbf{Lucas: not sure 
     \hspace{0.5cm}($f_0$: \emph{Put the $i$-th index into a list})\\
     $f_1($\code{i$,\ell$}$) \,=\, $\code{(++ $\ell$ ($f_0$ i $\ell$))}\\
     \hspace{0.5cm}($f_1$: \emph{Append the $i$-th index})\\
-    $f_2($\code{n$,\ell$}$) \,=\, $\code{(any (lambda (x) (= n x)) $\ell$)}\\
+    $f_2($\code{n$,\ell$}$) \,=\, $\code{(any ($\lambda$ (x) (= n x)) $\ell$)}\\
     \hspace{0.5cm}($f_1$: \emph{Whether $n$ appears in the list})\\
     $f_3($\code{i$,\ell$}$) \,=\, $\code{(index (negate i) (sort $\ell$))}\\
     \hspace{0.5cm}($f_3$: \emph{Get the $i$-th largest number})\\
-    $f_4($\code{n$,\ell$}$) \,=\, $\code{(mapi (lambda (i x) (mod x n)) $\ell$)}\\
-    $f_5($\code{k$,\ell$}$) \,=\, $\code{(mapi (lambda (i x) (+ x k)) $\ell$)}\\
+    $f_4($\code{n$,\ell$}$) \,=\, $\code{(mapi ($\lambda$ (i x) (mod x n)) $\ell$)}\\
+    $f_5($\code{k$,\ell$}$) \,=\, $\code{(mapi ($\lambda$ (i x) (+ x k)) $\ell$)}\\
     $f_6($\code{k$,$n$,\ell$}$) \,=\, $\code{($f_4$ n ($f_5$ k $\ell$)}\\
     \hspace{0.5cm}($f_6$: \emph{Caesar shift of $k$ in integers modulo $n$})\\
   \bottomrule
@@ -1021,7 +1025,7 @@ After learning,
 it solves 74.1\%, and does so much faster,
 solving them in an average of 29 seconds.
 As of the 2017 SyGuS competition,
-the best-performing algorithm solves 79.6\% problems.
+the best-performing algorithm solves 79.6\% of the problems.
 But, SyGuS comes with a
 different hand-engineered DSL \emph{for each text editing problem}.
 Here  we learned a single DSL
@@ -1035,45 +1039,45 @@ prior work.
   \centering
     \begin{tabular}{l}
       \toprule
-      $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map (lambda (x) (if (= x a) b x)) s)}\\
+      $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$ (x) (if (= x a) b x)) s)}\\
       \hspace{0.5cm}($f_0$: \emph{Performs character substitution)}\\
-      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s (lambda (x a) (cdr (if (= c x) s a))))}\\
+      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a) (cdr (if (= c x) s a))))}\\
         \hspace{0.5cm}($f_1$: \emph{Drop first characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
-      $f_2($\code{s}$) \,=\, $\code{(unfold s empty? car (lambda (z) (}$f_1$\code{ z SPACE)))}\\
+      $f_2($\code{s}$) \,=\, $\code{(unfold s empty? car ($\lambda$ (z) (}$f_1$\code{ z SPACE)))}\\
         \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words. See Fig.~\ref{initialExampleDSL}})\\
-        $f_3($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s (lambda (x a) (if (= c x) nil (cons x a))))}\\
+        $f_3($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a) (if (= c x) nil (cons x a))))}\\
         \hspace{0.5cm}($f_3$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
-        %(lambda (lambda (fold $0 $0 (lambda (lambda (if (char-eq? $1 $3) empty (cons $1 $0)))))))
+        %($\lambda$ ($\lambda$ (fold $0 $0 ($\lambda$ ($\lambda$ (if (char-eq? $1 $3) empty (cons $1 $0)))))))
   \\\bottomrule
     \end{tabular}
   \caption{Some string editing learned subroutines }\label{textPrimitives}
   \end{table}
 
-\begin{wrapfigure}{r}{0.6\textwidth}
-  \centering\begin{tabular}{c}\toprule
-+106 769-858-438 $\longrightarrow$106.769.858.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
-+83 973-757-831 $\longrightarrow$83.973.757.831%& Andrew Cencici $\longrightarrow$ Dr. Andrew
-%DkI$>$DwKI$<$xaPoc& 	DWKI\\
-%KfvTh$>$Dbl$<$OIJso 	&DBL
-\\\midrule
-%(lambda (#(lambda (lambda (map (lambda (if (char-eq? $0 $1) $2 $0))))) '.' SPACE (#(lambda (lambda (map (lambda (if (char-eq? $0 $1) $2 $0))))) '.' '-' (cdr $0))))
-\multicolumn{1}{c}{$f(\text{\code{s}}) = $\code{(}$f_0$\code{  '.' ' ' ($f_0$ '.' '-' (cdr s)))}}
-%\multicolumn{1}{l}{$f(\text{\code{s}}) = $\code{(}$f_0$\code{ "Dr. " (}$f_3$\code{ s " "))}}
-\\
-\bottomrule
-  \end{tabular}
+%% \begin{wrapfigure}{r}{0.6\textwidth}
+%%   \centering\begin{tabular}{c}\toprule
+%% +106 769-858-438 $\longrightarrow$106.769.858.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
+%% +83 973-757-831 $\longrightarrow$83.973.757.831%& Andrew Cencici $\longrightarrow$ Dr. Andrew
+%% %DkI$>$DwKI$<$xaPoc& 	DWKI\\
+%% %KfvTh$>$Dbl$<$OIJso 	&DBL
+%% \\\midrule
+%% %(lambda (#(lambda (lambda (map (lambda (if (char-eq? $0 $1) $2 $0))))) '.' SPACE (#(lambda (lambda (map (lambda (if (char-eq? $0 $1) $2 $0))))) '.' '-' (cdr $0))))
+%% \multicolumn{1}{c}{$f(\text{\code{s}}) = $\code{(}$f_0$\code{  '.' ' ' ($f_0$ '.' '-' (cdr s)))}}
+%% %\multicolumn{1}{l}{$f(\text{\code{s}}) = $\code{(}$f_0$\code{ "Dr. " (}$f_3$\code{ s " "))}}
+%% \\
+%% \bottomrule
+%%   \end{tabular}
 
   
-  %% \vspace{0.25cm}
+%%   %% \vspace{0.25cm}
   
-  %% \begin{minipage}{\linewidth}
-  %%   \centering
-  %%   $f($\code{s}$) \,=\, $
-  %% \end{minipage}
+%%   %% \begin{minipage}{\linewidth}
+%%   %%   \centering
+%%   %%   $f($\code{s}$) \,=\, $
+%%   %% \end{minipage}
 
   
-  \caption{String edit task (top) and the program \system writes for it (bottom). $f_0$ is a subroutine written by \systemEnding, defined in Tbl.~\ref{textPrimitives}.}\label{exampleTextProblem}
-\end{wrapfigure}
+%%   \caption{String edit task (top) and the program \system writes for it (bottom). $f_0$ is a subroutine written by \systemEnding, defined in Tbl.~\ref{textPrimitives}.}\label{exampleTextProblem}
+%% \end{wrapfigure}
 
 
 \section{Symbolic Regression: Programs from visual input}\label{regressionSection}
@@ -1097,17 +1101,17 @@ system writes and use gradient descent to fit the parameters.
 We define the likelihood model, $\probability[x|p]$, by assuming a Gaussian noise model for the input/output examples,
 and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
 
-\begin{wrapfigure}{r}{0.3\textwidth} \newcommand{\functionSize}{0.75cm}\vspace{-0.5cm}
-  \includegraphics[width = \functionSize]{figures/functions/0.png}
+\begin{wrapfigure}{r}{6.4cm} \newcommand{\functionSize}{1.5cm}\vspace{-0.5cm}\centering
+%  \includegraphics[width = \functionSize]{figures/functions/0.png}
   \includegraphics[width = \functionSize]{figures/functions/6.png}
-  \includegraphics[width = \functionSize]{figures/functions/207.png}
+  \includegraphics[width = \functionSize]{figures/functions/116.png}
   \includegraphics[width = \functionSize]{figures/functions/160.png}
-  \includegraphics[width = \functionSize]{figures/functions/317.png}\\  
-  \includegraphics[width = \functionSize]{figures/functions/432.png}
-  \includegraphics[width = \functionSize]{figures/functions/415.png}
-  \includegraphics[width = \functionSize]{figures/functions/426.png}
-  \includegraphics[width = \functionSize]{figures/functions/597.png}
-  \includegraphics[width = \functionSize]{figures/functions/591.png}
+  \includegraphics[width = \functionSize]{figures/functions/149.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/432.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/415.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/426.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/597.png}
+  %% \includegraphics[width = \functionSize]{figures/functions/591.png}
   \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
 \end{wrapfigure}
 %% \begin{align*}
@@ -1217,7 +1221,7 @@ This supports a view of the recognition model as a way of amortizing the cost of
 
   \\\midrule\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
   \% solved&   \textbf{84\% }&75\%&38\%&38\%&37\% \\
-  Solve time&  24s& 40s  &31s&55s&29s\\
+  Solve time&  24s& 40s  &31s&55s&29s
   %% MDL (nats)&   9.3 &11.0&2.3&--&4.6
 
   \\\bottomrule
