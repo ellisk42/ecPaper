@@ -796,14 +796,14 @@ of antiunification~\cite{henderson2013cumulative}.
     \toprule
     Example programs in frontiers&Proposed $\lambda$-expression\\\midrule
     \begin{tabular}{l}
-      \code{($\lambda$ (a b) (foldr b (cons "," a)}\\
-      \phantom{\code{($\lambda$ }}\code{($\lambda$ (x z) (cons x z))))}\\
-      \code{($\lambda$ (a b) (foldr a b }\\
-      \phantom{\code{($\lambda$ }}\code{($\lambda$ (x z) (cons x z))))}
+      \code{($\lambda$ ($\ell$) (map ($\lambda$ (x) (index x $\ell$))}\\
+      \phantom{\code{($\lambda$ ($\ell$) (map }}\code{(range (- (length $\ell$) 1))))}\\
+      \code{($\lambda$ ($\ell$) (map ($\lambda$ (x) (index x $\ell$))}\\
+      \phantom{\code{($\lambda$ ($\ell$) (map }}\code{(range (+ 1 1))))}\\
     \end{tabular}&
     \begin{tabular}{l}
-      \code{(foldr a b ($\lambda$ (x z) }\\
-      \phantom{\code{(foldr a b }}\code{(cons x z)))}
+      \code{(map ($\lambda$ (x) (index x $\ell$))}\\
+      \phantom{\code{(map)}}\code{(range $\alpha$))}\\
     \end{tabular}\\\midrule
     \begin{tabular}{l}
       \code{($\lambda$ (s) (map ($\lambda$ (x)}\\
@@ -811,12 +811,14 @@ of antiunification~\cite{henderson2013cumulative}.
       \code{($\lambda$ (s) (map ($\lambda$ (x) }\\
       \hspace{0.4cm}\code{ (if (= x '-') ',' x))) s)}\\
       \end{tabular}&
-    \begin{tabular}{l}      \code{($\lambda$ (s) (map ($\lambda$ (x)}\\\hspace{0.2cm}\code{   (if (= x a) b x))) s)}
+    \begin{tabular}{l}      \code{($\lambda$ (s) (map ($\lambda$ (x)}\\\hspace{0.2cm}\code{   (if (= x $\alpha$) $\beta$ x))) s)}
       \end{tabular}
 \\\bottomrule\\
   \end{tabular}
   \caption{The DSL induction algorithm proposes fragments of programs to add to the DSL.
-    These fragments are taken from programs in the frontiers (left column). Here, the proposed subexpression (top) appends two lists or (bottom) performs character substitutions.} 
+    These fragments are taken from programs in the frontiers (left column).
+    Here, the proposed subexpression (top) slice from the beginning of a
+    list or (bottom) performs character substitutions.} 
   \label{fragmentExample}
 \end{table}
 
