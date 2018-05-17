@@ -988,7 +988,7 @@ We automatically generated 109 text editing tasks with 4 input/output examples e
 %(Fig.~\ref{exampleTextProblem}).
 At first, \system cannot find any correct programs for most of the tasks.
 After three iterations, it assembles a DSL (Fig.~\ref{firstPageFigure} \& center of Fig.~\ref{initialExampleDSL}) that lets it rapidly explore the space of programs and find solutions to
-all of the tasks.
+all of the tasks. The learned DSL contains \textbf{X} new functions, listed in the supplement.
 
 How well does the  learned DSL generalized to real text-editing scenarios?
 We tested, but did not train, our system on problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
@@ -1091,49 +1091,20 @@ and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:P
 %% found by performing gradient ascent on the likelihood of the
 %% observations w.r.t. $\vec{\mathcal{R}}$.
 
-\system learns a DSL containing templates for polynomials of different orders, as well as ratios of polynomials (Tbl.~\ref{regressionDSL}).
-The algorithm also discovers programs that minimize the number of continuous degrees of freedom.
+\system learns a DSL containing 13 new functions,
+most of which are templates for polynomials of different orders or ratios of polynomials.
+The algorithm also learns to find programs that minimize the number of continuous degrees of freedom.
 For example, it learns to represent linear functions with the program
-\code{(* real (+ x real))}}, which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_6$ in Tbl.~\ref{regressionDSL}
+\code{(* real (+ x real))}}, which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
 which has five continuous parameters.
-This phenomenon arises from our Bayesian framing -- both the bias towards shorter programs and the likelihood model's BIC penalty.
-
-%% The neural recognition model accelerates inference,
-%% but given enough iterations of our algorithm,
-%% a lesioned version without the recognition model eventually comes close to catching up (green curves in Fig.~\ref{regressionLearningCurve}; No NN in Tbl.~\ref{regressionComparison}).
-%% We compare our model on held-out tasks against 4 baselines (Tbl.~\ref{regressionComparison}).
-
-\begin{figure*}[h]
-\makebox[\textwidth][c]{
-\begin{minipage}{0.55\textwidth} \newcommand{\functionSize}{1.5cm}\centering
-%  \includegraphics[width = \functionSize]{figures/functions/0.png}
+This phenomenon arises from our Bayesian framing -- both the implicit bias towards shorter programs and the likelihood model's BIC penalty.
+\begin{wrapfigure}{r}{0.45\textwidth} \newcommand{\functionSize}{1.5cm}\centering
   \includegraphics[width = \functionSize]{figures/functions/6.png}
   \includegraphics[width = \functionSize]{figures/functions/116.png}
   \includegraphics[width = \functionSize]{figures/functions/160.png}
   \includegraphics[width = \functionSize]{figures/functions/149.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/432.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/415.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/426.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/597.png}
-  %% \includegraphics[width = \functionSize]{figures/functions/591.png}
   \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
-\end{minipage}
-\hspace{1em}
-\begin{minipage}{0.5\textwidth}
-  \centering\begin{tabular}{l}
-  \toprule
-  $f_0($\code{x}$)\,=\,$\code{(+ x real)}\\
-  $f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} \\
-  $f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}\\
-  \hspace{0.5cm}\emph{($f_2$: quadratics)}\\
-  $f_3($\code{x}$)\,=\,$\code{(/ (}$f_2$\code{ x) (}$f_0$\code{ x))}\\
-    \hspace{0.5cm}\emph{($f_3$: ratio of polynomials)}
-  \\\bottomrule
-\end{tabular}
-  \captionof{table}{Some learned subroutines for symbolic regression. System starts with addition, multiplication, division, and real numbers, and learns to build rational functions and polynomials up to 4th order.}\label{regressionDSL}
-\end{minipage}
-}
-\end{figure*}
+    \end{wrapfigure}
 
 \section{Quantitative Results}\label{quantitative}
 
@@ -1148,7 +1119,7 @@ this setup is closest to how RobustFill~\cite{devlin2017robustfill} and DeepCode
 We can not compare directly with these systems,
 because they are engineered for one specific domain, and 
 do not have publicly available code and datasets.
-\\\noindent \textbf{EC}, an implementation of the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, publicly available at...
+\\\noindent \textbf{EC}, which lesions the recognition model and modifies  the DSL learner to model the library learning technique of  EC~\cite{Dechter:2013:BLV:2540128.2540316}.
 \\\noindent \textbf{Enum}, which enumerates a frontier without any learning -- equivalently, our first search step.
 
 For each domain,
@@ -1173,10 +1144,10 @@ This supports a view of the recognition model as a way of amortizing the cost of
 %% This radically shrinks the table
 \tabcolsep=4pt
 \renewcommand{\arraystretch}{0.5}
-\begin{tabular}{llllll}
+\begin{tabular}{lllllll}
   \toprule& Ours& \multicolumn{1}{c}{\begin{tabular}{c}
     Ours\\(no NN)
-    \end{tabular}}& RF/DC & PCFG & Enum
+    \end{tabular}}& EC&RF/DC & PCFG & Enum
 
   %% \\\midrule\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
   %% \% solved &
@@ -1184,26 +1155,26 @@ This supports a view of the recognition model as a way of amortizing the cost of
   %% Solve time&  0.9s&  1.1s&1.2s&1.3s&1.3s
 
 
-  \\\midrule\multicolumn{6}{c}{\emph{List Processing}}\\\midrule
-  \% solved&\textbf{86\%} &84\% &60\%&74\%&70\%\\
-  Solve time&  0.8s&0.7s&1.0s&1.0s&1.1s
+  \\\midrule\multicolumn{7}{c}{\emph{List Processing}}\\\midrule
+  \% solved&\textbf{86\%} &84\% &&60\%&74\%&70\%\\
+  Solve time&  0.8s&0.7s&&1.0s&1.0s&1.1s
 
-  \\\midrule\multicolumn{6}{c}{\emph{Text Editing}}\\\midrule
-  \% solved&\textbf{75\%} &\% &33\%&0\%&4\%\\
-  Solve time&  29s&s&80s&--&235s
+  \\\midrule\multicolumn{7}{c}{\emph{Text Editing}}\\\midrule
+  \% solved&\textbf{75\%} &43\% &&33\%&0\%&4\%\\
+  Solve time&  29s&65s&&80s&--&235s
 
   %% \\\midrule\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
   %% \% solved&\textbf{52\%} &\textbf{52\%} &40\%&44\%&42\%\\
   %% Solve time&  0.4s&0.7s&1.2s&0.9s&1.0s
 
-  \\\midrule\multicolumn{6}{c}{\emph{Symbolic Regression}}\\\midrule
-  \% solved&   \textbf{84\% }&75\%&38\%&38\%&37\% \\
-  Solve time&  24s& 40s  &31s&55s&29s
+  \\\midrule\multicolumn{7}{c}{\emph{Symbolic Regression}}\\\midrule
+  \% solved&   \textbf{84\% }&75\%&62\%&38\%&38\%&37\% \\
+  Solve time&  \textbf{24}s& 40s  &28s&31s&55s&29s
   %% MDL (nats)&   9.3 &11.0&2.3&--&4.6
 
   \\\bottomrule
   \end{tabular}
-\caption{\% solved w/ 5 sec timeout. Solve time: averaged over solved
+\caption{\% solved before timeout. Solve time: averaged over solved
   tasks.  RF/DC: trained like RobustFill/DeepCoder.  PCFG: model w/o
   structure learning.  Enum: model w/o any learning.  %% MDL:
   %% $-\expect\left[\probability[x|p] \right]$. For domains other than
