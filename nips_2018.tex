@@ -936,52 +936,37 @@ though.}
 %primitives is not paired with a sufficiently large and graded curriculum.
 
 
-\begin{comment}
-\begin{table}
-\centering
-\begin{tabular}{lll}
-  \toprule
-  Name & Input & Output \\\midrule
-  append-4 & [7\, 0\, 2] & [7\, 0\, 2\, 4] \\
-  len & [3\, 5\, 12\, 1] & 4 \\
-  has-2 & [4\, 5\, 7\, 4] & \code{false} \\
-  repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
-  drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
-  count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
-  rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
-  pow-3 & [10\, 4\, 13] & [1000\, 64\, 2197] \\
-  keep-mod-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
-  \bottomrule
-\end{tabular}
-\caption{Sample tasks from our list function domain %% We used 15 input/output
-  %% examples for each task to reduce ambiguity in the task's function,
-  %% ensuring solutions achieve the desired concept.
-}
-\label{listexamples}
-\end{table}
-
-\begin{table}[t]
+\begin{figure*}
+\makebox[\textwidth][c]{
+\begin{minipage}{0.6\textwidth}
+  \begin{tabular}{lll}
+    \toprule
+    Name & Input & Output \\\midrule
+    has-2 & [4\, 5\, 7\, 4] & \code{false} \\
+    repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
+    drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
+    count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
+    rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
+    keep-mod-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
+    \bottomrule
+  \end{tabular}
+  \captionof{table}{Sample tasks from our list function domain}
+  \label{listexamples}
+\end{minipage}
+\hfill
+\begin{minipage}{0.6\textwidth}
   \centering
   \begin{tabular}{l}
     \toprule
-    $f_0($\code{i$,\ell$}$) \,=\, $\code{(singleton (index i $\ell$))}\\
-    \hspace{0.5cm}($f_0$: \emph{Put the $i$-th index into a list})\\
-    $f_1($\code{i$,\ell$}$) \,=\, $\code{(++ $\ell$ ($f_0$ i $\ell$))}\\
-    \hspace{0.5cm}($f_1$: \emph{Append the $i$-th index})\\
-    $f_2($\code{n$,\ell$}$) \,=\, $\code{(any ($\lambda$ (x) (= n x)) $\ell$)}\\
-    \hspace{0.5cm}($f_1$: \emph{Whether $n$ appears in the list})\\
-    $f_3($\code{i$,\ell$}$) \,=\, $\code{(index (negate i) (sort $\ell$))}\\
-    \hspace{0.5cm}($f_3$: \emph{Get the $i$-th largest number})\\
-    $f_4($\code{n$,\ell$}$) \,=\, $\code{(mapi ($\lambda$ (i x) (mod x n)) $\ell$)}\\
-    $f_5($\code{k$,\ell$}$) \,=\, $\code{(mapi ($\lambda$ (i x) (+ x k)) $\ell$)}\\
-    $f_6($\code{k$,$n$,\ell$}$) \,=\, $\code{($f_4$ n ($f_5$ k $\ell$)}\\
-    \hspace{0.5cm}($f_6$: \emph{Caesar shift of $k$ in integers modulo $n$})\\
+    $f_0($\code{i$,\ell$}$) \,=\, $\code{(TODO)}\\
+    \hspace{0.5cm}($f_0$: \emph{TODO})\\
   \bottomrule
   \end{tabular}
-  \caption{Some learned DSL primitives for list functions}\label{listinduced}
-\end{table}
+  \captionof{table}{Some learned DSL primitives for list functions}\label{listinduced}
+\end{minipage}
+  }
+\end{figure*}
 
-  \end{comment}
 
 \subsection{Text Editing}\label{textSection}
 Synthesizing programs that edit text is a classic problem in the
