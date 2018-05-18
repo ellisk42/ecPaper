@@ -29,8 +29,8 @@
 
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 \newcommand{\sem}[1]{\llbracket #1 \rrbracket}
-\newcommand{\system}{\textsc{CoCoSea}~}
-\newcommand{\systemEnding}{\textsc{CoCoSea}}
+\newcommand{\system}{\textsc{SCC}~}
+\newcommand{\systemEnding}{\textsc{SCC}}
 \newcommand{\lowerBound}{\mathscr{L}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
 \newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
@@ -122,18 +122,37 @@
 
 \maketitle
 
-\section{Learning abstract geometry}
-The brifly presented geometry project is a recent addition to the set of
-problems adressed with our method.
+\section{Learning Generative Graphics Programs}
 
-The original DSL, while inspired by the Logo language~(\cite{abelson1974logo}) in the sense
-that ones controls a moving on-off point, was designed to be congitively
-plausible in the sense that some abstractions are baked in for curves and a few
-structures --- it was first described in~\cite{sablemeyer2017geom}.
+A natural extension of our work is to consider the problem of learning generative models:
+here, we would learn programs that generate (either deterministically or probabilistically)
+structures like images or words.
+As a first step in this direction,
+we apply \system to synthesizing graphics programs.
 
-It is to be thought as a turtle with as internal state a position, a facing
-direction, a speed, an acceleration, an angular speed and an angular
-acceleration.
+A natural starting DSL for graphics programming is the
+Logo language~(\cite{abelson1974logo}), also sometimes called \textbf{turtle graphics}.
+These programs control a pen (sometimes called a ``turtle''),
+and can do things like pick the pen up,
+move the pen forward,
+rotate the pen,
+or trace out a programmatically specified arc.
+We take turtle graphics primitives from prior work~\cite{sablemeyer2017geom}.
+In our setting, we will encapsulate turtle graphics primitives inside of $\lambda$-calculus,
+and seek to infer graphics programs from images: thus the task is to look at an image,
+and write the program that would have drawn it.
+
+%% The brifly presented geometry project is a recent addition to the set
+%% of problems adressed with our method.
+
+%% The original DSL, while inspired by the in the sense that ones
+%% controls a moving on-off point, was designed to be congitively
+%% plausible in the sense that some abstractions are baked in for curves
+%% and a few structures ---
+
+%% It is to be thought as a turtle with as internal state a position, a
+%% facing direction, a speed, an acceleration, an angular speed and an
+%% angular acceleration.
 
 The DSL is the following:
 
@@ -169,10 +188,10 @@ The DSL is the following:
 \end{tabular}
 \end{center}
 
-In this context programs to be learned correspond to a single shape since they
-don't take an input. All tasks will ignore input and produces a single output.
-This differs from the previous examples where each target could be evaluated on
-various input.
+%% In this context programs to be learned correspond to a single shape since they
+%% don't take an input. All tasks will ignore input and produces a single output.
+%% This differs from the previous examples where each target could be evaluated on
+%% various input.
 
 Some elements of the semantics are common, the others are as follow.
 \texttt{Repeat} takes a \texttt{variable} and a \texttt{prog} and repeats
