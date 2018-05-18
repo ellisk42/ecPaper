@@ -967,7 +967,7 @@ Synthesizing programs that manipulate data structures is a widely studied
 problem in the programming languages community~\cite{feser2015synthesizing}.
 %with applications to computer aided programming~\cite{solar2008program}.
 We consider this problem within the context of learning functions that
-manipulate lists with some involvement of numerical arithmetic.
+manipulate lists with some involvement of integer arithmetic.
 
 
 \begin{wrapfigure}{r}{0.55\textwidth}\centering
@@ -997,7 +997,15 @@ so we additionally provide our system with the following arithmetic
 primitives: \code{mod}, \code{*}, \code{>}, \code{is-square},
 \code{is-prime}.
 
-% TODO say something more
+We experimented with \system by randomly splitting the data set into two
+equal-sized parts: one for training, and one held out for testing.
+We found that the recognition model provided no benefit for the training
+tasks. However, it yielded faster search times on held out tasks allowing
+more tasks to be solved before timing out.
+Several inventions were produced to yield a more expressive DSL for the
+domain (left of Tbl.~\ref{initialExampleDSL}, right of
+Fig.~\ref{fragmentExample}). See the supplement for a complete list of
+inventions.
 
 
 \subsection{Text Editing}\label{textSection}
