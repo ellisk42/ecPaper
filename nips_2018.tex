@@ -380,16 +380,21 @@ neural approaches  (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids 
 symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}).
 A notable exception is the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316},
 which also learns a library of subroutines.
-We were motivated by EC, and go beyond it and other prior work through the following contributions:
+We find EC motivating, and go beyond it and other prior work through the following contributions:%% \begin{itemize}
+%%   \setlength\itemsep{0}
+%%   \item We show how to learn-to-learn programs in an expressive Lisp-like programming language;
+%%   \item We give an algorithm for learning DSLs, built on a formalism known
+%%     as Fragment Grammars~\cite{tim}; and 
+%%   \item We give a hierarchical Bayesian framing of the problem that allows a
+%%     joint inference of the DSL and recognition model.
+%% \end{itemize}
+\noindent\\\textbf{Contributions.} (1) We show how to learn-to-learn programs in an expressive Lisp-like programming language, including conditionals, variables, and higher-order recursive functions;
+(2) We give an algorithm for learning DSLs,
+built on a formalism known as Fragment Grammars~\cite{tim};
+and (3) We give a hierarchical Bayesian framing of
+the problem that
+allows joint inference of the DSL and neural recognition model.
 
-\begin{itemize}
-  \setlength\itemsep{0}
-  \item We show how to learn-to-learn programs in an expressive Lisp-like programming language;
-  \item We give an algorithm for learning DSLs, built on a formalism known
-    as Fragment Grammars~\cite{tim}; and 
-  \item We give a hierarchical Bayesian framing of the problem that allows a
-    joint inference of the DSL and recognition model.
-\end{itemize}
 
 
  
@@ -901,7 +906,7 @@ Synthesizing programs that manipulate data structures is a widely studied
 problem in the programming languages community~\cite{feser2015synthesizing}.
 %with applications to computer aided programming~\cite{solar2008program}.
 We consider this problem within the context of learning functions that
-manipulate lists with some involvement of integer arithmetic.
+manipulate lists, and which also perform arithmetic operations upon lists of numbers.
 
 
 \begin{wrapfigure}{r}{0.55\textwidth}\centering
@@ -963,8 +968,7 @@ descent instead of dynamic programming.
 We trained our system on a corpus of 109 automatically generated text editing tasks, with 4 input/output examples each.
 After three iterations, it assembles a DSL containing a dozen new functions (center of Fig.~\ref{initialExampleDSL}) that let it solve 
 all of the training tasks.
-
-How well does the  learned DSL generalized to real text-editing scenarios?
+But, how well does the  learned DSL generalized to real text-editing scenarios?
 We tested, but did not train, on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
 \system solves 3.7\% of the problems with an average search time of 235 seconds.
 After learning,
@@ -1049,12 +1053,12 @@ assumptions about the space of programs and the statement of tasks.
   \multicolumn{7}{c}{\emph{Text Editing}}\\
   \midrule
   \% solved&\textbf{74\%} &43\% &30\%&33\%&0\%&4\%\\
-  Solve time& 38s&65s&38s&80s&--&235s\\
+  Solve time& 29s&65s&38s&80s&--&235s\\
   \midrule
   \multicolumn{7}{c}{\emph{Symbolic Regression}}\\
   \midrule
   \% solved&   \textbf{84\% }&75\%&62\%&38\%&38\%&37\% \\
-  Solve time&  \textbf{24}s& 40s  &28s&31s&55s&29s\\
+  Solve time&  24s& 40s  &28s&31s&55s&29s\\
   \bottomrule
   \end{tabular}
 \caption{\% solved before timeout. Solve time: averaged over solved
@@ -1065,8 +1069,7 @@ assumptions about the space of programs and the statement of tasks.
   %% For symbolic regression MDL is a
   %% proxy for \# of continuous parameters.
 }\vspace{-0.5cm}\label{baselineComparisons} \end{wraptable}
-Nevertheless, much prior work can be modeled as
-special cases of our setup. 
+Nevertheless, much prior work can be modeled within our setup. 
 We compare with the following baselines:
 \\\noindent \textbf{No NN}, which lesions the recognition model.
 \\\noindent \textbf{NPS}, which does not learn the DSL,
@@ -1076,22 +1079,23 @@ We call this NPS (Neural Program Synthesis)
 because this setup is closest to how
 RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
 \\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
-only add subexpressions of programs in the frontiers to the DSL. This is how prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
+only add \textbf{s}ub\textbf{e}xpressions of programs in the frontiers to the DSL. This is how prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
+\\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
+but instead learns the parameters of the DSL ($\theta$).
+and is like learning the parameters of a PCFG while not learning any of the structure.
 \\\noindent \textbf{Enum}, which enumerates a frontier without any learning -- equivalently, our first search step.
 
-For each domain,
-we are interested both in how many tasks the
-agent can solve and how quickly it can find those solutions.
-Tbl.~\ref{baselineComparisons}
-compares our model against these alternatives.
-Our full model consistently
-improves on the baselines,
-sometimes dramatically (text editing and symbolic regression).
-The recognition model 
-consistently increases the number of solved held-out tasks,
-and lesioning it also slows down the convergence of the algorithm,
-taking more iterations to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
-This supports a view of the recognition model as a way of amortizing the cost of searching for programs.
+%For each domain,
+%% We are interested both in how many tasks the
+%% agent can solve and how quickly it can find those solutions.
+%% Tbl.~\ref{baselineComparisons}
+%% compares our model against these alternatives.
+%% We consistently
+%% improve on the baselines,
+%% and find that lesioning the recognition model
+%% and lesioning it also slows down the convergence of the algorithm,
+%% taking more iterations to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
+%% This supports a view of the recognition model as a way of amortizing the cost of search.
 
 
 
@@ -1114,7 +1118,7 @@ This supports a view of the recognition model as a way of amortizing the cost of
 We see these prior works as operating in a different regime: typically, they train with strong supervision (i.e., with annotated ground-truth programs) on massive data sets (i.e., hundreds of millions~\cite{devlin2017robustfill}).
  Our work   considers a weakly-supervised regime where ground truth programs are not provided and
  the agent must learn from at most a few hundred tasks,
- which is facilitated by our ``Helmholtz machine'' style recognition model training (Sec.~\ref{recognitionSection}).
+ which is facilitated by our ``Helmholtz machine'' style recognition model.%(Sec.~\ref{recognitionSection}).
  
  \noindent \textbf{Inventing new subroutines for program induction:}
  Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
@@ -1133,7 +1137,7 @@ We see these prior works as operating in a different regime: typically, they tra
 
 \parbox{0.58\textwidth}{
 
-\paragraph{Outlook.}
+%\paragraph{Outlook.}
 We contribute an algorithm, \systemEnding, that learns to program by
 bootstrapping a DSL with new domain-specific primitives that the algorithm
 itself discovers, together with a neural recognition model that learns how to
@@ -1141,15 +1145,14 @@ efficiently deploy the DSL on new tasks. We believe this integration of top-down
 symbolic representations and bottom-up neural networks --- both of them learned
 --- helps make program induction systems more generally useful for AI. Many
 directions remain open.
-
-\paragraph{Future.}
+%\paragraph{Future.}
 Two immediate goals are to integrate more sophisticated neural recognition
 models~\cite{devlin2017robustfill} and program
 synthesizers~\cite{solar2008program}, which may improve performance in some
 domains over the generic methods used here.
 We are in the process of applying our algorithm to generative programs and
 prototyped this with a turtle-like domain: Figure \ref{geomCompiled} gives some
-preliminary results for our graphics programsdomain --- see supplementary material for more
+preliminary results for turtle graphics  --- see supplementary material for more
 details.  Another direction is to explore DSL meta-learning: can we find a
 \emph{single} universal primitive set that could effectively bootstrap DSLs for
 new domains, including the three domains considered,  but also many others?
@@ -1158,10 +1161,9 @@ new domains, including the three domains considered,  but also many others?
   \centering
   \includegraphics[width=\textwidth]{figures/geomCompiled.eps} 
   \captionof{figure}{
-  Top left: a few example of the shapes used as targets. Top right: a few
-  examples of discovered new shapes. Bottom: learning curve across iterations in
-  percent in the middle, and on both side average of the compiled new shapes
-  before any traning and at the end of the last iteration.}
+  Top left: Example training tasks. Top right: samples from the learned DSL.
+ Bottom: learning curve  (middle), and on both sides the average sample from the DSL
+  before any training (left) and after training (right). See Sec.~1 of supplement.}
 \label{geomCompiled}
 \end{minipage}
 
