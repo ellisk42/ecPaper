@@ -126,7 +126,7 @@
 The brifly presented geometry project is a recent addition to the set of
 problems adressed with our method.
 
-The original DSL, while inspired by the Logo~\cite{abelson1974logo} in the sense
+The original DSL, while inspired by the Logo language~(\cite{abelson1974logo}) in the sense
 that ones controls a moving on-off point, was designed to be congitively
 plausible in the sense that some abstractions are baked in for curves and a few
 structures --- it was first described in~\cite{sablemeyer2017geom}.
@@ -270,6 +270,15 @@ without particular order.
 Since this is a first step in broader project of program induction for abstract
 geometry the likelyhood is currently all-or-none --- ongoing work moves this to
 a neural net based distance function to abstract away from noise in the shapes.
+
+The result presented in the main article desribe a sample of tasks and compiled
+new shapes on the top row. On the bottom row is a condesed description of a run
+where are displayed the mean of typical compiled programs on both sides, once
+before any training and once after the last iteration --- note how the
+probability weighting shaped the output space to add structure. In the middle is
+the learning rate measured by holding some tasks out, training on all the other,
+and with each iteration measuring the success rate on the unseen tasks. In the
+given example the split was $25\%$ test and $73\%$ train.
 
 \newpage
 
@@ -773,7 +782,9 @@ WYPvm & YPvm \\
 \hline
 \end{tabular}
 \end{center}
-  \end{comment}
+\end{comment}
+
+
 \vfill
 
 \section{List Processing Data Set}
