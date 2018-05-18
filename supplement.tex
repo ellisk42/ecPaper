@@ -130,18 +130,6 @@ structures like images or words.
 As a first step in this direction,
 we apply \system to synthesizing graphics programs.
 
-A natural starting DSL for graphics programming is the
-Logo language~(\cite{abelson1974logo}), also sometimes called \textbf{turtle graphics}.
-These programs control a pen (sometimes called a ``turtle''),
-and can do things like pick the pen up,
-move the pen forward,
-rotate the pen,
-or trace out a programmatically specified arc.
-We take turtle graphics primitives from prior work~\cite{sablemeyer2017geom}.
-In our setting, we will encapsulate turtle graphics primitives inside of $\lambda$-calculus,
-and seek to infer graphics programs from images: thus the task is to look at an image,
-and write the program that would have drawn it.
-
 \begin{figure}[htp]
   \begin{center}
   \includegraphics[width = 0.5\textwidth]{figures/moreDreams.png}
@@ -153,6 +141,18 @@ In Figure~\ref{moreDreams} is another montage with several compiled shapes gener
 method after some training. While not all are that regular, often offer high
 level structure in the latter run while no structure is to be found at the
 begining.
+
+A natural starting DSL for graphics programming is the
+Logo language~(\cite{abelson1974logo}), also sometimes called \textbf{turtle graphics}.
+These programs control a pen (sometimes called a ``turtle''),
+and can do things like pick the pen up,
+move the pen forward,
+rotate the pen,
+or trace out a programmatically specified arc.
+We take turtle graphics primitives from prior work~\cite{sablemeyer2017geom}.
+In our setting, we will encapsulate turtle graphics primitives inside of $\lambda$-calculus,
+and seek to infer graphics programs from images: thus the task is to look at an image,
+and write the program that would have drawn it.
 
 %% The brifly presented geometry project is a recent addition to the set
 %% of problems adressed with our method.
