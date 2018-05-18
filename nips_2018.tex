@@ -1020,11 +1020,11 @@ After three iterations, it assembles a DSL (Fig.~\ref{firstPageFigure} \& center
 all of the tasks. The learned DSL contains 10 new functions, listed in the supplement.
 
 How well does the  learned DSL generalized to real text-editing scenarios?
-We tested, but did not train, our system on problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
+We tested, but did not train, our system on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
 \system solves 3.7\% of the problems with an average search time of 235 seconds.
 After learning,
 it solves 74.1\%, and does so much faster,
-solving them in an average of 29 seconds.
+solving them in an average of 38 seconds.
 As of the 2017 SyGuS competition,
 the best-performing algorithm solves 79.6\% of the problems.
 But, SyGuS comes with a
@@ -1129,10 +1129,14 @@ which has five continuous parameters.
 This phenomenon arises from our Bayesian framing -- both the implicit bias towards shorter programs and the likelihood model's BIC penalty.
 \begin{wrapfigure}{r}{0.45\textwidth} \newcommand{\functionSize}{1.5cm}\centering
   \includegraphics[width = \functionSize]{figures/functions/6.png}
-  \includegraphics[width = \functionSize]{figures/functions/116.png}
+  \includegraphics[width = \functionSize]{figures/functions/48.png}
+  \includegraphics[width = \functionSize]{figures/functions/102.png}
+  \includegraphics[width = \functionSize]{figures/functions/116.png}\\
+  \includegraphics[width = \functionSize]{figures/functions/181.png}
   \includegraphics[width = \functionSize]{figures/functions/160.png}
   \includegraphics[width = \functionSize]{figures/functions/149.png}
-  \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
+    \includegraphics[width = \functionSize]{figures/functions/187.png}
+  \caption{Recognition model input for symbolic regression. DSL learns subroutines for polynomials (top row) and polynomials (bottom row) while the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines best explains the observation.}\label{functions}
     \end{wrapfigure}
 
 \section{Quantitative Results}\label{quantitative}
