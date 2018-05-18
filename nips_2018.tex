@@ -293,23 +293,23 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
     {\tabcolsep=4pt
       \begin{tabular}{cc}
         \begin{tabular}{c}
-          \code{[7\, 0\, 2]}$\to $\code{[7\, 0\, 2\, 4]}         \\
-          \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2\, 4]} \\
-          \code{$f(x) = $}\code{($f_0$ nil $x$)}             \\
+          \code{[7\, 0\, 2]}$\to $\code{[7\, 0\, 2\, 9]}         \\
+          \code{[9\, 3]}$\to $\code{[9\, 3\, 9]} \\
+          \code{$f(\ell) = $}\code{($f_1$ $\ell$ 9)}             \\
           ~                                                  \\
           ~                                                  \\
           \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
           \hspace{0.15cm}\code{[3\, 19\, 14]}$\to $\code{19}                \\
-          \code{$f(\ell) = $}\code{($f_0$ $\ell$)}
+          \code{$f(\ell) = $}\code{($f_2$ $\ell$)}
         \end{tabular}
         &
         \hspace{-0.3cm}\begin{tabular}{c}
           \code{[7\, 3]}$\to $\code{False}                              \\
           \hspace{0.3cm}\code{[3]}$\to $\code{False}                    \\
-          \hspace{-0.3cm}\code{[9\, 4\, 4]}$\to $\code{True\phantom{e}} \\
-          \hspace{0.3cm}\code{[4]}$\to $\code{True\phantom{e}}                        \\
-          \hspace{-0.3cm}\code{[4\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
-          \code{$f(\ell) = $}\code{($f_2$ $\ell$ 4)}
+          \hspace{-0.3cm}\code{[9\, 0\, 0]}$\to $\code{True\phantom{e}} \\
+          \hspace{0.3cm}\code{[0]}$\to $\code{True\phantom{e}}                        \\
+          \hspace{-0.3cm}\code{[0\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
+          \code{$f(\ell) = $}\code{($f_3$ $\ell$ 0)}
         \end{tabular}
       \end{tabular}
     }
@@ -348,13 +348,15 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
       %NOTE: this is the actual invention, but I removed a redundant lambda
       % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
       $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}\\
-      \vspace{2ex}
       \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
       $f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k nil) $\ell$)}\\
-      \vspace{2ex}
-      \hspace{\helpSize}($f_1$: \emph{Append }\code{k}\emph{ to $\ell$})\\
-      $f_2(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
-      \phantom{$f_1(\ell,$\code{k}}
+      \hspace{\helpSize}($f_1$: \emph{Append the number }\code{k}\emph{ to $\ell$})\\
+      %(lambda (fold $0 0 (lambda (lambda (if (gt? $0 $1) $0 $1)))))
+      $f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}\\
+      \phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}\\
+      \hspace{\helpSize}($f_2$: \emph{Maximum element in list $\ell$})\\
+      $f_3(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
+      \phantom{$f_1(\ell,$}
       \code{($\lambda$ (x a) (if a a (= k x))))}\\
       \hspace{\helpSize}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
     \end{tabular}&
