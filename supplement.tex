@@ -124,11 +124,12 @@
 
 \section{Learning abstract geometry}
 The brifly presented geometry project is a recent addition to the set of
-problems adressed with our method. The original DSL, while inspired by the
-Logo~\cite{abelson1974logo} in the sense that ones controls a moving on-off
-point, was designed to be congitively plausible in the sense that some
-abstractions are baked in for curves and a few structures --- it was first
-described in~\cite{sablemeyer2017geom}.
+problems adressed with our method.
+
+The original DSL, while inspired by the Logo~\cite{abelson1974logo} in the sense
+that ones controls a moving on-off point, was designed to be congitively
+plausible in the sense that some abstractions are baked in for curves and a few
+structures --- it was first described in~\cite{sablemeyer2017geom}.
 
 It is to be thought as a turtle with as internal state a position, a facing
 direction, a speed, an acceleration, an angular speed and an angular
@@ -138,39 +139,40 @@ The DSL is the following:
 
 \begin{center}
 \tt
-\begin{tabular}{rr}
+\begin{tabular}{rl}
   \toprule
   \textrm{\emph{name}}    & \textrm{\emph{type}} \\
   \midrule
-  Concat    & \text{prog}      \to \text{prog}      \to \text{prog} \\
-  Repeat    & var option        \to \text{prog}      \to \text{prog} \\
-  Embed     & \text{prog}      \to \text{prog}                       \\
+  Concat    & \text{prog}      \to \text{prog}        \to \text{prog} \\
+  Repeat    & var option        \to \text{prog}       \to \text{prog} \\
+  Embed     & \text{prog}      \to \text{prog}                        \\
   Define    & \text{var}        \to \text{prog}                       \\
   Turn      & \text{var option} \to \text{prog}                       \\
-  Integrate & \text{var option} \to \text{bool}       \to              \\
-            & \text{var option} \to \text{var option} \to              \\
+  Integrate & \text{var option} \to \text{bool}       \to             \\
+            & \text{var option} \to \text{var option} \to             \\
             & \text{prog}                                             \\
   \midrule
-  True      & bool                                                     \\
-  False     & bool                                                     \\
+  True      & bool                                                    \\
+  False     & bool                                                    \\
   \midrule
-  Nothing   & \text{var option}                                        \\
-  Just      & \text{var}        \to \text{var option}                  \\
+  Nothing   & \text{var option}                                       \\
+  Just      & \text{var}        \to \text{var option}                 \\
   \midrule
-  Unit      & var                                                      \\
-  Name      & var                                                      \\
-  Next      & \text{var}        \to \text{var}                         \\
-  Prev      & \text{var}        \to \text{var}                         \\
-  Double    & \text{var}        \to \text{var}                         \\
-  Half      & \text{var}        \to \text{var}                         \\
-  Opposite  & \text{var}        \to \text{var}                         \\
+  Unit      & var                                                     \\
+  Name      & var                                                     \\
+  Next      & \text{var}        \to \text{var}                        \\
+  Prev      & \text{var}        \to \text{var}                        \\
+  Double    & \text{var}        \to \text{var}                        \\
+  Half      & \text{var}        \to \text{var}                        \\
+  Opposite  & \text{var}        \to \text{var}                        \\
   \bottomrule
 \end{tabular}
 \end{center}
 
-In this context programs to be learned are directly resulting shapes, since they
-don't take an input, and all tasks will be unique in the sense that each program
-ignores input and produces a single output.
+In this context programs to be learned correspond to a single shape since they
+don't take an input. All tasks will ignore input and produces a single output.
+This differs from the previous examples where each target could be evaluated on
+various input.
 
 Some elements of the semantics are common, the others are as follow.
 \texttt{Repeat} takes a \texttt{variable} and a \texttt{prog} and repeats
@@ -178,31 +180,98 @@ said \texttt{prog} $n$ times where $n$ is the evaluation of the
 \texttt{variable} --- if not set it is defaulted to two. \texttt{Embed} of a
 \texttt{prog} means that said \texttt{prog} will be executed and then returns to
 the current state --- leaving what has been drawn in the meantime on the canvas.
+
+\begin{wrapfigure}{r}{0.25\textwidth}
+  \begin{center}
+    \includegraphics[width = 0.25\textwidth]{figures/DSLGeom.eps}
+  \end{center}\label{dslgeom}\caption{Top: Some defaults for \texttt{Integrate}.
+  Bottom, the result of the \texttt{Cross} example bellow.}
+\end{wrapfigure}
+
 \texttt{Integrate} is the main instruction and the only one that draws anything:
 \texttt{Integrate(t,p,a,c)} takes a time \texttt{var}, a pen \texttt{bool}, an
 acceleration \texttt{var} and an angular speed \texttt{var}, and it moves the
 turtle according to these parameters --- with or without actually drawing
 depending on the pen variable \texttt{p}.
 
-\begin{wrapfigure}{r}{0.25\textwidth}
-  \begin{center}
-    \includegraphics[width = 0.25\textwidth]{figures/DSLGeom.eps}
-  \end{center}\label{dslgeom}\caption{Some defaults for \texttt{Integrate}}
-\end{wrapfigure}
-
 The default values of these parameters are set such that \texttt{Integrate(nothing,
 true, nothing, nothing)} draws a unit segment, \texttt{Integrate(nothing, true,
 nothing, Just(Unit))} draws a circle of unit length, and
 \texttt{Integrate(nothing, true, Just(Unit), Just(unit))} draws the first spire
-of a spiral.
+of a spiral. Playing with the first arguments decides on the duration during
+which the arguments are integrated.
 
-The training was done on the following set of tasks
+In the \texttt{var} type, most are self explicit, while \texttt{Opposite(v)}
+takes the opposite of \texttt{v}. The behaviour of \texttt{Name} was originally
+designed to handle arbitrary variables in a call by name fashion but was latter
+reduced to a single storage location, which proves to be enough for the
+targeted shapes. One can therefore store elements in that placeholder using
+\texttt{Define} and retrieve it through \texttt{Name}.
+
+Because of these defaults, the following program draws a cross:
+
+\[
+  \text{\texttt{Cross = Repeat(Double(Double(Unit)), Concat(Embed(Integrate), Turn(None)))}}
+\]
+
+Describing highly regular complex shapes in this language is easy to do as a
+human but quickly escapes the reach of naïve enumeration search. By using a
+curriculum of shapes our approach compresses the search in the corresponding
+directions --- another way to say this is that upon being given a dataset of
+shapes, it picks up the simple ones and abstract them as building blocks for
+latter staged of search.
+
+For example, the simplest way to draw a square in this language is already of
+length 12. Placing several around, for example to draw a grid is out of reach of
+the initial search. However by first abstracting as a primitive the segment ---
+thus reducing the length by four ---, then assuming that after a segment it
+often needs to draw something else, then abstracting the first arguments of
+\texttt{Repeat} --- further reducing the length by two --- as well as the one of
+\texttt{Turn} and finally making the square a primitive on its own once it
+starts using it often enough, the length of this particular shape drops.
+
+\begin{table}[htbp]
+  \begin{center}
+    \begin{tabular}{rcl}
+      \toprule
+      New Primitive & Type & Definition \\
+      \midrule
+      Segment = $f_0$ & \texttt{prog} & \texttt{Concat(Nothing, True, Nothing, Nothing)} \\
+      Right-angle = $f_1$ & \texttt{prog} & \texttt{Turn(Nothing)} \\
+      RepeatTwice = $f_2$ & \texttt{prog} $\to$ \texttt{prog} & $\lambda p.$ \texttt{Repeat(nothing,} $p$) \\
+      AddToUnitSegment = $f_3$ & \texttt{prog} $\to$ \texttt{prog} & $\lambda p.$ \texttt{Concat(}$f_0, p$) \\
+      Square = $f_4$ & \texttt{prog} & $f_3(f_3(f_2(f_1)))$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \caption{How our method compresses the square step by step. On the example
+  given in the main article this was produced by the compressor after the second
+  search phase and leads to the second jump in success, the first one being the
+  abstraction of the Segment. Names are \emph{not} produced by the compressor
+  and are here as indication to help the reader.}
+\end{table}
+
+The underlying hypothesis is that the new primitive distort the space of search
+toward something that looks more like what human actually produce and moves away
+from semantically valid but meaningless programs --- in a sense, learns to care
+about what \emph{matters} rather than what is \emph{true} in a very
+pragmatic-like way.
+
+In Figure \ref{alltasksgeom} are listed all the shapes used for this project
+without particular order.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width = \textwidth]{figures/geomAllTasks.png}
-  \caption{The set of tasks for the geometry domain}
+\caption{The set of tasks for the geometry domain}
+\label{alltasksgeom}
 \end{figure}
+
+Since this is a first step in broader project of program induction for abstract
+geometry the likelyhood is currently all-or-none --- ongoing work moves this to
+a neural net based distance function to abstract away from noise in the shapes.
+
+\newpage
 
 \section{An Illustration of the 3 iterations of our algorithm}
 Below we diagram the iterations employed by our algorithm. At each stage of the algorithm,
@@ -212,84 +281,91 @@ generative model, while red lines correspond to connections from the bottom-up r
 
 \begin{figure}[h]
 \centering
-\begin{tikzpicture}
-  \begin{scope}[shift={(2.5,0)}]
-    \node[obs] at (3,3) (dx){$\mathcal{D}$};
-    \node[latent] at (3.5,1.75) (zp){$p$};
-    \node[obs] at (4,3) (tx){$\theta^{(x)}$};
-    \node[obs] at (3.5,0.7) (xp) {$x$};
-    \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Search: Infer $p$};
-    \draw [->,red] (xp.east) to[out = 0,in = 0] node(nn){} (tx.east);
-    \draw [->,red] (tx) -- (zp);
-    \draw [->] (dx) -- (zp);
-    \node at (nn) {
-      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
-        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-        \node[rectangle] at (1,1) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (I-\name) at (0,-\y) {};
-        \foreach \name / \y in {1,...,3}
-            \node[neuron] (H-\name) at (1,-\y-0.5) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (O-\name) at (2,-\y) {};
-        \foreach \source in {1,...,4}
-            \foreach \dest in {1,...,3}
-                \draw [-latex] (I-\source) -- (H-\dest);
-        \foreach \source in {1,...,3}
-            \foreach \dest in {1,...,4}
-                \draw [-latex] (H-\source) -- (O-\dest);
-      \end{tikzpicture}
-    };
-    \node[shift={+(0,-0.65)}] at (nn) [fill=white]{ $q(x)$ };
-  \end{scope}
+  \includegraphics{figures/iterations.eps}
+%\begin{tikzpicture}
+  %\begin{scope}[shift={(2.5,0)}]
+    %\node[obs] at (3,3) (dx){$\mathcal{D}$};
+    %\node[latent] at (3.5,1.75) (zp){$p$};
+    %\node[obs] at (4,3) (tx){$\theta^{(x)}$};
+    %\node[obs] at (3.5,0.7) (xp) {$x$};
+    %\node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Search: Infer $p$};
+    %\draw [->,red] (xp.east) to[out = 0,in = 0] node(nn){} (tx.east);
+    %\draw [->,red] (tx) -- (zp);
+    %\draw [->] (dx) -- (zp);
+    %\node at (nn) {
+      %\begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+        %\tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+        %\fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+        %\node[rectangle] at (1,1) {};
+        %\foreach \name / \y in {1,...,4}
+            %\node[neuron] (I-\name) at (0,-\y) {};
+        %\foreach \name / \y in {1,...,3}
+            %\node[neuron] (H-\name) at (1,-\y-0.5) {};
+        %\foreach \name / \y in {1,...,4}
+            %\node[neuron] (O-\name) at (2,-\y) {};
+        %\foreach \source in {1,...,4}
+            %\foreach \dest in {1,...,3}
+                %\draw [-latex] (I-\source) -- (H-\dest);
+        %\foreach \source in {1,...,3}
+            %\foreach \dest in {1,...,4}
+                %\draw [-latex] (H-\source) -- (O-\dest);
+      %\end{tikzpicture}
+    %};
+    %\node[shift={+(0,-0.65)}] at (nn) [fill=white]{ $q(x)$ };
+  %\end{scope}
 
-  \begin{scope}[shift={(0.7,-4.2)}]
-    \node[obs] at (3,3) (dt){$\mathcal{D},\theta$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]dt.south) (p2){$p_2$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p2.south) (x2){$x_2$};
-    \draw [->] (p2.south) -- (x2.north);
-    \draw [->] (dt.south) -- (p2.north);
+  %\begin{scope}[shift={(0.7,-4.2)}]
+    %\node[obs] at (3,3) (dt){$\mathcal{D},\theta$};
+    %\node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]dt.south) (p2){$p_2$};
+    %\node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p2.south) (x2){$x_2$};
+    %\draw [->] (p2.south) -- (x2.north);
+    %\draw [->] (dt.south) -- (p2.north);
 
 
-    \node[obs] at ([yshift = 0cm,xshift = -0.5cm]p2.west) (p1){$p_1$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p1.south) (x1){$x_1$};
-    \draw [->] (p1.south) -- (x1.north);
-    \draw [->] (dt.south) -- (p1.north);
+    %\node[obs] at ([yshift = 0cm,xshift = -0.5cm]p2.west) (p1){$p_1$};
+    %\node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p1.south) (x1){$x_1$};
+    %\draw [->] (p1.south) -- (x1.north);
+    %\draw [->] (dt.south) -- (p1.north);
 
-    \node[obs] at ([yshift = 0cm,xshift = 0.5cm]p2.east) (p3){$p_3$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p3.south) (x3){$x_3$};
-    \draw [->] (p3.south) -- (x3.north);
-    \draw [->] (dt.south) -- (p3.north);
+    %\node[obs] at ([yshift = 0cm,xshift = 0.5cm]p2.east) (p3){$p_3$};
+    %\node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p3.south) (x3){$x_3$};
+    %\draw [->] (p3.south) -- (x3.north);
+    %\draw [->] (dt.south) -- (p3.north);
 
-    \node at ([yshift = 0cm,xshift = 0.3cm]p3.east) {$\cdots $};
-    \node at ([yshift = 0cm,xshift = 0.3cm]x3.east) {$\cdots $};
+    %\node at ([yshift = 0cm,xshift = 0.3cm]p3.east) {$\cdots $};
+    %\node at ([yshift = 0cm,xshift = 0.3cm]x3.east) {$\cdots $};
       
-    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]p3.east) (zp){$p$};
-    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]x3.east) (xp) {$x$};
-    \draw [->] (zp.south) -- (xp.north);
-    \plate {}{(zp)(xp)}{$x\in X$};
+    %\node[obs] at ([yshift = 0cm,xshift = 1.3cm]p3.east) (zp){$p$};
+    %\node[obs] at ([yshift = 0cm,xshift = 1.3cm]x3.east) (xp) {$x$};
+    %\draw [->] (zp.south) -- (xp.north);
+    %\plate {}{(zp)(xp)}{$x\in X$};
 
-    \draw[dashed,cyan,very thick] ([yshift = 0.5cm,xshift = -0.5]p1.west) rectangle  ([yshift = -0.5cm,xshift = -0.5]xp.east);
-    \node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Compile: Train $q$\\training data: cyan $(x,p)$};
-  \end{scope}
+    %\draw[dashed,cyan,very thick] ([yshift = 0.5cm,xshift = -2]p1.west)
+    %rectangle  ([yshift = -0.45cm,xshift = +2]xp.east);
+    %\node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Compile: Train $q$\\training data: cyan $(x,p)$};
+  %\end{scope}
     
-  \begin{scope}[shift={(7.7,-4)}]
-    \node[latent] at (0.5,3) (d){$\mathcal{D}$};
-    \node[latent] at (1.5,3) (t){$\theta$};
-    \node[obs] at (1,1.75) (z){$p$};
-    % \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
-    \node[obs] at (1,0.5) (x) {$x$};
-    \edge {z}{x};
-    \edge {d,t}{z};
-    \plate {}{(z)(x)}{$x\in X$};
-    \node[align = center] at ([yshift = -1cm]x.south) {Compress: Induce $(\mathcal{D},\theta)$};
-  \end{scope}
+  %\begin{scope}[shift={(7.7,-4)}]
+    %\node[latent] at (0.5,3) (d){$\mathcal{D}$};
+    %\node[latent] at (1.5,3) (t){$\theta$};
+    %\node[obs] at (1,1.75) (z){$p$};
+     %\node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
+    %\node[obs] at (1,0.5) (x) {$x$};
+    %\edge {z}{x};
+    %\edge {d,t}{z};
+    %\plate {}{(z)(x)}{$x\in X$};
+    %\node[align = center] at ([yshift = -1cm]x.south) {Compress: Induce $(\mathcal{D},\theta)$};
+  %\end{scope}
 
-\end{tikzpicture}
+%\end{tikzpicture}
 \end{figure}
 
 \section{Generative model over the programs}
+
+Alg.~\ref{programGenerativeModel} is a procedure for drawing
+samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
+enumerate programs in order of their probability under  Alg.~\ref{programGenerativeModel} rather than sample them.
+
 \begin{wrapfigure}{L}{0.5\textwidth}
   \begin{minipage}{0.49\textwidth}    
 \begin{algorithm}[H]
@@ -334,9 +410,7 @@ generative model, while red lines correspond to connections from the bottom-up r
 \end{algorithmic}
 \end{algorithm}
     \end{minipage}
-  \end{wrapfigure}Alg.~\ref{programGenerativeModel} is a procedure for drawing
-samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
-enumerate programs in order of their probability under  Alg.~\ref{programGenerativeModel} rather than sample them.
+  \end{wrapfigure}
 
 \section{Program Representation}\label{programrepresentation}
 We choose to represent programs using $\lambda$-calculus~\cite{pierce}.
