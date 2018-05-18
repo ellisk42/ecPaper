@@ -35,6 +35,12 @@
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
 \newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
 
+\usepackage{xcolor}
+\definecolor{pop1}{HTML}{1b9e77}
+\definecolor{pop2}{HTML}{7570b3}
+\newcommand{\pop}[1]{\textcolor{pop1}{#1}}
+\newcommand{\popp}[1]{\textcolor{pop2}{#1}}
+
 \usepackage{mathrsfs}
 \usepackage{listings}
 \usepackage{amsthm}
@@ -283,24 +289,24 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
 \begin{table}[hb]
   \makebox[\textwidth][c]{
     \scriptsize
-  \tabcolsep=4pt
+  \tabcolsep=3pt
   \renewcommand\code\texttt
   \renewcommand\codechar[1]{\texttt{"#1"}}
   \newcommand{\helpSize}{0.25cm}
-  \begin{tabular}{>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-2.5em}}c<{\hspace{-0.8em}}>{\hspace{-1em}}c<{\hspace{-1em}}}
+  \begin{tabular}{>{\hspace{-0em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-2.5em}}c<{\hspace{-0.8em}}>{\hspace{-1em}}c<{\hspace{-1em}}}
     \toprule
-    {\normalsize List Functions}&{\normalsize Text Editing}&{\normalsize Symbolic Regression}\\\midrule
-    {\tabcolsep=4pt
+    &{\normalsize List Functions}&{\normalsize Text Editing}&{\normalsize Symbolic Regression}\\\midrule
+    \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&{\tabcolsep=4pt
       \begin{tabular}{cc}
         \begin{tabular}{c}
           \code{[7\, 0\, 2]}$\to $\code{[7\, 0\, 2\, 9]}         \\
           \code{[9\, 3]}$\to $\code{[9\, 3\, 9]} \\
-          \code{$f(\ell) = $}\code{($f_1$ $\ell$ 9)}             \\
+          \pop{\code{$f(\ell) = $}\code{($f_1$ $\ell$ 9)}}       \\
           ~                                                  \\
           ~                                                  \\
           \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
           \hspace{0.15cm}\code{[3\, 19\, 14]}$\to $\code{19}                \\
-          \code{$f(\ell) = $}\code{($f_2$ $\ell$)}
+          \pop{\code{$f(\ell) = $}\code{($f_2$ $\ell$)}}
         \end{tabular}
         &
         \hspace{-0.3cm}\begin{tabular}{c}
@@ -309,7 +315,7 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
           \hspace{-0.3cm}\code{[9\, 0\, 0]}$\to $\code{True\phantom{e}} \\
           \hspace{0.3cm}\code{[0]}$\to $\code{True\phantom{e}}                        \\
           \hspace{-0.3cm}\code{[0\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
-          \code{$f(\ell) = $}\code{($f_3$ $\ell$ 0)}
+          \pop{\code{$f(\ell) = $}\code{($f_3$ $\ell$ 0)}}
         \end{tabular}
       \end{tabular}
     }
@@ -317,29 +323,30 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
     \hspace{-0.5cm}\begin{tabular}{c}
       +106 769-438$\to $106.769.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
       +83 973-831$\to $83.973.831\\
-      $f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{,} }\\
+      \pop{$f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{,} }\\
       \hspace{1.25cm}\code{($f_0$ \codechar{.} \codechar{ }}\\
-      \hspace{1.4cm}\code{(cdr s)))}\\
+      \hspace{1.4cm}\code{(cdr s)))}}\\
       ~\\
       Temple Anna H $\to $TAH\\
       Lara Gregori$\to $LG\\
-      $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
+      \pop{$f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}}\\
     \end{tabular}
     &
     \begin{tabular}{cc}
       \includegraphics[width = 3em]{figures/functions/4.png}&
       \includegraphics[width = 3em]{figures/functions/146}\\
-      \code{$f($x$) = $($f_1$ x)}&    \code{$f($x$) = $($f_6$ x)}\\
+      \pop{\code{$f($x$) = $($f_1$ x)}}&    \pop{\code{$f($x$) = $($f_6$ x)}}\\
       ~\\
       \includegraphics[width = 3em]{figures/functions/112.png}&
         \includegraphics[width = 3em]{figures/functions/92.png}
       \\
-      \code{$f($x$) = $($f_4$ x)}&    \code{$f($x$) = $($f_3$ x)}\\
+      \pop{\code{$f($x$) = $($f_4$ x)}}&    \pop{\code{$f($x$) = $($f_3$ x)}}\\
 
     \end{tabular}
     ~\\
     \midrule
-    \hspace{1cm}\begin{tabular}{l}
+    \rotatebox[origin=c]{90}{\normalsize DSL}&
+    \hspace{0cm}\begin{tabular}{l}
       % $f_0($\code{r}$,\ell) \,=\, $\code{(foldr $\ell$ r ($\lambda$ (x a)}\\
       % \phantom{$f_0($\code{r}$,\ell) \,=\, $\code{(foldr}}\code{(cons (index (length a) $\ell$) a)))}\\
       % \hspace{\helpSize}($f_1$: \emph{Get the largest number})\\
@@ -825,12 +832,12 @@ of antiunification~\cite{henderson2013cumulative}.
     \node [rotate=90] at (-2.3,-0.5) {\small program};
     
           \node(l1) at (0,0) {};
-  \node[color=red](p1) at (-1,-1) {\code{+}};
-  \node[color=red](n1) at (0.7,-0.9) {\code{1}};
+  \node[color=pop1](p1) at (-1,-1) {\code{+}};
+  \node[color=pop1](n1) at (0.7,-0.9) {\code{1}};
   \node(x1) at (0,-1) {\code{1}};
-  \draw[color=red] (l1.south) -- (p1.north);
-  \draw[color=red] (l1.south) -- (n1.north);
-  \draw[color=red] (-0.5,-0.5) -- (x1.north);
+  \draw[color=pop1] (l1.south) -- (p1.north);
+  \draw[color=pop1] (l1.south) -- (n1.north);
+  \draw[color=pop1] (-0.5,-0.5) -- (x1.north);
 
   \node(t) at (-0.5,0.5) {};
   \draw (l1.south) -- (t.south);
@@ -847,12 +854,12 @@ of antiunification~\cite{henderson2013cumulative}.
   
   \begin{scope}[shift={(0,-2.5)}]
       \node(l1) at (0,0) {};
-  \node[color=red](p1) at (-1,-1) {\code{+}};
-  \node[color=red](n1) at (0.7,-0.9) {\code{1}};
+  \node[color=pop1](p1) at (-1,-1) {\code{+}};
+  \node[color=pop1](n1) at (0.7,-0.9) {\code{1}};
   %\node(x1) at (0,-1) {};
-  \draw[color=red] (l1.south) -- (p1.north);
-  \draw[color=red] (l1.south) -- (n1.north);
-  \draw[color=red] (-0.5,-0.5) -- (0,-1);
+  \draw[color=pop1] (l1.south) -- (p1.north);
+  \draw[color=pop1] (l1.south) -- (n1.north);
+  \draw[color=pop1] (-0.5,-0.5) -- (0,-1);
 
   \node(c) at (-0.5,-1.5) {\code{car}};
   \node(z) at (0.5,-1.5) {\code{z}};
@@ -865,13 +872,13 @@ of antiunification~\cite{henderson2013cumulative}.
   \end{scope}
 
 \begin{scope}[shift={(0,-5)}]
-  \node[red](p1) at (-1,-1) {\code{+}};
-  \node[red](n1) at (0.8,-0.7) {\code{1}};
-  \node[red](a) at (0,-1) {\code{ }};
+  \node[pop1](p1) at (-1,-1) {\code{+}};
+  \node[pop1](n1) at (0.8,-0.7) {\code{1}};
+  \node[pop1](a) at (0,-1) {\code{ }};
   %\node(x1) at (0,-1) {};
-  \draw[red] (0,0) -- (p1.north);
-  \draw[red] (0,0) -- (n1.north);
-  \draw[red] (-0.55,-0.4) -- (a.north);
+  \draw[pop1] (0,0) -- (p1.north);
+  \draw[pop1] (0,0) -- (n1.north);
+  \draw[pop1] (-0.55,-0.4) -- (a.north);
   \node [rotate=90] at (-2.3,-0.7) {\small fragment};
 
   \end{scope}
