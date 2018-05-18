@@ -1048,52 +1048,6 @@ all of the tasks,
 and perform comparably to the best
 prior work.
 
-
-%% \begin{table}[t]
-%%   \centering
-%%     \begin{tabular}{l}
-%%       \toprule
-%%       $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$ (x) (if (= x a) b x)) s)}\\
-%%       \hspace{0.5cm}($f_0$: \emph{Performs character substitution)}\\
-%%       $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a) (cdr (if (= c x) s a))))}\\
-%%         \hspace{0.5cm}($f_1$: \emph{Drop first characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
-%%       $f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car ($\lambda$ (z) (}$f_1$\code{ z SPACE)))}\\
-%%         \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words. See Fig.~\ref{initialExampleDSL}})\\
-%%         $f_3($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a) (if (= c x) nil (cons x a))))}\\
-%%         \hspace{0.5cm}($f_3$: \emph{Take characters from }\code{s}\emph{ until }\code{c}\emph{ reached)}
-%%         %($\lambda$ ($\lambda$ (foldr $0 $0 ($\lambda$ ($\lambda$ (if (char-eq? $1 $3) nil (cons $1 $0)))))))
-%%   \\\bottomrule
-%%     \end{tabular}
-%%   \caption{Some text editing learned subroutines }\label{textPrimitives}
-%%   \end{table}
-
-%% \begin{wrapfigure}{r}{0.6\textwidth}
-%%   \centering\begin{tabular}{c}\toprule
-%% +106 769-858-438 $\longrightarrow$106.769.858.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
-%% +83 973-757-831 $\longrightarrow$83.973.757.831%& Andrew Cencici $\longrightarrow$ Dr. Andrew
-%% %DkI$>$DwKI$<$xaPoc& 	DWKI\\
-%% %KfvTh$>$Dbl$<$OIJso 	&DBL
-%% \\\midrule
-%% %(lambda (#(lambda (lambda (map (lambda (if (char-eq? $0 $1) $2 $0))))) '.' SPACE (#(lambda (lambda (map (lambda (if (char-eq? $0 $1) $2 $0))))) '.' '-' (cdr $0))))
-%% \multicolumn{1}{c}{$f(\text{\code{s}}) = $\code{(}$f_0$\code{  '.' ' ' ($f_0$ '.' '-' (cdr s)))}}
-%% %\multicolumn{1}{l}{$f(\text{\code{s}}) = $\code{(}$f_0$\code{ "Dr. " (}$f_3$\code{ s " "))}}
-%% \\
-%% \bottomrule
-%%   \end{tabular}
-
-  
-%%   %% \vspace{0.25cm}
-  
-%%   %% \begin{minipage}{\linewidth}
-%%   %%   \centering
-%%   %%   $f($\code{s}$) \,=\, $
-%%   %% \end{minipage}
-
-  
-%%   \caption{String edit task (top) and the program \system writes for it (bottom). $f_0$ is a subroutine written by \systemEnding, defined in Tbl.~\ref{textPrimitives}.}\label{exampleTextProblem}
-%% \end{wrapfigure}
-
-
 \section{Symbolic Regression: Programs from visual input}\label{regressionSection}
 We apply \system
 to symbolic regression problems.  Here, the
@@ -1115,35 +1069,18 @@ system writes and use gradient descent to fit the parameters.
 We define the likelihood model, $\probability[x|p]$, by assuming a Gaussian noise model for the input/output examples,
 and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
 
-%% \begin{align*}
-%%   \log \probability[x|p] \triangleq& \sum_{n\leq N}\log
-%%   \mathcal{N}(p(i_n,\vec{\mathcal{R}}^*)|o_n) - \frac{D\log N}{2}
-%% \end{align*}
-
-%% %% and integrate over the real-valued parameters, which we collectively write as $\vec{\mathcal{R}}$:
-%% %% \begin{align*}
-%% %% \log   \probability\left[\{(i_n,o_n)\}|p\right] = \log \int \mathrm{d}\vec{\mathcal{R}}\; P(\vec{\mathcal{R}})\prod_{n\leq N}\mathcal{N}(p(i_n,\vec{\mathcal{R}})|o_n)
-%% %% %\text{\emph{BIC:}} &\approx 
-%% %% \end{align*}
-%% where $\mathcal{N}(\cdot |\cdot )$ is the normal density and
-%% $P_{\vec{\mathcal{R}}}(\cdot )$ is a prior over
-%% $\vec{\mathcal{R}}$. We approximate this marginal using the BIC~:
-
-%% where $\vec{\mathcal{R}}^*$ is an assignment to $\vec{\mathcal{R}}$
-%% found by performing gradient ascent on the likelihood of the
-%% observations w.r.t. $\vec{\mathcal{R}}$.
-
 \begin{wrapfigure}{r}{0.45\textwidth}\vspace{-0.5cm} \newcommand{\functionSize}{1.5cm}\centering
   \includegraphics[width = \functionSize]{figures/functions/6.png}
   \includegraphics[width = \functionSize]{figures/functions/48.png}
   \includegraphics[width = \functionSize]{figures/functions/102.png}
   \includegraphics[width = \functionSize]{figures/functions/116.png}\\
-  \includegraphics[width = \functionSize]{figures/functions/181.png}
+  \vspace{1pt}\includegraphics[width = \functionSize]{figures/functions/181.png}
   \includegraphics[width = \functionSize]{figures/functions/160.png}
   \includegraphics[width = \functionSize]{figures/functions/149.png}
     \includegraphics[width = \functionSize]{figures/functions/187.png}
   \caption{Recognition model input for symbolic regression. DSL learns subroutines for polynomials (top row) and polynomials (bottom row) while the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines best explains the observation.}\label{functions}\vspace{-2cm}
-    \end{wrapfigure}\system learns a DSL containing 13 new functions,
+\end{wrapfigure}
+\system learns a DSL containing 13 new functions,
 most of which are templates for polynomials of different orders or ratios of polynomials.
 It also learns to find programs that minimize the number of continuous degrees of freedom.
 For example, it learns to represent linear functions with the program
@@ -1159,12 +1096,46 @@ The purpose of this ablation study is
 both to examine the role of each component of \systemEnding,
 as well as to compare with
 prior approaches in the literature:
-A head-to-head
+a head-to-head
 comparison of program synthesizers is complicated by the fact that
 each system, including ours, makes idiosyncratic 
 assumptions about the space of programs and the statement of tasks.
+\begin{wraptable}{r}{0.55\textwidth}
+\vspace{-5pt}
+%% This radically shrinks the table
+\tabcolsep=2.5pt
+\renewcommand{\arraystretch}{0.5}
+\begin{tabular}{lcccccc}
+  \toprule& Ours& 
+    No NN & SE&NPS & PCFG & Enum \\
+  \midrule
+  \multicolumn{7}{c}{\emph{List Processing}}\\
+  \midrule
+  \% solved&\textbf{79\%} &76\% &71\%&35\%&62\%&37\%\\
+  Solve time&  4.1s&5.8s&10.6s&34.7s&43.4s&20.2s\\
+  \midrule
+  \multicolumn{7}{c}{\emph{Text Editing}}\\
+  \midrule
+  \% solved&\textbf{74\%} &43\% &30\%&33\%&0\%&4\%\\
+  Solve time& 38s&65s&38s&80s&--&235s\\
+  \midrule
+  \multicolumn{7}{c}{\emph{Symbolic Regression}}\\
+  \midrule
+  \% solved&   \textbf{84\% }&75\%&62\%&38\%&38\%&37\% \\
+  Solve time&  \textbf{24}s& 40s  &28s&31s&55s&29s\\
+  \bottomrule
+  \end{tabular}
+\caption{\% solved before timeout. Solve time: averaged over solved
+  tasks.  SE: NPS: trained like RobustFill/DeepCoder.  PCFG: model w/o
+  structure learning.  Enum: model w/o any learning.  %% MDL:
+  %% $-\expect\left[\probability[x|p] \right]$. For domains other than
+  %% symbolic regression MDL is 0 nats.
+  %% For symbolic regression MDL is a
+  %% proxy for \# of continuous parameters.
+}\vspace{-0.5cm}\label{baselineComparisons} \end{wraptable}
 Nevertheless, much prior work can be modeled as
-special cases of our setup. We compare with the following baselines:
+special cases of our setup. 
+We compare with the following baselines:
 \\\noindent \textbf{No NN}, which lesions the recognition model.
 \\\noindent \textbf{NPS}, which does not learn the DSL,
 instead learning the recognition model
@@ -1254,11 +1225,6 @@ We see these prior works as operating in a different regime: typically, they tra
  the agent must learn from at most a few hundred tasks,
  which is facilitated by our ``Helmholtz machine'' style recognition model training (Sec.~\ref{recognitionSection}).
  
- 
-
-
- 
-
  \noindent \textbf{Inventing new subroutines for program induction:}
  Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
  and extend it along two dimensions: (1) we propose a new algorithm for
@@ -1272,25 +1238,28 @@ We see these prior works as operating in a different regime: typically, they tra
  Learning (BPL; see~\citep{lake2015human,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
- \section{Contribution and Outlook}
+\section{Discussion}
 
 \parbox{0.58\textwidth}{
-We contribute an algorithm, \systemEnding, that learns to program by bootstrapping a DSL with new
-domain-specific primitives that the algorithm itself discovers,
-together with a neural recognition model that learns how to
-efficiently deploy the DSL on new tasks. We believe this integration
-of top-down symbolic representations and bottom-up neural networks --
-both of them learned -- could help make program induction systems more
-generally useful for AI. Many directions remain open. Two immediate
-goals 
-are to integrate more sophisticated neural recognition
+
+\paragraph{Outlook.}
+We contribute an algorithm, \systemEnding, that learns to program by
+bootstrapping a DSL with new domain-specific primitives that the algorithm
+itself discovers, together with a neural recognition model that learns how to
+efficiently deploy the DSL on new tasks. We believe this integration of top-down
+symbolic representations and bottom-up neural networks --- both of them learned
+--- helps make program induction systems more generally useful for AI. Many
+directions remain open.
+
+\paragraph{Future.}
+Two immediate goals are to integrate more sophisticated neural recognition
 models~\cite{devlin2017robustfill} and program
-synthesizers~\cite{solar2008program}, which may improve performance in
-some domains over the generic methods used here.
-Another direction is to
-explore DSL meta-learning: Can we find a \emph{single} universal
-primitive set that could effectively bootstrap DSLs for new domains,
-including the three domains considered,  but also many others?
+synthesizers~\cite{solar2008program}, which may improve performance in some
+domains over the generic methods used here. Figure \ref{geomCompiled} gives an
+example of a promising domain for this, abstract geometry, see supplementary material for details.  Another direction is to explore DSL
+meta-learning: can we find a \emph{single} universal primitive set that could
+effectively bootstrap DSLs for new domains, including the three domains
+considered,  but also many others?
 }\hfill
 \begin{minipage}{0.4\textwidth}
   \centering
@@ -1299,8 +1268,7 @@ including the three domains considered,  but also many others?
   Top left: a few example of the shapes used as targets. Top right: a few
   examples of discovered new shapes. Bottom: learning curve across iterations in
   percent in the middle, and on both side average of the compiled new shapes
-  before any traning and at the end of the last iteration. See supplementary
-  material for more details.}
+  before any traning and at the end of the last iteration.}
 \label{geomCompiled}
 \end{minipage}
 

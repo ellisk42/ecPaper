@@ -360,13 +360,50 @@ generative model, while red lines correspond to connections from the bottom-up r
 %\end{tikzpicture}
 \end{figure}
 
+\section{Program Representation}\label{programrepresentation}
+We choose to represent programs using $\lambda$-calculus~\cite{pierce}.
+A $\lambda$-calculus expression is either:
+\begin{itemize}
+  \item[--] A \emph{primitive}, like the number 5 or the function \texttt{sum}.
+  \item[--] A \emph{variable}, like $x$, $y$, or $z$.
+  \item[--] A $\lambda$\emph{-abstraction}, which creates a new function.  $\lambda$-abstractions have a variable and a body. The body is a $\lambda$-calculus expression. Abstractions are written as $\lambda \text{var}. \text{body}$ or in Lisp syntax as \mbox{\texttt{(lambda (\textrm{var}) \textrm{body})}}.
+  \item[--] An \emph{application} of a function to an argument. Both the function and the argument are $\lambda$-calculus expressions. The application of the function $f$ to the argument $x$ is written as $f\; x$ or as \texttt{($f$ x)}.
+\end{itemize}
+
+For example, the function which squares the logarithm of a number is
+$\lambda x.\text{\tt(square (log $x$))}$, and the identity function $f(x) = x$ is $\lambda x.x$. The
+$\lambda$-calculus serves as a spartan but expressive Turing complete
+program representation, and distills the essential features of functional
+programming languages like Lisp.
+
+However, many $\lambda$-calculus expressions correspond to ill-typed programs, such as the program that takes the logarithm of the Boolean \texttt{true} (i.e., \texttt{log true}) or which applies the number five to the identity function
+(i.e., $5 \; (\lambda x.x)$).
+We use a well-established typing system for $\lambda$-calculus called \emph{Hindley-Milner typing}~\cite{pierce}, which is used in programming languages like OCaml.
+The purpose of the typing system is to ensure that our programs never call a function with a type it is not expecting (like trying to take the logarithm of \texttt{true}).
+Hindley-Milner has two important features:
+Feature 1: It supports \emph{parametric polymorphism}, meaning that types can have variables in them, called \emph{type variables}. Lowercase Greek letters are conventionally used for  type variables.
+For example, the type of the identity function is $\alpha\to\alpha$, meaning it takes something of type $\alpha$ and return something of type $\alpha$. A function that returns the first element of a list has the type $[\alpha]\to\alpha$. Type variables are not the same as variables introduced by $\lambda$-abstractions.
+Feature 2: Remarkably, there is a  simple algorithm for automatically inferring the polymorphic Hindley-Milner type of a $\lambda$-calculus expression~\cite{damas1982principal}.
+Our generative model over programs performs Hindley-Milner type inference during sampling:
+\emph{Unify} in the generative model uses the machinery of Hindley-Milner to
+ensure that the generated programs have valid polymorphic types.
+A satisfactory exposition of Hindley-Milner is beyond the scope of this paper,
+but~\cite{pierce} offers a nice overview of lambda calculus and typing systems like Hindley-Milner.
+
+%% \begin{figure}
+%%   \begin{align}
+%%     \text{primitive types} & 
+%%     \end{align}
+%%   \end{figure}
+
+
 \section{Generative model over the programs}
 
 Alg.~\ref{programGenerativeModel} is a procedure for drawing
 samples from the generative model $(\mathcal{D},\theta)$.  In practice, we
 enumerate programs in order of their probability under  Alg.~\ref{programGenerativeModel} rather than sample them.
 
-\begin{figure}
+\begin{figure}[H]
   \centering
   \begin{minipage}{0.5\textwidth}    
     \begin{algorithm}[H]
@@ -413,41 +450,6 @@ enumerate programs in order of their probability under  Alg.~\ref{programGenerat
   \end{minipage}
 \end{figure}
 
-\section{Program Representation}\label{programrepresentation}
-We choose to represent programs using $\lambda$-calculus~\cite{pierce}.
-A $\lambda$-calculus expression is either:
-\begin{itemize}
-  \item[--] A \emph{primitive}, like the number 5 or the function \texttt{sum}.
-  \item[--] A \emph{variable}, like $x$, $y$, or $z$.
-  \item[--] A $\lambda$\emph{-abstraction}, which creates a new function.  $\lambda$-abstractions have a variable and a body. The body is a $\lambda$-calculus expression. Abstractions are written as $\lambda \text{var}. \text{body}$ or in Lisp syntax as \mbox{\texttt{(lambda (\textrm{var}) \textrm{body})}}.
-  \item[--] An \emph{application} of a function to an argument. Both the function and the argument are $\lambda$-calculus expressions. The application of the function $f$ to the argument $x$ is written as $f\; x$ or as \texttt{($f$ x)}.
-\end{itemize}
-
-For example, the function which squares the logarithm of a number is
-$\lambda x.\text{\tt(square (log $x$))}$, and the identity function $f(x) = x$ is $\lambda x.x$. The
-$\lambda$-calculus serves as a spartan but expressive Turing complete
-program representation, and distills the essential features of functional
-programming languages like Lisp.
-
-However, many $\lambda$-calculus expressions correspond to ill-typed programs, such as the program that takes the logarithm of the Boolean \texttt{true} (i.e., \texttt{log true}) or which applies the number five to the identity function
-(i.e., $5 \; (\lambda x.x)$).
-We use a well-established typing system for $\lambda$-calculus called \emph{Hindley-Milner typing}~\cite{pierce}, which is used in programming languages like OCaml.
-The purpose of the typing system is to ensure that our programs never call a function with a type it is not expecting (like trying to take the logarithm of \texttt{true}).
-Hindley-Milner has two important features:
-Feature 1: It supports \emph{parametric polymorphism}, meaning that types can have variables in them, called \emph{type variables}. Lowercase Greek letters are conventionally used for  type variables.
-For example, the type of the identity function is $\alpha\to\alpha$, meaning it takes something of type $\alpha$ and return something of type $\alpha$. A function that returns the first element of a list has the type $[\alpha]\to\alpha$. Type variables are not the same as variables introduced by $\lambda$-abstractions.
-Feature 2: Remarkably, there is a  simple algorithm for automatically inferring the polymorphic Hindley-Milner type of a $\lambda$-calculus expression~\cite{damas1982principal}.
-Our generative model over programs performs Hindley-Milner type inference during sampling:
-\emph{Unify} in the generative model uses the machinery of Hindley-Milner to
-ensure that the generated programs have valid polymorphic types.
-A satisfactory exposition of Hindley-Milner is beyond the scope of this paper,
-but~\cite{pierce} offers a nice overview of lambda calculus and typing systems like Hindley-Milner.
-
-%% \begin{figure}
-%%   \begin{align}
-%%     \text{primitive types} & 
-%%     \end{align}
-%%   \end{figure}
 
 \section{Neural Recognition Model Architecture}
 
@@ -476,26 +478,31 @@ which acts as the encoder.
 
 We use Alg.~\ref{grammarInductionAlgorithm} to search for the structure of the DSL that best explains the frontiers.
 
-\setcounter{algorithm}{2} % there are two algorithms in the main paper.
-\begin{algorithm}[hb]
-   \caption{DSL Induction Algorithm}
-   \label{grammarInductionAlgorithm}
-   \begin{algorithmic}
-     \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
-     \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
-     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
-     \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{p\in \mathcal{F}_x} \probability[p|\mathcal{D},\theta]$
-     \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
-     \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - \|\theta\|_0$
-     \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
-     \WHILE {true}
-     \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, p\in \mathcal{F}_x, s\text{ a fragment  of }p\}$
-     \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
-     \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$
-     \STATE $\mathcal{D}\gets\mathcal{D}'$
-     \ENDWHILE
-   \end{algorithmic}
-\end{algorithm}
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.675\textwidth}    
+    \begin{algorithm}[H]
+    \setcounter{algorithm}{2} % there are two algorithms in the main paper.
+       \caption{DSL Induction Algorithm}
+       \label{grammarInductionAlgorithm}
+       \begin{algorithmic}
+         \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
+         \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
+         \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+         \STATE Define $L(\mathcal{D},\theta) =  \prod_x \sum_{p\in \mathcal{F}_x} \probability[p|\mathcal{D},\theta]$
+         \STATE Define $\theta^*(\mathcal{D}) = \argmax_\theta \text{Dir}(\theta|\alpha) L(\mathcal{D},\theta)$
+         \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - \|\theta\|_0$
+         \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
+         \WHILE {true}
+         \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, p\in \mathcal{F}_x, s\text{ a fragment  of }p\}$
+         \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
+         \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$
+         \STATE $\mathcal{D}\gets\mathcal{D}'$
+         \ENDWHILE
+       \end{algorithmic}
+    \end{algorithm}
+  \end{minipage}
+\end{figure}
 
 \subsection{Estimating $\theta$}
 
