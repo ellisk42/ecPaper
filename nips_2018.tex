@@ -987,7 +987,7 @@ solving them in an average of 29 seconds.
 As of the 2017 SyGuS competition,
 the best-performing algorithm solves 79.6\% of the problems.
 But, SyGuS comes with a
-different hand-engineered DSL \emph{for each text editing problem}.\footnote{SyGuS text editing problems also prespecify the set of allowed string constants \emph{for each task}. Our system does not use this assistance.}
+different hand-engineered DSL \emph{for each text editing problem}.\footnote{SyGuS text editing problems also prespecify the set of allowed string constants for each task. For these experiments, our system did not use this assistance.}
 Here  we learned a single DSL
 that applied generically to
 all of the tasks,
@@ -1057,7 +1057,7 @@ assumptions about the space of programs and the statement of tasks.
   \midrule
   \multicolumn{7}{c}{\emph{List Processing}}\\
   \midrule
-  \% solved&\textbf{79\%}\footnote{A last-minute bug caused this  to run without ``Helmholtz machine'' style training ($\mathcal{L}_{\text{RM}} = \mathcal{L}_{\text{SS}}$). We are rerunning this experiment and expect this number to be higher.} &
+  \% solved&\textbf{79\%}\footnotemark & 
   76\% &71\%&35\%&62\%&37\%\\
   Solve time&  4.1s&5.8s&10.6s&34.7s&43.4s&20.2s\\
   \midrule
@@ -1090,11 +1090,11 @@ We call this NPS (Neural Program Synthesis)
 because this is closest to how
 RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
 \\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
-only add \textbf{s}ub\textbf{e}xpressions of programs in the frontiers to the DSL. This is how prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
+only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
 \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
 but instead learns the parameters of the DSL ($\theta$) -- learning the parameters of a PCFG while not learning any of the structure.
 \\\noindent \textbf{Enum}, which enumerates a frontier without any learning -- equivalently, our first search step.
-
+\footnotetext[2]{Due to a last-minute bug we ran the list processing experiments without training the recognition model on ``Helmholtz machine'' style data. We are rerunning this experiment and anticipate improved quantitative results for list processing -- notice the recognition model helps much more for text editing and symbolic regression.} &
 %For each domain,
 %% We are interested both in how many tasks the
 %% agent can solve and how quickly it can find those solutions.
