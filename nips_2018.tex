@@ -951,7 +951,7 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 %% of our model that are analogous to prior work.
 
 
-\section{Sequence Manipulation: Domains from generic primitives}\label{sequences}
+\section{Programs that manipulate sequences}\label{sequences}
 We apply \system to list processing (Section~\ref{listSection}) and text editing (Section~\ref{textSection}).
 For both these domains we use a bidirectional GRU~\cite{cho2014learning} for
 the recognition model, and initially provide the system with a generic set
@@ -988,8 +988,8 @@ manipulate lists with some involvement of integer arithmetic.
 \end{wrapfigure}
 We created 236 human-interpretable list manipulation tasks, each with 15
 input/output examples (Tbl.~\ref{listexamples}).
-Our data set is challenging in three major ways: many of the tasks require
-complex solutions, the tasks were not generated from some latent DSL, and
+Our data set is interesting in three major ways: many of the tasks require
+complex solutions; the tasks were not generated from some latent DSL, and
 the agent must learn to solve these complicated problems from only 236
 tasks.
 Our data set assumes arithmetic operations as well as sequence operations,
@@ -997,16 +997,14 @@ so we additionally provide our system with the following arithmetic
 primitives: \code{mod}, \code{*}, \code{>}, \code{is-square},
 \code{is-prime}.
 
-We experimented with \system by randomly splitting the data set into two
-equal-sized parts: one for training, and one held out for testing.
-We found that the recognition model provided no benefit for the training
-tasks. However, it yielded faster search times on held out tasks allowing
+We evaluated \system on  random 50/50 test/train split.
+Interestingly, we found that the recognition model provided little benefit for the training
+tasks. However, it yielded faster search times on held out tasks, allowing
 more tasks to be solved before timing out.
-Several inventions were produced to yield a more expressive DSL for the
+The system composed 38 new subroutines, yielding a more expressive DSL more closely matching the
 domain (left of Tbl.~\ref{initialExampleDSL}, right of
 Fig.~\ref{fragmentExample}). See the supplement for a complete list of
-inventions.
-
+DSL primitives discovered by \systemEnding.
 
 \subsection{Text Editing}\label{textSection}
 Synthesizing programs that edit text is a classic problem in the
@@ -1029,8 +1027,8 @@ numbers, but using gradient descent instead of dynamic programming.
 We automatically generated 109 text editing tasks with 4 input/output examples each
 %(Fig.~\ref{exampleTextProblem}).
 At first, \system cannot find any correct programs for most of the tasks.
-After three iterations, it assembles a DSL (Fig.~\ref{firstPageFigure} \& center of Tbl.~\ref{initialExampleDSL}) that lets it rapidly explore the space of programs and find solutions to
-all of the tasks. The learned DSL contains 10 new functions, listed in the supplement.
+After three iterations, it assembles a DSL containing 12 new functions (center of Fig.~\ref{initialExampleDSL}) that lets it rapidly explore the space of programs and find solutions to
+all of the tasks.
 
 How well does the  learned DSL generalized to real text-editing scenarios?
 We tested, but did not train, our system on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
@@ -1155,7 +1153,7 @@ This phenomenon arises from our Bayesian framing -- both the implicit bias towar
 \section{Quantitative Results}\label{quantitative}
 
 We compare with ablations of our model on held out tasks.
-The purpose of this ablation study is to
+The purpose of this ablation study is 
 both to examine the role of each component of \systemEnding,
 as well as to compare with
 prior approaches in the literature:
@@ -1211,8 +1209,8 @@ This supports a view of the recognition model as a way of amortizing the cost of
   %NOTE: "Ours" result was without helmholtz
 
   \\\midrule\multicolumn{7}{c}{\emph{Text Editing}}\\\midrule
-  \% solved&\textbf{74\%} &43\% &&33\%&0\%&4\%\\
-  Solve time&  38s&65s&&80s&--&235s
+  \% solved&\textbf{74\%} &43\% &30\%&33\%&0\%&4\%\\
+  Solve time&  38s&65s&38s&80s&--&235s
 
   %% \\\midrule\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
   %% \% solved&\textbf{52\%} &\textbf{52\%} &40\%&44\%&42\%\\
