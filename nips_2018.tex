@@ -369,6 +369,8 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
         \hspace{\helpSize}($f_1$: \emph{Drop characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
       $f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car }\\\hspace{1cm}\code{($\lambda$ (z) (}$f_1$\code{ z \codechar{ })))}\\
         \hspace{\helpSize}($f_2$: \emph{Abbreviates a sequence of words})\\
+        $f_3($\code{a}$,$\code{b}$) \,=\, $\code{(foldr a b cons)}\\
+      \hspace{\helpSize}($f_3$: \emph{Concatenate strings }\code{a}\emph{ and }\code{b})
   \end{tabular}&
 
   \begin{tabular}{l}
@@ -1015,31 +1017,31 @@ We show \system can instead start out with generic sequence manipulation
 primitives and recover many of the higher-level building blocks that have
 made these other text editing systems successful.
 
-Because our enumerative search procedure has no means of generating
-string constants, we have the enumerator propose programs with string-valued holes --
-e.g., in Fig.~\ref{firstPageFigure},
-we enumerate $\text{\code{(}}f_0\code{ string (}f_2\text{\code{ s ' '))}}$ --
-and define $\probability[x|p]$ by marginalizing out the values of the
-strings via dynamic programming.  In Section~\ref{regressionSection},
-we will use a similar trick to synthesize programs containing real
-numbers, but using gradient descent instead of dynamic programming.
+Because our enumerative search procedure cannot generate string
+constants, we instead enumerate programs with string-valued
+parameters.  For example, to learn a program that prepends ``Dr.'', we
+enumerate $\text{\code{(}}f_3\code{ string s)}$ -- where $f_3$ is the
+learned appending primitive (Fig.~\ref{initialExampleDSL}) -- and then
+define $\probability[x|p]$ by approximately marginalizing out the
+string parameters via a simple dynamic program.
+In Sec.~\ref{regressionSection}, we will use a similar trick to
+synthesize programs containing real numbers, but using gradient
+descent instead of dynamic programming.
 
-We automatically generated 109 text editing tasks with 4 input/output examples each
-%(Fig.~\ref{exampleTextProblem}).
-At first, \system cannot find any correct programs for most of the tasks.
-After three iterations, it assembles a DSL containing 12 new functions (center of Fig.~\ref{initialExampleDSL}) that lets it rapidly explore the space of programs and find solutions to
-all of the tasks.
+We trained our system on a corpus of 109 automatically generated text editing tasks, with 4 input/output examples each.
+After three iterations, it assembles a DSL containing a dozen new functions (center of Fig.~\ref{initialExampleDSL}) that let it solve 
+all of the training tasks.
 
 How well does the  learned DSL generalized to real text-editing scenarios?
-We tested, but did not train, our system on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
+We tested, but did not train, on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
 \system solves 3.7\% of the problems with an average search time of 235 seconds.
 After learning,
 it solves 74.1\%, and does so much faster,
-solving them in an average of 38 seconds.
+solving them in an average of 29 seconds.
 As of the 2017 SyGuS competition,
 the best-performing algorithm solves 79.6\% of the problems.
 But, SyGuS comes with a
-different hand-engineered DSL \emph{for each text editing problem}.
+different hand-engineered DSL \emph{for each text editing problem}.\footnote{SyGuS text editing problems also prespecify the set of allowed string constants \emph{for each task}. Our system does not use this assistance.}
 Here  we learned a single DSL
 that applied generically to
 all of the tasks,
@@ -1210,7 +1212,7 @@ This supports a view of the recognition model as a way of amortizing the cost of
 
   \\\midrule\multicolumn{7}{c}{\emph{Text Editing}}\\\midrule
   \% solved&\textbf{74\%} &43\% &30\%&33\%&0\%&4\%\\
-  Solve time&  38s&65s&38s&80s&--&235s
+  Solve time&  29s&65s&38s&80s&--&235s
 
   %% \\\midrule\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
   %% \% solved&\textbf{52\%} &\textbf{52\%} &40\%&44\%&42\%\\
@@ -1234,7 +1236,7 @@ This supports a view of the recognition model as a way of amortizing the cost of
 
 \begin{figure}\centering
   \includegraphics[width = 3.5cm]{figures/list.eps}
-  \includegraphics[width = 3.5cm]{figures/textLearningCurve.eps}        
+  \includegraphics[width =  3.5cm]{figures/textLearningCurve.eps}        
   \includegraphics[width = 3.5cm]{figures/rationalCurve.eps} 
   \caption{Learning curves for \system both with (blue) and without (red) the recognition model. Solid lines: \% holdout testing tasks solved. Dashed lines: Average solve time.}\label{learningCurves} 
 \end{figure}
