@@ -316,11 +316,11 @@ programming~\cite{DBLP:books/daglib/0070933}, our goal is not to automate softwa
 engineering, to learn to synthesize large bodies of code, or to learn
 complex programs starting from scratch.  Ours is a basic AI goal:
 capturing the human ability to learn to think flexibly and efficiently
-in new domains -- to learn what you need to know about a domain so you
+in new domains --- to learn what you need to know about a domain so you
 don't have to solve new problems starting from scratch.  We are
 focused on the kinds of problems that humans can solve relatively
 quickly, once they acquire the relevant domain expertise.  These
-correspond to tasks solved by short programs -- if you have an
+correspond to tasks solved by short programs --- if you have an
 expressive DSL.  Even with a good DSL, program search may be
 intractable;
 %
@@ -368,7 +368,7 @@ for programs likely to solve that specific task.  The neural network
 thus functions as a \textbf{recognition model} supporting a form of
 approximate Bayesian program induction, jointly trained with a
 \textbf{generative model} for programs encoded in the DSL, in the
-spirit of the Helmholtz machine ~\cite{hinton1995wake}). The
+spirit of the Helmholtz machine~\cite{hinton1995wake}). The
 recognition model ensures that searching for programs remains
 tractable even as the DSL (and hence the search space for programs)
 expands.
@@ -510,21 +510,21 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
 \system does approximate MAP inference  by maximizing this lower bound on the joint probability,
-alternating maximization w.r.t. the frontiers (Search) and the DSL (Compression):
-\\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t. the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
+alternating maximization w.r.t.\ the frontiers (Search) and the DSL (Compression):
+\\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t.\ the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
 $\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]$
 is large.
 %% which we can accomplish by adding new programs to the frontiers means searching for new programs $p$ for task $x$
 %% where  is large.
-\\\noindent \textbf{DSL Induction: Maxing $\int \lowerBound\;\mathrm{d}\theta$ w.r.t. the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound\;\mathrm{d}\theta$.
+\\\noindent \textbf{DSL Induction: Maxing $\int \lowerBound\;\mathrm{d}\theta$ w.r.t.\ the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound\;\mathrm{d}\theta$.
 Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\})$. 
 
 
 Searching for programs is hard because
 of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $q(\cdot |\cdot )$,
 during the compilation phase: $q$ is trained to approximate the
-posterior over programs, $q(p|x)\approx \probability[p|x,\mathcal{D},\theta}]\propto\probability[x|p]\probability[p|\mathcal{D},\theta}]$,
+posterior over programs, $q(p|x)\approx \probability[p|x,\mathcal{D},\theta]\propto\probability[x|p]\probability[p|\mathcal{D},\theta}]$,
   thus amortizing the cost of finding programs with high posterior probability.
 
 \textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
@@ -853,9 +853,7 @@ of antiunification~\cite{henderson2013cumulative}.
 \end{tabular}
 \caption{\textbf{Left:} syntax trees of two programs sharing common structure, highlighted in {\color{red} red},
   from which we extract a fragment and add it to the DSL (bottom). \textbf{Right:} actual programs,
-  from which we extract fragments that  (top) slice from the beginning of a list or (bottom) perform character substitutions.} 
-
-  \label{fragmentExample}
+  from which we extract fragments that  (top) slice from the beginning of a list or (bottom) perform character substitutions.}\label{fragmentExample}
 \end{figure}
 
 
@@ -935,8 +933,7 @@ manipulate lists, and which also perform arithmetic operations upon lists of num
     \bottomrule
   \end{tabular}
   \captionof{table}{Some tasks in our list function domain. See the
-  supplement for the complete data set.}
-  \label{listexamples}
+  supplement for the complete data set.}\label{listexamples}
 \end{wrapfigure}
 We created 236 human-interpretable list manipulation tasks, each with 15
 input/output examples (Tbl.~\ref{listexamples}).
@@ -971,7 +968,7 @@ Because our enumerative search procedure cannot generate string
 constants, we instead enumerate programs with string-valued
 parameters.  For example, to learn a program that prepends ``Dr.'', we
 enumerate $\text{\code{(}}f_3\code{ string s)}$ -- where $f_3$ is the
-learned appending primitive (Fig.~\ref{initialExampleDSL}) -- and then
+learned appending primitive (Fig.~\ref{initialExampleDSL}) --- and then
 define $\probability[x|p]$ by approximately marginalizing out the
 string parameters via a simple dynamic program.
 In Sec.~\ref{regressionSection}, we will use a similar trick to
@@ -1006,7 +1003,7 @@ addition, multiplication, and division, and task it with solving
 100 symbolic regression problems, each either a polynomial of degree
 1--4 or a rational function.  The recognition model is a
 convolutional network that observes an image of the target function's
-graph (Fig.~\ref{functions}) -- visually, different kinds of
+graph (Fig.~\ref{functions}) --- visually, different kinds of
 polynomials and rational functions produce different kinds of graphs,
 and so the recognition model can learn to look at a graph and predict
 what kind of function best explains it.  A key difficulty, however, is
@@ -1035,7 +1032,7 @@ It also learns to find programs that minimize the number of continuous degrees o
 For example, it learns to represent linear functions with the program
 \code{(* real (+ x real))}, which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
 which has five continuous parameters.
-This phenomenon arises from our Bayesian framing -- both the implicit bias towards shorter programs and the likelihood model's BIC penalty.
+This phenomenon arises from our Bayesian framing --- both the implicit bias towards shorter programs and the likelihood model's BIC penalty.
 
 
 \section{Quantitative Results}\label{quantitative}
@@ -1095,8 +1092,8 @@ RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} a
 \\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
 only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
 \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
-but instead learns the parameters of the DSL ($\theta$) -- learning the parameters of a PCFG while not learning any of the structure.
-\\\noindent \textbf{Enum}, which enumerates a frontier without any learning -- equivalently, our first search step.
+but instead learns the parameters of the DSL ($\theta$) --- learning the parameters of a PCFG while not learning any of the structure.
+\\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first search step.
 \footnotetext[2]{Due to a last-minute bug we ran the list processing experiments without training the recognition model on ``Helmholtz machine'' style data. We are rerunning this experiment and anticipate improved quantitative results for list processing -- notice the recognition model helps much more for text editing and symbolic regression.} &
 %For each domain,
 %% We are interested both in how many tasks the
@@ -1114,10 +1111,10 @@ but instead learns the parameters of the DSL ($\theta$) -- learning the paramete
 
 \begin{figure}\centering
   \includegraphics[width = 4.5cm]{figures/listLearningCurve.eps}
-  \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}        
-  \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}   
-  \caption{Learning curves for \system both with (\orange{orange}) and without
-  (\teal{teal}) the recognition model. Solid lines: \% holdout testing tasks solved. Dashed lines: Average solve time.}\label{learningCurves} 
+  \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}
+  \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}
+  \caption{Learning curves for \system both with (\orange{in orange}) and without
+  (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved. Dashed lines: Average solve time.}\label{learningCurves}
 \end{figure}
 
 \section{Related Work}
@@ -1164,7 +1161,7 @@ models~\cite{devlin2017robustfill} and program
 synthesizers~\cite{solar2008program}, which may improve performance in some
 domains over the generic methods used here.
 We are in the process of applying our algorithm to generative programs and
-prototyped this with a turtle-like domain: Figure \ref{geomCompiled} gives some
+prototyped this with a turtle-like domain: Figure~\ref{geomCompiled} gives some
 preliminary results for turtle graphics  --- see Section 1 of the supplementary material for more
 details.  Another direction is to explore DSL meta-learning: can we find a
 \emph{single} universal primitive set that could effectively bootstrap DSLs for
