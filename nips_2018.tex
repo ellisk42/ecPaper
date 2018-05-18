@@ -293,23 +293,23 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
     {\tabcolsep=4pt
       \begin{tabular}{cc}
         \begin{tabular}{c}
-          \code{[7\, 0\, 2]}$\to $\code{[7\, 0\, 2\, 4]}         \\
-          \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2\, 4]} \\
-          \code{$f(x) = $}\code{($f_0$ nil $x$)}             \\
+          \code{[7\, 0\, 2]}$\to $\code{[7\, 0\, 2\, 9]}         \\
+          \code{[9\, 3]}$\to $\code{[9\, 3\, 9]} \\
+          \code{$f(\ell) = $}\code{($f_1$ $\ell$ 9)}             \\
           ~                                                  \\
           ~                                                  \\
           \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
           \hspace{0.15cm}\code{[3\, 19\, 14]}$\to $\code{19}                \\
-          \code{$f(\ell) = $}\code{($f_0$ $\ell$)}
+          \code{$f(\ell) = $}\code{($f_2$ $\ell$)}
         \end{tabular}
         &
         \hspace{-0.3cm}\begin{tabular}{c}
           \code{[7\, 3]}$\to $\code{False}                              \\
           \hspace{0.3cm}\code{[3]}$\to $\code{False}                    \\
-          \hspace{-0.3cm}\code{[9\, 4\, 4]}$\to $\code{True\phantom{e}} \\
-          \hspace{0.3cm}\code{[4]}$\to $\code{True\phantom{e}}                        \\
-          \hspace{-0.3cm}\code{[4\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
-          \code{$f(\ell) = $}\code{($f_2$ $\ell$ 4)}
+          \hspace{-0.3cm}\code{[9\, 0\, 0]}$\to $\code{True\phantom{e}} \\
+          \hspace{0.3cm}\code{[0]}$\to $\code{True\phantom{e}}                        \\
+          \hspace{-0.3cm}\code{[0\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
+          \code{$f(\ell) = $}\code{($f_3$ $\ell$ 0)}
         \end{tabular}
       \end{tabular}
     }
@@ -348,13 +348,15 @@ its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}
       %NOTE: this is the actual invention, but I removed a redundant lambda
       % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
       $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}\\
-      \vspace{2ex}
       \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
       $f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k nil) $\ell$)}\\
-      \vspace{2ex}
-      \hspace{\helpSize}($f_1$: \emph{Append }\code{k}\emph{ to $\ell$})\\
-      $f_2(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
-      \phantom{$f_1(\ell,$\code{k}}
+      \hspace{\helpSize}($f_1$: \emph{Append the number }\code{k}\emph{ to $\ell$})\\
+      %(lambda (fold $0 0 (lambda (lambda (if (gt? $0 $1) $0 $1)))))
+      $f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}\\
+      \phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}\\
+      \hspace{\helpSize}($f_2$: \emph{Maximum element in list $\ell$})\\
+      $f_3(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
+      \phantom{$f_1(\ell,$}
       \code{($\lambda$ (x a) (if a a (= k x))))}\\
       \hspace{\helpSize}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
     \end{tabular}&
@@ -1020,11 +1022,11 @@ After three iterations, it assembles a DSL (Fig.~\ref{firstPageFigure} \& center
 all of the tasks. The learned DSL contains 10 new functions, listed in the supplement.
 
 How well does the  learned DSL generalized to real text-editing scenarios?
-We tested, but did not train, our system on problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
+We tested, but did not train, our system on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
 \system solves 3.7\% of the problems with an average search time of 235 seconds.
 After learning,
 it solves 74.1\%, and does so much faster,
-solving them in an average of 29 seconds.
+solving them in an average of 38 seconds.
 As of the 2017 SyGuS competition,
 the best-performing algorithm solves 79.6\% of the problems.
 But, SyGuS comes with a
@@ -1129,10 +1131,14 @@ which has five continuous parameters.
 This phenomenon arises from our Bayesian framing -- both the implicit bias towards shorter programs and the likelihood model's BIC penalty.
 \begin{wrapfigure}{r}{0.45\textwidth} \newcommand{\functionSize}{1.5cm}\centering
   \includegraphics[width = \functionSize]{figures/functions/6.png}
-  \includegraphics[width = \functionSize]{figures/functions/116.png}
+  \includegraphics[width = \functionSize]{figures/functions/48.png}
+  \includegraphics[width = \functionSize]{figures/functions/102.png}
+  \includegraphics[width = \functionSize]{figures/functions/116.png}\\
+  \includegraphics[width = \functionSize]{figures/functions/181.png}
   \includegraphics[width = \functionSize]{figures/functions/160.png}
   \includegraphics[width = \functionSize]{figures/functions/149.png}
-  \caption{Recognition model input for symbolic regression. While the DSL learns subroutines for rational functions \& polynomials, the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines is appropriate for explaining the observation.}\label{functions}
+    \includegraphics[width = \functionSize]{figures/functions/187.png}
+  \caption{Recognition model input for symbolic regression. DSL learns subroutines for polynomials (top row) and polynomials (bottom row) while the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines best explains the observation.}\label{functions}
     \end{wrapfigure}
 
 \section{Quantitative Results}\label{quantitative}
