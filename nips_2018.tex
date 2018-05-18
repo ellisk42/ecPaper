@@ -38,10 +38,12 @@
 \newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
 
 \usepackage{xcolor}
-\definecolor{pop1}{HTML}{1b9e77}
-%\definecolor{pop2}{HTML}{d95f02}
+\definecolor{pop1}{HTML}{1f78b4}
+\definecolor{pop2}{HTML}{33a02c}
+\definecolor{pop3}{HTML}{d95f02}
 \newcommand{\pop}[1]{\textcolor{pop1}{#1}}
-%\newcommand{\popp}[1]{\textcolor{pop2}{#1}}
+\newcommand{\popp}[1]{\textcolor{pop2}{#1}}
+\newcommand{\tree}[1]{\textcolor{pop3}{#1}}
 
 \usepackage{mathrsfs}
 \usepackage{listings}
@@ -247,7 +249,7 @@ programs in the increasingly rich DSL.
     \end{tabular}
     ~\\
     \midrule
-    \rotatebox[origin=c]{90}{\normalsize DSL}&
+    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
     \hspace{0cm}\begin{tabular}{l}
       % $f_0($\code{r}$,\ell) \,=\, $\code{(foldr $\ell$ r ($\lambda$ (x a)}\\
       % \phantom{$f_0($\code{r}$,\ell) \,=\, $\code{(foldr}}\code{(cons (index (length a) $\ell$) a)))}\\
@@ -256,41 +258,46 @@ programs in the increasingly rich DSL.
       % \hspace{\helpSize}($f_1$: \emph{Get the largest number in $\ell$})\\
       %NOTE: this is the actual invention, but I removed a redundant lambda
       % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
-      $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}\\
+      \popp{$f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}}\\
       \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
-      $f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k nil) $\ell$)}\\
+      \popp{$f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k nil) $\ell$)}}\\
       \hspace{\helpSize}($f_1$: \emph{Append the number }\code{k}\emph{ to $\ell$})\\
       %(lambda (fold $0 0 (lambda (lambda (if (gt? $0 $1) $0 $1)))))
-      $f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}\\
-      \phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}\\
+      \popp{$f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}}\\
+      \popp{\phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}}\\
       \hspace{\helpSize}($f_2$: \emph{Maximum element in list $\ell$})\\
-      $f_3(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
+      \popp{$f_3(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}}\\
       \phantom{$f_1(\ell,$}
-      \code{($\lambda$ (x a) (if a a (= k x))))}\\
+      \popp{\code{($\lambda$ (x a) (if a a (= k x))))}}\\
       \hspace{\helpSize}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
     \end{tabular}&
 
 
   \hspace{0.5cm}\begin{tabular}{l}
-    $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$ (x)}\\\hspace{1cm}\code{ (if (= x a) b x)) s)}\\
+    \popp{$f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$
+    (x)}}\\
+    \popp{\hspace{1cm}\code{ (if (= x a) b x)) s)}}\\
       \hspace{\helpSize}($f_0$: \emph{Performs character substitution)}\\
-      $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a)}\\\hspace{1.1cm}\code{ (cdr (if (= c x) s a))))}\\
+      \popp{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x
+      a)}\\\hspace{1.1cm}\code{ (cdr (if (= c x) s a))))}}\\
         \hspace{\helpSize}($f_1$: \emph{Drop characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
-      $f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car }\\\hspace{1cm}\code{($\lambda$ (z) (}$f_1$\code{ z \codechar{ })))}\\
+      \popp{$f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car
+      }}\\
+      \popp{\hspace{1cm}\code{($\lambda$ (z) (}$f_1$\code{ z \codechar{ })))}}\\
         \hspace{\helpSize}($f_2$: \emph{Abbreviates a sequence of words})\\
-        $f_3($\code{a}$,$\code{b}$) \,=\, $\code{(foldr a b cons)}\\
+        \popp{$f_3($\code{a}$,$\code{b}$) \,=\, $\code{(foldr a b cons)}}\\
       \hspace{\helpSize}($f_3$: \emph{Concatenate strings }\code{a}\emph{ and }\code{b})
   \end{tabular}&
 
   \begin{tabular}{l}
-    $f_0($\code{x}$)\,=\,$\code{(+ x real)}\\
-    $f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} \\
-    $f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}\\
-    $f_3($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_2$\code{ x)))}\\
-    $f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}\\
+    \popp{$f_0($\code{x}$)\,=\,$\code{(+ x real)}}\\
+    \popp{$f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} }\\
+    \popp{$f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}}\\
+    \popp{$f_3($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_2$\code{ x)))}}\\
+    \popp{$f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}}\\
     \hspace{\helpSize}\emph{($f_4$: 4th order polynomial)}\\
-        $f_5($\code{x}$)\,=\,$\code{(/ real x)}\\
-    $f_6($\code{x}$)\,=\,$\code{($f_4$ ($f_0$ x))} \\
+    \popp{$f_5($\code{x}$)\,=\,$\code{(/ real x)}}\\
+    \popp{$f_6($\code{x}$)\,=\,$\code{($f_4$ ($f_0$ x))}}\\
     \hspace{\helpSize}\emph{($f_6$: rational function)}\\
 
   \end{tabular}
@@ -764,12 +771,12 @@ of antiunification~\cite{henderson2013cumulative}.
     \node [rotate=90] at (-2.3,-0.5) {\small program};
     
           \node(l1) at (0,0) {};
-  \node[color=pop1](p1) at (-1,-1) {\code{+}};
-  \node[color=pop1](n1) at (0.7,-0.9) {\code{1}};
+  \node[color=pop3](p1) at (-1,-1) {\code{+}};
+  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
   \node(x1) at (0,-1) {\code{1}};
-  \draw[color=pop1] (l1.south) -- (p1.north);
-  \draw[color=pop1] (l1.south) -- (n1.north);
-  \draw[color=pop1] (-0.5,-0.5) -- (x1.north);
+  \draw[color=pop3] (l1.south) -- (p1.north);
+  \draw[color=pop3] (l1.south) -- (n1.north);
+  \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
 
   \node(t) at (-0.5,0.5) {};
   \draw (l1.south) -- (t.south);
@@ -786,12 +793,13 @@ of antiunification~\cite{henderson2013cumulative}.
   
   \begin{scope}[shift={(0,-2.5)}]
       \node(l1) at (0,0) {};
-  \node[color=pop1](p1) at (-1,-1) {\code{+}};
-  \node[color=pop1](n1) at (0.7,-0.9) {\code{1}};
+  \node[color=pop3](p1) at (-1,-1) {\code{+}};
+  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
   %\node(x1) at (0,-1) {};
-  \draw[color=pop1] (l1.south) -- (p1.north);
-  \draw[color=pop1] (l1.south) -- (n1.north);
-  \draw[color=pop1] (-0.5,-0.5) -- (0,-1);
+  \draw[color=pop3] (l1.south) -- (p1.north);
+  \draw[color=pop3] (l1.south) -- (n1.north);
+  \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
+
 
   \node(c) at (-0.5,-1.5) {\code{car}};
   \node(z) at (0.5,-1.5) {\code{z}};
@@ -804,13 +812,13 @@ of antiunification~\cite{henderson2013cumulative}.
   \end{scope}
 
 \begin{scope}[shift={(0,-5)}]
-  \node[pop1](p1) at (-1,-1) {\code{+}};
-  \node[pop1](n1) at (0.8,-0.7) {\code{1}};
-  \node[pop1](a) at (0,-1) {\code{ }};
+  \node[pop3](p1) at (-1,-1) {\code{+}};
+  \node[pop3](n1) at (0.8,-0.7) {\code{1}};
+  \node[pop3](a) at (0,-1) {\code{ }};
   %\node(x1) at (0,-1) {};
-  \draw[pop1] (0,0) -- (p1.north);
-  \draw[pop1] (0,0) -- (n1.north);
-  \draw[pop1] (-0.55,-0.4) -- (a.north);
+  \draw[pop3] (0,0) -- (p1.north);
+  \draw[pop3] (0,0) -- (n1.north);
+  \draw[pop3] (-0.55,-0.4) -- (a.north);
   \node [rotate=90] at (-2.3,-0.7) {\small fragment};
 
   \end{scope}
