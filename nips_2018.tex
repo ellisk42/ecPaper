@@ -281,88 +281,93 @@ list processing; text editing (in the style of FlashFill~\cite{gulwani2011automa
 Our algorithm then constructs
 its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
 \begin{table}[hb]
-\makebox[\textwidth][c]{
-  \scriptsize
+  \makebox[\textwidth][c]{
+    \scriptsize
   \tabcolsep=4pt
-\renewcommand\code\texttt
-\renewcommand\codechar[1]{\texttt{"#1"}}
-\newcommand{\helpSize}{0.25cm}
-\begin{tabular}{>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}}\toprule
-  {\normalsize List Functions}&{\normalsize Text Editing}&{\normalsize Symbolic Regression}\\\midrule
-  {  \tabcolsep=4pt \begin{tabular}{cc}
-  \begin{tabular}{c}
-      \code{[7\, 0\, 2]}$\to $\code{[2\, 0\, 7]} \\
-      \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2]}\\
-      \code{$f(x) = $}\code{($f_0$ nil $x$)}\\\\
-      \code{[2\, 7\, 8\, 1]}$\to $\code{8}\\
-      \code{[3\, 19\, 14]}$\to $\code{19}\\
-      \code{$f(\ell) = $}\code{($f_0$ $\ell$)}
-      %% \code{[1]}$\to $\code{[1\, 3]}\\
-      %% \code{[7\, 14\, 9]}$\to $\code{[7\, 14\, 9\, 3]}\\
-      %% \code{$f(\ell) = $}\code{($f_1$ $\ell$ 3)}\\\\
-  \end{tabular}&
-  \begin{tabular}{c}
-          \code{[7\, 3]}$\to $\code{\#f}\\
-          \code{[9\, 4\, 4]}$\to $\code{\#t}\\
-          \code{[]}$\to $\code{\#f}\\
-          \code{[4\, 7\, 3]}$\to $\code{\#t}\\
-      \code{$f(\ell) = $}\code{($f_2$ $\ell$ 4)}
+  \renewcommand\code\texttt
+  \renewcommand\codechar[1]{\texttt{"#1"}}
+  \newcommand{\helpSize}{0.25cm}
+  \begin{tabular}{>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-2.5em}}c<{\hspace{-0.8em}}>{\hspace{-1em}}c<{\hspace{-1em}}}
+    \toprule
+    {\normalsize List Functions}&{\normalsize Text Editing}&{\normalsize Symbolic Regression}\\\midrule
+    {\tabcolsep=4pt
+      \begin{tabular}{cc}
+        \begin{tabular}{c}
+          \code{[7\, 0\, 2]}$\to $\code{[7\, 0\, 2\, 4]}         \\
+          \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2\, 4]} \\
+          \code{$f(x) = $}\code{($f_0$ nil $x$)}             \\
+          ~                                                  \\
+          ~                                                  \\
+          \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
+          \hspace{0.15cm}\code{[3\, 19\, 14]}$\to $\code{19}                \\
+          \code{$f(\ell) = $}\code{($f_0$ $\ell$)}
+        \end{tabular}
+        &
+        \hspace{-0.3cm}\begin{tabular}{c}
+          \code{[7\, 3]}$\to $\code{False}                              \\
+          \hspace{0.3cm}\code{[3]}$\to $\code{False}                    \\
+          \hspace{-0.3cm}\code{[9\, 4\, 4]}$\to $\code{True\phantom{e}} \\
+          \hspace{0.3cm}\code{[4]}$\to $\code{True\phantom{e}}                        \\
+          \hspace{-0.3cm}\code{[4\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
+          \code{$f(\ell) = $}\code{($f_2$ $\ell$ 4)}
+        \end{tabular}
+      \end{tabular}
+    }
+    &
+    \hspace{-0.5cm}\begin{tabular}{c}
+      +106 769-438$\to $106.769.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
+      +83 973-831$\to $83.973.831\\
+      $f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{,} }\\
+      \hspace{1.25cm}\code{($f_0$ \codechar{.} \codechar{ }}\\
+      \hspace{1.4cm}\code{(cdr s)))}\\
+      ~\\
+      Temple Anna H $\to $TAH\\
+      Lara Gregori$\to $LG\\
+      $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
     \end{tabular}
-  \end{tabular}}
-  &
-  \begin{tabular}{c}
-    +106 769-438$\to $106.769.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
-    +83 973-831$\to $83.973.831\\
-    $f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{,} }\\
-    \hspace{1cm}\code{($f_0$ \codechar{.} \codechar{ } (cdr s)))}\\\\
-Temple Anna H $\to $TAH\\
-Lara Gregori$\to $LG\\
-$f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
-
-  \end{tabular}&
-
-  \begin{tabular}{cc}
-    \includegraphics[width = 3em]{figures/functions/4.png}&
-    \includegraphics[width = 3em]{figures/functions/146}\\
-    \code{$f($x$) = $($f_1$ x)}&    \code{$f($x$) = $($f_6$ x)}\\
-    \includegraphics[width = 3em]{figures/functions/112.png}&
+    &
+    \begin{tabular}{cc}
+      \includegraphics[width = 3em]{figures/functions/4.png}&
+      \includegraphics[width = 3em]{figures/functions/146}\\
+      \code{$f($x$) = $($f_1$ x)}&    \code{$f($x$) = $($f_6$ x)}\\
+      ~\\
+      \includegraphics[width = 3em]{figures/functions/112.png}&
         \includegraphics[width = 3em]{figures/functions/92.png}
-    \\
-    \code{$f($x$) = $($f_4$ x)}&    \code{$f($x$) = $($f_3$ x)}\\
-    
+      \\
+      \code{$f($x$) = $($f_4$ x)}&    \code{$f($x$) = $($f_3$ x)}\\
+
     \end{tabular}
-
-  \\\midrule
-
-  \begin{tabular}{l}
-    % $f_0($\code{r}$,\ell) \,=\, $\code{(foldr $\ell$ r ($\lambda$ (x a)}\\
-    % \phantom{$f_0($\code{r}$,\ell) \,=\, $\code{(foldr}}\code{(cons (index (length a) $\ell$) a)))}\\
+    ~\\
+    \midrule
+    \hspace{1cm}\begin{tabular}{l}
+      % $f_0($\code{r}$,\ell) \,=\, $\code{(foldr $\ell$ r ($\lambda$ (x a)}\\
+      % \phantom{$f_0($\code{r}$,\ell) \,=\, $\code{(foldr}}\code{(cons (index (length a) $\ell$) a)))}\\
       % \hspace{\helpSize}($f_1$: \emph{Get the largest number})\\
-    % $f_0(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}\\\hspace{0.8cm}\code{ (if (> a x) a x)))}\\
+      % $f_0(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}\\\hspace{0.8cm}\code{ (if (> a x) a x)))}\\
       % \hspace{\helpSize}($f_1$: \emph{Get the largest number in $\ell$})\\
-    %NOTE: this is the actual invention, but I removed a redundant lambda
-    % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
-    $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}\\
-    \vspace{2ex}
+      %NOTE: this is the actual invention, but I removed a redundant lambda
+      % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
+      $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}\\
+      \vspace{2ex}
       \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
-    $f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k nil) $\ell$)}\\
-    \vspace{2ex}
+      $f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k nil) $\ell$)}\\
+      \vspace{2ex}
       \hspace{\helpSize}($f_1$: \emph{Append }\code{k}\emph{ to $\ell$})\\
-    $f_2(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
-    \phantom{$f_1(\ell,$\code{k}}
-    \code{($\lambda$ (x a) (if a a (= k x))))}\\
+      $f_2(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
+      \phantom{$f_1(\ell,$\code{k}}
+      \code{($\lambda$ (x a) (if a a (= k x))))}\\
       \hspace{\helpSize}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
-  \end{tabular}&
+    \end{tabular}&
 
 
-  \begin{tabular}{l}
-          $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$ (x)}\\\hspace{1cm}\code{ (if (= x a) b x)) s)}\\
+  \hspace{0.5cm}\begin{tabular}{l}
+    $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$ (x)}\\\hspace{1cm}\code{ (if (= x a) b x)) s)}\\
       \hspace{\helpSize}($f_0$: \emph{Performs character substitution)}\\
       $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a)}\\\hspace{1.1cm}\code{ (cdr (if (= c x) s a))))}\\
         \hspace{\helpSize}($f_1$: \emph{Drop characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
       $f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car }\\\hspace{1cm}\code{($\lambda$ (z) (}$f_1$\code{ z \codechar{ })))}\\
         \hspace{\helpSize}($f_2$: \emph{Abbreviates a sequence of words})\\
-    \end{tabular}&
+  \end{tabular}&
 
   \begin{tabular}{l}
     $f_0($\code{x}$)\,=\,$\code{(+ x real)}\\
