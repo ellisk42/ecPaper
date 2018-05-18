@@ -853,11 +853,16 @@ discovered by the algorithm are prefixed with \lstinline!#!.
 Variables are prefixed with \lstinline!$!, and we adopt De Bruijn indices to
 model bound variables~\cite{pierce}.
 
-\pagebreak
 \onecolumn
 
-\lstset{escapechar=@}
-\subsection{List functions}
+\lstset{
+  escapechar=@,
+  breaklines=true,
+  breakatwhitespace=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}
+}
+
+\subsection{List processing}
 \begin{lstlisting}
 #(+ 1 1)
 #(@$\lambda$@ (cdr (cdr $0)))
