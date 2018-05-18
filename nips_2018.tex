@@ -373,10 +373,6 @@ recognition model ensures that searching for programs remains
 tractable even as the DSL (and hence the search space for programs)
 expands.
 
-
-
-
-
 We apply \system to three domains:
 list processing; text editing (in the style of FlashFill~\cite{gulwani2011automating}); and symbolic regression.
  For each of these we initially provide a generic
@@ -1081,7 +1077,8 @@ assumptions about the space of programs and the statement of tasks.
   %% proxy for \# of continuous parameters.
 }\vspace{-0.5cm}\label{baselineComparisons} \end{wraptable}
 Nevertheless, much prior work can be modeled within our setup. 
-We compare with the following ablations (Table~\ref{baselineComparisons}):
+We compare with the following ablations (Tbl~\ref{baselineComparisons};
+Fig~\ref{learningCurves}):
 \\\noindent \textbf{No NN:} lesions the recognition model.
 \\\noindent \textbf{NPS}, which does not learn the DSL,
 instead learning the recognition model
@@ -1092,9 +1089,12 @@ RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} a
 \\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
 only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
 \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
-but instead learns the parameters of the DSL ($\theta$) --- learning the parameters of a PCFG while not learning any of the structure.
+but instead learns the parameters of the DSL ($\theta$), learning the parameters of a PCFG while not learning any of the structure.
 \\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first search step.
-\footnotetext[2]{Due to a last-minute bug we ran the list processing experiments without training the recognition model on ``Helmholtz machine'' style data. We are rerunning this experiment and anticipate improved quantitative results for list processing -- notice the recognition model helps much more for text editing and symbolic regression.} &
+\footnotetext[2]{Due to a last-minute bug we ran the list processing experiments
+without training the recognition model on ``Helmholtz machine'' style data. We
+are rerunning this experiment and anticipate improved quantitative results for
+list processing --- notice the recognition model helps much more for text editing and symbolic regression.} &
 %For each domain,
 %% We are interested both in how many tasks the
 %% agent can solve and how quickly it can find those solutions.
