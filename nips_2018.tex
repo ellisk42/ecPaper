@@ -1122,14 +1122,7 @@ and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:P
 %% found by performing gradient ascent on the likelihood of the
 %% observations w.r.t. $\vec{\mathcal{R}}$.
 
-\system learns a DSL containing 13 new functions,
-most of which are templates for polynomials of different orders or ratios of polynomials.
-The algorithm also learns to find programs that minimize the number of continuous degrees of freedom.
-For example, it learns to represent linear functions with the program
-\code{(* real (+ x real))}}, which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
-which has five continuous parameters.
-This phenomenon arises from our Bayesian framing -- both the implicit bias towards shorter programs and the likelihood model's BIC penalty.
-\begin{wrapfigure}{r}{0.45\textwidth} \newcommand{\functionSize}{1.5cm}\centering
+\begin{wrapfigure}{r}{0.45\textwidth}\vspace{-0.5cm} \newcommand{\functionSize}{1.5cm}\centering
   \includegraphics[width = \functionSize]{figures/functions/6.png}
   \includegraphics[width = \functionSize]{figures/functions/48.png}
   \includegraphics[width = \functionSize]{figures/functions/102.png}
@@ -1138,14 +1131,29 @@ This phenomenon arises from our Bayesian framing -- both the implicit bias towar
   \includegraphics[width = \functionSize]{figures/functions/160.png}
   \includegraphics[width = \functionSize]{figures/functions/149.png}
     \includegraphics[width = \functionSize]{figures/functions/187.png}
-  \caption{Recognition model input for symbolic regression. DSL learns subroutines for polynomials (top row) and polynomials (bottom row) while the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines best explains the observation.}\label{functions}
-    \end{wrapfigure}
+  \caption{Recognition model input for symbolic regression. DSL learns subroutines for polynomials (top row) and polynomials (bottom row) while the recognition  model jointly learns to look at a graph of the function (above) and predict which of those subroutines best explains the observation.}\label{functions}\vspace{-2cm}
+    \end{wrapfigure}\system learns a DSL containing 13 new functions,
+most of which are templates for polynomials of different orders or ratios of polynomials.
+It also learns to find programs that minimize the number of continuous degrees of freedom.
+For example, it learns to represent linear functions with the program
+\code{(* real (+ x real))}}, which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
+which has five continuous parameters.
+This phenomenon arises from our Bayesian framing -- both the implicit bias towards shorter programs and the likelihood model's BIC penalty.
+
 
 \section{Quantitative Results}\label{quantitative}
 
 We compare with ablations of our model on held out tasks.
-Each of these ablations is chosen to approximate
-a prior approach in the program learning literature:
+The purpose of this ablation study is to
+both to examine the role of each component of \systemEnding,
+as well as to compare with
+prior approaches in the literature:
+A head-to-head
+comparison of program synthesizers is complicated by the fact that
+each system, including ours, makes idiosyncratic 
+assumptions about the space of programs and the statement of tasks.
+Nevertheless, much prior work can be modeled as
+special cases of our setup. We compare with the following baselines:
 \\\noindent \textbf{No NN}, which lesions the recognition model.
 \\\noindent \textbf{NPS}, which does not learn the DSL,
 instead learning the recognition model
@@ -1153,9 +1161,6 @@ from samples drawn from the fixed DSL.
 We call this NPS (Neural Program Synthesis)
 because this setup is closest to how
 RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
-%% We can not compare directly with these systems,
-%% because they are engineered for one specific domain, and 
-%% do not have publicly available code and datasets.
 \\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
 only add subexpressions of programs in the frontiers to the DSL. This is how prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
 \\\noindent \textbf{Enum}, which enumerates a frontier without any learning -- equivalently, our first search step.
@@ -1163,10 +1168,6 @@ only add subexpressions of programs in the frontiers to the DSL. This is how pri
 For each domain,
 we are interested both in how many tasks the
 agent can solve and how quickly it can find those solutions.
-%% For symbolic regression, we also care about the quality
-%% of the solution, as measured by the likelihood model $\probability[x|p]$,
-%% e.g. did the agent correctly explain a linear function
-%% using two numbers, or did it introduce extraneous parameters?
 Tbl.~\ref{baselineComparisons}
 compares our model against these alternatives.
 Our full model consistently
@@ -1198,8 +1199,8 @@ This supports a view of the recognition model as a way of amortizing the cost of
   Solve time&  0.8s&0.7s&&1.0s&1.0s&1.1s
 
   \\\midrule\multicolumn{7}{c}{\emph{Text Editing}}\\\midrule
-  \% solved&\textbf{75\%} &43\% &&33\%&0\%&4\%\\
-  Solve time&  29s&65s&&80s&--&235s
+  \% solved&\textbf{74\%} &43\% &&33\%&0\%&4\%\\
+  Solve time&  38s&65s&&80s&--&235s
 
   %% \\\midrule\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
   %% \% solved&\textbf{52\%} &\textbf{52\%} &40\%&44\%&42\%\\
