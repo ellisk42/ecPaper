@@ -37,7 +37,7 @@
 
 \usepackage{xcolor}
 \definecolor{pop1}{HTML}{1b9e77}
-\definecolor{pop2}{HTML}{7570b3}
+\definecolor{pop2}{HTML}{d95f02}
 \newcommand{\pop}[1]{\textcolor{pop1}{#1}}
 \newcommand{\popp}[1]{\textcolor{pop2}{#1}}
 
@@ -1098,7 +1098,8 @@ This supports a view of the recognition model as a way of amortizing the cost of
   \includegraphics[width = 4.5cm]{figures/list.eps}
   \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}        
   \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}   
-  \caption{Learning curves for \system both with (blue) and without (red) the recognition model. Solid lines: \% holdout testing tasks solved. Dashed lines: Average solve time.}\label{learningCurves} 
+  \caption{Learning curves for \system both with (\popp{orange}) and without
+  (\pop{teal}) the recognition model. Solid lines: \% holdout testing tasks solved. Dashed lines: Average solve time.}\label{learningCurves} 
 \end{figure}
 
 \section{Related Work}
