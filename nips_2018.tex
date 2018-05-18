@@ -60,6 +60,7 @@
 \usetikzlibrary{fit,bayesnet}
 \usepackage{dsfont}
 \usepackage{amsmath}
+\usetikzlibrary{trees}
 
 \DeclareMathOperator*{\argmin}{arg\,min} % thin space, limits underneath in displays
 \DeclareMathOperator*{\argmax}{arg\,max} % thin space, limits underneath in displays
@@ -281,26 +282,34 @@ Our algorithm then constructs
 its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
 \begin{table}[hb]
 \makebox[\textwidth][c]{
-\scriptsize
+  \scriptsize
+  \tabcolsep=4pt
 \renewcommand\code\texttt
 \renewcommand\codechar[1]{\texttt{"#1"}}
+\newcommand{\helpSize}{0.25cm}
 \begin{tabular}{>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}}\toprule
-  {\normalsize Lists}&{\normalsize Text}&{\normalsize Symbolic Regression}\\\midrule
+  {\normalsize List Functions}&{\normalsize Text Editing}&{\normalsize Symbolic Regression}\\\midrule
+  {  \tabcolsep=4pt \begin{tabular}{cc}
   \begin{tabular}{c}
-      % \code{[7\, 0\, 2]}$\to $\code{[2\, 0\, 7]} \\
-      % \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2]}\\
-      % \code{$f(x) = $}\code{($f_0$ nil $x$)}\\\\
-      % \code{[99\, 4\, 2]}$\to $\code{99}\\
-      % \code{[2\, 1\, 4\, 6]}$\to $\code{6}\\
-      % \code{[8\, 7\, 7\, 7]}$\to $\code{8}\\
-      % \code{$f(\ell) = $}\code{($f_0$ $\ell$)}\\\\
-      \code{[1]}$\to $\code{[1\, 3]}\\
-      \code{[7\, 14\, 9]}$\to $\code{[7\, 14\, 9\, 3]}\\
-      \code{$f(\ell) = $}\code{($f_1$ $\ell$ 3)}\\\\
-      \code{[7\, 3\, 14\, 6\, 9]}$\to $\code{false}\\
-      \code{[9\, 4\, 3\, 4]}$\to $\code{true}\\
-      \code{$f(\ell) = $}\code{($f_2$ $\ell$ 4)}
+      \code{[7\, 0\, 2]}$\to $\code{[2\, 0\, 7]} \\
+      \code{[2\, 4\, 9\, 3]}$\to $\code{[3\, 9\, 4\, 2]}\\
+      \code{$f(x) = $}\code{($f_0$ nil $x$)}\\\\
+      \code{[2\, 7\, 8\, 1]}$\to $\code{8}\\
+      \code{[3\, 19\, 14]}$\to $\code{19}\\
+      \code{$f(\ell) = $}\code{($f_0$ $\ell$)}
+      %% \code{[1]}$\to $\code{[1\, 3]}\\
+      %% \code{[7\, 14\, 9]}$\to $\code{[7\, 14\, 9\, 3]}\\
+      %% \code{$f(\ell) = $}\code{($f_1$ $\ell$ 3)}\\\\
   \end{tabular}&
+  \begin{tabular}{c}
+          \code{[7\, 3]}$\to $\code{\#f}\\
+          \code{[9\, 4\, 4]}$\to $\code{\#t}\\
+          \code{[]}$\to $\code{\#f}\\
+          \code{[4\, 7\, 3]}$\to $\code{\#t}\\
+      \code{$f(\ell) = $}\code{($f_2$ $\ell$ 4)}
+    \end{tabular}
+  \end{tabular}}
+  &
   \begin{tabular}{c}
     +106 769-438$\to $106.769.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
     +83 973-831$\to $83.973.831\\
@@ -328,31 +337,31 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
   \begin{tabular}{l}
     % $f_0($\code{r}$,\ell) \,=\, $\code{(foldr $\ell$ r ($\lambda$ (x a)}\\
     % \phantom{$f_0($\code{r}$,\ell) \,=\, $\code{(foldr}}\code{(cons (index (length a) $\ell$) a)))}\\
-      % \hspace{0.5cm}($f_1$: \emph{Get the largest number})\\
+      % \hspace{\helpSize}($f_1$: \emph{Get the largest number})\\
     % $f_0(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}\\\hspace{0.8cm}\code{ (if (> a x) a x)))}\\
-      % \hspace{0.5cm}($f_1$: \emph{Get the largest number in $\ell$})\\
+      % \hspace{\helpSize}($f_1$: \emph{Get the largest number in $\ell$})\\
     %NOTE: this is the actual invention, but I removed a redundant lambda
     % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
     $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}\\
     \vspace{2ex}
-      \hspace{0.5cm}($f_0$: \emph{Concatenate }\code{r}\emph{ with $\ell$})\\
+      \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
     $f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k nil) $\ell$)}\\
     \vspace{2ex}
-      \hspace{0.5cm}($f_1$: \emph{Append }\code{k}\emph{ to $\ell$})\\
+      \hspace{\helpSize}($f_1$: \emph{Append }\code{k}\emph{ to $\ell$})\\
     $f_2(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
     \phantom{$f_1(\ell,$\code{k}}
     \code{($\lambda$ (x a) (if a a (= k x))))}\\
-      \hspace{0.5cm}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
+      \hspace{\helpSize}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
   \end{tabular}&
 
 
   \begin{tabular}{l}
           $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$ (x)}\\\hspace{1cm}\code{ (if (= x a) b x)) s)}\\
-      \hspace{0.5cm}($f_0$: \emph{Performs character substitution)}\\
+      \hspace{\helpSize}($f_0$: \emph{Performs character substitution)}\\
       $f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x a)}\\\hspace{1.1cm}\code{ (cdr (if (= c x) s a))))}\\
-        \hspace{0.5cm}($f_1$: \emph{Drop characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
+        \hspace{\helpSize}($f_1$: \emph{Drop characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
       $f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car }\\\hspace{1cm}\code{($\lambda$ (z) (}$f_1$\code{ z \codechar{ })))}\\
-        \hspace{0.5cm}($f_2$: \emph{Abbreviates a sequence of words})\\
+        \hspace{\helpSize}($f_2$: \emph{Abbreviates a sequence of words})\\
     \end{tabular}&
 
   \begin{tabular}{l}
@@ -361,15 +370,15 @@ $f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}\\
     $f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}\\
     $f_3($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_2$\code{ x)))}\\
     $f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}\\
-    \hspace{0.5cm}\emph{($f_4$: 4th order polynomial)}\\
+    \hspace{\helpSize}\emph{($f_4$: 4th order polynomial)}\\
         $f_5($\code{x}$)\,=\,$\code{(/ real x)}\\
     $f_6($\code{x}$)\,=\,$\code{($f_4$ ($f_0$ x))} \\
-    \hspace{0.5cm}\emph{($f_6$: rational function)}\\
+    \hspace{\helpSize}\emph{($f_6$: rational function)}\\
 
   \end{tabular}
   \\\bottomrule\\
 \end{tabular}}
-\caption{Top: Example tasks from each domain, each followed by the programs \system discovers for them. Bottom: Subset of learned DSL. Notice that learned DSL primitives can call each other.}\label{initialExampleDSL}
+\caption{Top: Tasks from each domain, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other.}\label{initialExampleDSL}
 \end{table}
 
 Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
@@ -714,7 +723,7 @@ a high-capacity neural network $q$.
 Once we bootstrap a $(\mathcal{D},\theta)$,
 we can draw unlimited samples from $(\mathcal{D},\theta)$
 and train $q$ on those samples.
-  \end{comment}
+
 Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
 the current DSL, running them to get their outputs,
 and then training $q$ to regress from the input/outputs to the program.
@@ -722,6 +731,7 @@ Since these programs map inputs to outputs,
 we need to sample the inputs as well.
 Our solution is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
+  \end{comment}
 
 %% The architecture of $q$ depends upon the domain.  For domains with
 %% sequential structure like strings and lists, we use an RNN to encode
@@ -795,8 +805,71 @@ Fragment Grammars~\cite{tim} and Tree-Substitution
 Grammars~\cite{cohn2010inducing}, and is closely related to the idea
 of antiunification~\cite{henderson2013cumulative}.
 
-\begin{table}[b]
-\centering  \begin{tabular}{ll}
+\begin{figure}[b!]\tabcolsep=2pt
+\centering  \begin{minipage}[c]{0.2\textwidth}
+  \begin{tikzpicture}[scale=0.7]
+    %% \node[rotate=30] at (-2,0) {\begin{tabular}{c}
+    %%     \footnotesize Program:\\
+    %%     \code{($\lambda$ (x) (+ (- x) 1))}
+    %% \end{tabular}};
+    %\node at (,0.5) {\code{cons}};
+    \node [rotate=90] at (-2.3,-0.5) {\small program};
+    
+          \node(l1) at (0,0) {};
+  \node[color=red](p1) at (-1,-1) {\code{+}};
+  \node[color=red](n1) at (0.7,-0.9) {\code{1}};
+  \node(x1) at (0,-1) {\code{1}};
+  \draw[color=red] (l1.south) -- (p1.north);
+  \draw[color=red] (l1.south) -- (n1.north);
+  \draw[color=red] (-0.5,-0.5) -- (x1.north);
+
+  \node(t) at (-0.5,0.5) {};
+  \draw (l1.south) -- (t.south);
+  \node(c) at (-1.5,-0.2) {\code{cons}};
+  \draw (t.south) -- (c.north);
+  
+%    \draw  (l1.south) -- (-0.5,0.5);
+
+  %% \node(c) at (-0.5,-1.5) {\code{-}};
+  %% \node(z) at (0.5,-1.5) {\code{x}};
+
+  %% \draw (0,-1) -- (c.north);
+  %% \draw (0,-1) -- (z.north);
+  
+  \begin{scope}[shift={(0,-2.5)}]
+      \node(l1) at (0,0) {};
+  \node[color=red](p1) at (-1,-1) {\code{+}};
+  \node[color=red](n1) at (0.7,-0.9) {\code{1}};
+  %\node(x1) at (0,-1) {};
+  \draw[color=red] (l1.south) -- (p1.north);
+  \draw[color=red] (l1.south) -- (n1.north);
+  \draw[color=red] (-0.5,-0.5) -- (0,-1);
+
+  \node(c) at (-0.5,-1.5) {\code{car}};
+  \node(z) at (0.5,-1.5) {\code{z}};
+
+  \draw (0,-1) -- (c.north);
+  \draw (0,-1) -- (z.north);
+
+  \node [rotate=90] at (-2.3,-0.7) {\small program};
+  
+  \end{scope}
+
+\begin{scope}[shift={(0,-5)}]
+  \node[red](p1) at (-1,-1) {\code{+}};
+  \node[red](n1) at (0.8,-0.7) {\code{1}};
+  \node[red](a) at (0,-1) {\code{ }};
+  %\node(x1) at (0,-1) {};
+  \draw[red] (0,0) -- (p1.north);
+  \draw[red] (0,0) -- (n1.north);
+  \draw[red] (-0.55,-0.4) -- (a.north);
+  \node [rotate=90] at (-2.3,-0.7) {\small fragment};
+
+  \end{scope}
+
+\end{tikzpicture}
+  \end{minipage}
+\hspace{0.1cm}\begin{tabular}{ll}
     \toprule
     Example programs in frontiers&Proposed $\lambda$-expression\\\midrule
     \begin{tabular}{l}
@@ -818,13 +891,13 @@ of antiunification~\cite{henderson2013cumulative}.
     \begin{tabular}{l}      \code{($\lambda$ (s) (map ($\lambda$ (x)}\\\hspace{0.2cm}\code{   (if (= x $\alpha$) $\beta$ x))) s)}
       \end{tabular}
 \\\bottomrule\\
-  \end{tabular}
-  \caption{The DSL induction algorithm proposes fragments of programs to add to the DSL.
-    These fragments are taken from programs in the frontiers (left column).
-    Here, the proposed subexpression (top) slice from the beginning of a
-    list or (bottom) performs character substitutions.} 
+\end{tabular}
+\caption{\textbf{Left:} syntax trees of two programs sharing common structure, highlighted in {\color{red} red},
+  from which we extract a fragment and add it to the DSL (bottom). \textbf{Right:} actual programs,
+  from which we extract fragments that  (top) slice from the beginning of a list or (bottom) perform character substitutions.} 
+
   \label{fragmentExample}
-\end{table}
+\end{figure}
 
 
 To define the prior distribution over $(\mathcal{D},\theta})$, we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
@@ -939,7 +1012,7 @@ We automatically generated 109 text editing tasks with 4 input/output examples e
 %(Fig.~\ref{exampleTextProblem}).
 At first, \system cannot find any correct programs for most of the tasks.
 After three iterations, it assembles a DSL (Fig.~\ref{firstPageFigure} \& center of Tbl.~\ref{initialExampleDSL}) that lets it rapidly explore the space of programs and find solutions to
-all of the tasks. The learned DSL contains \textbf{X} new functions, listed in the supplement.
+all of the tasks. The learned DSL contains 10 new functions, listed in the supplement.
 
 How well does the  learned DSL generalized to real text-editing scenarios?
 We tested, but did not train, our system on problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
@@ -1062,17 +1135,18 @@ This phenomenon arises from our Bayesian framing -- both the implicit bias towar
 We compare with ablations of our model on held out tasks.
 Each of these ablations is chosen to approximate
 a prior approach in the program learning literature:
-\\\noindent \textbf{Ours (no NN)}, which lesions the recognition model.
-\\\noindent \textbf{RF/DC}, which holds the generative model $(\mathcal{D},\theta)$ fixed and learns
-a recognition model only from samples from the fixed generative model.
-This is equivalent to our algorithm with $\lambda = \infty$ (Sec.~\ref{grammarInductionSection})
-and $\mathcal{L}_{\text{RM}} = \mathcal{L}_{\text{HM}}$ (Sec.~\ref{recognitionSection}).
-We call this baseline RF/DC because
-this setup is closest to how RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
-We can not compare directly with these systems,
-because they are engineered for one specific domain, and 
-do not have publicly available code and datasets.
-\\\noindent \textbf{EC}, which lesions the recognition model and modifies  the DSL learner to model the library learning technique of  EC~\cite{Dechter:2013:BLV:2540128.2540316}.
+\\\noindent \textbf{No NN}, which lesions the recognition model.
+\\\noindent \textbf{NPS}, which does not learn the DSL,
+instead learning the recognition model
+from samples drawn from the fixed DSL.
+We call this NPS (Neural Program Synthesis)
+because this setup is closest to how
+RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
+%% We can not compare directly with these systems,
+%% because they are engineered for one specific domain, and 
+%% do not have publicly available code and datasets.
+\\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
+only add subexpressions of programs in the frontiers to the DSL. This is how prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
 \\\noindent \textbf{Enum}, which enumerates a frontier without any learning -- equivalently, our first search step.
 
 For each domain,
@@ -1083,13 +1157,13 @@ agent can solve and how quickly it can find those solutions.
 %% e.g. did the agent correctly explain a linear function
 %% using two numbers, or did it introduce extraneous parameters?
 Tbl.~\ref{baselineComparisons}
-compares our model against these baselines.
+compares our model against these alternatives.
 Our full model consistently
 improves on the baselines,
 sometimes dramatically (text editing and symbolic regression).
 The recognition model 
 consistently increases the number of solved held-out tasks,
-and lesioning it also slows down the convergence of the algorithm,
+and lesioning it also slows down the convergence of the algorithm,
 taking more iterations to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
 This supports a view of the recognition model as a way of amortizing the cost of searching for programs.
 
@@ -1098,9 +1172,9 @@ This supports a view of the recognition model as a way of amortizing the cost of
 \tabcolsep=4pt
 \renewcommand{\arraystretch}{0.5}
 \begin{tabular}{lllllll}
-  \toprule& Ours& \multicolumn{1}{c}{\begin{tabular}{c}
-    Ours\\(no NN)
-    \end{tabular}}& EC&RF/DC & PCFG & Enum
+  \toprule& Ours& 
+    No NN
+& SE&NPS & PCFG & Enum
 
   %% \\\midrule\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
   %% \% solved &
@@ -1128,7 +1202,7 @@ This supports a view of the recognition model as a way of amortizing the cost of
   \\\bottomrule
   \end{tabular}
 \caption{\% solved before timeout. Solve time: averaged over solved
-  tasks.  RF/DC: trained like RobustFill/DeepCoder.  PCFG: model w/o
+  tasks.  SE: NPS: trained like RobustFill/DeepCoder.  PCFG: model w/o
   structure learning.  Enum: model w/o any learning.  %% MDL:
   %% $-\expect\left[\probability[x|p] \right]$. For domains other than
   %% symbolic regression MDL is 0 nats.
