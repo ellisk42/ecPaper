@@ -41,9 +41,13 @@
 \definecolor{pop1}{HTML}{1f78b4}
 \definecolor{pop2}{HTML}{33a02c}
 \definecolor{pop3}{HTML}{d95f02}
+\definecolor{orange}{HTML}{d95f02}
+\definecolor{teal}{HTML}{1b9e77}
 \newcommand{\pop}[1]{\textcolor{pop1}{#1}}
 \newcommand{\popp}[1]{\textcolor{pop2}{#1}}
 \newcommand{\tree}[1]{\textcolor{pop3}{#1}}
+\newcommand{\orange}[1]{\textcolor{orange}{#1}}
+\newcommand{\teal}[1]{\textcolor{teal}{#1}}
 
 \usepackage{mathrsfs}
 \usepackage{listings}
@@ -1113,8 +1117,8 @@ but instead learns the parameters of the DSL ($\theta$) -- learning the paramete
   \includegraphics[width = 4.5cm]{figures/list.eps}
   \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}        
   \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}   
-  \caption{Learning curves for \system both with (\popp{orange}) and without
-  (\pop{teal}) the recognition model. Solid lines: \% holdout testing tasks solved. Dashed lines: Average solve time.}\label{learningCurves} 
+  \caption{Learning curves for \system both with (\orange{orange}) and without
+  (\teal{teal}) the recognition model. Solid lines: \% holdout testing tasks solved. Dashed lines: Average solve time.}\label{learningCurves} 
 \end{figure}
 
 \section{Related Work}
@@ -1162,7 +1166,7 @@ synthesizers~\cite{solar2008program}, which may improve performance in some
 domains over the generic methods used here.
 We are in the process of applying our algorithm to generative programs and
 prototyped this with a turtle-like domain: Figure \ref{geomCompiled} gives some
-preliminary results for turtle graphics  --- see supplementary material for more
+preliminary results for turtle graphics  --- see Section 1 of the supplementary material for more
 details.  Another direction is to explore DSL meta-learning: can we find a
 \emph{single} universal primitive set that could effectively bootstrap DSLs for
 new domains, including the three domains considered,  but also many others?
@@ -1172,8 +1176,8 @@ new domains, including the three domains considered,  but also many others?
   \includegraphics[width=\textwidth]{figures/geomCompiled.eps} 
   \captionof{figure}{
   Top left: Example training tasks. Top right: samples from the learned DSL.
- Bottom: learning curve  (middle), and on both sides the average sample from the DSL
-  before any training (left) and after training (right). See Sec.~1 of supplement.}
+ Bottom: \% holdout testing tasks solved (middle), on sides are the averaged samples from the DSL
+  before any training (left) and after last iteration (right).}
 \label{geomCompiled}
 \end{minipage}
 
