@@ -379,16 +379,13 @@ neural approaches  (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids 
 symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}).
 A notable exception is the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316},
 which also learns a library of subroutines.
-We were inspired by EC,
-and go beyond it by giving a new algorithm that learns DSLs, as well as a way of combining DSL learning with
-neurally guided program search.
-In the experiments section,
-we compared directly with EC,
-showing empirical improvements.
-
-The new contribution of this work is
-thus an  algorithm for learning DSLs which jointly trains a neural net to
-search for programs in the DSL.
+We were motivated by EC, and go beyond it and other prior work through the following contributions:
+(1) We show how to learn-to-learn programs in an expressive Lisp-like programming language;
+(2) We give an algorithm for learning DSLs,
+built on a formalism known as Fragment Grammars~\cite{tim};
+and (3) We give a hierarchical Bayesian framing of
+the problem that
+allows a joint inference of the DSL and recognition model.
 
 
  
@@ -1092,49 +1089,7 @@ and lesioning it also slows down the convergence of the algorithm,
 taking more iterations to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
 This supports a view of the recognition model as a way of amortizing the cost of searching for programs.
 
-\begin{wraptable}{r}{0.6\textwidth}
-%% This radically shrinks the table
-\tabcolsep=4pt
-\renewcommand{\arraystretch}{0.5}
-\begin{tabular}{lllllll}
-  \toprule& Ours& 
-    No NN
-& SE&NPS & PCFG & Enum
 
-  %% \\\midrule\multicolumn{6}{c}{\emph{Boolean Circuits}}\\\midrule
-  %% \% solved &
-  %% \textbf{84\%} &76\%& 63\%&62\%&62\%\\
-  %% Solve time&  0.9s&  1.1s&1.2s&1.3s&1.3s
-
-
-  \\\midrule\multicolumn{7}{c}{\emph{List Processing}}\\\midrule
-  \% solved&\textbf{79\%} &76\% &71\%&35\%&62\%&37\%\\
-  Solve time&  4.1s&5.8s&10.6s&34.7s&43.4s&20.2s
-  %NOTE: "Ours" result was without helmholtz
-
-  \\\midrule\multicolumn{7}{c}{\emph{Text Editing}}\\\midrule
-  \% solved&\textbf{74\%} &43\% &30\%&33\%&0\%&4\%\\
-  Solve time&  29s&65s&38s&80s&--&235s
-
-  %% \\\midrule\multicolumn{6}{c}{\emph{List functions (base DSL)}}\\\midrule
-  %% \% solved&\textbf{52\%} &\textbf{52\%} &40\%&44\%&42\%\\
-  %% Solve time&  0.4s&0.7s&1.2s&0.9s&1.0s
-
-  \\\midrule\multicolumn{7}{c}{\emph{Symbolic Regression}}\\\midrule
-  \% solved&   \textbf{84\% }&75\%&62\%&38\%&38\%&37\% \\
-  Solve time&  \textbf{24}s& 40s  &28s&31s&55s&29s
-  %% MDL (nats)&   9.3 &11.0&2.3&--&4.6
-
-  \\\bottomrule
-  \end{tabular}
-\caption{\% solved before timeout. Solve time: averaged over solved
-  tasks.  SE: NPS: trained like RobustFill/DeepCoder.  PCFG: model w/o
-  structure learning.  Enum: model w/o any learning.  %% MDL:
-  %% $-\expect\left[\probability[x|p] \right]$. For domains other than
-  %% symbolic regression MDL is 0 nats.
-  %% For symbolic regression MDL is a
-  %% proxy for \# of continuous parameters.
-}\vspace{-0.5cm}\label{baselineComparisons} \end{wraptable}
 
 \begin{figure}\centering
   \includegraphics[width = 4.5cm]{figures/list.eps}
