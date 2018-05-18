@@ -28,14 +28,14 @@
 \usepackage{stmaryrd}
 
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
-\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\sem}[1]{\llbracket{} #1 \rrbracket{}}
 
-\newcommand{\system}{\textsc{SCC}~}
+\newcommand{\system}{\textsc{SCC} }
 \newcommand{\systemEnding}{\textsc{SCC}}
 
 \newcommand{\lowerBound}{\mathscr{L}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
-\newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
+\newcommand{\codechar}[1]{{\footnotesize{\texttt{``#1''}}}}
 
 \usepackage{xcolor}
 \definecolor{pop1}{HTML}{1f78b4}
@@ -143,7 +143,7 @@
   programs and imparting prior knowledge of the domain.  We contribute
   a program induction algorithm called \system that learns a DSL while
   jointly training a neural network to efficiently search for programs
-  in the learned DSL.  We use our model to synthesize functions on lists,
+  in the learned DSL.\@ We use our model to synthesize functions on lists,
   edit text, and solve symbolic regression problems, showing how the
   model learns a domain-specific library of program components for
   expressing solutions to problems in the domain.
@@ -164,13 +164,13 @@ to ``R. E. Leakey''; if instead the first input mapped to
 the latter should map to ``Dr. Richard'', ``Leakey, Richard'', or
 ``Erskine'', respectively.
 
-The FlashFill system ~\cite{gulwani2011automating} developed by
+The FlashFill system~\cite{gulwani2011automating} developed by
 Microsoft researchers and now embedded in Excel solves problems such
 as these and is probably the best known practical program-induction
 algorithm, but researchers in programming languages and AI have built
 successful program induction algorithms for many applications, 
-such as handwriting recognition and generation ~\cite{lake2015human},
-procedural graphics ~\cite{ellis2017learning}, question
+such as handwriting recognition and generation~\cite{lake2015human},
+procedural graphics~\cite{ellis2017learning}, question
 answering~\cite{johnson2017clevr} and robot motion
 planning~\cite{devlin2017neural}, to name just a few.
 These systems work in different ways, but most hinge upon having a
@@ -182,13 +182,12 @@ form of a restricted set of programming primitives tuned to the needs
 of the domain: for text editing, these are operations like appending
 strings and splitting on characters.  
 
-In this work, we consider the problem of building agents that learn to
-solve program induction tasks, and also the problem of acquiring the
-prior knowledge necessary to quickly solve these tasks in a new domain.
-Representative problems in three domains are shown in 
-Table~\ref{initialExampleDSL}.  Our solution is an algorithm that
-grows or boostraps a DSL while jointly training a neural network to help write
-programs in the increasingly rich DSL.  
+In this work, we consider the problem of building agents that learn to solve
+program induction tasks, and also the problem of acquiring the prior knowledge
+necessary to quickly solve these tasks in a new domain.  Representative problems
+in three domains are shown in Table~\ref{initialExampleDSL}.  Our solution is an
+algorithm that grows or boostraps a DSL while jointly training a neural network
+to help write programs in the increasingly rich DSL.
 %
 % (JBT: MAYBE INSERT FIGURE FROM ICML PAPER?)
 %
@@ -209,8 +208,8 @@ programs in the increasingly rich DSL.
           \code{[7\, 0\, 2]}$\to $\code{[7\, 0\, 2\, 9]}         \\
           \code{[9\, 3]}$\to $\code{[9\, 3\, 9]} \\
           \pop{\code{$f(\ell) = $}\code{($f_1$ $\ell$ 9)}}       \\
-          ~                                                  \\
-          ~                                                  \\
+          \\
+          \\
           \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
           \hspace{0.15cm}\code{[3\, 19\, 14]}$\to $\code{19}                \\
           \pop{\code{$f(\ell) = $}\code{($f_2$ $\ell$)}}
@@ -347,7 +346,7 @@ characters is likely to be part of the solution; if every output
 contains a constant substring (e.g., ``Dr.''), inserting or appending
 that constant string is likely to be a subroutine.
 
-Our \system (\textbf{(S)}search/\textbf{(C})ompress/\textbf{(C})ompile)
+Our \system (\textbf{S}earch/\textbf{C}ompress/\textbf{C}ompile)
 algorithm incorporates these insights by iterating through three steps. 
 The \textbf{Search} step takes a given set of \textbf{tasks}, typically
 several hundred, and searches for compact programs that solve these tasks
