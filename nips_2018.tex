@@ -229,7 +229,7 @@ to help write programs in the increasingly rich DSL.
     \hspace{-0.5cm}\begin{tabular}{c}
       +106 769-438$\to $106.769.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
       +83 973-831$\to $83.973.831\\
-      \pop{$f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{,}
+      \pop{$f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{-}
       }}\\
       \hspace{1.25cm}\pop{\code{($f_0$ \codechar{.} \codechar{ }}}\\
       \hspace{1.4cm}\pop{\code{(cdr s)))}}\\
@@ -282,7 +282,7 @@ to help write programs in the increasingly rich DSL.
     \popp{\hspace{1cm}\code{ (if (= x a) b x)) s)}}\\
       \hspace{\helpSize}($f_0$: \emph{Performs character substitution)}\\
       \popp{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x
-      a)}\\\hspace{1.1cm}\code{ (cdr (if (= c x) s a))))}}\\
+      a)}\\\hspace{1.1cm}\popp{\code{ (cdr (if (= c x) s a))))}}}\\
         \hspace{\helpSize}($f_1$: \emph{Drop characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
       \popp{$f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car
       }}\\
