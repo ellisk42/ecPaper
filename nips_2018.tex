@@ -205,9 +205,11 @@ to help write programs in the increasingly rich DSL.
     \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&{\tabcolsep=4pt
       \begin{tabular}{cc}
         \begin{tabular}{c}
-          \code{[7\, 0\, 2]}$\to $\code{[7\, 0\, 2\, 9]}         \\
-          \code{[9\, 3]}$\to $\code{[9\, 3\, 9]} \\
-          \pop{\code{$f(\ell) = $}\code{($f_1$ $\ell$ 9)}}       \\
+          \code{[7\, 2\, 3]}$\to $\code{[7\, 3]}         \\
+          \code{[1\, 2\, 3\, 4]}$\to $\code{[3\, 4]} \\
+          \code{[4\, 3\, 2\, 1]}$\to $\code{[4\, 3]} \\
+          \pop{\code{$f(\ell) = $}\code{($f_1$ $\ell$ ($\lambda$ (x)}}\\
+          \hspace{1.15cm}\pop{\code{(> x 2)))}}       \\
           \\
           \\
           \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
@@ -263,8 +265,9 @@ to help write programs in the increasingly rich DSL.
       % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
       \popp{$f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}}\\
       \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
-      \popp{$f_1(\ell,$\code{k}$) \,=\, $\code{($f_0$ (cons k nil) $\ell$)}}\\
-      \hspace{\helpSize}($f_1$: \emph{Append the number }\code{k}\emph{ to $\ell$})\\
+      \popp{$f_1(\ell,$\code{p}$) \,=\, $\code{(foldr $\ell$ nil ($\lambda$ (x a)}}\\
+      \hspace{0.5cm}\popp{\code{(if (p x) (cons x a) a)))}}\\
+      \hspace{\helpSize}($f_1$: \emph{Higher-order filter function})\\
       %(lambda (fold $0 0 (lambda (lambda (if (gt? $0 $1) $0 $1)))))
       \popp{$f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}}\\
       \popp{\phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}}\\
@@ -306,7 +309,7 @@ to help write programs in the increasingly rich DSL.
   \end{tabular}
   \\\bottomrule\\
 \end{tabular}}
-\caption{Top: Tasks from each domain, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other.}\label{initialExampleDSL}
+\caption{Top: Tasks from each domain, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ in List Functions)}\label{initialExampleDSL}
 \end{table}
 
 Because any computable learning problem can in principle be cast as
