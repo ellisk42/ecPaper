@@ -645,8 +645,8 @@ All existing systems,
 including ours,
 fall far short of this dream,
 and it is unclear (and we believe unlikely)
-that this dream could ever be realized in its fullness.
-How far can we in this direction?
+that this dream could ever be fully realized.
+How far can we push in this direction?
 ``Learning from scratch'' is subjective, but a reasonable
 starting point is the set of primitives provided in 1959
 Lisp~\cite{mccarthy1960recursive}: these include
@@ -755,7 +755,7 @@ more closely matching the domain.
   \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}\qquad
   \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}
   \caption{Learning curves for \system both with (\orange{in orange}) and without
-  (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved w/ 10m timeout. Dashed lines: Average solve time, averaged only over tasks that are solved.}\label{learningCurves}
+    (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved w/ 10m timeout. Dashed lines: Average solve time, averaged only over tasks that are solved.}\label{learningCurves}
 \end{figure*}
 
 \begin{comment}
@@ -794,7 +794,7 @@ We contribute an algorithm, \systemEnding, that learns to program by
 bootstrapping a DSL with new domain-specific primitives that the algorithm
 itself discovers, together with a neural recognition model that learns how to
 efficiently deploy the DSL on new tasks. We believe this integration of top-down
-symbolic representations and bottom-up neural networks --- both of them learned
+symbolic representations and bottom-up neural nets --- both of them learned
 --- can help make program induction systems more generally useful for AI. Many
 directions remain open.
 %\paragraph{Future.}
@@ -802,9 +802,9 @@ Two immediate goals are to integrate more sophisticated neural recognition
 models~\cite{devlin2017robustfill} and program
 synthesizers~\cite{solar2008program}, which may improve performance in some
 domains over the generic methods used here.
-Another direction is to explore DSL meta-learning: can we find a
+Another direction is DSL meta-learning: can we find a
 \emph{single} universal primitive set that could effectively bootstrap DSLs for
-new domains, including the three domains considered,  but also many others?
+new domains, including the domains considered here,  but also many others?
 
 \bibliography{main}
 \bibliographystyle{icml2018}
