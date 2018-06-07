@@ -171,7 +171,7 @@
 %%   expressing solutions to problems in the domain.
 %% \end{abstract}
 
-\section{Introduction: The Centrality of Domain-Specific Languages}
+\section{Introduction}
 
 
 Much of everyday human thinking and learning can be understood in
@@ -353,7 +353,7 @@ intractable;
 so we train a
 neural network to guide the search procedure.
 
-\section{The \system Algorithm}
+\section{Overview of \system}
 
 We take inspiration from several ways that skilled human
 programmers have learned to code: Skilled coders build libraries of
@@ -376,12 +376,7 @@ novel kind of ``wake-sleep'' learning (c.f. \cite{hinton1995wake}), iterating
 between ``wake'' and ``sleep'' phases to achieve three goals: finding
 programs that solve tasks; creating a DSL by discovering
 and reusing domain-specific subroutines; and training a neural network
-that efficiently guides search for programs in the DSL. %% The learned DSL
-%% distills commonalities across programs that solve tasks, helping
-%% the agent solve related program induction problems. The neural
-%% network ensures that searching for programs remains tractable
-%% even as the DSL (and hence the search space for programs) expands.
-
+that efficiently guides search for programs in the DSL.
 The learned DSL effectively encodes a prior on programs likely to
 solve tasks in the domain, while the neural net looks at the example
 input-output pairs for a specific task and produces a ``posterior''
@@ -410,24 +405,24 @@ The \textbf{Sleep-R} step improves the search procedure by training a neural net
 write programs in the current DSL, in the spirit of ``amortized'' or
 ``compiled'' inference~\cite{le2016inference}. %%  (CITE ,
 %% and others too on amortized inference.)
-Crucially, these steps bootstrap off each other~(Figure~\ref{feeding}).
-\begin{figure}[h]\centering
-  \begin{tikzpicture}
-    \begin{scope}[shift = {(1,-1)}]
-    \node[align = center](synthesis) at (6,4) {Search for \\programs};
-    \node[align = center](DSL) at (3,1) {DSL};
-    \node[align = center](recognitionModel) at (9,1) {Neural\\recognition \\model};
+%Crucially, these steps bootstrap off each other~(Figure~\ref{feeding}).
+%% \begin{figure}[h]\centering
+%%   \begin{tikzpicture}
+%%     \begin{scope}[shift = {(1,-1)}]
+%%     \node[align = center](synthesis) at (6,4) {Search for \\programs};
+%%     \node[align = center](DSL) at (3,1) {DSL};
+%%     \node[align = center](recognitionModel) at (9,1) {Neural\\recognition \\model};
 
-    \draw [->,thick] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-G)}} (DSL.30);
-    \draw [->,thick] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.150);
-    \draw [->,thick] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.west);
+%%     \draw [->,thick] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-G)}} (DSL.30);
+%%     \draw [->,thick] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.150);
+%%     \draw [->,thick] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.west);
 
-    \draw [->,thick,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Inductive bias}\\\footnotesize{(Wake)}} (synthesis.west);
-    \draw [->,thick,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Wake)}} (synthesis.east);
-  \end{scope}
-    \end{tikzpicture}
-  \caption{Algorithm solves for programs, the DSL, and a recognition model. These steps bootstrap off each other in a Helmholtz-machine inspired wake/sleep inference strategy.}  \label{feeding}
-\end{figure}
+%%     \draw [->,thick,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Inductive bias}\\\footnotesize{(Wake)}} (synthesis.west);
+%%     \draw [->,thick,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Wake)}} (synthesis.east);
+%%   \end{scope}
+%%     \end{tikzpicture}
+%%   \caption{Algorithm solves for programs, the DSL, and a recognition model. These steps bootstrap off each other in a Helmholtz-machine inspired wake/sleep inference strategy.}  \label{feeding}
+%% \end{figure}
 
 
 
@@ -462,34 +457,54 @@ the problem that
 allows joint inference of the DSL and neural recognition model.
 
 
- 
+\section{The \system Algorithm}
 
+\system takes as input a set of \emph{tasks}, written $X$, each of which is a program synthesis problem.
+It has at its disposal a domain-specific \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$. %% \footnote{For example, for string editing,
+%%   the likelihood is 1 if the program predicts the observed outputs on the observed inputs,
+%% and 0 otherwise.}
+Its goal is to solve each of the tasks by writing a program,
+and also to infer a DSL, written $\mathcal{D}$,
+which is a generative model over programs, written $\probability[p |\mathcal{D}]$.
+We frame our goal as maximum a posteriori (MAP) inference of $\mathcal{D}$ given $X$:
+$$
+\argmax_{\mathcal{D}}\probability[\mathcal{D}]\prod_{x\in X}\sum_p\probability[x|p]\probability[p|\mathcal{D}]
+$$
+Even evaluating the above objective is intractable due to the sum over all programs,
+and so we instead marginalize over finite sets of programs, called \textbf{frontiers}, one for each task $x\in X$, written $\mathcal{F}_x$, giving the following lower bound on the marginal, which we call $\lowerBound$:
+\begin{equation}\label{lowerBound}
+  \lowerBound  \triangleq\probability[\mathcal{D}]\prod_{x\in X}\sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D}]
+\end{equation}
+We alternate maximization w.r.t. $\left\{\mathcal{F}_x \right\}_{x\in X}$ (\textbf{Wake}) and $\mathcal{D}$  (\textbf{Sleep-G}):
 
-%% \begin{itemize}
-%%   \item Fixed DSL, no recognition model, learn parameters $\theta$ of an inductive bias over programs\citep{menon2013machine,singh2015predicting,learningToRank}
-%%   \item The EC algorithm and related work \citep{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14} has no recognition model
-%%     $q$;
-%%     % because this is a primary inspiration, might be worth further mention:
-%%     % different program representation (routing vs. substitution; simple vs polymorphic types);
-%%     % different grammar induction (sequitur vs. fragment grammar)
-%%   \item DeepCoder and RobustFill \citep{balog2016deepcoder,devlin2017robustfill} both fix the
-%%     DSL $\mathcal{D}$ and does not use $\theta$ in favor of solely relying on the neural
-%%     network $q$.
-%%     % although RobustFill has very different enumeration
-%% \end{itemize}
+\\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the programs.} Here $\mathcal{D}$ is fixed and we
+want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
+$\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D}]$
+is large.
+Here we use a simple and generic enumerative program synthesis algorithm.
+%% which we can accomplish by adding new programs to the frontiers means searching for new programs $p$ for task $x$
+%% where  is large.
+\\\noindent \textbf{Sleep-G: Maxing $ \lowerBound$ w.r.t.\ the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\mathcal{D}$.
+To represent DSLs and search the space of DSLs, we use Fragment Grammars~\cite{tim}.
 
-%% We cast these problems as \emph{Bayesian Program
-%%   Learning} (BPL; see~\citep{lake2013one,ellis2016sampling,DBLP:conf/icml/LiangJK10}),
-%% where the goal is to infer from an observation $x$ a posterior distribution over programs, $\probability[p|x]$.
-%% A DSL $\mathcal{D}$ specifies the vocabulary in which programs $p$ are written.
-%% We equip our DSLs with a \emph{weight vector} $\theta$; together, $(\mathcal{D},\theta)$
-%% define a probabilistic generative model over programs, $\probability[p|\mathcal{D},\theta]$.
-%% In this BPL setting, $\probability[p|x]\propto \probability[x|p]\probability[p|\mathcal{D},\theta]$,
-%% where the likelihood $\probability[x|p]$ is domain-dependent.
-%% The solid lines in Fig.~\ref{graphicalModel} the diagram this generative model.
-%% Alongside this generative model,
-%% we infer a bottom-up recognition model, $q(x)$, which is a neural network that regresses from observations to a distribution over programs.
+Searching for programs is hard because
+of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $q(\cdot |\cdot )$,
+during the \textbf{Sleep-R} phase: $q$ is trained to approximate the
+posterior over programs, $q(p|x)\approx \probability[p|x,\mathcal{D}]\propto\probability[x|p]\probability[p|\mathcal{D}}]$,
+  thus amortizing the cost of finding programs with high posterior probability.
 
+\textbf{Sleep-R: tractably maxing $\lowerBound$ w.r.t. the
+  frontiers.}  Here we train %% a neural network, $q$, to predict a
+%% distribution over programs conditioned on a task. The objective of $q$
+%% is
+$q(p|x)$ to assign high probability to programs $p$ where
+$\probability[x|p]\probability[p|\mathcal{D}]$ is large, because including those programs
+in the frontiers will most increase $\lowerBound$.
+Concretely, the loss for $q(\cdot |x)$ is:
+$$
+\expect_X\left[ \text{KL}\left(\probability[\cdot |x,\mathcal{D}]\; ||\; q(\cdot |x) \right) \right]
+$$
+which minimizes the KL between the distribution predicted by $q$ and the true posterior over programs solving task $x$.
 
 
 
@@ -500,8 +515,7 @@ allows joint inference of the DSL and neural recognition model.
 \section{Programs that manipulate sequences}\label{sequences}
 We apply \system to list processing (Section~\ref{listSection}) and text editing (Section~\ref{textSection}).
 For both these domains we use a bidirectional GRU~\cite{cho2014learning} for
-the recognition model, and initially provide the system with a generic set
-of list processing primitives:
+the recognition model, and initially provide the system with generic list processing primitives:
 \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
 \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
 \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
@@ -513,9 +527,7 @@ Synthesizing programs that manipulate data structures is a widely studied
 problem in the programming languages community~\cite{feser2015synthesizing}.
 %with applications to computer aided programming~\cite{solar2008program}.
 We consider this problem within the context of learning functions that
-manipulate lists, and which also perform arithmetic operations upon lists of numbers.
-
-
+manipulate lists, and also perform arithmetic operations upon lists (Table~\ref{listExamples}).
 \begin{figure}\centering
   \begin{tabular}{lll}
     \toprule
@@ -528,29 +540,26 @@ manipulate lists, and which also perform arithmetic operations upon lists of num
     product & [7\, 1\, 6\, 2] & 84 \\
     \bottomrule
   \end{tabular}
-  \captionof{table}{Some tasks in our list function domain.}\label{listexamples}
+  \captionof{table}{Some tasks in our list function domain.}\label{listExamples}
 \end{figure}
 We created 236 human-interpretable list manipulation tasks, each with 15
-input/output examples (Tbl.~\ref{listexamples}).
+input/output examples,
 %% Our data set is interesting in three major ways: many of the tasks
 %% require complex solutions; the tasks were not generated from some
 %% latent DSL, and the agent must learn to solve these complicated
 %% problems from only 236 tasks.
-Our data set assumes arithmetic operations as well as sequence operations,
-so we additionally provide our system with the following arithmetic
-primitives: \code{mod}, \code{*}, \code{>}, \code{is-square},
-\code{is-prime}.
-
-We evaluated \system on random 50/50 test/train split.  The system
+%% Our data set assumes arithmetic operations as well as sequence operations,
+%% so we additionally provide our system with the following arithmetic
+%% primitives: \code{mod}, \code{*}, \code{>}, \code{is-square},
+%% \code{is-prime}.
+evaluating  on a 50/50 test/train split.  The system
 composed 38 new subroutines, and rediscovered the higher-order
 function \code{filter}, yielding a more expressive DSL more closely
-matching the domain (left of Tbl.~\ref{initialExampleDSL}, right of
-Fig.~\ref{fragmentExample}). See the supplement for a complete list of
-DSL primitives discovered by \systemEnding.
+matching the domain (Tbl.~\ref{initialExampleDSL}, left).
 
 \subsection{Text Editing}\label{textSection}
 Synthesizing programs that edit text is a classic problem in the
-programming languages and AI literatures~\cite{menon2013machine,lau2001programming},
+programming languages and AI literatures~\cite{lau2001programming},
 and algorithms that learn text editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
 This prior work presumes a hand-engineered DSL.
 We show \system can instead start out with generic sequence manipulation
@@ -568,9 +577,9 @@ made these other text editing systems successful.
 %% synthesize programs containing real numbers, but using gradient
 %% descent instead of dynamic programming.
 
-We trained our system on a corpus of 109 automatically generated text editing tasks, with 4 input/output examples each.
-After three iterations, it assembles a DSL containing a dozen new functions (center of Fig.~\ref{initialExampleDSL}) that let it solve 
-all of the training tasks.
+We trained our system on 109 synthetic tasks, with 4 input/output examples each.
+After three iterations, it assembles a DSL containing a dozen new functions (Fig.~\ref{initialExampleDSL}, center) solving
+all the training tasks.
 But, how well does the  learned DSL generalized to real text-editing scenarios?
 We tested, but did not train, on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
 \system solves 3.7\% of the problems with an average search time of 235 seconds.
@@ -580,7 +589,7 @@ solving them in an average of 29 seconds.
 As of the 2017 SyGuS competition,
 the best-performing algorithm solves 79.6\% of the problems.
 But, SyGuS comes with a
-different hand-engineered DSL \emph{for each text editing problem}.\footnote{SyGuS text editing problems also prespecify the set of allowed string constants for each task. For these experiments, our system did not use this assistance.}
+different hand-engineered DSL \emph{for each text editing problem}.%\footnote{SyGuS text editing problems also prespecify the set of allowed string constants for each task. For these experiments, our system did not use this assistance.}
 Here  we learned a single DSL
 that applied generically to
 all of the tasks,
@@ -593,13 +602,17 @@ to symbolic regression problems.  Here, the
 agent observes points along the curve of a function, and must write a
 program that fits those points.  We initially equip our learner with
 addition, multiplication, and division, and task it with solving
-100 symbolic regression problems, each either a polynomial of degree
-1--4 or a rational function.  The recognition model is a
+100 symbolic regression problems, each either a polynomial or rational function.  The recognition model is a
 convolutional network that observes an image of the target function's
 graph (Fig.~\ref{functions}) --- visually, different kinds of
 polynomials and rational functions produce different kinds of graphs,
 and so the recognition model can learn to look at a graph and predict
-what kind of function best explains it.  %% A key difficulty, however, is
+what kind of function best explains it.
+These programs can contain real numbers,
+which we set with gradient descent,
+and penalize using real numbers by
+incorporating a BIC penalty into the likelihood model $\probability[x|p]$.
+%% A key difficulty, however, is
 %% that these problems are best solved with programs containing real
 %% numbers.  Our solution to this difficulty is to enumerate
 %%  programs with real-valued parameters, and then fit those
@@ -623,9 +636,9 @@ what kind of function best explains it.  %% A key difficulty, however, is
 most of which are templates for polynomials of different orders or ratios of polynomials.
 It also learns to find programs that minimize the number of continuous degrees of freedom.
 For example, it learns to represent linear functions with the program
-\code{(* real (+ x real))}, which has two continuous degrees of freedom, and represents quartic functions using the invented DSL primitive $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
+\code{(* real (+ x real))}, which has two continuous degrees of freedom, and represents quartic functions using the discovered DSL primitive $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
 which has five continuous parameters.
-This phenomenon arises from our Bayesian framing --- both the implicit bias towards shorter programs and the likelihood model's BIC penalty.
+This phenomenon arises from our Bayesian framing.
 
 \section{Learning from Scratch}
 A long-standing dream within the program induction community
@@ -639,16 +652,16 @@ and it is unclear (and we believe unlikely)
 that this dream could ever be realized in its fullness.
 How far can our system push in this direction?
 
-``Learning from scratch'' is subjective, but we believe a reasonable
-starting point is the set of primitives provided in McCarthy's 1959
-Lisp implementation~\cite{mccarthy1960recursive}: these include
-conditionals, \code{lambda}'s, recursion, arithmetic, and the basic
-Lisp operators \code{cons}, \code{car}, \code{cdr}, and \code{nil}.
+``Learning from scratch'' is subjective, but a reasonable
+starting point is the set of primitives provided in 1959
+Lisp~\cite{mccarthy1960recursive}: these include
+conditionals, recursion, arithmetic, and the 
+list operators \code{cons}, \code{car}, \code{cdr}, and \code{nil}.
 A sensible and modest goal is to start with
 1959 Lisp primitives,
 and then recover a DSL that
 more closely resembles modern functional languages like Haskell and OCaml.
-Recall (Section~\ref{sequences})
+Recall (Sec.~\ref{sequences})
 that we initially provided our system with modern functional programming routines like
 \code{map} and \code{fold}.
 
@@ -676,34 +689,49 @@ and can in principle recover many of the amenities of modern programming systems
 provided it is given enough computational power and a suitable
 spectrum of programming exercises.
 
+\section{Learning Generative Models}
+
+We apply \system to learning generative models for images (Figure~\ref{geomCompiled}) and text (Figure~\ref{regularExpressions}).
+For images, we learn programs in a LOGO/Turtle-like representation,
+and the task is to look at an image and explain it in terms of a graphics program.
+For text, we learn probabilistic regular expressions -- a simple probabilistic program for which inference is always tractable -- and the task is to
+infer a regex from a set of strings.
+\begin{figure}[t]
+  \includegraphics[width=\columnwidth]{figures/geomCompiled.eps} 
+  \caption{
+  Top left: Example training tasks. Top right: samples from the learned DSL.
+ Bottom: \% holdout testing tasks solved (middle); on the sides are averaged samples from the DSL
+  before any training (left) and after last iteration (right).}\label{geomCompiled}
+
+  \end{figure}
 
 \section{Quantitative Results}\label{quantitative}
 
-We compare with ablations of our model on held out tasks.
-The purpose of this ablation study is 
-both to examine the role of each component of \systemEnding,
-as well as to compare with
-prior approaches in the literature:
-a head-to-head
-comparison of program synthesizers is complicated by the fact that
-each system, including ours, makes idiosyncratic 
-assumptions about the space of programs and the statement of tasks.
+%% We compare with ablations of our model on held out tasks.
+%% The purpose of this ablation study is 
+%% both to examine the role of each component of \systemEnding,
+%% as well as to compare with
+%% prior approaches in the literature:
+%% a head-to-head
+%% comparison of program synthesizers is complicated by the fact that
+%% each system, including ours, makes idiosyncratic 
+%% assumptions about the space of programs and the statement of tasks.
 
-Nevertheless, much prior work can be modeled within our setup. 
-We compare with the following ablations (Tbl~\ref{baselineComparisons};
-Fig~\ref{learningCurves}):
-\\\noindent \textbf{No NN:} lesions the recognition model.
-\\\noindent \textbf{NPS}, which does not learn the DSL,
-instead learning the recognition model
-from samples drawn from the fixed DSL.
-We call this NPS (Neural Program Synthesis)
-because this is closest to how
-RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
-\\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
-only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
-\\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
-but instead learns the parameters of the DSL ($\theta$), learning the parameters of a PCFG while not learning any of the structure.
-\\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first search step.
+%% Nevertheless, much prior work can be modeled within our setup. 
+%% We compare with the following ablations (Tbl~\ref{baselineComparisons};
+%% Fig~\ref{learningCurves}):
+%% \\\noindent \textbf{No NN:} lesions the recognition model.
+%% \\\noindent \textbf{NPS}, which does not learn the DSL,
+%% instead learning the recognition model
+%% from samples drawn from the fixed DSL.
+%% We call this NPS (Neural Program Synthesis)
+%% because this is closest to how
+%% RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
+%% \\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
+%% only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
+%% \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
+%% but instead learns the parameters of the DSL ($\theta$), learning the parameters of a PCFG while not learning any of the structure.
+%% \\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first search step.
 %For each domain,
 %% We are interested both in how many tasks the
 %% agent can solve and how quickly it can find those solutions.
@@ -718,14 +746,15 @@ but instead learns the parameters of the DSL ($\theta$), learning the parameters
 
 
 
-\begin{figure}\centering
-  \includegraphics[width = 4.5cm]{figures/listLearningCurve.eps} 
-  \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}
+\begin{figure*}\centering
+  \includegraphics[width = 4.5cm]{figures/listLearningCurve.eps} \qquad
+  \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}\qquad
   \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}
   \caption{Learning curves for \system both with (\orange{in orange}) and without
-  (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved. Dashed lines: Average solve time.}\label{learningCurves}
-\end{figure}
+  (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved. Dashed lines: Average solve time, averaged only over those tasks that are solved.}\label{learningCurves}
+\end{figure*}
 
+\begin{comment}
 \section{Related Work}
  Our work is far from the first for learning to learn programs,
  an idea that goes back to Solomonoff~\cite{solomonoff1989system}:
@@ -751,10 +780,10 @@ We see these prior works as operating in a different regime: typically, they tra
  Bayesian Program
  Learning (BPL; see~\citep{lake2015human,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
- 
+  \end{comment} 
 \section{Discussion}
 
-\parbox{0.58\textwidth}{
+
 
 %\paragraph{Outlook.}
 We contribute an algorithm, \systemEnding, that learns to program by
@@ -769,22 +798,9 @@ Two immediate goals are to integrate more sophisticated neural recognition
 models~\cite{devlin2017robustfill} and program
 synthesizers~\cite{solar2008program}, which may improve performance in some
 domains over the generic methods used here.
-We are in the process of applying our algorithm to generative programs and
-prototyped this with a turtle-like domain: Figure~\ref{geomCompiled} gives some
-preliminary results for turtle graphics  --- see Section 1 of the supplementary material for more
-details.  Another direction is to explore DSL meta-learning: can we find a
+Another direction is to explore DSL meta-learning: can we find a
 \emph{single} universal primitive set that could effectively bootstrap DSLs for
 new domains, including the three domains considered,  but also many others?
-}\hfill
-\begin{minipage}{0.4\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figures/geomCompiled.eps} 
-  \captionof{figure}{
-  Top left: Example training tasks. Top right: samples from the learned DSL.
- Bottom: \% holdout testing tasks solved (middle), on sides are the averaged samples from the DSL
-  before any training (left) and after last iteration (right).}
-\label{geomCompiled}
-\end{minipage}
 
 \bibliography{main}
 \bibliographystyle{icml2018}
