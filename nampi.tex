@@ -351,12 +351,12 @@ expressive DSL.  %% Even with a good DSL, program search may be
 %% so we train a
 %% neural network to guide the search procedure.
 
-\section{Overview of \system}
+%\section{Overview of \system}
 
 We take inspiration from several ways that skilled human
 programmers have learned to code: Skilled coders build libraries of
 reusable subroutines that are shared across related programming tasks,
-and can be composed to generate increasingly complex and powerful
+and can be composed to generate increasingly complex
 subroutines.  In text editing, a good library should support routines
 for splitting on characters, but also specialize these routines to
 split on frequent delimiters such as spaces or commas. Skilled coders
@@ -364,7 +364,7 @@ also learn to recognize what kinds of programming idioms and library
 routines would be useful for solving the task at hand, even if they
 cannot instantly work out the details.  In text editing, one might
 learn that if outputs are consistently shorter than inputs, removing
-characters is likely to be part of the solution.%% ; if every output
+characters is likely part of the solution.%% ; if every output
 %% contains a constant substring (e.g., ``Dr.''), inserting or appending
 %% that constant string is likely to be a subroutine.
 
@@ -391,7 +391,7 @@ expands.
 %% algorithm incorporates these insights by iterating
 Concretely, our algorithm iterates through three steps. 
 The \textbf{Wake} step takes a given set of \textbf{tasks}, typically
-several hundred, and searches for compact programs that solve these tasks
+several hundred, and searches for compact programs that solve these tasks,
 guided by the current DSL and neural network.
 The \textbf{Sleep-G} step grows the DSL (or \textbf{G}enerative model) 
 which allows the agent to more compactly
@@ -431,7 +431,7 @@ write programs in the current DSL, in the spirit of ``amortized'' or
 %% Our algorithm then constructs
 %% its own DSL for expressing solutions in the domain (Tbl.~\ref{initialExampleDSL}).
 
-Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
+\textbf{Related work.} Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
 both in classic symbolic program learning approaches (e.g., Metagol:~\cite{muggleton2015meta},
 FlashFill:~\cite{gulwani2011automating}),
 neural approaches  (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids of neural and
