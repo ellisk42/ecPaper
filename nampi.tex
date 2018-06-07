@@ -177,30 +177,28 @@
 Much of everyday human thinking and learning can be understood in
 terms of program induction: constructing a procedure that maps inputs
 to desired outputs, based on observing example input-output pairs.
-People can induce programs flexibly across many different domains, and
-remarkably, often from just one or a few examples.  For instance, if
+People can induce programs flexibly across many different domains, often from just one or a few examples.  For instance, if
 shown that a text-editing program should map ``Jane Morris Goodall''
 to ``J. M. Goodall'', we can guess it maps ``Richard Erskine Leakey''
 to ``R. E. Leakey''; if instead the first input mapped to
-``Dr. Jane'', ``Goodall, Jane'', or ''Morris'', we might have guessed
-the latter should map to ``Dr. Richard'', ``Leakey, Richard'', or
-``Erskine'', respectively.
+``Dr. Jane'' or ``Goodall, Jane'', we might guess
+the latter should map to ``Dr. Richard'' or ``Leakey, Richard'',
+ respectively.
 
 The FlashFill system~\cite{gulwani2011automating} embedded in
 Microsoft Excel solves problems such as these and is probably the best
 known practical program-induction algorithm, but researchers in
-programming languages and AI have built successful program induction
-algorithms for many applications, such as handwriting recognition and
+programming languages and AI have had successes in many domains, such as handwriting recognition and
 generation~\cite{lake2015human}, procedural
 graphics~\cite{ellis2017learning}, question
 answering~\cite{johnson2017clevr} and robot motion
 planning~\cite{devlin2017neural}.  These systems
 work in different ways, but most hinge upon a carefully engineered
 \textbf{Domain Specific Language (DSL)}.  This is especially true for
-systems such as FlashFill that aim to induce a wide range of programs
+systems like FlashFill that induce a wide range of programs
 very quickly, in a few seconds or less.  DSLs constrain the search
 over programs with strong prior knowledge in the form of a restricted
-set of programming primitives tuned to the needs of the domain: for
+set of programming primitives finely tuned to the domain: for
 text editing, these are operations like appending and
 splitting on characters.
 
@@ -331,7 +329,7 @@ to help write programs in the increasingly rich DSL.
 \end{tabular}}
 \caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}
 \end{table*}
-Because any computable learning problem can in principle be cast as
+Because any learning problem can in principle be cast as
 program induction, it is important to delimit our focus.  In contrast
 to computer assisted programming~\cite{solar2008program} or genetic
 programming~\cite{DBLP:books/daglib/0070933}, our goal is not to automate software
@@ -339,7 +337,7 @@ engineering, or to synthesize large bodies of code starting from scratch.  Ours 
 capturing the human ability to learn to think flexibly and efficiently
 in new domains --- to learn what you need to know about a domain so you
 don't have to solve new problems starting from scratch.  We are
-focused on the kinds of problems that people solve relatively
+focused on problems that people solve relatively
 quickly, once they acquire the relevant domain expertise.  These
 correspond to tasks solved by short programs --- if you have an
 expressive DSL.  %% Even with a good DSL, program search may be
@@ -383,7 +381,7 @@ approximate Bayesian program induction, jointly trained with a
 \textbf{generative model} for programs encoded in the DSL, in the
 spirit of the Helmholtz machine~\cite{hinton1995wake}. The
 recognition model ensures that searching for programs remains
-tractable even as the DSL (and hence the search space for programs)
+tractable even as the DSL %% (and hence the search space for programs)
 expands.
 
 
@@ -559,8 +557,8 @@ programming languages and AI literatures~\cite{lau2001programming},
 and algorithms that learn text editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
 This prior work presumes a hand-engineered DSL.
 Here we will instead start out with generic sequence manipulation
-primitives and recover many of the higher-level building blocks that have
-made these other text editing systems successful.
+primitives.%%  and recover many of the higher-level building blocks that have
+%% made these other text editing systems successful.
 %% Because our enumerative search procedure cannot generate string %
 %% constants, we instead enumerate programs with string-valued
 %% parameters.  For example, to learn a program that prepends ``Dr.'', we
@@ -676,15 +674,15 @@ building lists of natural numbers between an interval.
 %% for acquiring this abstract knowledge
 %% from less than two dozen problems.
 
-To be clear, we believe that program learners should \emph{not}
+We believe that program learners should \emph{not}
 start from scratch,
 but instead should start from
 a rich, domain-agnostic
-basis like those embodied in the standard libraries of modern programming languages.
+basis like those embodied in the standard libraries of modern  languages.
 What this experiment shows is that \system doesn't \emph{need} to start from a rich basis,
 and can in principle recover many of the amenities of modern programming systems,
 provided it is given enough computational power and a suitable
-spectrum of programming exercises.
+spectrum of tasks.% programming exercises.
 
 \section{Learning Generative Models}
 
@@ -705,13 +703,13 @@ infer a regex from a set of strings.
 \section{Quantitative Results}\label{quantitative}
 We evaluate  on held-out testing tasks,
 measuring how many
-tasks are solved and how long it takes to solve them~\ref{learningCurves}.
+tasks are solved and how long it takes to solve them (Fig.~\ref{learningCurves}).
 Prior to any learning,
 the system cannot find solutions for most of the tasks,
 and those it does solve take a long time;
 with more wake/sleep iterations,
-we converge upon DSLs and recognition models that
-more closely match the domains.
+we converge upon DSLs and recognition models 
+more closely matching the domain.
 
 %% We compare with ablations of our model on held out tasks.
 %% The purpose of this ablation study is 
