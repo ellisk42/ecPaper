@@ -22,6 +22,7 @@
 \newcommand{\systemEnding}{\textsc{DreamCoder}}
 \newcommand{\lowerBound}{\mathscr{L}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
+\newcommand{\scode}[1]{{\tiny\texttt{#1}}}
 \newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
 % Use the following line for the initial blind version submitted for review:
 \usepackage[nohyperref]{icml2018}
@@ -699,6 +700,44 @@ infer a regex from a set of strings.
   before any training (left) and after last iteration (right).}\label{geomCompiled}
 
   \end{figure}
+\begin{figure}\centering
+\tiny
+  \begin{tabular}{ccc}
+\multicolumn{3}{c}{Tasks and synthesized programs:}\\
+cut&F &Moss Side \\ 
+control&CL &Burnage \\
+  control&F & City Centre\\
+cut& PCFL& Brooklands \\
+    \hline
+\scode{\textbackslash l*\textbackslash l} & \scode{((\textbackslash u\textbackslash u)*)\textbar F}& \scode{( \textbar\textbackslash u\textbackslash w*)*} \\
+    \bottomrule
+  \end{tabular}
+  \quad
+    \begin{tabular}{l}
+\multicolumn{1}{c}{DSL:}\\
+$f_1() = $ \scode{\textbackslash u\textbackslash w*}\\
+$f_2(x) = $ \scode{($x$|$f_1$)*} $=$ \scode{($x$|\textbackslash u\textbackslash w*)*}\\
+$f_3(x) =  f_2(\scode{space}) = $\scode{( \textbar\textbackslash u\textbackslash w*)*}\\
+\hline
+$f_4(x) = $ \scode{($x$*$x$)} (equivalent to regex `plus')\\
+$f_5() = f_4(\scode{\textbackslash l}) = \scode{\textbackslash l*\textbackslash l}$\\
+    \bottomrule
+  \end{tabular}
+\\
+\begin{tabular}{ccc}
+\multicolumn{3}{c}{samples from synthesized programs:}\\
+ \scode{\textbackslash l*\textbackslash l} & \scode{((\textbackslash u\textbackslash u)*)\textbar F}& \scode{( \textbar\textbackslash u\textbackslash w*)*} \\
+\hline
+ya&DQDF & Vr DR \\ 
+fcbadcvoaobvjf&F &BeF lKQ \\
+mgs&F& W\\
+piljnl& KI& kqBfZ 0 \\
+    \bottomrule
+  \end{tabular}
+            \centering 
+            \includegraphics[width=.25\textwidth]{figures/nampiregexjoshcurve.png}   
+\caption{regex stuff}
+\end{figure}
 
 \section{Quantitative Results}\label{quantitative}
 We evaluate  on held-out testing tasks,
