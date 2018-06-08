@@ -29,7 +29,7 @@
 
 \usepackage{xcolor}
 \definecolor{pop1}{HTML}{1F78b4}
-\definecolor{pop2}{HTML}{297F23}
+\definecolor{pop2}{HTML}{164C13}
 \definecolor{pop3}{HTML}{d95F02}
 \definecolor{orange}{HTML}{d95F02}
 \definecolor{teal}{HTML}{1b9e77}
@@ -130,6 +130,7 @@
 \icmlauthor{Kevin Ellis}{MIT}
 \icmlauthor{Lucas Morales}{MIT}
 \icmlauthor{Matthias}{MIT}
+\icmlauthor{Maxwell Nye}{MIT}
 \icmlauthor{Armando Solar-Lezama}{MIT}
 \icmlauthor{Joshua B. Tenenbaum}{MIT}
 \end{icmlauthorlist}
@@ -158,7 +159,7 @@
 % Remove it (just {}) if you do not need this facility.
 
 %\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
-\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
+%\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
 %% \begin{abstract}
 %%   Successful approaches to program induction require a hand-engineered
@@ -504,10 +505,11 @@ which minimizes the KL between the distribution predicted by $q$ and the true po
 
 
 
+\section{Experiments}
 
-
-\section{Programs that manipulate sequences}\label{sequences}
-We apply \system to list processing (Section~\ref{listSection}) and text editing (Section~\ref{textSection}),
+\subsection{Programs that manipulate sequences}\label{sequences}
+We apply \system to list processing %% (Section~\ref{listSection})
+and text editing, %% (Section~\ref{textSection})
 using a bidirectional GRU~\cite{cho2014learning} for
 the recognition model, and initially providing the system with generic sequence manipulation primitives:
 \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
@@ -516,26 +518,12 @@ the recognition model, and initially providing the system with generic sequence 
 
 
 
-\subsection{List Processing}\label{listSection}
-Synthesizing programs that manipulate data structures is a widely studied
+%\subsubsection{List Processing}\label{listSection}
+\textbf{List Processing:} Synthesizing programs that manipulate data structures is a widely studied
 problem in the programming languages community~\cite{feser2015synthesizing}.
 %with applications to computer aided programming~\cite{solar2008program}.
 We consider this problem within the context of learning functions that
 manipulate lists, and also perform arithmetic operations upon lists (Table~\ref{listExamples}).
-\begin{figure}\centering
-  \begin{tabular}{lll}
-    \toprule
-    Name & Input & Output \\\midrule
-    repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
-%    drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
-    rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
-%    count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
-    keep-mod-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
-    product & [7\, 1\, 6\, 2] & 84 \\
-    \bottomrule
-  \end{tabular}
-  \captionof{table}{Some tasks in our list function domain.}\label{listExamples}
-\end{figure}
 We created 236 human-interpretable list manipulation tasks, each with 15
 input/output examples.
 %% Our data set is interesting in three major ways: many of the tasks
@@ -549,17 +537,30 @@ input/output examples.
 %% evaluating  on a 50/50 test/train split.
 In solving these tasks, the system
 composed 38 new subroutines, and rediscovered the higher-order
-function \code{filter} (Tbl.~\ref{initialExampleDSL}, left).%% , yielding a more expressive DSL more closely
+function \code{filter} ($f_1$ in Table~\ref{initialExampleDSL}, left).%% , yielding a more expressive DSL more closely
 %% matching the domain (Tbl.~\ref{initialExampleDSL}, left).
+\begin{figure}[b]\centering
+  \begin{tabular}{lll}
+    \toprule
+    Name & Input & Output \\\midrule
+    repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
+%    drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
+    rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
+%    count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
+    keep-mod-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
+    product & [7\, 1\, 6\, 2] & 84 \\
+    \bottomrule
+  \end{tabular}
+  \captionof{table}{Some tasks in our list function domain.}\label{listExamples}
+\end{figure}
 
-\subsection{Text Editing}\label{textSection}
-Synthesizing programs that edit text is a classic problem in the
-programming languages and AI literatures~\cite{lau2001programming},
-and algorithms that learn text editing programs ship in Microsoft Excel~\cite{gulwani2011automating}.
-This prior work presumes a hand-engineered DSL.
-Here we will instead start out with generic sequence manipulation
-primitives.%%  and recover many of the higher-level building blocks that have
-%% made these other text editing systems successful.
+%\subsubsection{Text Editing}\label{textSection}
+\textbf{Text Editing:} Synthesizing programs that edit text is a classic problem in the
+programming languages and AI literatures~\cite{gulwani2011automating,lau2001programming}.
+This prior work uses hand-engineered DSLs.
+Here, we instead start out with generic sequence manipulation
+primitives and recover many of the higher-level building blocks that 
+have made these other systems successful.
 %% Because our enumerative search procedure cannot generate string %
 %% constants, we instead enumerate programs with string-valued
 %% parameters.  For example, to learn a program that prepends ``Dr.'', we
@@ -571,7 +572,7 @@ primitives.%%  and recover many of the higher-level building blocks that have
 %% synthesize programs containing real numbers, but using gradient
 %% descent instead of dynamic programming.
 
-We trained our system on 109 synthetic tasks, with 4 input/output examples each.
+We trained our system on 109 automatically-generated text editing tasks, with 4 input/output examples each.
 After three iterations, it assembles a DSL containing a dozen new functions (Fig.~\ref{initialExampleDSL}, center) solving
 all the training tasks.
 But, how well does the  learned DSL generalized to real text-editing scenarios?
@@ -583,14 +584,14 @@ solving them in an average of 29 seconds.
 As of the 2017 SyGuS competition,
 the best-performing algorithm solves 79.6\% of the problems.
 But, SyGuS comes with a
-different hand-engineered DSL \emph{for each text editing problem}.%\footnote{SyGuS text editing problems also prespecify the set of allowed string constants for each task. For these experiments, our system did not use this assistance.}
+different hand-engineered DSL \emph{for each text editing problem}. %\footnote{SyGuS text editing problems also prespecify the set of allowed string constants for each task. For these experiments, our system did not use this assistance.}
 Here  we learned a single DSL
 that applied generically to
 all of the tasks,
 and perform comparably to the best
 prior work.
 
-\section{Symbolic Regression: Programs from visual input}\label{regressionSection}
+\subsection{Symbolic Regression: Programs from visual input}\label{regressionSection}
 We apply \system
 to symbolic regression problems.  Here, the
 agent observes points along the curve of a function, and must write a
@@ -631,13 +632,13 @@ incorporating a BIC penalty into the likelihood model $\probability[x|p]$.
 \end{figure}
 We learn a DSL containing 13 new functions,
 mainly templates for polynomials of different orders or ratios of polynomials.
-It also learns to find programs minimizing the number of continuous parameters ---
+The model also learns to find programs minimizing the number of continuous parameters ---
 learning to represent linear functions with 
 \code{(* real (+ x real))}, which has two continuous parameters, and represents quartic functions using $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
 which has five continuous parameters.
 This phenomenon arises from our Bayesian framing.
 
-\section{Learning from Scratch}
+\subsection{Learning from Scratch}
 A long-standing dream within the program induction community
 is ``learning from scratch'': starting with a \emph{minimal} Turing-complete programming language,
 and then learning to solve a wide swath of
@@ -645,9 +646,10 @@ induction problems~\cite{solomonoff1964formal}.
 All existing systems,
 including ours,
 fall far short of this dream,
-and it is unclear (and we believe unlikely)
+%and it is unclear (and we believe unlikely)
+and we believe it is unlikely
 that this dream could ever be fully realized.
-How far can we push in this direction?
+%How far can we push in this direction?
 ``Learning from scratch'' is subjective, but a reasonable
 starting point is the set of primitives provided in 1959
 Lisp~\cite{mccarthy1960recursive}: these include
@@ -685,13 +687,13 @@ and can in principle recover many of the amenities of modern programming systems
 provided it is given enough computational power and a suitable
 spectrum of tasks.% programming exercises.
 
-\section{Learning Generative Models}
+\subsection{Learning Generative Models}
 
-We apply \system to learning generative models for images (Figure~\ref{geomCompiled}) and text (Figure~\ref{regularExpressions}).
-For images, we learn programs in a LOGO/Turtle-like representation,
+We apply \system to learning generative models for images and text (Fig.~\ref{geomCompiled}-\ref{regularExpressions}).
+For images, we learn programs controlling a simulated ``pen,''
 and the task is to look at an image and explain it in terms of a graphics program.
 For text, we learn probabilistic regular expressions -- a simple probabilistic program for which inference is always tractable -- and the task is to
-infer a regex from a set of strings.
+infer a regex from a collection of strings.
 \begin{figure}[t]
   \includegraphics[width=\columnwidth]{figures/geomCompiled.eps} 
   \caption{
@@ -702,7 +704,7 @@ infer a regex from a set of strings.
   \end{figure}
 \begin{figure}\centering
 \tiny
-  \begin{tabular}{ccc}
+  \begin{tabular}{lll}
 \multicolumn{3}{c}{Tasks and synthesized programs:}\\
 cut&F &Moss Side \\ 
 control&CL &Burnage \\
@@ -715,12 +717,12 @@ cut& PCFL& Brooklands \\
   \quad
     \begin{tabular}{l}
 \multicolumn{1}{c}{DSL:}\\
-$f_1() = $ \scode{\textbackslash u\textbackslash w*}\\
+$f_1 = $ \scode{\textbackslash u\textbackslash w*}\\
 $f_2(x) = $ \scode{($x$|$f_1$)*} $=$ \scode{($x$|\textbackslash u\textbackslash w*)*}\\
 $f_3(x) =  f_2(\scode{space}) = $\scode{( \textbar\textbackslash u\textbackslash w*)*}\\
 \hline
 $f_4(x) = $ \scode{($x$*$x$)} (equivalent to regex `plus')\\
-$f_5() = f_4(\scode{\textbackslash l}) = \scode{\textbackslash l*\textbackslash l}$\\
+$f_5 = f_4(\scode{\textbackslash l}) = \scode{\textbackslash l*\textbackslash l}$\\
     \bottomrule
   \end{tabular}
 \\
@@ -736,10 +738,10 @@ piljnl& KI& kqBfZ 0 \\
   \end{tabular}
             \centering 
             \includegraphics[width=.25\textwidth]{figures/nampiregexjoshcurve.png}   
-\caption{regex stuff}
+\caption{regex stuff}\label{regularExpressions}
 \end{figure}
 
-\section{Quantitative Results}\label{quantitative}
+\subsection{Quantitative Results}\label{quantitative}
 We evaluate  on held-out testing tasks,
 measuring how many
 tasks are solved and how long it takes to solve them (Fig.~\ref{learningCurves}).
