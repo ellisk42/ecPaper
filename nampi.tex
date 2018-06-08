@@ -3,6 +3,7 @@
 
 \documentclass{article}
 
+\usepackage{dblfloatfix}    % To enable figures at the bottom of page
 % Recommended, but optional, packages for figures and better typesetting:
 \usepackage{microtype}
 \usepackage{graphicx}
@@ -323,13 +324,13 @@ to help write programs in the increasingly rich DSL.
     \popp{$f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}}\\
     \hspace{\helpSize}\emph{($f_4$: 4th order polynomial)}\\
     \popp{$f_5($\code{x}$)\,=\,$\code{(/ real x)}}\\
-    \popp{$f_6($\code{x}$)\,=\,$\code{($f_4$ ($f_0$ x))}}\\
+    \popp{$f_6($\code{x}$)\,=\,$\code{($f_5$ ($f_0$ x))}}\\
     \hspace{\helpSize}\emph{($f_6$: rational function)}\\
 
   \end{tabular}
   \\\bottomrule\\
-\end{tabular}}
-\caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}
+\end{tabular}}\vspace{-0.5cm}
+\caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}\vspace{-0.5cm}
 \end{table*}
 Because any learning problem can in principle be cast as
 program induction, it is important to delimit our focus.  In contrast
@@ -470,9 +471,11 @@ and so we instead marginalize over finite sets of programs, called \textbf{front
 \begin{equation}\label{lowerBound}
   \lowerBound  \triangleq\probability[\mathcal{D}]\prod_{x\in X}\sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D}]
 \end{equation}
-We alternate maximization w.r.t. $\left\{\mathcal{F}_x \right\}_{x\in X}$ (\textbf{Wake}) and $\mathcal{D}$  (\textbf{Sleep-G}):
+We alternate maximization of $\lowerBound$ w.r.t. $\left\{\mathcal{F}_x \right\}_{x\in X}$ %% (\textbf{Wake})
+and $\mathcal{D}$:  %% (\textbf{Sleep-G})
 
-\\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the programs.} Here $\mathcal{D}$ is fixed and we
+
+\\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the frontiers.} Here $\mathcal{D}$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
 $\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D}]$
 is large.
@@ -510,7 +513,7 @@ which minimizes the KL between the distribution predicted by $q$ and the true po
 \subsection{Programs that manipulate sequences}\label{sequences}
 We apply \system to list processing %% (Section~\ref{listSection})
 and text editing, %% (Section~\ref{textSection})
-using a bidirectional GRU~\cite{cho2014learning} for
+using a GRU~\cite{cho2014learning} for
 the recognition model, and initially providing the system with generic sequence manipulation primitives:
 \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
 \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
@@ -540,18 +543,18 @@ composed 38 new subroutines, and rediscovered the higher-order
 function \code{filter} ($f_1$ in Table~\ref{initialExampleDSL}, left).%% , yielding a more expressive DSL more closely
 %% matching the domain (Tbl.~\ref{initialExampleDSL}, left).
 \begin{figure}[b]\centering
-  \begin{tabular}{lll}
+\vspace{-0.5cm}  \begin{tabular}{lll}
     \toprule
     Name & Input & Output \\\midrule
-    repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
+    repeat-3 & [7\, 0] & [7\, 0\, 7\, 0\, 7\, 0] \\
 %    drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
     rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
 %    count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
-    keep-mod-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
+    keep-div-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
     product & [7\, 1\, 6\, 2] & 84 \\
     \bottomrule
   \end{tabular}
-  \captionof{table}{Some tasks in our list function domain.}\label{listExamples}
+  \captionof{table}{Some tasks in our list function domain.}\label{listExamples}\vspace{-0.5cm}
 \end{figure}
 
 %\subsubsection{Text Editing}\label{textSection}
@@ -597,11 +600,12 @@ to symbolic regression problems.  Here, the
 agent observes points along the curve of a function, and must write a
 program that fits those points.  We initially equip our learner with
 addition, multiplication, and division, and task it with solving
-100 symbolic regression problems, each either a polynomial or rational function.  The recognition model is a
+100 %% symbolic regression
+problems, each either a polynomial or rational function.  The recognition model is a
 convnet that observes an image of the target function's
 graph (Fig.~\ref{functions}) --- visually, different kinds of
 polynomials and rational functions produce different kinds of graphs,
-and so the recognition model can  look at a graph and predict
+and so the convnet can  look at a graph and predict
 what kind of function best explains it.
 These programs can contain real numbers,
 which we set with gradient descent,
@@ -616,7 +620,7 @@ incorporating a BIC penalty into the likelihood model $\probability[x|p]$.
 %% We define the likelihood model, $\probability[x|p]$, by assuming a Gaussian noise model for the input/output examples,
 %% and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
 \begin{figure}\vspace{-0.0cm} \newcommand{\functionSize}{1.1cm}\centering
-  \begin{minipage}[c]{0.3\columnwidth}
+  \begin{minipage}[c]{0.3\columnwidth}%\vspace{-0.3cm}
   \includegraphics[width = \functionSize]{figures/functions/6.png}
   \includegraphics[width = \functionSize]{figures/functions/48.png}\\
   \includegraphics[width = \functionSize]{figures/functions/102.png}
@@ -627,7 +631,7 @@ incorporating a BIC penalty into the likelihood model $\probability[x|p]$.
     \includegraphics[width = \functionSize]{figures/functions/149.png}
   \end{minipage}
   \begin{minipage}[c]{0.69\columnwidth}    
-    \caption{Recognition model input for symbolic regression. DSL learns subroutines for polynomials (top rows) and rational functions (bottom) while the recognition  model jointly learns to look at a graph of the function (left) and predict which learned subroutines best explain the observation.}\label{functions}
+    \caption{Recognition model input for symbolic regression. DSL learns subroutines for polynomials (top rows) and rational functions (bottom) while the recognition  model jointly learns to look at a graph of the function (left) and predict which learned subroutines best explain the observation.}\label{functions}\vspace{-1cm}
         \end{minipage}
 \end{figure}
 We learn a DSL containing 13 new functions,
@@ -663,14 +667,14 @@ Recall (Sec.~\ref{sequences})
 that we initially provided our system with functional programming routines like
 \code{map} and \code{fold}.
 
-We ran the following experiment: \system was provided with a subset of
-the 1959 Lisp primitives, and tasked with solving 22 functional
+We ran the following experiment: \system was given a subset of
+the 1959 Lisp primitives, and tasked with solving 22
 programming exercises.  After running for 93 hours on 64 CPUs, our
 algorithm solves these exercises, along the way assembling a DSL
 with a modern repertoire of
 functional programming idioms and subroutines, including \code{map},
 \code{fold}, \code{zip}, \code{unfold}, \code{index}, \code{length},
-and simple arithmetic operations like 
+and  arithmetic operations like 
 building lists of natural numbers between an interval.
 %% We did not use the recognition model for this experiment:
 %% a bottom-up pattern recognizer is of little use
@@ -741,7 +745,7 @@ piljnl& KI& kqBfZ 0 \\
 \caption{regex stuff}\label{regularExpressions}
 \end{figure}
 
-\subsection{Quantitative Results}\label{quantitative}
+\subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
 We evaluate  on held-out testing tasks,
 measuring how many
 tasks are solved and how long it takes to solve them (Fig.~\ref{learningCurves}).
@@ -795,37 +799,10 @@ more closely matching the domain.
   \includegraphics[width = 4.5cm]{figures/listLearningCurve.eps} \qquad
   \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}\qquad
   \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}
-  \caption{Learning curves for \system both with (\orange{in orange}) and without
-    (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved w/ 10m timeout. Dashed lines: Average solve time, averaged only over tasks that are solved.}\label{learningCurves}
+\vspace{-0.4cm}  \caption{Learning curves for \system both with (\orange{in orange}) and without
+    (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved w/ 10m timeout. Dashed lines: Average solve time, averaged only over tasks that are solved.}\label{learningCurves}\vspace{-0.5cm}
 \end{figure*}
 
-\begin{comment}
-\section{Related Work}
- Our work is far from the first for learning to learn programs,
- an idea that goes back to Solomonoff~\cite{solomonoff1989system}:
-
- \noindent \textbf{Deep learning:} Much recent work in the ML community has
- focused on creating neural networks that regress from
- input/output examples to programs~\cite{devlin2017robustfill,devlin2017neural,menon2013machine,balog2016deepcoder}. %This family of work is closest to our RF/DC baseline.
-\systemEnding's recognition model draws heavily from this line of work, particularly from~\cite{menon2013machine}.
-We see these prior works as operating in a different regime: typically, they train with strong supervision (i.e., with annotated ground-truth programs) on massive data sets (i.e., hundreds of millions~\cite{devlin2017robustfill}).
- Our work   considers a weakly-supervised regime where ground truth programs are not provided and
- the agent must learn from at most a few hundred tasks,
- which is facilitated by our ``Helmholtz machine'' style recognition model.%(Sec.~\ref{recognitionSection}).
- 
- \noindent \textbf{Inventing new subroutines for program induction:}
- Several program induction algorithms, most prominently the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}, take as their goal to learn new, reusable subroutines that are shared in a multitask setting. We find this work inspiring and motivating,
- and extend it along two dimensions: (1) we propose a new algorithm for
- inducing reusable subroutines, based on Fragment Grammars~\cite{tim};
- and (2) we show how to combine these techniques with bottom-up neural recognition models.
- Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10}, Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, and predicate invention in Inductive Logic Programming~\cite{DBLP:conf/ecai/LinDETM14}.
- 
-\noindent\textbf{Bayesian Program
- Learning:} Our work is an instance of
- Bayesian Program
- Learning (BPL; see~\citep{lake2015human,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
- and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
-  \end{comment} 
 \section{Discussion}
 
 
@@ -833,18 +810,19 @@ We see these prior works as operating in a different regime: typically, they tra
 %\paragraph{Outlook.}
 We contribute an algorithm, \systemEnding, that learns to program by
 bootstrapping a DSL with new domain-specific primitives that the algorithm
-itself discovers, together with a neural recognition model that learns how to
-efficiently deploy the DSL on new tasks. We believe this integration of top-down
-symbolic representations and bottom-up neural nets --- both of them learned
---- can help make program induction systems more generally useful for AI. Many
-directions remain open.
+itself discovers, together with a neural recognition model that learns to
+efficiently deploy the DSL on new tasks. %% We believe this integration of top-down
+%% symbolic representations and bottom-up neural nets --- both of them learned
+%% --- can help make program induction systems more generally useful for AI. 
+%Many
+%directions remain open.
 %\paragraph{Future.}
-Two immediate goals are to integrate more sophisticated neural recognition
+Two immediate future goals are to integrate more sophisticated neural recognition
 models~\cite{devlin2017robustfill} and program
 synthesizers~\cite{solar2008program}, which may improve performance in some
 domains over the generic methods used here.
 Another direction is DSL meta-learning: can we find a
-\emph{single} universal primitive set that could effectively bootstrap DSLs for
+\emph{single} universal primitive set that could bootstrap DSLs for
 new domains, including the domains considered here,  but also many others?
 
 \bibliography{main}
