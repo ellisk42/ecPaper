@@ -177,38 +177,38 @@
 \section{Introduction}
 
 
-Much of everyday human thinking and learning can be understood in
-terms of program induction: constructing a procedure that maps inputs
-to desired outputs, based on observing example input-output pairs.
-People can induce programs flexibly across many different domains, often from just one or a few examples.  For instance, if
+%% Much of everyday human thinking and learning can be understood in
+%% terms of program induction: constructing a procedure that maps inputs
+%% to desired outputs, based on observing example input-output pairs.
+Humans can induce programs flexibly across many different domains, often from just one or a few examples.  If
 shown that a text-editing program should map ``Jane Morris Goodall''
 to ``J. M. Goodall'', we can guess it maps ``Richard Erskine Leakey''
-to ``R. E. Leakey''; if instead the first input mapped to
+to ``R. E. Leakey''; if the first input mapped to
 ``Dr. Jane'' or ``Goodall, Jane'', we might guess
-the latter should map to ``Dr. Richard'' or ``Leakey, Richard'',
+the latter mapped to ``Dr. Richard'' or ``Leakey, Richard'',
  respectively.
 
 The FlashFill system~\cite{gulwani2011automating} embedded in
 Microsoft Excel solves problems such as these and is probably the best
 known practical program-induction algorithm, but researchers in
 programming languages and AI have had successes in many domains, such as handwriting recognition and
-generation~\cite{lake2015human}, procedural
-graphics~\cite{ellis2017learning}, question
+generation~\cite{lake2015human}, question
 answering~\cite{johnson2017clevr} and robot motion
 planning~\cite{devlin2017neural}.  These systems
 work in different ways, but most hinge upon a carefully engineered
-\textbf{Domain Specific Language (DSL)}.  This is especially true for
-systems like FlashFill that induce a wide range of programs
-very quickly, in a few seconds or less.  DSLs constrain the search
+\textbf{Domain Specific Language (DSL)}.  %% This is especially true for
+%% systems like FlashFill that induce a wide range of programs
+%% very quickly, in a few seconds or less.  
+DSLs constrain the search
 over programs with strong prior knowledge in the form of a restricted
-set of programming primitives finely tuned to the domain: for
+library of primitives tuned to the domain: for
 text editing, these are operations like appending and
-splitting on characters.
+splitting on strings.
 
 In this work, we consider the problem of building agents that learn to solve
 program induction tasks, and also the problem of acquiring the prior knowledge
-necessary to quickly solve these tasks in a new domain.  Representative problems
-in three domains are shown in Table~\ref{initialExampleDSL}.  Our solution is an
+necessary to quickly solve these tasks in a new domain; see
+ Table~\ref{initialExampleDSL}.  Our solution is an
 algorithm that grows or boostraps a DSL while jointly training a neural network
 to help write programs in the increasingly rich DSL.
 %
@@ -393,9 +393,9 @@ expands.
 %% Our \system
 %% algorithm incorporates these insights by iterating
 Concretely, our algorithm iterates through three cycles:
-\\\noindent\textbf{Wake Cycle}: Here we take a given set of \textbf{tasks}, typically
-several hundred, and search for compact programs that solve these tasks.
-Our current implementation uses a simple and generic enumerative program synthesis algorithm,
+\\\noindent\textbf{Wake Cycle}: Given a set of \textbf{tasks}, typically
+several hundred, we search for compact programs that solve these tasks.
+Currently we take the simple strategy of
 enumerating programs written in the current DSL in order of their probability according to the neural network.
 \\\noindent\textbf{Sleep-G Cycle}: Here we grow the the DSL (or \textbf{G}enerative model),
 which allows the agent to more compactly
@@ -405,21 +405,20 @@ them to distill out common code fragments across successful programs.
 The technical machinery behind this DSL learning
 comes from a formalism known as Fragment Grammars~\cite{tim},
 which casts DSL induction as grammar induction.
-\\\noindent\textbf{Sleep-R Cycle}: Here we improve the search procedure by training a neural network (the \textbf{R}ecognition model) to
+\\\noindent\textbf{Sleep-R Cycle}: This trains a neural net (the \textbf{R}ecognition model) to
 predict a distribution over programs written in the current DSL, in the spirit of ``amortized'' or
 ``compiled'' inference~\cite{le2016inference}.
-The recognition model is trained, conditioned on a task, to assign high probability to
-programs that (1) have high prior probability according to the current DSL,
-while (2) also assigning high likelihood to the task at hand,
+The network is trained, conditioned on a task, to assign high probability to
+programs that have high prior probability according to the current DSL,
+while also assigning high likelihood to the task at hand,
 thus amortizing the cost of finding programs with high posterior probability.
 
 
 \section{Experiments}
 
-\subsection{Programs that manipulate sequences}\label{sequences}
 We apply \system to list processing %% (Section~\ref{listSection})
 and text editing, %% (Section~\ref{textSection})
-using a GRU~\cite{cho2014learning} for
+using a recurrent network for
 the recognition model, and initially providing the system with generic sequence manipulation primitives:
 \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
 \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
@@ -432,9 +431,8 @@ the recognition model, and initially providing the system with generic sequence 
 problem in the programming languages community~\cite{feser2015synthesizing}.
 %with applications to computer aided programming~\cite{solar2008program}.
 We consider this problem within the context of learning functions that
-manipulate lists, and also perform arithmetic operations upon lists (Table~\ref{listExamples}).
-We created 236 human-interpretable list manipulation tasks, each with 15
-input/output examples.
+manipulate lists,
+creating 236 human-interpretable list manipulation tasks (Table~\ref{initialExampleDSL}, left).
 %% Our data set is interesting in three major ways: many of the tasks
 %% require complex solutions; the tasks were not generated from some
 %% latent DSL, and the agent must learn to solve these complicated
@@ -481,11 +479,11 @@ have made these other systems successful.
 %% synthesize programs containing real numbers, but using gradient
 %% descent instead of dynamic programming.
 
-We trained our system on 109 automatically-generated text editing tasks, with 4 input/output examples each.
-After three iterations, it assembles a DSL containing a dozen new functions (Fig.~\ref{initialExampleDSL}, center) solving
-all the training tasks.
-But, how well does the  learned DSL generalized to real text-editing scenarios?
-We tested, but did not train, on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
+We trained our system on 109 automatically-generated text editing tasks.
+After three wake/sleep cycles, it assembles a DSL containing a dozen new functions (Fig.~\ref{initialExampleDSL}, center) solving
+the training tasks.
+%But, how well does the  learned DSL generalized to real text-editing scenarios?
+We also tested, but did not train, on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
 \system solves 3.7\% of the problems with an average search time of 235 seconds.
 After learning,
 it solves 74.1\%, and does so much faster,
@@ -500,7 +498,7 @@ all of the tasks,
 and perform comparably to the best
 prior work.
 
-\subsection{Symbolic Regression: Programs from visual input}\label{regressionSection}
+\textbf{Symbolic Regression: Programs from visual input.}
 We apply \system
 to symbolic regression problems.  Here, the
 agent observes points along the curve of a function, and must write a
@@ -513,10 +511,10 @@ graph (Fig.~\ref{functions}) --- visually, different kinds of
 polynomials and rational functions produce different kinds of graphs,
 and so the convnet can  look at a graph and predict
 what kind of function best explains it.
-These programs can contain real numbers,
-which we set with gradient descent,
-and penalize continuous parameters by
-incorporating a BIC penalty into the likelihood model $\probability[x|p]$.
+%% These programs can contain real numbers,
+%% which we set with gradient descent,
+%% and penalize continuous parameters by
+%% incorporating a BIC penalty into the likelihood model $\probability[x|p]$.
 %% A key difficulty, however, is
 %% that these problems are best solved with programs containing real
 %% numbers.  Our solution to this difficulty is to enumerate
@@ -540,26 +538,26 @@ incorporating a BIC penalty into the likelihood model $\probability[x|p]$.
     \caption{Recognition model input for symbolic regression. DSL learns subroutines for polynomials (top rows) and rational functions (bottom) while the recognition  model jointly learns to look at a graph of the function (left) and predict which learned subroutines best explain the observation.}\label{functions}\vspace{-1cm}
         \end{minipage}
 \end{figure}
-We learn a DSL containing 13 new functions,
-mainly templates for polynomials of different orders or ratios of polynomials.
-The model also learns to find programs minimizing the number of continuous parameters ---
-learning to represent linear functions with 
-\code{(* real (+ x real))}, which has two continuous parameters, and represents quartic functions using $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
-which has five continuous parameters.
-This phenomenon arises from our Bayesian framing.
+%% We learn a DSL containing 13 new functions,
+%% mainly templates for polynomials of different orders or ratios of polynomials.
+%% The model also learns to find programs minimizing the number of continuous parameters ---
+%% learning to represent linear functions with 
+%% \code{(* real (+ x real))}, which has two continuous parameters, and represents quartic functions using $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
+%% which has five continuous parameters.
+%% This phenomenon arises from our Bayesian framing.
 
 
 
-\subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
-We evaluate  on held-out testing tasks,
-measuring how many
-tasks are solved and how long it takes to solve them (Fig.~\ref{learningCurves}).
-Prior to any learning,
-the system cannot find solutions for most of the tasks,
-and those it does solve take a long time;
-with more wake/sleep iterations,
-we converge upon DSLs and recognition models 
-more closely matching the domain.
+%% \subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
+%% We evaluate  on held-out testing tasks,
+%% measuring how many
+%% tasks are solved and how long it takes to solve them (Fig.~\ref{learningCurves}).
+%% Prior to any learning,
+%% the system cannot find solutions for most of the tasks,
+%% and those it does solve take a long time;
+%% with more wake/sleep iterations,
+%% we converge upon DSLs and recognition models 
+%% more closely matching the domain.
 
 %% We compare with ablations of our model on held out tasks.
 %% The purpose of this ablation study is 
@@ -605,7 +603,7 @@ more closely matching the domain.
   \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}\qquad
   \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}
 \vspace{-0.4cm}  \caption{Learning curves for \system both with (\orange{in orange}) and without
-    (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved w/ 10m timeout. Dashed lines: Average solve time, averaged only over tasks that are solved.}\label{learningCurves}\vspace{-0.5cm}
+    (\teal{in teal}) the recognition model. Iterations: \# wake/sleep cycles. Solid lines: \% holdout testing tasks solved w/ 10m timeout. Dashed lines: Average solve time.}\label{learningCurves}\vspace{-0.5cm}
 \end{figure*}
 
 \section{Discussion}
