@@ -42,6 +42,7 @@
 \newcommand{\teal}[1]{\textcolor{teal}{#1}}
 
 \newcommand{\greenCode}[1]{{\footnotesize\popp{\code{#1}}}}
+\newcommand{\blueCode}[1]{{\footnotesize\pop{\code{#1}}}}
 
 %\usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
@@ -1083,7 +1084,7 @@ and the likelihood model's BIC penalty.
 A long-standing dream within the program induction community
 is ``learning from scratch'': starting with a \emph{minimal} Turing-complete programming language,
 and then learning to solve a wide swath of
-induction problems~\cite{solomonoff1964formal}.
+induction problems~\cite{solomonoff1964formal,schmidhuber2004optimal,hutter2004universal,solomonoff1989system}.
 All existing systems,
 including ours,
 fall far short of this dream,
@@ -1126,8 +1127,32 @@ for acquiring this abstract knowledge
 from less than two dozen problems.
 
 \begin{figure}  \newcommand{\helpSize}{0.25cm}
-  \begin{tabular}{cc}\toprule
-    \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}\\\midrule
+  \begin{tabular}{cl}\toprule
+    \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&
+    \begin{tabular}{l}
+      \code{[4\, 7\, 6\, 9\, 0]$\to$5}\\
+\code{[3\, 8\, 2\, 1\, 4]$\to$4}\\
+\code{[2\, 2\, 9\, 4\, 8]$\to$3}\\
+\code{[0\, 9\, 8\, 9\, 9\, 8]$\to$1}\\
+\blueCode{$f(\ell) = $($f_0$ (car $\ell$))}\\\\
+
+\code{[2\, 5\, 6\, 0\, 6]$\to$19}\\
+\code{[9\, 2\, 7\, 6\, 3]$\to$27}\\
+\blueCode{$f(\ell) = $($f_4$ + $\ell$ 0)}\\\\
+
+\code{[4\, 2\, 6\, 4]$\to$[8\, 4\, 12\, 8]}\\
+\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
+\code{[2\, 3\, 0\, 7]$\to$[4\, 6\, 0\, 14]}\\
+\blueCode{$f(\ell) = $($f_5$ ($\lambda$ (x) (+ x x)) $\ell$)}\\\\
+
+
+      \code{[5\, 2\, 9]}$\to$\code{[[2\, 9]\, [9]\, []]}\\
+      \code{[3\, 8\, 1\, 3]}$\to$\code{[[8\, 1\, 3]\, [1\, 3]\, [3]\, []]}\\
+      \blueCode{$f(\ell) = $($f_2$ empty? cdr cdr $\ell$)}
+      \\
+      
+      \end{tabular}
+    \\\midrule
     \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
     \begin{tabular}{l}
       \greenCode{$f_0($x$)\,=\,$(+ x 1)}\\
@@ -1143,6 +1168,11 @@ from less than two dozen problems.
         \popp{\code{$f_4($f$,$l$,$x$)\,=\,$(if (empty? l) x}}\\
       \phantom{\code{$f_4($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(f (car l) ($f_4$ (cdr l))))}}\\
         \hspace{\helpSize}($f_4$: \emph{fold})\\
+        \greenCode{$f_5($f$,$l$)\,=\,$(if (empty? l) nil)}\\
+        \phantom{\greenCode{$f_5($f$,$l$)\,=\,$(if }}\greenCode{(cons (f (car l)) ($f_5$ (cdr l)))}\\
+        \hspace{\helpSize}($f_5$: \emph{map})
+
+%        -0.222777	int -> int -> list(int)	#(lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (map (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
 
       \end{tabular}
     %% : (lambda (#(#(lambda (lambda (lambda (lambda (fix1 $0 (lambda (lambda (if (empty? $0) $3 ($4 ($5 $0) ($1 (cdr $0))))))))))) (lambda (car $0))) (lambda (lambda (+ $0 $1))) 0 $0))
