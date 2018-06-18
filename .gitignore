@@ -1,0 +1,6 @@
+figures/*-eps-converted-to.pdf
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
