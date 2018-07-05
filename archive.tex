@@ -84,7 +84,8 @@
 %\usetikzlibrary{arrows.meta}
 %\usetikzlibrary{positioning}
 %\usetikzlibrary{decorations.text}
-%\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.pathmorphing}
+\tikzset{squiggle/.style={decorate, decoration=snake}}
 \usepackage{dsfont}
 \usepackage{amsmath}
 
@@ -542,6 +543,183 @@ the recognition model gets both more data, and higher-quality data, whenever the
     \end{tikzpicture}
   \caption{\system solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
 \end{figure}
+
+\begin{figure}
+  \begin{tikzpicture}
+    \node at (0,0) (d){DSL};
+    \node at ([yshift = -2cm]d) (t){$\text{Task}$};
+
+    \node at ([xshift = 2cm]t) (nn){
+      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+        \node[rectangle] at (1,1) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (I-\name) at (0,-\y) {};
+        \foreach \name / \y in {1,...,3}
+            \node[neuron] (H-\name) at (1,-\y-0.5) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (O-\name) at (2,-\y) {};
+        \foreach \source in {1,...,4}
+            \foreach \dest in {1,...,3}
+                \draw [-latex] (I-\source) -- (H-\dest);
+        \foreach \source in {1,...,3}
+            \foreach \dest in {1,...,4}
+                \draw [-latex] (H-\source) -- (O-\dest);
+      \end{tikzpicture}
+    };
+    \node[align = center, text width = 1cm] at ([yshift = 0.6cm]nn.north) {\baselineskip=0pt \small Recognition model\par};
+    \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
+
+    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.5cm,yshift = -1cm]) (s){Search};
+
+    \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
+    \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
+
+    \node at (7,-1) (f) {Frontier};
+    \draw [->  ] (s.east) -- (f.west);
+
+    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
+    \node at ([xshift = 0.5cm,yshift = -0.75cm]s.south) {Spec};
+
+    \node at (4,-3.5) {\textbf{\textsc{Wake: Problem Solving}}};
+    
+    
+  \end{tikzpicture}
+
+  \vspace{1cm}
+  
+  \begin{tikzpicture}
+    \node at (0,0) (d){DSL};
+    \node at ([xshift = 3cm]d.east) (p2){program};
+    \node at ([yshift = 1.5cm]p2) (p1){program};
+    \node at ([yshift = -1.5cm]p2) (p3){program};
+
+
+    \draw[squiggle,-> ] (d.east) -- node[above]{\small sample} (p2.west);
+    \draw[squiggle,-> ] (d.east) -- (p1.west);
+    \draw[squiggle,-> ] (d.east) -- (p3.west);
+
+    \node at ([xshift = 2cm]p1.east) (t1){task};
+    \node at ([xshift = 2cm]p2.east) (t2){task};
+    \node at ([xshift = 2cm]p3.east) (t3){task};
+    \draw [-> ] (p1.east) -- node[above]{\small execute} (t1.west);
+    \draw [-> ] (p3.east) -- node[above]{\small execute} (t3.west);
+    \draw [-> ] (p2.east) -- node[above]{\small execute} (t2.west);
+
+    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Dreaming}}};
+  \end{tikzpicture}
+
+  \begin{tikzpicture}
+    \node at (0,0) (f1){Frontier$_1$};
+    \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
+    \node at ([yshift = -1cm]f2.south) (f3){Frontier$_3$};
+
+    \node at ([xshift = 2cm]f1.east) (p1){program$_1$};
+    \node at ([xshift = 2cm]f2.east) (p2){program$_2$};
+    \node at ([xshift = 2cm]f3.east) (p3){program$_3$};
+
+
+    \draw [->,squiggle ] (f1.east) -- node[above]{\small sample} (p1.west);
+    \draw [->,squiggle ] (f2.east) -- node[above]{\small sample} (p2.west);
+    \draw [->,squiggle ] (f3.east) -- node[above]{\small sample} (p3.west);
+    
+    \node at ([xshift = 1.5cm]p1.east) (t1){task$_1$};
+    \node at ([xshift = 1.5cm]p2.east) (t2){task$_2$};
+    \node at ([xshift = 1.5cm]p3.east) (t3){task$_3$};
+
+    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Experience Replay}}};
+  \end{tikzpicture}
+  \vspace{2cm}
+  
+  \begin{tikzpicture}
+    \node at (0,0) (f1){Frontier$_1$};
+    \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
+    \node at ([yshift = -1cm]f2.south) (ff){$\vdots$};
+    \node at ([yshift = -1cm]ff.south) (f3){Frontier$_N$};
+
+    \node(c)[rectangle, rounded corners, draw, minimum width = 3cm, minimum height = 6cm, anchor = north west] at (2,1) {};
+    \node[anchor=north] at (c.north) {Compression};
+
+    \draw [-> ] (f1.east) -- (c.west|-f1.east);
+    \draw [-> ] (f2.east) -- (c.west|-f2.east);
+    \draw [-> ] (f3.east) -- (c.west|-f3.east);
+
+    \node[align = right](d) at ([xshift = 1.5cm,yshift = 1cm]c.east) {DSL $\mathcal{D}$};
+    \node[align = right](t) at ([xshift = 1.5cm,yshift = -1cm]c.east) {Parameters $\theta$};
+    \draw [-> ] (c.east) -- (d.west);
+    \draw [-> ] (c.east) -- (t.west);
+
+    \node at (c.center) {
+\begin{tikzpicture}[scale=0.7]
+    %% \node[rotate=30] at (-2,0) {\begin{tabular}{c}
+    %%     \footnotesize Program:\\
+    %%     \code{($\lambda$ (x) (+ (- x) 1))}
+    %% \end{tabular}};
+    %\node at (,0.5) {\code{cons}};
+%    \node [rotate=90] at (-2.3,-0.5) {\small program};
+    
+          \node(l1) at (0,0) {};
+  \node[color=pop3](p1) at (-1,-1) {\code{+}};
+  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+  \node(x1) at (0,-1) {\code{1}};
+  \draw[color=pop3] (l1.south) -- (p1.north);
+  \draw[color=pop3] (l1.south) -- (n1.north);
+  \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
+
+  \node(t) at (-0.5,0.5) {};
+  \draw (l1.south) -- (t.south);
+  \node(c) at (-1.5,-0.2) {\code{cons}};
+  \draw (t.south) -- (c.north);
+  
+%    \draw  (l1.south) -- (-0.5,0.5);
+
+  %% \node(c) at (-0.5,-1.5) {\code{-}};
+  %% \node(z) at (0.5,-1.5) {\code{x}};
+
+  %% \draw (0,-1) -- (c.north);
+  %% \draw (0,-1) -- (z.north);
+  
+  \begin{scope}[shift={(-1,-2.5)}]
+      \node(l1) at (0,0) {};
+  \node[color=pop3](p1) at (-1,-1) {\code{+}};
+  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+  %\node(x1) at (0,-1) {};
+  \draw[color=pop3] (l1.south) -- (p1.north);
+  \draw[color=pop3] (l1.south) -- (n1.north);
+  \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
+
+
+  \node(c) at (-0.5,-1.5) {\code{car}};
+  \node(z) at (0.5,-1.5) {\code{z}};
+
+  \draw (0,-1) -- (c.north);
+  \draw (0,-1) -- (z.north);
+
+%  \node [rotate=90] at (-2.3,-0.7) {\small program};
+  
+  \end{scope}
+
+\begin{scope}[shift={(0,-5)}]
+  \node[pop3](p1) at (-1,-1) {\code{+}};
+  \node[pop3](n1) at (0.8,-0.7) {\code{1}};
+  \node[pop3](a) at (0,-1) {\code{ }};
+  %\node(x1) at (0,-1) {};
+  \draw[pop3] (0,0) -- (p1.north);
+  \draw[pop3] (0,0) -- (n1.north);
+  \draw[pop3] (-0.55,-0.4) -- (a.north);
+%  \node [rotate=90] at (-2.3,-0.7) {\small fragment};
+
+  \end{scope}
+
+\end{tikzpicture}
+    };
+
+    \node at ([yshift=-2.5cm,xshift = 4cm]c.south) {\textsc{\textbf{Sleep-G: Memory Consolidation}}};
+
+    \end{tikzpicture}
+  \end{figure}
+
 \begin{figure}[h]
 \centering
 %  \includegraphics{figures/iterations.eps}
