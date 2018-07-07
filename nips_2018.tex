@@ -1149,7 +1149,7 @@ We see these prior works as operating in a different regime: typically, they tra
  
 \section{Discussion}
 
-\parbox{0.58\textwidth}{
+%\parbox{0.58\textwidth}{
 
 %\paragraph{Outlook.}
 We contribute an algorithm, \systemEnding, that learns to program by
@@ -1164,22 +1164,23 @@ Two immediate goals are to integrate more sophisticated neural recognition
 models~\cite{devlin2017robustfill} and program
 synthesizers~\cite{solar2008program}, which may improve performance in some
 domains over the generic methods used here.
-We are in the process of applying our algorithm to generative programs and
-prototyped this with a turtle-like domain: Figure~\ref{geomCompiled} gives some
-preliminary results for turtle graphics  --- see Section 1 of the supplementary material for more
-details.  Another direction is to explore DSL meta-learning: can we find a
+%% We are in the process of applying our algorithm to generative programs and
+%% prototyped this with a turtle-like domain: Figure~\ref{geomCompiled} gives some
+%% preliminary results for turtle graphics  --- see Section 1 of the supplementary material for more
+%% details.
+Another direction is to explore DSL meta-learning: can we find a
 \emph{single} universal primitive set that could effectively bootstrap DSLs for
 new domains, including the three domains considered,  but also many others?
-}\hfill
-\begin{minipage}{0.4\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figures/geomCompiled.eps} 
-  \captionof{figure}{
-  Top left: Example training tasks. Top right: samples from the learned DSL.
- Bottom: \% holdout testing tasks solved (middle), on sides are the averaged samples from the DSL
-  before any training (left) and after last iteration (right).}
-\label{geomCompiled}
-\end{minipage}
+%% }\hfill
+%% \begin{minipage}{0.4\textwidth}
+%%   \centering
+%%   \includegraphics[width=\textwidth]{figures/geomCompiled.eps} 
+%%   \captionof{figure}{
+%%   Top left: Example training tasks. Top right: samples from the learned DSL.
+%%  Bottom: \% holdout testing tasks solved (middle), on sides are the averaged samples from the DSL
+%%   before any training (left) and after last iteration (right).}
+%% \label{geomCompiled}
+%% \end{minipage}
 
 \bibliographystyle{unsrt}
 {\small \bibliography{main}}

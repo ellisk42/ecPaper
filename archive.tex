@@ -85,7 +85,7 @@
 %\usetikzlibrary{positioning}
 %\usetikzlibrary{decorations.text}
 \usetikzlibrary{decorations.pathmorphing}
-\tikzset{squiggle/.style={decorate, decoration=snake}}
+\tikzset{squiggle/.style={decorate, decoration={snake,amplitude=.4mm}}}
 \usepackage{dsfont}
 \usepackage{amsmath}
 
@@ -571,12 +571,13 @@ the recognition model gets both more data, and higher-quality data, whenever the
     \node[align = center, text width = 1cm] at ([yshift = 0.6cm]nn.north) {\baselineskip=0pt \small Recognition model\par};
     \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
 
-    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.5cm,yshift = -1cm]) (s){Search};
+    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
+    \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
 
     \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
     \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
 
-    \node at (7,-1) (f) {Frontier};
+    \node[align=left] at (7,-1) (f) {Frontier\\{\small (set of programs)}};
     \draw [->  ] (s.east) -- (f.west);
 
     \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
@@ -589,26 +590,7 @@ the recognition model gets both more data, and higher-quality data, whenever the
 
   \vspace{1cm}
   
-  \begin{tikzpicture}
-    \node at (0,0) (d){DSL};
-    \node at ([xshift = 3cm]d.east) (p2){program};
-    \node at ([yshift = 1.5cm]p2) (p1){program};
-    \node at ([yshift = -1.5cm]p2) (p3){program};
-
-
-    \draw[squiggle,-> ] (d.east) -- node[above]{\small sample} (p2.west);
-    \draw[squiggle,-> ] (d.east) -- (p1.west);
-    \draw[squiggle,-> ] (d.east) -- (p3.west);
-
-    \node at ([xshift = 2cm]p1.east) (t1){task};
-    \node at ([xshift = 2cm]p2.east) (t2){task};
-    \node at ([xshift = 2cm]p3.east) (t3){task};
-    \draw [-> ] (p1.east) -- node[above]{\small execute} (t1.west);
-    \draw [-> ] (p3.east) -- node[above]{\small execute} (t3.west);
-    \draw [-> ] (p2.east) -- node[above]{\small execute} (t2.west);
-
-    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Dreaming}}};
-  \end{tikzpicture}
+  
 
   \begin{tikzpicture}
     \node at (0,0) (f1){Frontier$_1$};
@@ -630,12 +612,35 @@ the recognition model gets both more data, and higher-quality data, whenever the
 
     \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Experience Replay}}};
   \end{tikzpicture}
+
+  \begin{tikzpicture}
+    \node[align=center] at (0,0) (d){DSL\\$(\mathcal{D},\theta)$};
+    \node at ([xshift = 3cm]d.east) (p2){program};
+    \node at ([yshift = 1.5cm]p2) (p1){program};
+    \node at ([yshift = -1.5cm]p2) (p3){program};
+
+
+    \draw[squiggle,-> ] (d.east) -- node[above]{\small sample} (p2.west);
+    \draw[squiggle,-> ] (d.east) -- (p1.west);
+    \draw[squiggle,-> ] (d.east) -- (p3.west);
+
+    \node at ([xshift = 2cm]p1.east) (t1){task};
+    \node at ([xshift = 2cm]p2.east) (t2){task};
+    \node at ([xshift = 2cm]p3.east) (t3){task};
+    \draw [-> ] (p1.east) -- node[above]{\small execute} (t1.west);
+    \draw [-> ] (p3.east) -- node[above]{\small execute} (t3.west);
+    \draw [-> ] (p2.east) -- node[above]{\small execute} (t2.west);
+
+    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Dreaming}}};
+  \end{tikzpicture}
+  
   \vspace{2cm}
   
   \begin{tikzpicture}
     \node at (0,0) (f1){Frontier$_1$};
     \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
-    \node at ([yshift = -1cm]f2.south) (ff){$\vdots$};
+    \node at ([yshift = -0.7cm]f2.south) (ff){\textbf{$\vdots$}};
+    \node at ([yshift = -1.2cm]f2.south) (ff){\textbf{$\vdots$}};
     \node at ([yshift = -1cm]ff.south) (f3){Frontier$_N$};
 
     \node(c)[rectangle, rounded corners, draw, minimum width = 3cm, minimum height = 6cm, anchor = north west] at (2,1) {};
@@ -645,8 +650,8 @@ the recognition model gets both more data, and higher-quality data, whenever the
     \draw [-> ] (f2.east) -- (c.west|-f2.east);
     \draw [-> ] (f3.east) -- (c.west|-f3.east);
 
-    \node[align = right](d) at ([xshift = 1.5cm,yshift = 1cm]c.east) {DSL $\mathcal{D}$};
-    \node[align = right](t) at ([xshift = 1.5cm,yshift = -1cm]c.east) {Parameters $\theta$};
+    \node[right](d) at ([xshift = 1.2cm,yshift = 0.7cm]c.east) {DSL $\mathcal{D}$};
+    \node[right](t) at ([xshift = 1.2cm,yshift = -0.7cm]c.east) {Weights $\theta$};
     \draw [-> ] (c.east) -- (d.west);
     \draw [-> ] (c.east) -- (t.west);
 
