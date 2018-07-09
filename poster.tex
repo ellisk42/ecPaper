@@ -97,7 +97,7 @@
 \newcommand{\system}{\textsc{DreamCoder}~}
 \newcommand{\systemEnding}{\textsc{DreamCoder}}
 
-\title{\systemEnding: Bootstrapping Domain-Specific Languages for Neurally-Guided Bayesian Program Learning} % Poster title
+\title{\huge \systemEnding: Bootstrapping Domain-Specific Languages for Neurally-Guided Bayesian Program Learning} % Poster title
 
 \author{Kevin Ellis, Lucas Morales, Mathias Sabl\'e Meyer, Maxwell Nye, Armando Solar-Lezama, Joshua B. Tenenbaum} % Author(s)
 
@@ -501,7 +501,36 @@ highlighted in {\orange{orange}},
 
 \end{block}
 
-\begin{block}{Ongoing work: Generative models}
+\begin{block}{Turtle/LOGO Graphics}
+
+  \newcommand{\dreamSize}{5.5cm}
+  \begin{tabular}{|lll|}\multicolumn{3}{c}{\textbf{9 (of 132) Tasks}}\\\hline
+    \includegraphics[width = \dreamSize]{turtleTasks/square/trimmed/train_square_3_h.png}&
+    \includegraphics[width = \dreamSize]{turtleTasks/square/trimmed/train_square_4_h.png}&
+    \includegraphics[width = \dreamSize]{turtleTasks/six/trimmed/snow1_h.png}\\
+    \includegraphics[width = \dreamSize]{turtleTasks/six/trimmed/snow2_random_1.png}&
+    \includegraphics[width = \dreamSize]{turtleTasks/six/trimmed/hexa_vh.png}&
+        \includegraphics[width = \dreamSize]{turtleTasks/logoTasks/trimmed/star_5_h.png}\\
+%    \includegraphics[width = \dreamSize]{turtleTasks/circle/trimmed/train_circle_10_h.png}\\
+    \includegraphics[width = \dreamSize]{turtleTasks/logoTasks/trimmed/smooth_spiral4_h.png}&
+    \includegraphics[width = \dreamSize]{turtleTasks/los/trimmed/train_los_3_1_h.png}&
+    \includegraphics[width = \dreamSize]{turtleTasks/logoTasks/trimmed/iter2_h.png}\\\hline
+%    \includegraphics[width = \dreamSize]{dreams/final/trimmed/1748505267_norm.png}&
+  \end{tabular}\hspace{4cm}%
+  \begin{tabular}{|lll|}\multicolumn{3}{c}{\textbf{9 samples from learned DSL}}\\\hline
+    \includegraphics[width = \dreamSize]{dreams/final/trimmed/4361002260.png}&
+    \includegraphics[width = \dreamSize]{dreams/final/trimmed/5809723215.png}&
+    \includegraphics[width = \dreamSize]{dreams/final/trimmed/5818934795_norm.png}\\
+%    \includegraphics[width = \dreamSize]{dreams/final/trimmed/6027771181.png}\\
+    \includegraphics[width = \dreamSize]{dreams/final/trimmed/1950268419.png}&
+    \includegraphics[width = \dreamSize]{dreams/final/trimmed/6770710484.png}&
+    \includegraphics[width = \dreamSize]{dreams/final/trimmed/7045328293.png}\\
+    \includegraphics[width = \dreamSize]{dreams/final/trimmed/7623700519.png}&
+%    \includegraphics[width = \dreamSize]{dreams/final/trimmed/8879622788.png}&
+    \includegraphics[width = \dreamSize]{dreams/final/trimmed/9150025422.png}&
+    \includegraphics[width = \dreamSize]{dreams/final/trimmed/9666602433.png}\\\hline
+%    \includegraphics[width = \dreamSize]{dreams/final/trimmed/1748505267_norm.png}&
+    \end{tabular}
   Learn probabilistic program (a regex) $p_n$ from $K$ strings $x_n = \left\{y_n^k \right\}_{k = 1}^K$.
 
   Likelihood model:
