@@ -1391,6 +1391,7 @@ infer a regex from a collection of strings.
   before any training (left) and after last iteration (right).}\label{geomCompiled}
 
   \end{figure}
+
 \begin{figure}
 \centering
 \tiny
@@ -1400,26 +1401,24 @@ infer a regex from a collection of strings.
 \begin{tabular}{ccc}
 \multicolumn{3}{c}{Tasks:}\\
 \hline
-cut&F &Moss Side \\ 
-control&CL &Burnage \\
-control&F & City Centre\\
-cut& PCFL& Brooklands \\
+1.14531&F&110.9 \\ 
+?&CL&163.2 \\
+1.29857&F&207.3\\
+?&PCFL&143.3 \\
 \multicolumn{3}{c}{Learned generative models:}\\
 \hline
-\scode{\textbackslash l*\textbackslash l} & \scode{((\textbackslash
-u\textbackslash u)*)\textbar F}& \scode{( \textbar\textbackslash
-u\textbackslash w*)*} \\
-\multicolumn{3}{c}{Samples from synthesized generative models:}\\
+ \scode{\textbackslash?\textbar(1\textbackslash .\textbackslash d+)}& \scode{((\textbackslash u\textbackslash u)*)\textbar F}& \scode{\textbackslash d\textbackslash d\textbackslash d\textbackslash.\textbackslash d} \\
+ \multicolumn{3}{c}{Samples from synthesized generative models:}\\
 \hline
-ya&DQDF & Vr DR \\ 
-glrwfdcnc&F &BeF lKQ \\
-mgs&F& W\\
-piljnl& KI& kqBfZ 0 \\
-kj& F& ON\\
-zci& GL& Bttc \\
-sxpm& F& S \\
-\hline
-\\
+1.61&DQDF& 343.8 \\ 
+?&F&241.2\\
+?&F&647.5\\
+1.2&KI&246.8\\
+1.5080987&F&728.6\\
+?&GL&029.3\\
+1.453&F&289.1\\
+    \hline
+        \\
 \end{tabular} 
 &
 \begin{tabular}{c}
@@ -1427,16 +1426,13 @@ sxpm& F& S \\
 \multicolumn{1}{c}{Learned DSL:}\\
 \hline
 $f_1() = $ \scode{\textbackslash u\textbackslash w*}\\
-$f_2(x) = $ \scode{($x$|$f_1$)*} $=$ \scode{($x$|\textbackslash
-u\textbackslash w*)*}\\
-$f_3(x) = f_2(\scode{space}) = $\scode{( \textbar\textbackslash
-u\textbackslash w*)*}\\
+$f_2(x) = $ \scode{($x$|$f_1$)*} $=$ \scode{($x$|\textbackslash u\textbackslash w*)*}\\
+$f_3(x) =  f_2(\scode{space}) = $\scode{( \textbar\textbackslash u\textbackslash w*)*}\\
 \hline
 $f_4(x) = $ \scode{($x$*$x$)}\\
 \emph{ (equivalent to regex `plus')}\\
-$f_5() = f_4(\scode{\textbackslash l}) = \scode{\textbackslash
-l*\textbackslash l}$\\
-\hline
+$f_5() = f_4(\scode{\textbackslash l}) = \scode{\textbackslash l*\textbackslash l}$\\
+    \hline
 \end{tabular}
 \\
 \\
