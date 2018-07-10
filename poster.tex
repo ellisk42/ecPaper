@@ -501,8 +501,8 @@ highlighted in {\orange{orange}},
 
 \end{block}
 
-\begin{block}{Turtle/LOGO Graphics}
-
+\begin{block}{Generative models of images: Turtle/LOGO Graphics}
+  
   \newcommand{\dreamSize}{5.5cm}
   \begin{tabular}{|lll|}\multicolumn{3}{c}{\textbf{12 (of 132) Tasks}}\\\hline
     \includegraphics[width = \dreamSize]{turtleTasks/square/trimmed/train_square_3_h.png}&
@@ -534,12 +534,71 @@ highlighted in {\orange{orange}},
     \includegraphics[width = \dreamSize]{dreams/final/trimmed/9150025422.png}&
     \includegraphics[width = \dreamSize]{dreams/final/trimmed/9666602433.png}\\\hline
 %    \includegraphics[width = \dreamSize]{dreams/final/trimmed/1748505267_norm.png}&
-    \end{tabular}
-  Learn probabilistic program (a regex) $p_n$ from $K$ strings $x_n = \left\{y_n^k \right\}_{k = 1}^K$.
+  \end{tabular}
 
-  Likelihood model:
-  $$\probability [x_n|p_n] = \prod_{k = 1}^K \probability[y_n^k|p_n]$$
+  \vspace{2cm} \emph{Left:}  Agent controls a `pen' -- tasked with drawing pictures. \\\emph{Right:} During Sleep-R,
+  agent `dreams' by sampling programs from learned DSL and rendering them.
+  
+
+\end{block}
+
+
+
+
+%----------------------------------------------------------------------------------------
+
+\end{column} % End of column 2.1
+
+
+
+\begin{column}{\onecolwid} % The second column within column 2 (column 2.2)
+
+\newcommand{\greenCode}[1]{{\footnotesize\popp{\code{#1}}}}
+\newcommand{\blueCode}[1]{{\footnotesize\pop{\code{#1}}}}
+
+
+
+\begin{block}{Why this works: Bootstrapping}
+
 \begin{figure}
+\hspace*{-1.5cm}  \begin{tikzpicture}[scale=3,line width=1.5mm]
+    \begin{scope}[shift = {(1,-1)}]
+    \node[align = center](synthesis) at (6,4) {Search for \\programs: $p$};
+    \node[align = center](DSL) at (3,1) {DSL: $\mathcal{D}$};
+    \node[align = center](recognitionModel) at (9,1) {Recognition \\model: $Q$};
+
+    \draw [->] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-G)}} (DSL.30);
+    \draw [->] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.150);
+    \draw [->] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.west);
+
+    \draw [->,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Inductive bias}\\\footnotesize{(Wake)}} (synthesis.west);
+    \draw [->,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Wake)}} (synthesis.east);
+  \end{scope}
+    \end{tikzpicture}
+ % \caption{\system solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
+\end{figure}
+%% \begin{itemize}
+%% \item Search finds new programs$\implies$ DSL+recognition model get more data
+%% \item DSL improves$\implies$easier search, recognition model gets better data
+%%   \item Recognition model improves$\implies$ easier search
+%%   \end{itemize}
+
+
+
+  
+\end{block}
+
+\begin{block}{Learning from Scratch}
+  Start w/ McCarthy 1959 Lisp: recursion, conditionals, lists.
+  Train on 22 programming exercises.
+  After 93 hours on 64 CPUs, rediscovers 9 functional programming staples: \code{map},
+  \code{fold}, \code{zip}, \code{unfold}, \code{index}, \code{length}, \code{range}, \code{incr}, \code{decr}.
+
+  
+\end{block}
+
+\begin{block}{Generative models of text}
+    Learn probabilistic program: a stochastic regex\begin{figure}
 \centering
 %\tiny
 \tabcolsep=2pt
@@ -596,62 +655,7 @@ l*\textbackslash l}$\\
 \end{figure}
 
 
-\end{block}
-
-
-
-
-%----------------------------------------------------------------------------------------
-
-\end{column} % End of column 2.1
-
-
-
-\begin{column}{\onecolwid} % The second column within column 2 (column 2.2)
-
-\newcommand{\greenCode}[1]{{\footnotesize\popp{\code{#1}}}}
-\newcommand{\blueCode}[1]{{\footnotesize\pop{\code{#1}}}}
-
-
-
-\begin{block}{Why this works: Bootstrapping}
-
-\begin{figure}
-\hspace*{-1.5cm}  \begin{tikzpicture}[scale=3,line width=1.5mm]
-    \begin{scope}[shift = {(1,-1)}]
-    \node[align = center](synthesis) at (6,4) {Search for \\programs: $p$};
-    \node[align = center](DSL) at (3,1) {DSL: $\mathcal{D}$};
-    \node[align = center](recognitionModel) at (9,1) {Recognition \\model: $Q$};
-
-    \draw [->] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-G)}} (DSL.30);
-    \draw [->] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.150);
-    \draw [->] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.west);
-
-    \draw [->,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Inductive bias}\\\footnotesize{(Wake)}} (synthesis.west);
-    \draw [->,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Wake)}} (synthesis.east);
-  \end{scope}
-    \end{tikzpicture}
- % \caption{\system solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
-\end{figure}
-\begin{itemize}
-\item Search finds new programs$\implies$ DSL+recognition model get more data
-\item DSL improves$\implies$easier search, recognition model gets better data
-  \item Recognition model improves$\implies$ easier search
-  \end{itemize}
-
-
-
-  
-\end{block}
-
-\begin{block}{Learning from Scratch}
-  Start w/ McCarthy 1959 Lisp: recursion, conditionals, lists.
-  Train on 22 programming exercises.
-  After 93 hours on 64 CPUs, rediscovers 9 functional programming staples: \code{map},
-  \code{fold}, \code{zip}, \code{unfold}, \code{index}, \code{length}, \code{range}, \code{incr}, \code{decr}.
-
-  
-\end{block}
+  \end{block}
 
 %% \begin{block}{References}
 
