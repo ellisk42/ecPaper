@@ -203,9 +203,10 @@ Given a few hundred programming tasks, alternatingly:
 $$
 \underbrace{p_n^* =   \argmax_{p_n}\probability[x_n|p_n]\probability[p_n|\mathcal{D}^*]}_{\text{\textbf{Wake}}}
 $$
-\begin{equation*}
+\vspace{1cm}
+$$
 \underbrace{\mathcal{D}^* = \argmax_{\mathcal{D}}    \probability[\mathcal{D}]\prod_n\sum_{p_n}\probability[x_n|p_n]\probability[p_n|\mathcal{D}]}_{\textbf{\text{Sleep-G}}}
-  \end{equation*}
+$$
 
   
   
@@ -220,6 +221,8 @@ $$
   Neural network $Q(p|x)$
   predicts distribution over programs conditioned on tasks.
   Simple $Q$: just predicts probabilities of DSL productions.  Goal: learn to invert generative model
+
+  
 $$\underbrace{\min_Q \text{KL}\left(\probability[p|x,\mathcal{D}] || Q(p|x)\right) }_{\text{\textbf{Sleep-R}}}$$
 
 
