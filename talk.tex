@@ -67,6 +67,22 @@
 \usetikzlibrary{decorations.markings}
 
 
+
+
+\newcommand\Wider[2][3em]{%
+\makebox[\linewidth][c]{%
+  \begin{minipage}{\dimexpr\textwidth+#1\relax}
+  \raggedright#2
+  \end{minipage}%
+  }%
+}
+
+
+
+
+
+
+
 \usepackage[utf8]{inputenc}
 
 \usepackage{amssymb}% http://ctan.org/pkg/amssymb
@@ -248,8 +264,58 @@ Character ::= a | b | c | ...
 \end{frame}
 
 \begin{frame}{DSL: Library of concepts}
-\includegraphics[width = 11cm]{3DSL.png}
+\Wider[5.4em]{
+  \renewcommand\code\texttt
+  \renewcommand\codechar[1]{\texttt{"#1"}}
+  \newcommand{\helpSize}{0.25cm}
+  \footnotesize\begin{tabular}{cc}
+    \toprule
+Tasks and     \pop{Programs} & DSL\\
+    \midrule
+      \begin{tabular}{cc}
+        \begin{tabular}{c}
+          \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
+          \code{[1\, 2\, 3\, 4]}$\to$\code{[3\, 4]} \\
+          \code{[4\, 3\, 2\, 1]}$\to$\code{[4\, 3]} \\
+          \pop{\code{$f(\ell) = $}\code{($f_1$ $\ell$ ($\lambda$ (x)}}\\
+          \hspace{1.15cm}\pop{\code{(> x 2)))}}       \\
+          \\
+          \\
+          \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
+          \hspace{0.15cm}\code{[3\, 19\, 14]}$\to $\code{19}                \\
+          \pop{\code{$f(\ell) = $}\code{($f_2$ $\ell$)}}
+        \end{tabular}
+        &
+        \hspace{-0.3cm}\begin{tabular}{c}
+          \code{[7\, 3]}$\to $\code{False}                              \\
+          \hspace{0.3cm}\code{[3]}$\to $\code{False}                    \\
+          \hspace{-0.3cm}\code{[9\, 0\, 0]}$\to $\code{True\phantom{e}} \\
+          \hspace{0.3cm}\code{[0]}$\to $\code{True\phantom{e}}                        \\
+          \hspace{-0.3cm}\code{[0\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
+          \pop{\code{$f(\ell) = $}\code{($f_3$ $\ell$ 0)}}
+        \end{tabular}
+      \end{tabular}
+    &
+    \begin{tabular}{l}
+      \popp{$f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}}\\
+      \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
+      \popp{$f_1(\ell,$\code{p}$) \,=\, $\code{(foldr $\ell$ nil ($\lambda$ (x a)}}\\
+      \hspace{0.5cm}\popp{\code{(if (p x) (cons x a) a)))}}\\
+      \hspace{\helpSize}($f_1$: \emph{Higher-order filter function})\\
+      %(lambda (fold $0 0 (lambda (lambda (if (gt? $0 $1) $0 $1)))))
+      \popp{$f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}}\\
+      \popp{\phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}}\\
+      \hspace{\helpSize}($f_2$: \emph{Maximum element in list $\ell$})\\
+      \popp{$f_3(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}}\\
+      \phantom{$f_1(\ell,$}
+      \popp{\code{($\lambda$ (x a) (if a a (= k x))))}}\\
+      \hspace{\helpSize}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
+    \end{tabular}
+  \\\bottomrule
+  \end{tabular}
+}
 \end{frame}
+
 
 \begin{frame}{DSL learning as Bayesian inference}
   \centering
