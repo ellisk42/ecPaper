@@ -226,25 +226,6 @@ Character ::= a | b | c | ...
 
 
 
-\begin{frame}[t]{EC}
-  \includegraphics[width = 11cm]{figures/animation/EC.eps}
-\end{frame}
-\begin{frame}[t]{DC}
-  \includegraphics[width = 11cm]{figures/animation/DC.eps}
-\end{frame}
-\begin{frame}[t]{Wake}
-  \includegraphics[width = 11cm]{figures/animation/Wake.eps}
-\end{frame}
-\begin{frame}[t]{Sleep-G}
-  \includegraphics[width = 11cm]{figures/animation/Sleep-G.eps}
-\end{frame}
-\begin{frame}[t]{Sleep-R-1}
-  \includegraphics[width = 11cm]{figures/animation/Sleep-R-1.eps}
-\end{frame}
-\begin{frame}[t]{Sleep-R-2}
-  \includegraphics[width = 11cm]{figures/animation/Sleep-R-2.eps}
-
-\end{frame}
 
 
 \begin{frame}{Growing a domain-specific language of thought}
@@ -316,57 +297,6 @@ Tasks and     \pop{Programs} & DSL\\
 }
 \end{frame}
 
-
-\begin{frame}{DSL learning as Bayesian inference}
-  \centering
-  
-\begin{tikzpicture}[scale=2,line width=1.5mm]
-
-  \node[latent,scale=2,align=center] at (3.5,3) (dx){DSL};
-  \node[ellipse,fill=white,draw=black,inner sep=1pt,
-minimum size=20pt, font=\fontsize{10}{10}\selectfont, node distance=1,scale=2] at ([xshift=2cm]dx) (zp){program};
-  \node[obs,scale=2] at ([xshift=2cm]zp) (xp) {task};
-  \plate {}{(zp)(xp)}{};
-%  \node[align = center] at ([yshift = -1.2cm,xshift = 1cm]xp.east) {(b) \\recognition model};
-  %% \draw [->,red] (xp.south) to[out = -90,in = -90] node(nn){} (zp.south);
-%  \draw [->,red] (tx.west) -- (zp.east);
-  \draw [->] (dx.east) -- (zp.west);
-  \draw [->] (zp.east) -- (xp.west);
-
-
-  \end{tikzpicture}
- %%  \begin{tikzpicture}
- %%    \node[latent,align=center] (g) {DSL: \\concept library};
- %%    \node[latent,below = of g,xshift = -2cm] (e1) {$\text{program}_1$};
- %%    \node[latent,below = of g,xshift = 0cm] (e2) {$\text{program}_2$};
- %% \node[latent,below = of g,xshift = 2cm] (e3) {$\text{program}_3$};
- %%    \node[obs,below = of e1] (x1) {$\text{task}_1$};
- %%    \node[obs,below = of e2] (x2) {$\text{task}_2$};
- %%    \node[obs,below = of e3] (x3) {$\text{task}_3$};
- %%    \edge {g} {e1,e2,e3};
- %%    \edge {e1} {x1};
- %%    \edge {e2} {x2};
- %%    \edge {e3} {x3};
- %%  \end{tikzpicture}
-
-\textbf{[Dechter et al., 2013]}  [Liang et al, 2010]; [Lake et al, 2015]
-
-  \end{frame}
-
-\begin{frame}{Amortized program inference}
-
-  
-  \includegraphics[width = 9cm]{rm.png}
-
-  \begin{itemize}
-  \item $\mathcal{D}$: DSL
-  \item $p_n$: program
-  \item $x_n$: task
-  \item $Q$: Recognition model
-    \end{itemize}
-
-\end{frame}
-
 \begin{frame}{DreamCoder}
   \begin{itemize}
   \item   \textbf{Wake:} Solve problems by writing programs
@@ -380,6 +310,61 @@ minimum size=20pt, font=\fontsize{10}{10}\selectfont, node distance=1,scale=2] a
 
 
 \end{frame}
+
+\begin{frame}[t]{DSL learning as Bayesian inference}
+  \includegraphics[width = 11cm]{figures/animation/EC.eps}
+
+\vspace{1cm}
+  
+  \textbf{[Dechter et al., 2013]}  [Liang et al, 2010]; [Lake et al, 2015]
+
+  \vfill
+  Gray: Observed.\\
+  White: Latent.\\
+  Boxed (plate): Repeated.\\
+  
+\end{frame}
+\begin{frame}[t]{DSL learning as \alert{amortized} Bayesian inference}
+  \includegraphics[width = 11cm]{figures/animation/DC.eps}
+
+  \vfill
+  Recognition model: Neural net.\\
+  Red: Bottom-up inference.\\
+  Gray: Observed.\\
+  White: Latent.\\
+  Boxed (plate): Repeated.\\
+
+\end{frame}
+\begin{frame}[t]{Wake: Problem solving}
+  \includegraphics[width = 11cm]{figures/animation/Wake.eps}
+
+    \vfill
+  Recognition model: Neural net.\\
+  Red: Bottom-up inference.\\
+  Gray: Observed.\\
+  White: Latent.\\
+  Boxed (plate): Repeated.\\
+
+\end{frame}
+\begin{frame}[t]{Sleep-G: Memory consolidation}
+  \includegraphics[width = 11cm]{figures/animation/Sleep-G.eps}
+  \vfill
+  \textbf{Fragment Grammars: O'Donnell 2015.}\\
+  Orange: Code fragments.\\
+  %% Gray: Observed.\\
+  %% White: Latent.\\
+  %% Boxed (plate): Repeated.\\
+
+  
+\end{frame}
+\begin{frame}[t]{Sleep-R: Experience replay}
+  \includegraphics[width = 11cm]{figures/animation/Sleep-R-1.eps}
+\end{frame}
+\begin{frame}[t]{Sleep-R: Dreaming}
+  \includegraphics[width = 11cm]{figures/animation/Sleep-R-2.eps}
+
+\end{frame}
+
 
 \begin{frame}{Wake phase}
   \centering\begin{tikzpicture}[scale=1.3]
