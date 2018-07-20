@@ -1,5 +1,3 @@
-
-
 \documentclass{beamer}
 \usetheme{metropolis}
 \usepackage{listings}
@@ -8,7 +6,6 @@
 \usepackage{amsmath}
 \usepackage{bbm}
 \usepackage{verbatim}
-\usepackage{listings}
 %\usepackage{tipa}
 \usepackage{tikz}
 \usetikzlibrary{fit}
@@ -66,9 +63,6 @@
 \usetikzlibrary{bayesnet}
 \usetikzlibrary{decorations.markings}
 
-
-
-
 \newcommand\Wider[2][3em]{%
 \makebox[\linewidth][c]{%
   \begin{minipage}{\dimexpr\textwidth+#1\relax}
@@ -89,6 +83,11 @@
 \usepackage{pifont}% http://ctan.org/pkg/pifont
 
 \usepackage{fancyvrb}
+
+\usepackage[most]{tcolorbox}
+\definecolor{block-gray}{gray}{0.10}
+\newtcolorbox{mycode}{colback=block-gray,grow to right by=0mm,grow to left
+by=0mm, boxrule=0pt,boxsep=0pt,breakable,fontupper=\color{white}}
 
 %% Program ::=
 %%   (if Bool List
@@ -622,29 +621,105 @@ Train recognition model on two sources of data:
 \end{frame}
 
 \begin{frame}{Turtle graphics}
-  Created+Investigated by Mathias Sabl\'e Meyer
-  
+
+  \begin{block}{DSL}
+    \texttt{FW x | RT x | UP | DOWN | SET state}
+  \end{block}
+
+  \begin{block}{Tasks}
+    \texttt{unit -> image}
+  \end{block}
+
   \vspace{0.5cm}
-  
-  \begin{itemize}
-  \item pen up/pen down
-  \item move pen (forward+rotate)
-  \item get/set pen state
-  \item `for' loops
-  \end{itemize}
 
-  \centering
-  \includegraphics[width = 8cm]{exampleGraphicsPrograms.png}
-
+  \only<1>{
+    \begin{columns}[T]
+      \column{0.5 \textwidth}
+        \begin{mycode}
+          \texttt{FW 1}\\
+          \vspace*{5\baselineskip}
+        \end{mycode}
+      \column{0.5 \textwidth}
+        \includegraphics[width = 4cm]{figures/teachLogo/line.eps}
+    \end{columns}
+  }
+  \only<2>{
+    \begin{columns}[T]
+      \column{0.5 \textwidth}
+        \begin{mycode}
+          \texttt{FW 1}\\
+          \texttt{RT} $\frac\pi2$\\
+          \texttt{FW 1}\\
+          \vspace*{3\baselineskip}
+        \end{mycode}
+      \column{0.5 \textwidth}
+        \includegraphics[width = 4cm]{figures/teachLogo/angle.eps}
+    \end{columns}
+  }
+  \only<3>{
+    \begin{columns}[T]
+      \column{0.5 \textwidth}
+        \begin{mycode}
+          \texttt{FW 1}\\
+          \texttt{RT} $\frac\pi2$\\
+          \texttt{FW 1}\\
+          \texttt{RT} $\frac\pi2$\\
+          \texttt{FW 1}\\
+          \vspace*{1\baselineskip}
+        \end{mycode}
+      \column{0.5 \textwidth}
+        \includegraphics[width = 4cm]{figures/teachLogo/angle2.eps}
+    \end{columns}
+  }
+  \only<4>{
+    \begin{columns}[T]
+      \column{0.5 \textwidth}
+        \begin{mycode}
+          \texttt{for i in range(4)}\\
+          \texttt{> FW 1}\\
+          \texttt{> RT} $\frac\pi2$\\
+          \vspace*{3\baselineskip}
+        \end{mycode}
+      \column{0.5 \textwidth}
+        \includegraphics[width = 4cm]{figures/teachLogo/square.eps}
+    \end{columns}
+  }
+  \only<5>{
+    \begin{columns}[T]
+      \column{0.5 \textwidth}
+        \begin{mycode}
+          \texttt{for i in range(8)}\\
+          \texttt{> FW 1} \\
+          \texttt{> SET origin} \\
+          \texttt{> RT} $\frac{2\pi}{8}$\\
+          \vspace*{2\baselineskip}
+        \end{mycode}
+      \column{0.5 \textwidth}
+        \includegraphics[width = 4cm]{figures/teachLogo/star.eps}
+    \end{columns}
+  }
+  \only<6>{
+    \begin{columns}[T]
+      \column{0.5 \textwidth}
+        \begin{mycode}
+          \texttt{for i in range(8)}\\
+          \texttt{> PU} \\
+          \texttt{> FW} $\frac{\text{\texttt{i}}}{2}$\\
+          \texttt{> PD} \\
+          \texttt{> FW} $\frac{\text{\texttt{i}}}{2}$\\
+          \texttt{> RT} $\frac\pi2$\\
+          \vspace*{0\baselineskip}
+        \end{mycode}
+      \column{0.5 \textwidth}
+        \includegraphics[width = 4cm]{figures/teachLogo/spiral.eps}
+    \end{columns}
+  }
 \end{frame}
-\begin{frame}{Turtle graphics}
-  Created+Investigated by Mathias Sabl\'e Meyer
-  
-  \vspace{0.5cm}
-  
-  \includegraphics[width = 10cm]{turtleFigure.png}
 
-  \end{frame}
+\begin{frame}{Turtle graphics}
+  \centering
+  \includegraphics[width=11cm]{figures/tasksMinusBehaviour.png}
+\end{frame}
 
 \begin{frame}{Conclusion}
 
