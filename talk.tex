@@ -357,11 +357,24 @@ Tasks and     \pop{Programs} & DSL\\
 
   
 \end{frame}
+\begin{frame}[t]{Sleep-R: Objective}
+  \includegraphics[width = 11cm]{figures/animation/Wake.eps}
+
+    \vfill
+    Recognition model predicts distribution over program, conditional on task.\\
+    Training: (program, task) pairs\\
+    Objective: Predict program w/ (1) high prior under DSL \& \\(2) high likelihood for task
+
+\end{frame}
 \begin{frame}[t]{Sleep-R: Experience replay}
   \includegraphics[width = 11cm]{figures/animation/Sleep-R-1.eps}
+
+    \textbf{Train on (program, task) pairs found during waking}
 \end{frame}
 \begin{frame}[t]{Sleep-R: Dreaming}
   \includegraphics[width = 11cm]{figures/animation/Sleep-R-2.eps}
+
+    \textbf{Train on (program, task) pairs sampled from DSL}
 
 \end{frame}
 
