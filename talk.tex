@@ -72,11 +72,6 @@
 }
 
 
-
-
-
-
-
 \usepackage[utf8]{inputenc}
 
 \usepackage{amssymb}% http://ctan.org/pkg/amssymb
@@ -367,8 +362,8 @@ Tasks and     \pop{Programs} & DSL\\
 
 
 
-\begin{frame}{List functions}
-  Created+investigated by Lucas Morales
+\begin{frame}{List functions --- \small{Created \& investigated by Lucas
+  Morales}}
 
 
   \vspace{1cm}
@@ -418,17 +413,18 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
 %% \centering\includegraphics[width = 5cm]{symbolicRegression.png}
 %% \end{frame}
 
-\begin{frame}{Turtle graphics}
+\begin{frame}{Turtle graphics --- \small{Created \& investigated by Mathias
+  Sablé--Meyer}}
 
   \begin{block}{DSL}
-    \texttt{FW x | RT x | UP | DOWN | SET state}
+    \texttt{OP ::= FW x | RT x | UP | DOWN | SET state}
   \end{block}
 
   \begin{block}{Tasks}
-    \texttt{unit -> image}
+    \texttt{task : unit -> image}
   \end{block}
 
-  \vspace{0.5cm}
+  \vspace{0.2cm}
 
   \only<1>{
     \begin{columns}[T]
@@ -512,9 +508,39 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
         \includegraphics[width = 4cm]{figures/teachLogo/spiral.eps}
     \end{columns}
   }
+  \only<7>{
+    \begin{columns}[T]
+      \column{0.5 \textwidth}
+        \begin{mycode}
+          \texttt{for i in range($\infty$)}\\
+          \texttt{> FW $\varepsilon$}\\
+          \texttt{> RT} $\varepsilon$\\
+          \vspace*{3\baselineskip}
+        \end{mycode}
+      \column{0.5 \textwidth}
+        \includegraphics[width = 4cm]{figures/teachLogo/circle.eps}
+    \end{columns}
+  }
+  \only<8-9>{
+    \begin{columns}[T]
+      \column{0.5 \textwidth}
+        \begin{mycode}
+          \texttt{for i in range($5\times\infty$)}\\
+          \texttt{> FW $\text{\texttt{i}}\times\varepsilon$}\\
+          \texttt{> RT} $\varepsilon$\\
+          \vspace*{3\baselineskip}
+        \end{mycode}
+      \column{0.5 \textwidth}
+        \includegraphics[width = 4cm]{figures/teachLogo/sspiral.eps}
+    \end{columns}
+  }
+  \visible<9>{
+    \vspace{0.2cm}
+    \texttt{\alert{NUM} ::= 1 | $\pi$ | $\infty$ | $\varepsilon$ | + | - | * | / }
+  }
 \end{frame}
 
-\begin{frame}{Turtle graphics}
+\begin{frame}{Turtle graphics --- Training tasks}
   \centering
   \includegraphics[width=11cm]{figures/tasksMinusBehaviour.png}
 \end{frame}
