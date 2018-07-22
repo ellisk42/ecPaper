@@ -577,9 +577,26 @@ highlighted in {\orange{orange}},
 
 \begin{block}{Generative models of images: \texttt{Turtle}s all the way down}
 
-Agent controls a `pen' tasked with drawing pictures.
+\begin{columns}[t,totalwidth=\threecolwid] % Split up the two columns wide column again
+
+\begin{column}{\twocolwid} % The first column within column 2 (column 2.1)
   
-  \includegraphics[width=20cm]{figures/poster2/sampleTasks.png}
+  \includegraphics[width=\twocolwid]{figures/dreams/montageLearningAndShapes.eps}
+
+  \textbf{Left column:} 16 out of 92 example tasks to hit in an all-or-none
+  fashion --- training set for the \system algorithm.
+  \textbf{Right column:} Learning curve for a run with a timeout of search time
+  per task of 5 minutes (blue, bottom) and of 120 minutes (red, top). On the
+  bottom are dreams, from left to right: before any training (original DSL, flat
+  priors), at the end of the 5-minutes-timeout run, and at the end of the
+  12-minutes-timeout run.
+
+\end{column}
+\begin{column}{\onecolwid} % The first column within column 2 (column 2.1)
+  The agent controls a `pen' on a 2D plant. Primitives are those of the LOGO
+  language, modified to have a functional programing structure.
+\end{column}
+\end{columns}
 
 \end{block}
 
