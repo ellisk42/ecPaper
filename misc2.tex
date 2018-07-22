@@ -127,11 +127,11 @@
 
 \begin{alertblock}{Wake/Sleep DSL Induction}
   \flushleft
-  \textbf{Domain Specific Language (DSL):}
-  A finely-tuned program representation, specialized to a domain of programming tasks.
+  \textbf{DSL:}
+  Domain Specific Language, a finely-tuned program representation, specialized to a domain of programming tasks.
   Prior work in program learning  largely uses hand-engineered DSLs.
 
-  \textbf{Approach:}  \system algorithm,
+  \textbf{Approach:} \system algorithm,
   which bootstraps a learned DSL while jointly training
   a neural net to search for programs in the learned DSL.
 Given a few hundred programming tasks, alternatingly:
@@ -142,7 +142,7 @@ Given a few hundred programming tasks, alternatingly:
     \end{itemize}
 
   \textbf{Program representation:}
-  $\approx $Lisp; conditionals, variables, $\lambda$~abstraction
+  $\approx $~Lisp; conditionals, variables, $\lambda$~abstraction
 
 \end{alertblock}
 
@@ -152,52 +152,15 @@ Given a few hundred programming tasks, alternatingly:
 
 \begin{block}{Bayesian framing}
 
-\begin{tikzpicture}[scale=4,line width=1.5mm]
 
-  \node[latent,scale=3] at (3.5,3) (dx){$\mathcal{D}$};
-  \node[latent,scale=3] at ([xshift=2cm]dx) (zp){$p_n$};
-  \node[obs,scale=3] at ([xshift=2cm]zp) (xp) {$x_n$};
-  \plate {}{(zp)(xp)}{};
-%  \node[align = center] at ([yshift = -1.2cm,xshift = 1cm]xp.east) {(b) \\recognition model};
-  \draw [->,red] (xp.south) to[out = -90,in = -90] node(nn){} (zp.south);
-%  \draw [->,red] (tx.west) -- (zp.east);
-  \draw [->] (dx.east) -- (zp.west);
-  \draw [->] (zp.east) -- (xp.west);
-
-  \node at (nn) {
-    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.5,shift={+(-1,2.5)}}]
-      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-      \node[rectangle] at (1,1) {};
-      \foreach \name / \y in {1,...,4}
-          \node[neuron] (I-\name) at (0,-\y) {};
-      \foreach \name / \y in {1,...,3}
-          \node[neuron] (H-\name) at (1,-\y-0.5) {};
-      \foreach \name / \y in {1,...,4}
-          \node[neuron] (O-\name) at (2,-\y) {};
-      \foreach \source in {1,...,4}
-          \foreach \dest in {1,...,3}
-              \draw [-latex] (I-\source) -- (H-\dest);
-      \foreach \source in {1,...,3}
-          \foreach \dest in {1,...,4}
-              \draw [-latex] (H-\source) -- (O-\dest);
-    \end{tikzpicture}
-  };
-  \node[shift={+(0,-1.7)}] at (nn) { $Q$  };
-
-
-
-  
-
-
-  \end{tikzpicture}
+  \includegraphics{figures/animation/DC.eps}
   
   Observe $N$ \textbf{tasks}, written $\left\{x_n \right\}_{n = 1}^N$, each a program synthesis problem.
 
   Solve task $x_n$ with latent program $p_n$
 
   \textbf{Likelihood model} $\probability[x_n|p_n]$
-  scores program $p_n$ on task $x_n$
+  scores program $p_n$ on task $x_n.
 
   Latent  \textbf{DSL $\mathcal{D}$} acts as generative model over programs: $\probability[x|\mathcal{D}]$
 
@@ -209,13 +172,8 @@ $$
 \underbrace{\mathcal{D}^* = \argmax_{\mathcal{D}}    \probability[\mathcal{D}]\prod_n\sum_{p_n}\probability[x_n|p_n]\probability[p_n|\mathcal{D}]}_{\textbf{\text{Sleep-G}}}
 $$
 
-  
-  
-  
-
-  
-
 \end{block}
+
 
 \begin{block}{Neural recognition model}
 
@@ -230,7 +188,8 @@ $$\underbrace{\min_Q \text{KL}\left(\probability[p|x,\mathcal{D}] || Q(p|x)\righ
 Train on two sources of data:
 
   \begin{itemize}
-  \item \textbf{Samples (``Dreams'') from DSL}: Unlimited data, but only high-quality if generative model $\mathcal{D}$ is good. Like Helmholtz Machine's recognition model training. Loss:
+  \item \textbf{``Dreams'' from DSL}: Can sample unlimited data, quality
+    positively correlates with fitness of generative model $\mathcal{D}$. Like Helmholtz Machine's recognition model training. Loss:
     \begin{equation*}
 \expect_{(p,x)\sim\mathcal{D} }\left[\log Q(p|x)\right]
       \end{equation*}
@@ -243,7 +202,6 @@ Train on two sources of data:
   
 
 \end{block}
-
 
 %------------------------------------------------
 
@@ -408,6 +366,10 @@ Top: Tasks from three domains we apply our algorithm to, each followed by the pr
 
 \begin{column}{\threecolwid} % The first column within column 2 (column 2.1)
 
+\begin{columns}[t,totalwidth=\threecolwid] % Split up the two columns wide column again
+
+\begin{column}{\twocolwid} % The first column within column 2 (column 2.1)
+
 %----------------------------------------------------------------------------------------
 %	MATHEMATICAL SECTION
 %----------------------------------------------------------------------------------------
@@ -505,44 +467,47 @@ highlighted in {\orange{orange}},
 \vspace{-1cm}
 \end{block}
 
-\begin{block}{Generative models of images: Turtle/LOGO Graphics}
-  
-  \newcommand{\dreamSize}{5.5cm}
-  \begin{tabular}{|lll|}\multicolumn{3}{c}{\textbf{12 (of 136) Tasks}}\\\hline
-    \includegraphics[width = \dreamSize]{turtleTasks/square/trimmed/train_square_3_h.png}&
-    \includegraphics[width = \dreamSize]{turtleTasks/square/trimmed/train_square_4_h.png}&
-    \includegraphics[width = \dreamSize]{turtleTasks/six/trimmed/snow1_h.png}\\
-    \includegraphics[width = \dreamSize]{turtleTasks/six/trimmed/snow2_random_1.png}&
-    \includegraphics[width = \dreamSize]{turtleTasks/six/trimmed/hexa_vh.png}&
-    \includegraphics[width = \dreamSize]{turtleTasks/logoTasks/trimmed/star_5_h.png}\\
-        \includegraphics[width = \dreamSize]{turtleTasks/six/trimmed/star_vh.png}&
-    \includegraphics[width = \dreamSize]{turtleTasks/logoTasks/trimmed/spiral6_h.png}&
-        \includegraphics[width = \dreamSize]{turtleTasks/logoTasks/trimmed/star_7_h.png}\\
+\end{column}
+\begin{column}{\onecolwid} % The first column within column 2 (column 2.1)
 
-%    \includegraphics[width = \dreamSize]{turtleTasks/circle/trimmed/train_circle_10_h.png}\\
-    \includegraphics[width = \dreamSize]{turtleTasks/logoTasks/trimmed/smooth_spiral4_h.png}&
-    \includegraphics[width = \dreamSize]{turtleTasks/los/trimmed/train_los_3_1_h.png}&
-    \includegraphics[width = \dreamSize]{turtleTasks/logoTasks/trimmed/iter2_h.png}\\\hline
-%    \includegraphics[width = \dreamSize]{dreams/final/trimmed/1748505267_norm.png}&
-  \end{tabular}\hspace{4cm}%
-  \begin{tabular}{|lll|}\multicolumn{3}{c}{\textbf{9 samples from learned DSL}}\\\hline
-    \includegraphics[width = \dreamSize]{dreams/final/trimmed/4361002260.png}&
-    \includegraphics[width = \dreamSize]{dreams/final/trimmed/5809723215.png}&
-    \includegraphics[width = \dreamSize]{dreams/final/trimmed/5818934795_norm.png}\\
-%    \includegraphics[width = \dreamSize]{dreams/final/trimmed/6027771181.png}\\
-    \includegraphics[width = \dreamSize]{dreams/final/trimmed/1950268419.png}&
-    \includegraphics[width = \dreamSize]{dreams/final/trimmed/6770710484.png}&
-    \includegraphics[width = \dreamSize]{dreams/final/trimmed/7045328293.png}\\
-    \includegraphics[width = \dreamSize]{dreams/final/trimmed/7623700519.png}&
-%    \includegraphics[width = \dreamSize]{dreams/final/trimmed/8879622788.png}&
-    \includegraphics[width = \dreamSize]{dreams/final/trimmed/9150025422.png}&
-    \includegraphics[width = \dreamSize]{dreams/final/trimmed/9666602433.png}\\\hline
-%    \includegraphics[width = \dreamSize]{dreams/final/trimmed/1748505267_norm.png}&
-  \end{tabular}
+\begin{block}{Bootstrapping}
 
-  \vspace{2cm} \textbf{Left:}  Agent controls a `pen' -- tasked with drawing pictures. \textbf{Right:} During Sleep-R,
-   `dream' by sampling programs from learned DSL and rendering them.
+\begin{figure}
+\hspace*{-1.5cm}  \begin{tikzpicture}[scale=3,line width=1.5mm]
+    \begin{scope}[shift = {(1,-1)}]
+    \node[align = center](synthesis) at (6,4) {Search for \\programs: $p$};
+    \node[align = center](DSL) at (3,1) {DSL: $\mathcal{D}$};
+    \node[align = center](recognitionModel) at (9,1) {Recognition \\model: $Q$};
+
+    \draw [->] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-G)}} (DSL.30);
+    \draw [->] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.150);
+    \draw [->] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.west);
+
+    \draw [->,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Inductive bias}\\\footnotesize{(Wake)}} (synthesis.west);
+    \draw [->,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Wake)}} (synthesis.east);
+  \end{scope}
+    \end{tikzpicture}
+ % \caption{\system solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
+\end{figure}
+%% \begin{itemize}
+%% \item Search finds new programs$\implies$ DSL+recognition model get more data
+%% \item DSL improves$\implies$easier search, recognition model gets better data
+%%   \item Recognition model improves$\implies$ easier search
+%%   \end{itemize}
+
+
+
   
+\end{block}
+
+\end{column}
+\end{columns}
+
+\begin{block}{Generative models of images: \texttt{Turtle}s all the way down}
+
+Agent controls a `pen' tasked with drawing pictures.
+  
+  \includegraphics[width=20cm]{figures/poster2/sampleTasks.png}
 
 \end{block}
 
