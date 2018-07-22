@@ -206,7 +206,7 @@
 \end{block}
 
 \begin{block}{Wake: Problem solving}
-  \begin{tikzpicture}[scale=2.5]
+  \begin{tikzpicture}[scale=2.5,line width=1.3mm]
     \node at (0,0) (d){DSL};
     \node at ([yshift = -2cm]d) (t){$\text{Task}$};
 
@@ -242,11 +242,6 @@
     \draw [->  ] (s.east) -- (f.west);
 
     \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
-%    \node at ([xshift = 0.5cm,yshift = -0.75cm]s.south) {Spec};
-
- %   \node at (4,-3.5) {\textbf{\textsc{Wake: Problem Solving}}};
-    
-    
   \end{tikzpicture}
 
   
