@@ -14,7 +14,7 @@ all: $(OBJ) poster2
 	-$(TEX) $^
 	-$(TEX) $^
 
-poster2: misc2.c
+poster2: misc2.tex
 	-$(TEX) $^
 	# all our tex files use bibtex
 	-bibtex $(^:.tex=)

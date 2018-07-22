@@ -97,9 +97,9 @@
 \newcommand{\system}{\textsc{DreamCoder}~}
 \newcommand{\systemEnding}{\textsc{DreamCoder}}
 
-\title{\huge \systemEnding: Bootstrapping Domain-Specific Languages for Neurally-Guided Bayesian Program Learning} % Poster title
+\title{\huge \systemEnding: Growing Libraries of Concepts with Wake-Sleep Program Induction} % Poster title
 
-\author{Kevin Ellis, Lucas Morales, Mathias Sabl\'e Meyer, Maxwell Nye, Luke Hewitt,\\ Armando Solar-Lezama, Joshua B. Tenenbaum} % Author(s)
+\author{Kevin Ellis, Mathias Sabl\'e Meyer, Lucas Morales, Maxwell Nye, Luke Hewitt,\\ Armando Solar-Lezama, Joshua B. Tenenbaum} % Author(s)
 
 \institute{Massachusetts Institute of Technology \& MIT-IBM Watson AI lab} % Institution(s)
 
@@ -127,14 +127,16 @@
 
 \begin{alertblock}{Wake/Sleep DSL Induction}
   \flushleft
-  \textbf{DSL:}
-  Domain Specific Language, a finely-tuned program representation, specialized to a domain of programming tasks.
-  Prior work in program learning  largely uses hand-engineered DSLs.
+  Goal: acquire domain-specific knowledge needed to induce a class of programs
+  \begin{itemize}
+  \item Declarative knowledge: library of concepts, `DSL' (domain specific language)
+    \item Procedural knowledge: knowing how and when to use those concepts; search strategy
+    \end{itemize}
 
-  \textbf{Approach:} \system algorithm,
-  which bootstraps a learned DSL while jointly training
-  a neural net to search for programs in the learned DSL.
-Given a few hundred programming tasks, alternatingly:
+%%   \system algorithm,
+%%   which bootstraps a learned DSL while jointly training
+%%   a neural net to search for programs in the learned DSL.
+%% Given a few hundred programming tasks, alternatingly:
   \begin{itemize}
   \item \textbf{Wake}: synthesize programs
   \item \textbf{Sleep-R}: train neural net (\textbf{R}ecognition model)
@@ -152,52 +154,122 @@ Given a few hundred programming tasks, alternatingly:
 
 \begin{block}{Bayesian framing}
 
+    \includegraphics[width = 20cm]{figures/animation/DC.eps}
 
-  \includegraphics{figures/animation/DC.eps}
+%% \begin{tikzpicture}[scale=4,line width=1.5mm]
+
+%%   \node[latent,scale=3] at (3.5,3) (dx){$\mathcal{D}$};
+%%   \node[latent,scale=3] at ([xshift=2cm]dx) (zp){$p_n$};
+%%   \node[obs,scale=3] at ([xshift=2cm]zp) (xp) {$x_n$};
+%%   \plate {}{(zp)(xp)}{};
+%% %  \node[align = center] at ([yshift = -1.2cm,xshift = 1cm]xp.east) {(b) \\recognition model};
+%%   \draw [->,red] (xp.south) to[out = -90,in = -90] node(nn){} (zp.south);
+%% %  \draw [->,red] (tx.west) -- (zp.east);
+%%   \draw [->] (dx.east) -- (zp.west);
+%%   \draw [->] (zp.east) -- (xp.west);
+
+%%   \node at (nn) {
+%%     \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.5,shift={+(-1,2.5)}}]
+%%       \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+%%       \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+%%       \node[rectangle] at (1,1) {};
+%%       \foreach \name / \y in {1,...,4}
+%%           \node[neuron] (I-\name) at (0,-\y) {};
+%%       \foreach \name / \y in {1,...,3}
+%%           \node[neuron] (H-\name) at (1,-\y-0.5) {};
+%%       \foreach \name / \y in {1,...,4}
+%%           \node[neuron] (O-\name) at (2,-\y) {};
+%%       \foreach \source in {1,...,4}
+%%           \foreach \dest in {1,...,3}
+%%               \draw [-latex] (I-\source) -- (H-\dest);
+%%       \foreach \source in {1,...,3}
+%%           \foreach \dest in {1,...,4}
+%%               \draw [-latex] (H-\source) -- (O-\dest);
+%%     \end{tikzpicture}
+%%   };
+%%   \node[shift={+(0,-1.7)}] at (nn) { $Q$  };
+
+
+
   
-  Observe $N$ \textbf{tasks}, written $\left\{x_n \right\}_{n = 1}^N$, each a program synthesis problem.
 
-  Solve task $x_n$ with latent program $p_n$
 
-  \textbf{Likelihood model} $\probability[x_n|p_n]$
-  scores program $p_n$ on task $x_n.
+%%   \end{tikzpicture}
+  
+  Observe \textbf{tasks} (program induction problems). 
+  Solve tasks w/ latent programs.
+  %% \textbf{Likelihood model} $\probability[x_n|p_n]$
+  %% scores program $p_n$ on task $x_n$
+  Latent  \textbf{DSL} acts as generative model over programs: `library of concepts'.
+  \textbf{Recognition model}: a neural net that predicts distribution over programs conditioned on task: `procedural knowledge'
 
-  Latent  \textbf{DSL $\mathcal{D}$} acts as generative model over programs: $\probability[x|\mathcal{D}]$
+\end{block}
 
-$$
-\underbrace{p_n^* =   \argmax_{p_n}\probability[x_n|p_n]\probability[p_n|\mathcal{D}^*]}_{\text{\textbf{Wake}}}
-$$
-\vspace{1cm}
-$$
-\underbrace{\mathcal{D}^* = \argmax_{\mathcal{D}}    \probability[\mathcal{D}]\prod_n\sum_{p_n}\probability[x_n|p_n]\probability[p_n|\mathcal{D}]}_{\textbf{\text{Sleep-G}}}
-$$
+\begin{block}{Wake: Problem solving}
+  \begin{tikzpicture}[scale=2.5]
+    \node at (0,0) (d){DSL};
+    \node at ([yshift = -2cm]d) (t){$\text{Task}$};
+
+    \node at ([xshift = 2cm]t) (nn){
+      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.4,shift={+(-1,2.5)}}]
+        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+        \node[rectangle] at (1,1) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (I-\name) at (0,-\y) {};
+        \foreach \name / \y in {1,...,3}
+            \node[neuron] (H-\name) at (1,-\y-0.5) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (O-\name) at (2,-\y) {};
+        \foreach \source in {1,...,4}
+            \foreach \dest in {1,...,3}
+                \draw [-latex] (I-\source) -- (H-\dest);
+        \foreach \source in {1,...,3}
+            \foreach \dest in {1,...,4}
+                \draw [-latex] (H-\source) -- (O-\dest);
+      \end{tikzpicture}
+    };
+    \node[align = center, text width = 1cm] at ([yshift = 0.6cm,xshift=-0.5cm]nn.north) {\baselineskip=0pt \small Recog. model\par};
+    \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
+
+    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
+%    \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
+
+    \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
+    \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
+
+    \node[align=left] at (7,-1) (f) {Programs};
+    \draw [->  ] (s.east) -- (f.west);
+
+    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
+%    \node at ([xshift = 0.5cm,yshift = -0.75cm]s.south) {Spec};
+
+ %   \node at (4,-3.5) {\textbf{\textsc{Wake: Problem Solving}}};
+    
+    
+  \end{tikzpicture}
+
+  
 
 \end{block}
 
 
-\begin{block}{Neural recognition model}
 
-  Neural network $Q(p|x)$
+\begin{block}{Sleep-R: Procedural knowledge}
+
+  Neural network
   predicts distribution over programs conditioned on tasks.
-  Simple $Q$: just predicts probabilities of DSL productions.  Goal: learn to invert generative model
-
-  
-$$\underbrace{\min_Q \text{KL}\left(\probability[p|x,\mathcal{D}] || Q(p|x)\right) }_{\text{\textbf{Sleep-R}}}$$
+  Simple model: just predicts probabilities of DSL productions.  Goal: learn to invert generative model from (program, task) pairs  
 
 
 Train on two sources of data:
 
   \begin{itemize}
-  \item \textbf{``Dreams'' from DSL}: Can sample unlimited data, quality
-    positively correlates with fitness of generative model $\mathcal{D}$. Like Helmholtz Machine's recognition model training. Loss:
-    \begin{equation*}
-\expect_{(p,x)\sim\mathcal{D} }\left[\log Q(p|x)\right]
-      \end{equation*}
-  \item \textbf{Self-Supervised}: $(x_n,p_n)$ pairs discovered during waking. Loss:
-    \begin{equation*}
- %\sum_{n = 1}^N\left[\sum_{(x_n,p_n)}
-  \frac{\probability\left[x_n,p_n|\mathcal{D}\right]}{\sum_{(x_n,p_n')}\probability\left[x_n,p_n|\mathcal{D} \right]}\log Q(p_n|x_n)%\right]
-      \end{equation*}
+  \item \textbf{``Dreaming'' from DSL}:
+
+    \includegraphics[width = 20cm]{figures/animation/Sleep-R-2.eps}
+  \item \textbf{Experience replay}: (program, task) pairs discovered during waking.
+  \includegraphics[width = 20cm]{figures/animation/Sleep-R-1.eps}    
   \end{itemize}
   
 
@@ -374,7 +446,7 @@ Top: Tasks from three domains we apply our algorithm to, each followed by the pr
 %	MATHEMATICAL SECTION
 %----------------------------------------------------------------------------------------
 
-\begin{block}{Fragment Grammars: Inducing a DSL}
+\begin{block}{Sleep-G: Growing a DSL}
 Fragment grammars: introduced in computational linguistics~(O'Donnell~2015)
 \begin{figure}[b!]\tabcolsep=2pt
 \centering  \begin{minipage}[c]{7.5cm}
