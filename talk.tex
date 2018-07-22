@@ -332,12 +332,57 @@ Tasks and     \pop{Programs} & DSL\\
 \begin{frame}[t]{Wake: Problem solving}
   \includegraphics[width = 11cm]{figures/animation/Wake.eps}
 
-    \vfill
+  \vfill
+  \only<1>{
   Recognition model: Neural net.\\
   Red: Bottom-up inference.\\
   Gray: Observed.\\
   White: Latent.\\
   Boxed (plate): Repeated.\\
+  }
+  \only<2>{
+  \begin{tikzpicture}[xscale=1.25,line width=1mm]
+    \node at (0,0) (d){DSL};
+    \node at ([yshift = -2cm]d) (t){$\text{Task}$};
+
+    \node at ([xshift = 2cm]t) (nn){
+      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.3,shift={+(-1,2.5)}}]
+       \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+        \node[rectangle] at (1,1) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (I-\name) at (0,-\y) {};
+        \foreach \name / \y in {1,...,3}
+            \node[neuron] (H-\name) at (1,-\y-0.5) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (O-\name) at (2,-\y) {};
+        \foreach \source in {1,...,4}
+            \foreach \dest in {1,...,3}
+                \draw [-latex] (I-\source) -- (H-\dest);
+        \foreach \source in {1,...,3}
+            \foreach \dest in {1,...,4}
+                \draw [-latex] (H-\source) -- (O-\dest);
+      \end{tikzpicture}
+    };
+    \node[align = center, text width = 1cm] at ([yshift = 0.7cm]nn.north) {\baselineskip=0pt \Small Recog. model\par};
+    \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
+
+    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
+%    \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
+
+    \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
+    \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
+
+    \node[align=left] at (7,-1) (f) {Programs};
+    \draw [->  ] (s.east) -- (f.west);
+
+    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
+  \end{tikzpicture}}
+  %% Recognition model: Neural net.\\
+  %% Red: Bottom-up inference.\\
+  %% Gray: Observed.\\
+  %% White: Latent.\\
+  %% Boxed (plate): Repeated.\\
 
 \end{frame}
 \begin{frame}[t]{Sleep-G: Memory consolidation}
@@ -558,7 +603,7 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
   \includegraphics[width=11cm]{figures/tasksMinusBehaviour.png}
 \end{frame}
 
-\begin{frame}{Contributions}
+\begin{frame}{Vision}
 
   \textbf{Takeaway:}
   \begin{itemize}
@@ -566,14 +611,13 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
   \end{itemize}
   \pause
 
-  \textbf{Future work}
+  %% \textbf{Future work}
 
-  \begin{itemize}
-  \item More human-like learning: intelligently composing new tasks, 
-    \pause
-  \item Theory learning
-    \item Planning
-    \end{itemize}
+  %% \begin{itemize}
+  %%   \pause
+  %% \item Theory learning
+  %%   \item Planning
+  %%   \end{itemize}
 
   \end{frame}
 
