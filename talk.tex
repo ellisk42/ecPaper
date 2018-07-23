@@ -16,6 +16,8 @@
 \usepackage{verbatim}
 \usepackage[absolute,overlay]{textpos}
 \usepackage{pifont}% http://ctan.org/pkg/pifont
+\usepackage{caption}
+\usepackage{subcaption}
 \newcommand{\cmark}{\ding{51}}%
 \newcommand{\xmark}{\ding{55}}%
 \usetikzlibrary{bayesnet}
@@ -725,9 +727,175 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
   \includegraphics[width=11cm]{figures/tasksMinusBehaviour.png}
 \end{frame}
 
-\begin{frame}{Turtle graphics --- Some results}
+\begin{frame}{Turtle graphics --- Learning curves and dreams}
   \centering
   \includegraphics[width=9cm]{figures/dreams/montageTalk.eps}
+\end{frame}
+
+\begin{frame}{Turtle graphics --- Improved DSL}
+  \begin{itemize}
+    \item $\frac\pi2$ and $\frac\pi4$ from $\pi$, $2$, $+$ and $/$
+    \item A line of length \texttt{n} followed with a right angle
+    \item Loops of length \texttt{n} that uses the number \texttt{n} inside.
+    \item Unit line then teleport back to origin
+    \item ...
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Turtle graphics --- All the way down}
+  \centering
+  \begin{center}
+  \only<1>{
+    \begin{figure}
+      \includegraphics[width=5cm]{figures/teachLogo/star5_black.eps}
+    \end{figure}
+  }
+  \only<2>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_colour.eps}
+    \end{figure}
+  }
+  \only<3>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq1.eps}
+    \end{figure}
+  }
+  \only<4>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq2.eps}
+    \end{figure}
+  }
+  \only<5>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq3.eps}
+    \end{figure}
+  }
+  \only<6>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq4.eps}
+    \end{figure}
+  }
+  \only<7>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq5.eps}
+    \end{figure}
+  }
+  \only<8>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq1.eps}
+    \end{figure}
+  }
+  \only<9>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq2.eps}
+    \end{figure}
+  }
+  \only<10>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq3.eps}
+    \end{figure}
+  }
+  \only<11>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq4.eps}
+    \end{figure}
+  }
+  \only<12>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq5.eps}
+    \end{figure}
+  }
+  \only<13>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/star5_seq1.eps}
+    \end{figure}
+  }
+  \only<14>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp000.png}
+    \end{figure}
+  }
+  \only<15>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp002.png}
+    \end{figure}
+  }
+  \only<16>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp004.png}
+    \end{figure}
+  }
+  \only<17>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp006.png}
+    \end{figure}
+  }
+  \only<18>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp008.png}
+    \end{figure}
+  }
+  \only<19>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp010.png}
+    \end{figure}
+  }
+  \only<20>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp012.png}
+    \end{figure}
+  }
+  \only<21>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp014.png}
+    \end{figure}
+  }
+  \only<22>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp016.png}
+    \end{figure}
+  }
+  \only<23>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp018.png}
+    \end{figure}
+  }
+  \only<24>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp020.png}
+    \end{figure}
+  }
+  \only<25>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp022.png}
+    \end{figure}
+  }
+  \only<26>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp024.png}
+    \end{figure}
+  }
+  \only<27>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp026.png}
+    \end{figure}
+  }
+  \only<28>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp028.png}
+    \end{figure}
+  }
+  \only<29>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp030.png}
+    \end{figure}
+  }
+  \only<30>{
+    \begin{figure}
+    \includegraphics[width=5cm]{figures/teachLogo/spiral/seqSp032.png}
+    \end{figure}
+  }
+\end{center}
 \end{frame}
 
 \begin{frame}{Vision}
@@ -745,6 +913,13 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
   %% \item Theory learning
   %%   \item Planning
   %%   \end{itemize}
+
+    \pause{}
+
+    \begin{figure}
+        \includegraphics[scale=0.44]{figures/xkcd_star.png}
+        \caption*{Thanks to \textsc{xkcd} we can rule out $36^\circ$ as a primitive.}
+    \end{figure}
 
   \end{frame}
 
