@@ -306,27 +306,95 @@ Tasks and     \pop{Programs} & DSL\\
 \end{frame} 
 
 \begin{frame}[t]{DSL learning as Bayesian inference}
-  \includegraphics[width = 11cm]{figures/animation/EC.eps}
+  %  \includegraphics[width = 11cm]{figures/animation/EC.eps}
+\centering  \begin{tikzpicture}[scale=1.3,line width=0.5mm]
+
+  \node[latent,scale=1] at (3.5,3) (dx){DSL};
+  \node[latent,scale=1] at ([yshift=-1.5cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-2cm]zp) (xp) {data};
+  \node[latent,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {data};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  %\draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+%  \node at (nn) {\NeuralNetwork{0.5}};
+  
+  \node[latent,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {data};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+%  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+%  \node at (nn) {\NeuralNetwork{0.5}};
+
+
+%  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+ % \node at (nn) {\NeuralNetwork{0.5}};
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+
+  %\node[shift={+(0,-1.7)}] at (nn) { $Q$  };
+
+  \end{tikzpicture}
+  
 
 \vspace{1cm}
   
   \textbf{[Dechter et al., 2013]}  [Liang et al, 2010]; [Lake et al, 2015]
 
-  \vfill
-  Gray: Observed.\\
-  White: Latent.\\
-  Boxed (plate): Repeated.\\
+  %% \vfill
+  %% Gray: Observed.\\
+  %% White: Latent.\\
+  %% Boxed (plate): Repeated.\\
   
 \end{frame}
+\newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
 \begin{frame}[t]{DSL learning as \alert{amortized} Bayesian inference}
-  \includegraphics[width = 11cm]{figures/animation/DC.eps}
+\centering  \begin{tikzpicture}[scale=1.3,line width=0.5mm]
 
-  \vfill
-  Recognition model: Neural net.\\
-  Red: Bottom-up inference.\\
-  Gray: Observed.\\
-  White: Latent.\\
-  Boxed (plate): Repeated.\\
+  \node[latent,scale=1] at (3.5,3) (dx){DSL};
+  \node[latent,scale=1] at ([yshift=-1.5cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-2cm]zp) (xp) {data};
+  \node[latent,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {data};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+%  \node at (nn) {\NeuralNetwork{0.5}};
+  
+  \node[latent,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {data};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+%  \node at (nn) {\NeuralNetwork{0.5}};
+
+
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \node at (nn) {\NeuralNetwork{0.25}};
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+
+  %\node[shift={+(0,-1.7)}] at (nn) { $Q$  };
+
+  \end{tikzpicture}
 
 \end{frame}
 \begin{frame}[t]{Wake: Problem solving}
