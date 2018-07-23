@@ -592,12 +592,29 @@ highlighted in {\orange{orange}},
   per task of 5 minutes (blue, bottom) and of 120 minutes (red, top). On the
   bottom are dreams, from left to right: before any training (original DSL, flat
   priors), at the end of the 5-minutes-timeout run, and at the end of the
-  12-minutes-timeout run.
+  12-minutes-timeout run. \textbf{The color gradient} indicates the temporal
+  aspect of the drawing part, or the pen, from blue (origin) to purple (end).
 
 \end{column}
 \begin{column}{\onecolwid} % The first column within column 2 (column 2.1)
-  The agent controls a `pen' on a 2D plant. Primitives are those of the LOGO
-  language, modified to have a functional programing structure.
+  The agent controls a `pen' on a 2 dimentional plane. Primitives are those of
+the LOGO language, modified to have a functional programing structure. Task
+  don't take arguments (they are of type \texttt{unit -> image}) and the
+  likelyhood function is all-or-none.
+
+  Invented abstractions include:
+  \begin{itemize}
+    \item $\frac\pi2$ since it has $\pi$, $2$ and $/$ and needs right angles
+    \item A line of any length followed with a right angle
+    \item Loops of length $n$ that uses the number $n$ inside.
+    \item A single line of unit length, followed by a set at the origin of the
+      line
+  \end{itemize}
+
+  The deepest observed level of embedding of invented primitives on the 2 hours
+  run was $7$, meaning that some invented primitives used invented and so on,
+  seven times.
+
 \end{column}
 \end{columns}
 
