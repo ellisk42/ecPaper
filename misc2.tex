@@ -178,7 +178,7 @@
 
   \node[latent,scale=3] at (3.5,3) (dx){DSL};
   \node[latent,scale=3] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
-  \node[obs,scale=3] at ([yshift=-2cm]zp) (xp) {data};
+  \node[obs,scale=3] at ([yshift=-1.45cm]zp) (xp) {data};
   \node[latent,scale=3] at ([xshift=2cm]zp) (zp1){prog};
   \node[obs,scale=3] at ([xshift=2cm]xp) (xp1) {data};
   \draw [->] (zp1.south) -- (xp1.north);
@@ -216,7 +216,7 @@
 \begin{block}{Wake: Problem solving}
   \begin{tikzpicture}[scale=2.5,line width=1.3mm,arrowhead=0.1mm]
     \node at (0,0) (d){DSL};
-    \node at ([yshift = -2cm]d) (t){$\text{Task}$};
+    \node at ([yshift = -2cm]d) (t){$\text{Data}$};
 
     \node at ([xshift = 2cm]t) (nn){
       \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.4,shift={+(-1,2.5)}}]
