@@ -99,7 +99,8 @@
 
 \title{\huge \systemEnding: Growing Libraries of Concepts with Wake-Sleep Program Induction} % Poster title
 
-\author{Kevin Ellis, Mathias Sabl\'e Meyer, Lucas Morales, Maxwell Nye, Luke Hewitt,\\ Armando Solar-Lezama, Joshua B. Tenenbaum} % Author(s)
+\author{Kevin Ellis, Mathias Sabl\'e Meyer, Lucas Morales, %% Maxwell Nye, Luke Hewitt,
+  \\ Armando Solar-Lezama, Joshua B. Tenenbaum} % Author(s)
 
 \institute{Massachusetts Institute of Technology \& MIT-IBM Watson AI lab} % Institution(s)
 
@@ -213,7 +214,7 @@
 \end{block}
 
 \begin{block}{Wake: Problem solving}
-  \begin{tikzpicture}[scale=2.5,line width=1.3mm]
+  \begin{tikzpicture}[scale=2.5,line width=1.3mm,arrowhead=0.1mm]
     \node at (0,0) (d){DSL};
     \node at ([yshift = -2cm]d) (t){$\text{Task}$};
 
@@ -237,18 +238,18 @@
       \end{tikzpicture}
     };
     \node[align = center, text width = 1cm] at ([yshift = 0.6cm,xshift=-0.5cm]nn.north) {\baselineskip=0pt \small Recog. model\par};
-    \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
+    \draw [double,-{>[scale=0.2]}] (t.east) -- ([xshift = -0.5cm]nn.west);
 
     \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
 %    \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
 
-    \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
-    \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
+    \draw [double,->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
+    \draw [->,rounded corners,double,] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
 
     \node[align=left] at (7,-1) (f) {Programs};
-    \draw [->  ] (s.east) -- (f.west);
+    \draw [double,->  ] (s.east) -- (f.west);
 
-    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
+    \draw [->  ,rounded corners,double,] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
   \end{tikzpicture}
 
   
@@ -262,7 +263,7 @@
   %% Neural network
   %% predicts distribution over programs conditioned on tasks.
   %% Simple model: just predicts probabilities of DSL productions.  
-  Goal: learn to invert generative model from (program, task) pairs  
+  Goal: learn to invert generative model, trained on (program, task) pairs  
 
 
 Train on two sources of data:
@@ -586,21 +587,22 @@ highlighted in {\orange{orange}},
   
   \includegraphics[width=\twocolwid]{figures/dreams/montageLearningAndShapes.eps}
 
-  \textbf{Left column:} 16 out of 92 example tasks to hit in an all-or-none
-  fashion --- training set for the \system algorithm.
-  \textbf{Right column:} Learning curve for a run with a timeout of search time
-  per task of 5 minutes (blue, bottom) and of 120 minutes (red, top). On the
-  bottom are dreams, from left to right: before any training (original DSL, flat
-  priors), at the end of the 5-minutes-timeout run, and at the end of the
-  12-minutes-timeout run. \textbf{The color gradient} indicates the temporal
-  aspect of the drawing part, or the pen, from blue (origin) to purple (end).
+  \textbf{Left column:} 16 out of 92 example tasks %% to hit in an all-or-none
+  %% fashion
+ (training set). % for the \system algorithm.
+  \textbf{Top right:} Learning curves for  runs w/ search timeout
+    5 minutes (blue, bottom) and  120 minutes (red, top). \textbf{Bottom right:}
+   dreams, from left to right: before learning, at the end of the 5-minute-timeout run, and at the end of the
+  120-minute-timeout run. \textbf{Color gradient:} pen trajectory over time,
+  %% aspect of the drawing part, or the pen,
+  from blue (origin) to purple (end).
 
 \end{column}
 \begin{column}{\onecolwid} % The first column within column 2 (column 2.1)
-  The agent controls a `pen' on a 2 dimentional plane. Primitives are those of
-the LOGO language, modified to have a functional programing structure. Task
-  don't take arguments (they are of type \texttt{unit -> image}) and the
-  likelyhood function is all-or-none.
+  Agent controls a `pen' on a 2 dimentional plane. LOGO/Turtle primitives.%% Primitives are those of
+%% the LOGO language, modified to have a functional programing structure. Task
+%%   don't take arguments (they are of type \texttt{unit -> image}) and the
+%%   likelyhood function is all-or-none.
 
   Invented abstractions include:
   \begin{itemize}
@@ -611,8 +613,9 @@ the LOGO language, modified to have a functional programing structure. Task
       line
   \end{itemize}
 
-  The deepest observed level of embedding of invented primitives on the 2 hours
-  run was $7$, meaning that some invented primitives used invented and so on,
+  Deep embedding of invented abstractions: up to $7$, %observed level of embedding of invented primitives on the 2 hours
+  %% run was $7$
+  meaning that some invented primitives used invented and so on,
   seven times.
 
 \end{column}
@@ -624,8 +627,8 @@ the LOGO language, modified to have a functional programing structure. Task
 
 \begin{block}{Acknowledgements}
 
-  We gratefully acknowledge collaboration with Eyal Dechter, whose EC algorithm (Dechter et al, IJCAI 2013) provided the inspiration for DreamCoder, and Luke Hewitt, who graciously provided us with
-  a regex learning data set.
+  We gratefully acknowledge collaboration with Eyal Dechter, whose EC algorithm (Dechter et al, IJCAI 2013) provided the inspiration for DreamCoder.%% , and Luke Hewitt, who graciously provided us with
+  %% a regex learning data set.
 
 \end{block}
 
