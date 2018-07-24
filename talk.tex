@@ -196,59 +196,7 @@ Character ::= a | b | c | ...
  
 \frame{\titlepage}
 
-\begin{frame}{EC --- Wake}
-  \only<1>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-0.pdf}
-  }
-  \only<2>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-1.pdf}
-  }
-  \only<3>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-2.pdf}
-  }
-  \only<4>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-3.pdf}
-  }
-  \only<5>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-4.pdf}
-  }
 
-\end{frame}
-
-\begin{frame}{DreamCoder --- Wake}
-  \only<1>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-0.pdf}
-  }
-  \only<2>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-1.pdf}
-  }
-  \only<3>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-2.pdf}
-  }
-  \only<4>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-3.pdf}
-  }
-  \only<5>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-4.pdf}
-  }
-
-\end{frame}
-
-\begin{frame}{DreamCoder --- Sleep-G}
-  \only<1>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-sleep-g/slide-4.pdf}
-  }
-\end{frame}
-\begin{frame}{DreamCoder --- Sleep-R-1}
-  \only<1>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-sleep-r-1/slide-4.pdf}
-  }
-\end{frame}
-\begin{frame}{DreamCoder --- Sleep-R-2}
-  \only<1>{
-    \includegraphics[width=11cm]{figures/teachDC/.inkslides-sleep-r-2/slide-4.pdf}
-  }
-\end{frame}
 
 \begin{frame}{The Language of Thought}
 \begin{tikzpicture}
@@ -359,8 +307,7 @@ Tasks and     \pop{Programs} & DSL\\
   Combines ideas from Wake-Sleep \& Exploration-Compression algorithm by Eyal Dechter
 
 
-\end{frame} 
-
+\end{frame}
 \begin{frame}[t]{DSL learning as Bayesian inference}
   %  \includegraphics[width = 11cm]{figures/animation/EC.eps}
 \centering  \begin{tikzpicture}[scale=1.3,line width=0.5mm]
@@ -450,96 +397,155 @@ Tasks and     \pop{Programs} & DSL\\
 
   %\node[shift={+(0,-1.7)}] at (nn) { $Q$  };
 
-  \end{tikzpicture}
+\end{tikzpicture}
+
+\pause
+
+\textbf{New:} amortized inference +\\ better program representation (Lisp) + \\better DSL inference 
 
 \end{frame}
-\begin{frame}[t]{Wake: Problem solving}
-  \includegraphics[width = 11cm]{figures/animation/Wake.eps}
-
-  \vfill
+\begin{frame}{Wake --- as in Exploration/Compression Algorithm}
   \only<1>{
-  Recognition model: Neural net.\\
-  Red: Bottom-up inference.\\
-  Gray: Observed.\\
-  White: Latent.\\
-  Boxed (plate): Repeated.\\
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-0.pdf}
   }
   \only<2>{
-  \begin{tikzpicture}[xscale=1.25,line width=1mm]
-    \node at (0,0) (d){DSL};
-    \node at ([yshift = -2cm]d) (t){$\text{Task}$};
-
-    \node at ([xshift = 2cm]t) (nn){
-      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.3,shift={+(-1,2.5)}}]
-       \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-        \node[rectangle] at (1,1) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (I-\name) at (0,-\y) {};
-        \foreach \name / \y in {1,...,3}
-            \node[neuron] (H-\name) at (1,-\y-0.5) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (O-\name) at (2,-\y) {};
-        \foreach \source in {1,...,4}
-            \foreach \dest in {1,...,3}
-                \draw [-latex] (I-\source) -- (H-\dest);
-        \foreach \source in {1,...,3}
-            \foreach \dest in {1,...,4}
-                \draw [-latex] (H-\source) -- (O-\dest);
-      \end{tikzpicture}
-    };
-    \node[align = center, text width = 1cm] at ([yshift = 0.7cm]nn.north) {\baselineskip=0pt \Small Recog. model\par};
-    \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
-
-    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
-%    \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
-
-    \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
-    \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
-
-    \node[align=left] at (7,-1) (f) {Programs};
-    \draw [->  ] (s.east) -- (f.west);
-
-    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
-  \end{tikzpicture}}
-  %% Recognition model: Neural net.\\
-  %% Red: Bottom-up inference.\\
-  %% Gray: Observed.\\
-  %% White: Latent.\\
-  %% Boxed (plate): Repeated.\\
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-1.pdf}
+  }
+  \only<3>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-2.pdf}
+  }
+  \only<4>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-3.pdf}
+  }
+  \only<5>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-ec/slide-4.pdf}
+  }
 
 \end{frame}
-\begin{frame}[t]{Sleep-G: Memory consolidation}
-  \includegraphics[width = 11cm]{figures/animation/Sleep-G.eps}
-  \vfill
-  \textbf{Fragment Grammars: O'Donnell 2015.}\\
-  Orange: Code fragments.\\
-  %% Gray: Observed.\\
-  %% White: Latent.\\
-  %% Boxed (plate): Repeated.\\
+
+\begin{frame}{DreamCoder --- Wake}
+  \only<1>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-0.pdf}
+  }
+  \only<2>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-1.pdf}
+  }
+  \only<3>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-2.pdf}
+  }
+  \only<4>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-3.pdf}
+  }
+  \only<5>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-dc/slide-4.pdf}
+  }
+
+\end{frame}
+
+\begin{frame}{DreamCoder --- Sleep-G}
+  \only<1>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-sleep-g/slide-4.pdf}
+  }
+\end{frame}
+\begin{frame}{DreamCoder --- Sleep-R (\textbf{Experience Replay})}
+  \only<1>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-sleep-r-1/slide-4.pdf}
+  }
+\end{frame}
+\begin{frame}{DreamCoder --- Sleep-R (\textbf{Dreaming})}
+  \only<1>{
+    \includegraphics[width=11cm]{figures/teachDC/.inkslides-sleep-r-2/slide-4.pdf}
+  }
+\end{frame}
+
+
+%% \begin{frame}[t]{Wake: Problem solving}
+%%   \includegraphics[width = 11cm]{figures/animation/Wake.eps}
+
+%%   \vfill
+%%   \only<1>{
+%%   Recognition model: Neural net.\\
+%%   Red: Bottom-up inference.\\
+%%   Gray: Observed.\\
+%%   White: Latent.\\
+%%   Boxed (plate): Repeated.\\
+%%   }
+%%   \only<2>{
+%%   \begin{tikzpicture}[xscale=1.25,line width=1mm]
+%%     \node at (0,0) (d){DSL};
+%%     \node at ([yshift = -2cm]d) (t){$\text{Task}$};
+
+%%     \node at ([xshift = 2cm]t) (nn){
+%%       \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.3,shift={+(-1,2.5)}}]
+%%        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+%%         \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+%%         \node[rectangle] at (1,1) {};
+%%         \foreach \name / \y in {1,...,4}
+%%             \node[neuron] (I-\name) at (0,-\y) {};
+%%         \foreach \name / \y in {1,...,3}
+%%             \node[neuron] (H-\name) at (1,-\y-0.5) {};
+%%         \foreach \name / \y in {1,...,4}
+%%             \node[neuron] (O-\name) at (2,-\y) {};
+%%         \foreach \source in {1,...,4}
+%%             \foreach \dest in {1,...,3}
+%%                 \draw [-latex] (I-\source) -- (H-\dest);
+%%         \foreach \source in {1,...,3}
+%%             \foreach \dest in {1,...,4}
+%%                 \draw [-latex] (H-\source) -- (O-\dest);
+%%       \end{tikzpicture}
+%%     };
+%%     \node[align = center, text width = 1cm] at ([yshift = 0.7cm]nn.north) {\baselineskip=0pt \Small Recog. model\par};
+%%     \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
+
+%%     \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
+%% %    \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
+
+%%     \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
+%%     \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
+
+%%     \node[align=left] at (7,-1) (f) {Programs};
+%%     \draw [->  ] (s.east) -- (f.west);
+
+%%     \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
+%%   \end{tikzpicture}}
+%%   %% Recognition model: Neural net.\\
+%%   %% Red: Bottom-up inference.\\
+%%   %% Gray: Observed.\\
+%%   %% White: Latent.\\
+%%   %% Boxed (plate): Repeated.\\
+
+%% \end{frame}
+%% \begin{frame}[t]{Sleep-G: Memory consolidation}
+%%   \includegraphics[width = 11cm]{figures/animation/Sleep-G.eps}
+%%   \vfill
+%%   \textbf{Fragment Grammars: O'Donnell 2015.}\\
+%%   Orange: Code fragments.\\
+%%   %% Gray: Observed.\\
+%%   %% White: Latent.\\
+%%   %% Boxed (plate): Repeated.\\
 
   
-\end{frame}
-\begin{frame}[t]{Sleep-R: Objective}
-  \includegraphics[width = 11cm]{figures/animation/Wake.eps}
+%% \end{frame}
+%% \begin{frame}[t]{Sleep-R: Objective}
+%%   \includegraphics[width = 11cm]{figures/animation/Wake.eps}
 
-    \vfill
-    Recognition model predicts distribution over program, conditional on task.\\
-    Training: (program, task) pairs\\
-    Objective: Predict program w/ (1) high prior under DSL \& \\(2) high likelihood for task
+%%     \vfill
+%%     Recognition model predicts distribution over program, conditional on task.\\
+%%     Training: (program, task) pairs\\
+%%     Objective: Predict program w/ (1) high prior under DSL \& \\(2) high likelihood for task
 
-\end{frame}
-\begin{frame}[t]{Sleep-R: Experience replay}
-  \includegraphics[width = 11cm]{figures/animation/Sleep-R-1.eps}
+%% \end{frame}
+%% \begin{frame}[t]{Sleep-R: Experience replay}
+%%   \includegraphics[width = 11cm]{figures/animation/Sleep-R-1.eps}
 
-    \textbf{Train on (program, task) pairs found during waking}
-\end{frame}
-\begin{frame}[t]{Sleep-R: Dreaming}
-  \includegraphics[width = 11cm]{figures/animation/Sleep-R-2.eps}
+%%     \textbf{Train on (program, task) pairs found during waking}
+%% \end{frame}
+%% \begin{frame}[t]{Sleep-R: Dreaming}
+%%   \includegraphics[width = 11cm]{figures/animation/Sleep-R-2.eps}
 
-    \textbf{Train on (program, task) pairs sampled from DSL}
+%%     \textbf{Train on (program, task) pairs sampled from DSL}
 
-\end{frame}
+%% \end{frame}
 
 
 
@@ -565,20 +571,23 @@ Tasks and     \pop{Programs} & DSL\\
   %\captionof{table}{Some tasks in our list function domain.}\label{listExamples}\vspace{-0.5cm}
 \end{figure}
 
-  Discovers 38 concepts, including `filter'
+  Discovers 38 concepts, including `filter'. With suitable curriculum can also learn `map', `fold', etc.
 \end{frame}
 
-\begin{frame}{List functions: Learning curves on hold out tasks}
+\begin{frame}{List functions \& Text editing: Learning curves on hold out tasks}
 
   \begin{center}
-      \includegraphics[width = 6.5cm]{figures/listLearningCurve.eps} 
+    \includegraphics[width = 5cm]{figures/listLearningCurve.eps}
+\hfill    \includegraphics[width = 5cm]{figures/textLearningCurve.eps} 
     \end{center}
 
 Learning curves for DreamCoder both with (\orange{in orange}) and without
     (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved w/ 10m timeout. Dashed lines: Average solve time, averaged only over tasks that are solved.
 
 
-  \end{frame}
+\end{frame}
+
+
 
 %% \begin{frame}{Text editing}
 %%   In the style of FlashFill (Gulwani 2012)
@@ -603,7 +612,7 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
   \end{block}
 
   \begin{block}{Tasks}
-    \texttt{task : unit -> image}
+    \texttt{task : image}
   \end{block}
 
   \vspace{0.2cm}
@@ -900,27 +909,15 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
 
 \begin{frame}{Vision}
 
-  \textbf{Takeaway:}
-  \begin{itemize}
-    \item Humans flexibly adapt to diverse sets of new problem domains --- DreamCoder takes a step in this direction
-  \end{itemize}
+
+   \underline{More human-like machine intelligence:}\\Flexibly adapting to new problem domains by
+   acquiring a domain-specific language-of-thought (DSL), while jointly learning how to use the language of thought (recognition model)
+
+   
+
   \pause
 
-  %% \textbf{Future work}
-
-  %% \begin{itemize}
-  %%   \pause
-  %% \item Theory learning
-  %%   \item Planning
-  %%   \end{itemize}
-
-    \pause{}
-
-    \begin{figure}
-        \includegraphics[scale=0.44]{figures/xkcd_star.png}
-        \caption*{Thanks to \textsc{xkcd} we can rule out $36^\circ$ as a primitive.}
-    \end{figure}
-
+\hspace{-1cm}\includegraphics[width = 12cm]{figures/finale.png} 
   \end{frame}
 
 \end{document}
