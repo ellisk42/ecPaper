@@ -206,12 +206,12 @@ Character ::= a | b | c | ...
     \end{tikzpicture}
 \end{frame}
 
-\begin{frame}{Engineering the language of thought}
- \begin{tikzpicture}
-    \node () {\includegraphics[width = 15.6cm]{theory.png}};
-    \node at (-5,-4) {  Ullman et al 2012};
-    \end{tikzpicture}
-\end{frame}
+%% \begin{frame}{Engineering the language of thought}
+%%  \begin{tikzpicture}
+%%     \node () {\includegraphics[width = 15.6cm]{theory.png}};
+%%     \node at (-5,-4) {  Ullman et al 2012};
+%%     \end{tikzpicture}
+%% \end{frame}
 
 \begin{frame}{Engineering the language of thought}
   \begin{tikzpicture}
@@ -238,7 +238,7 @@ Character ::= a | b | c | ...
 
   \begin{itemize}
   \item Library of concepts (declarative knowledge)
-    \item Search strategy (procedural knowledge)
+    \item Inference strategy (procedural knowledge)
     \end{itemize}
 \end{frame}
 
@@ -574,7 +574,7 @@ Tasks and     \pop{Programs} & DSL\\
   %\captionof{table}{Some tasks in our list function domain.}\label{listExamples}\vspace{-0.5cm}
 \end{figure}
 
-  Discovers 38 concepts, including `filter'. With suitable curriculum can also learn `map', `fold', etc.
+  Discovers 38 concepts, including `filter'. With suitable curriculum can also learn `map', `fold', etc. starting with 1950's Lisp
 \end{frame}
 
 \begin{frame}{List functions \& Text editing: Learning curves on hold out tasks}
@@ -971,14 +971,22 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
 \begin{frame}{Vision}
 
 
-   \underline{More human-like machine intelligence:}\\Flexibly adapting to new problem domains by
-   acquiring a domain-specific language-of-thought (DSL), while jointly learning how to use the language of thought (recognition model)
+   \underline{More human-like machine intelligence}\\%Flexibly adapting to new problem domains:
+   \begin{itemize}
+   \item    Acquiring a domain-specific language-of-thought (DSL)
+     \item Learning  to use the language of thought (recognition model)
+   \end{itemize}
+   DreamCoder: an algorithm for jointly realizing these goals
 
    
 
-  \pause
 
-\hspace{-1cm}\includegraphics[width = 12cm]{figures/finale.png} 
+
+   \hspace{-1cm}\includegraphics[width = 12cm]{figures/finale.png}
+
+   \pause
+
+   \Huge \centering \textbf{The End.}
   \end{frame}
 
 \end{document}
