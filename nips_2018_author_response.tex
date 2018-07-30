@@ -11,9 +11,57 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 
-\usepackage{lipsum}
-
 \begin{document}
-\lipsum
-\lipsum
+
+Something something thank you guys for your rich on point comments that are so
+very useful for making science what it is.
+
+\subsubsection*{Choice of original \texttt{DSL}}
+
+As several reviewers pointed out the original \texttt{DSL} influences the efficiency and
+accuracy of the algorithm. Reviewer 1 points out ``What happens, for example, if
+length is removed [from the original list \texttt{DSL}]?''. To explore that question we
+took the original \texttt{Lisp} specification from [citation needed] as well as
+tasks from \texttt{Lisp} textbooks to see whether higher level functions would
+be discovered. While this example was computationally expensive, it successfully
+rediscovered common abstractions from the functional programming world,
+including but not limited to \texttt{fold}, \texttt{unfold}, \texttt{map},
+\texttt{length}, \texttt{zip}, \texttt{range}, etc.
+
+That being said, the intended goal of the algorithm is not to rediscover
+well-known useful abstractions but rather to adapt such abstractions to the
+tasks at hands, through more abstractions if need be but not with that as a goal
+\textit{per se}.
+
+\paragraph*{Example of evolution for a task through \texttt{DSL}s}
+
+Find some logs and give an example I guess? I have a few available for geometry
+but hey :/
+
+\subsubsection*{Relationship to Schmid and Kitzelmann}
+
+We thank reviewer three for suggesting additions to the related work. Our
+revision will prominently highlight the work of Kitzelmann, Schmid and Katayama.
+
+The \textsc{Igor} systems introduced by Kitzelmann and Schmid is a sophisticated
+algorithm for analytical inductive programming that handles a certain classe of
+programs, much like {Sketch} and {FlashFill} are sophisticated
+program synthesiser for certain classes of programs.
+
+We see these line of work as orthogonal and complementary to that of SCC\@. Our
+goal is to take a black-box synthesiser and learn how to solve a class of
+problems. One could in principle replace our enumerative search based solver
+with \textsc{Igor}, Sketch or \textsc{MagicHaskeller}. We chose however to
+use a more generic and simple enumerative approach for it allows us to apply SCC
+to a diverse spread of problems: functional programming exercises, text editing,
+graphics programming and symbolic regressions from images.
+
+
+\subsubsection*{Reproducibility}
+
+Our project --- including source code, data and automation scripts --- is
+already available on \url{GitHub} and future revision will include a link to it
+once the anonymity of the authors can be unveiled. No technical knowledge will
+be required to reproduced the results.
+
 \end{document}
