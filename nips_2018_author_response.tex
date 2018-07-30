@@ -19,22 +19,44 @@
 Something something thank you guys for your rich on point comments that are so
 very useful for making science what it is.
 
-\subsubsection*{Choice of original \texttt{DSL}}
+\subsubsection*{Choice of initial programming primitives}
 
-As several reviewers pointed out the original \texttt{DSL} influences the efficiency and
-accuracy of the algorithm. Reviewer 1 points out ``What happens, for example, if
-length is removed [from the original list \texttt{DSL}]?''. To explore that question we
-took the original \texttt{Lisp} specification from [citation needed] as well as
-tasks from \texttt{Lisp} textbooks to see whether higher level functions would
-be discovered. While this example was computationally expensive, it successfully
-rediscovered common abstractions from the functional programming world,
-including but not limited to \texttt{fold}, \texttt{unfold}, \texttt{map},
-\texttt{length}, \texttt{zip}, \texttt{range}, etc.
+Reviewer 1 astutely observes that our initial set of programming primitives is
+not as minimal as it could have been,
+raising intriguing questions
+about the importance and role of the initial basis.
+We believe that general program-learners should not start with a \emph{minimal} basis,
+but rather a \emph{domain-agnostic}
+basis,
+like those embodied in the standard libraries of modern programming languages.
+An open question however is the extent to which one could ``learn from scratch.''
+As a step toward answering this question,
+we ran the following experiment:
+SCC was provided with a subset of primitives in 1959 Lisp, crucially including primitive recursion,
+and tasked with solving a small set of functional programming exercises, like appending lists or summing the elements of a list.
+After 93 hours on 64 CPUs,
+SCC rediscovered \texttt{fold}, \texttt{unfold}, \texttt{map},
+\texttt{length}, \texttt{zip}, \texttt{range}, \texttt{index},
+and a handful of arithmetic operations.
+Although this result is suggestive,
+we believe that in practice learners should start from a rich yet domain-agnostic
+inventory of primitives, like human programmers do.
 
-That being said, the intended goal of the algorithm is not to rediscover
-well-known useful abstractions but rather to adapt such abstractions to the
-tasks at hands, through more abstractions if need be but not with that as a goal
-\textit{per se}.
+
+%% As several reviewers pointed out the original \texttt{DSL} influences the efficiency and
+%% accuracy of the algorithm. Reviewer 1 points out ``What happens, for example, if
+%% length is removed [from the original list \texttt{DSL}]?''. To explore that question we
+%% took the original \texttt{Lisp} specification from [citation needed] as well as
+%% tasks from \texttt{Lisp} textbooks to see whether higher level functions would
+%% be discovered. While this example was computationally expensive, it successfully
+%% rediscovered common abstractions from the functional programming world,
+%% including but not limited to \texttt{fold}, \texttt{unfold}, \texttt{map},
+%% \texttt{length}, \texttt{zip}, \texttt{range}, etc.
+
+%% That being said, the intended goal of the algorithm is not to rediscover
+%% well-known useful abstractions but rather to adapt such abstractions to the
+%% tasks at hands, through more abstractions if need be but not with that as a goal
+%% \textit{per se}.
 
 \begin{SCfigure}[2][h]
   \centering
@@ -46,24 +68,48 @@ tasks at hands, through more abstractions if need be but not with that as a goal
   on that and changes in a meaningful way.}
 \end{SCfigure}
 
-\subsubsection*{Relationship to Schmid and Kitzelmann}
+Reviewer 2 suggests comparing with FlashFill, the state-of-the-art program synthesizer for text editing.
+We very much would like to do this comparison, but this comparison
+is encumbered by the fact that FlashFill is not freely available nor accessible outside Microsoft Excel.
+We strongly believe that FlashFill would easily solve essentially all of our text editing problems.
+Instead, we compared with the winner of the 2017 SyGuS program synthesis competition (Alur et al. 2017), 
+showing that, without hand-engineering of the DSL,
+we achieve results comparable to the 2017 winning solver (CVC4),
+when CVC4 was provided with hand-engineered DSLs (Section 3.2 of paper).
+\subsubsection*{Related Work}
 
-We thank reviewer three for suggesting additions to the related work. Our
-revision will prominently highlight the work of Kitzelmann, Schmid and Katayama,
-particularly Kitzelmann and Schmid, whose cognitive inspiration
-is closely allied with our motivations.
-
-Kitzelmann and Schmid's \textsc{Igor} systems are sophisticated
-analytical inductive programming algorithms that handle certain classes of
-problems, much like {Sketch} and {FlashFill} are sophisticated program
-synthesizers for certain classes of programs.
-We see these lines of work as orthogonal and complementary to that of SCC\@. Our
-goal is to take a black-box synthesizer and then learn how to use it to solve a class of
-problems. One could replace our enumerative synthesizer
-with \textsc{Igor}, Sketch or \textsc{MagicHaskeller}. We chose however to
+We thank reviewer three for suggesting points of contact between our algorithm and the broader program induction literature.
+We are revising our paper to prominently cite the work of Schmid and Kitzelmann,
+whose \textsc{Igor} systems, like ours,
+are motivated by the flexibility and generality of human learning.
+Katayama's \textsc{MagicHaskeller} synthesizer for functional programs will also be cited.
+More broadly,
+we see these pieces of related work as
+orthogonal and complementary to
+our system:
+we take a black-box synthesizer and
+learn to use it by growing the DSL and
+training a recognition model,
+and one could replace our enumerative synthesizer with
+\textsc{Igor}, Sketch (Solar-Lezama 2008), $\lambda^2$ (Feser et al. 2015), \textsc{MagicHaskeller},
+or many other synthesis algorithms.
+We chose however to
 use a generic and simple enumerative approach because it allowed us to apply SCC
 to a diverse spread of problems: functional programming exercises, text editing,
 turtle graphics programming, and symbolic regression from images.
+
+%% revision will prominently highlight the work of Kitzelmann, Schmid and Katayama,
+%% particularly Kitzelmann and Schmid, whose cognitive inspiration
+%% is closely allied with our motivations.
+
+%% Kitzelmann and Schmid's \textsc{Igor} systems are sophisticated
+%% analytical inductive programming algorithms that handle certain classes of
+%% problems, much like {Sketch} and {FlashFill} are sophisticated program
+%% synthesizers for certain classes of programs.
+%% We see these lines of work as orthogonal and complementary to that of SCC\@. Our
+%% goal is to take a black-box synthesizer and then learn how to use it to solve a class of
+%% problems. One could replace our enumerative synthesizer
+%% with \textsc{Igor}, Sketch or \textsc{MagicHaskeller}. 
 
 This also relates to an insightful
 and suggestion for comparison by reviewer 2: FlashFill's DSL is fixed and
@@ -91,5 +137,129 @@ the experiments in the paper.
 %% already available on \url{GitHub} and future revision will include a link to it
 %% once the anonymity of the authors can be unveiled. No technical knowledge will
 %% be required to reproduced the results.
+
+\begin{comment}
+  
+Reviewer #1
+Questions
+
+    1. Please provide an "overall score" for this submission.
+        8: Top 50% of accepted NIPS papers. A very good submission; a clear accept. I vote and argue for accepting this submission.
+    2. Please provide a "confidence score" for your assessment of this submission.
+        4: You are confident in your assessment, but not absolutely certain. It is unlikely, but not impossible, that you did not understand some parts of the submission or that you are unfamiliar with some pieces of related work.
+    3. Please provide detailed comments that explain your "overall score" and "confidence score" for this submission. You should summarize the main ideas of the submission and relate these ideas to previous work at NIPS and in other archival conferences and journals. You should then summarize the strengths and weaknesses of the submission, focusing on each of the following four criteria: quality, clarity, originality, and significance.
+        = Summary
+
+        A method for learning a DSL for program synthesis together with a search
+        algorithm in that DSL is presented. The method proceeds iteratively,
+        trying to solve tasks with the current DSL, and then extracting new DSL
+        components from the solutions. Experiments show that bootstrapping the
+        method with a DSL made up of trivial primitives is sufficient to
+        discover common high-level constructs present in manually constructed
+        DSLs.
+
+        The paper tackles an important problem (DSL design) in an elegant and
+        novel way. The clarity of the paper is not perfect, as the details of the
+        idea require more space than the 8 pages available, but it clearly is
+        stepping stone towards a new generation of program synthesis approaches.
+
+        = Quality
+
+        The paper precisely defines its main algorithm and the core concepts of
+        the approach. There are a few omissions (e.g., Sect. 2.4 does not
+        explain the exact mechanism to extract new constructs; the supplement
+        gives an algorithm, but omits a clear definition of how "fragments" are
+        found), but overall the paper is precise and explains core concepts well.
+        The experiments are very thorough, comparing the method to interesting
+        ablations and baselines.
+        What I am missing is an analysis of the influence of the initial set of
+        primitives. For example, the list processing set starts with a
+        non-minimal set of primitives (as length is "foldr (\lambda (n) -> 1 + n) 0"
+        and index can be implemented using the others as well, though
+        painfully). What happens, for example, if length is removed?
+
+        As an additional data point, I would have appreciated a look at the
+        "evolution" of solutions to a fixed task through the iterations of the
+        main algorithm, i.e., show an initial, early and late solution in the
+        style of Table 1.
+
+        = Clarity
+
+        Many part of the paper are better understood with the supplement in hand
+        (Sect. 2.3 is not discussing details of how q is modeled, but Supplement
+        Sect. 5 makes clear that is is essentially like DeepCoder; Sect. 2.4 is
+        missing details as discussed above).
+        Overall, the paper is easily understood, but not entirely self-contained
+        and not precise enough to allow re-implementation by third parties.
+
+        The supplement is very unpolished (there are many grammatical errors and
+        half-finished sentences, e.g. in line 6, line 33, lines 45/46, ...)
+
+        = Originality
+
+        While drawing on the program synthesis literature of the last few years
+        (e.g., the guided enumerative search), the core contributions of the
+        paper are completely new and are a substantial step forward for the
+        field.
+
+        = Significance
+
+        Designing a suitable DSL is often one of the hardest tasks in applying
+        program synthesis to a new domain; the promise of automatically learning
+        a DSL (together with a search algorithm) is obvious. I am not entirely
+        convinced by the authors idea of generalizing to other generative
+        programs, but I am looking forward to being proven wrong.
+    4. How confident are you that this submission could be reproduced by others, assuming equal access to data and resources?
+        2: Somewhat confident
+
+Reviewer #2
+Questions
+
+    1. Please provide an "overall score" for this submission.
+        8: Top 50% of accepted NIPS papers. A very good submission; a clear accept. I vote and argue for accepting this submission.
+    2. Please provide a "confidence score" for your assessment of this submission.
+        3: You are fairly confident in your assessment. It is possible that you did not understand some parts of the submission or that you are unfamiliar with some pieces of related work. Math/other details were not carefully checked.
+    3. Please provide detailed comments that explain your "overall score" and "confidence score" for this submission. You should summarize the main ideas of the submission and relate these ideas to previous work at NIPS and in other archival conferences and journals. You should then summarize the strengths and weaknesses of the submission, focusing on each of the following four criteria: quality, clarity, originality, and significance.
+        This paper proposes an algorithm for program synthesis in an incremental way. There are three steps to it: 1) searching for program solutions, 2) expandind the dsl by discovering useful reusable components, 3) training a neural network that primes the program solution search in 1). The interesting part of the contribution is the focus on roughly mimicking the way humans refactor, recompose and reuse when coding.
+
+        Strengths
+        - the problem presented is interesting, and the scc algorithm is novel. the theoretical framework is sound, and approximations made are reasonable and useful
+        - the paper presents a good evaluation framework on three different tasks and through the ablation analysis that clearly shows the contributions of each part of the model to the final results
+        - the results are impressive - excellent performance on all three tasks, both accuracy-wise and time-wise
+
+
+        Weaknesses
+        - this is quite a dense paper and it packs a lot of information
+        - the paper could benefit from a comparison to a well known systems such as flashfill, where the dsl is fixed
+
+        Questions:
+        - 125-126 the probability of a variable occurring in a program. could you provide an example here?
+        - equation 3 - is this the counting norm? if so, can you provide a quick rationale why it is used
+        - 167 - can you explicitly say what AIC is and/or cite it?
+        - 181-183 - how is this unification done?
+        - 200 - was this manually created?
+        - what was the recognition model validated on?
+
+        Other:
+        - figure 4 position is weird
+        - figure 4 bottom left and right are not clear
+    4. How confident are you that this submission could be reproduced by others, assuming equal access to data and resources?
+        1: Not confident
+
+Reviewer #3
+Questions
+
+    1. Please provide an "overall score" for this submission.
+        7: A good submission; an accept. I vote for accepting this submission, although I would not be upset if it were rejected.
+    2. Please provide a "confidence score" for your assessment of this submission.
+        3: You are fairly confident in your assessment. It is possible that you did not understand some parts of the submission or that you are unfamiliar with some pieces of related work. Math/other details were not carefully checked.
+    3. Please provide detailed comments that explain your "overall score" and "confidence score" for this submission. You should summarize the main ideas of the submission and relate these ideas to previous work at NIPS and in other archival conferences and journals. You should then summarize the strengths and weaknesses of the submission, focusing on each of the following four criteria: quality, clarity, originality, and significance.
+        The authors present an inductive programming approach where a DSL is learned by a search, compile, and compress strategy. They evaluate their approach in three different domains -- list processing, text editing, and symbolic regression. They motivate their approach by pointing out the effectivenes and flexibility of human learning. Similar arguments are presented by Schmid & Kitzelmann, Cognitive Systems Research 2011 and the approach has some similarities with the MagicHaskeler of Katayama.Although some relation to pevious research is missing (mainly the two groups named above), the presented approach is original. I am most impressed by the empirical demonstration of applicability in three rather distinct domains (but: see also Schmid/Kitzelmann, 2011). The presentation is technically sound and the empirical evaluation is very convincing. 
+    4. How confident are you that this submission could be reproduced by others, assuming equal access to data and resources?
+        3: Very confident
+
+
+  \end{comment}
+
 
 \end{document}
