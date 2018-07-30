@@ -49,23 +49,27 @@ tasks at hands, through more abstractions if need be but not with that as a goal
 \subsubsection*{Relationship to Schmid and Kitzelmann}
 
 We thank reviewer three for suggesting additions to the related work. Our
-revision will prominently highlight the work of Kitzelmann, Schmid and Katayama.
+revision will prominently highlight the work of Kitzelmann, Schmid and Katayama,
+particularly Kitzelmann and Schmid, whose cognitive inspiration
+is closely allied with our motivations.
 
-The \textsc{Igor} systems introduced by Kitzelmann and Schmid is a sophisticated
-algorithm for analytical inductive programming that handles a certain classe of
-programs, much like {Sketch} and {FlashFill} are sophisticated program
-synthesiser for certain classes of programs. This also relates to an insightful
+Kitzelmann and Schmid's \textsc{Igor} systems are sophisticated
+analytical inductive programming algorithms that handle certain classes of
+problems, much like {Sketch} and {FlashFill} are sophisticated program
+synthesizers for certain classes of programs.
+We see these lines of work as orthogonal and complementary to that of SCC\@. Our
+goal is to take a black-box synthesizer and then learn how to use it to solve a class of
+problems. One could replace our enumerative synthesizer
+with \textsc{Igor}, Sketch or \textsc{MagicHaskeller}. We chose however to
+use a generic and simple enumerative approach because it allowed us to apply SCC
+to a diverse spread of problems: functional programming exercises, text editing,
+turtle graphics programming, and symbolic regression from images.
+
+This also relates to an insightful
 and suggestion for comparison by reviewer 2: FlashFill's DSL is fixed and
 manually curated and enhanced for a specific class of problems, over which is
 performs well at the loss of agility.
 
-We see these line of work as orthogonal and complementary to that of SCC\@. Our
-goal is to take a black-box synthesiser and learn how to solve a class of
-problems. One could in principle replace our enumerative search based solver
-with \textsc{Igor}, Sketch or \textsc{MagicHaskeller}. We chose however to
-use a more generic and simple enumerative approach for it allows us to apply SCC
-to a diverse spread of problems: functional programming exercises, text editing,
-graphics programming and symbolic regressions from images.
 
 \subsubsection*{More specific questions}
 
@@ -78,10 +82,14 @@ model's contribution was measured on lesions blabla
 
 
 \subsubsection*{Reproducibility}
+Our source code is publicly available on GitHub,
+and a link will be added upon publication (in NIPS or elsewhere),
+along with the specific command lines  needed to run
+the experiments in the paper.
 
-Our project --- including source code, data and automation scripts --- is
-already available on \url{GitHub} and future revision will include a link to it
-once the anonymity of the authors can be unveiled. No technical knowledge will
-be required to reproduced the results.
+%% Our project --- including source code, data and automation scripts --- is
+%% already available on \url{GitHub} and future revision will include a link to it
+%% once the anonymity of the authors can be unveiled. No technical knowledge will
+%% be required to reproduced the results.
 
 \end{document}
