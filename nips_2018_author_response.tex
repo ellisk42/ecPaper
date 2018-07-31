@@ -32,11 +32,12 @@ An open question however is the extent to which one could ``learn from scratch.'
 As a step toward answering this question,
 we ran the following experiment:
 SCC was provided with a minimal subset of primitives in 1959 Lisp, crucially including primitive recursion,
-and tasked with solving a small set of functional programming exercises, like appending lists or summing the elements of a list.
+and tasked with solving a moderate set of functional programming exercises, like appending lists or summing the elements of a list.
 After 93 hours on 64 CPUs,
 SCC rediscovered \texttt{fold}, \texttt{unfold}, \texttt{map},
 \texttt{length}, \texttt{zip}, \texttt{range}, \texttt{index},
 and a handful of arithmetic operations.
+(We also tried the exact experiment Reviewer 1 suggests---removing only \texttt{length}---and confirmed that SCC rediscovers \texttt{length} when trained on our list processing domain.)
 Although this result is suggestive,
 we believe that in practice learners should start from a rich yet domain-agnostic
 inventory of primitives, like human programmers do.
@@ -128,7 +129,7 @@ we take a black-box synthesizer and
 learn to use it by growing the DSL and
 training a recognition model,
 and one could replace our enumerative synthesizer with
-\textsc{Igor}, Sketch (Solar-Lezama 2008), $\lambda^2$ (Feser et al. 2015), \textsc{MagicHaskeller},
+\textsc{Igor}, Sketch (Solar-Lezama 2008), \textsc{MagicHaskeller},
 genetic programming, or other synthesis algorithms.
 We chose however to
 use a generic and simple enumerative approach because it allowed us to apply SCC
