@@ -58,14 +58,19 @@ inventory of primitives, like human programmers do.
 %% tasks at hands, through more abstractions if need be but not with that as a goal
 %% \textit{per se}.
 
+\subsubsection*{The evolution of task solutions over time}
+Reviewer 1 asks about the ``evolution of solutions to a fixed task through the iterations of the main algorithm.''
+In most cases the solution to a fixed task
+stays the same,
+modulo rewriting the solution in terms of new subroutines.
+There are interesting cases however where the
+semantics of the program changes as the algorithms constructs more subroutines. Figure~\cite{geomCompiled}
+illustrates one case for turtle graphics.
 \begin{SCfigure}[2][h]
   \centering
   \includegraphics[width=7cm]{figures/rebutal/spirals.eps}\label{geomCompiled}
-  \caption{Practical example of DSL evolution: originally, the preferred program
-  for the leftmost spiral does not use loops while that of the two other does.
-  After an iteration the structure of the two rightmost spiral is abstracted.
-  For the next iteration the preferred program for the leftmost spiral leverages
-  on that and changes in a meaningful way.}
+  \caption{Three turtle graphics tasks: the task is to write a program that draws the image. Initially SSC solves the leftmost task without using a loop, but after solving the middle and rightmost tasks,
+  it constructs a parametric `spiral' subroutine, which uses a loop -- on subsequent iterations it solves the leftmost task using the `spiral' routine.}
 \end{SCfigure}
 
 Reviewer 2 suggests comparing with FlashFill, the state-of-the-art program synthesizer for text editing.
