@@ -13,15 +13,14 @@
 
 \usepackage[rightcaption]{sidecap}
 \usepackage{graphicx}
-
+\usepackage{verbatim}
 \begin{document}
 
-Something something thank you guys for your rich on point comments that are so
-very useful for making science what it is.
+We thank all of our reviewers for their thoughtful and detailed comments, and we are revising our our manuscript in light of this helpful feedback.
+Here, we discuss a handful of specific points:
+%\subsubsection*{Choice of initial programming primitives}
 
-\subsubsection*{Choice of initial programming primitives}
-
-Reviewer 1 astutely observes that our initial set of programming primitives is
+\textbf{Choice of initial programming primitives:} Reviewer 1 observes that our initial set of programming primitives is
 not as minimal as it could have been,
 raising intriguing questions
 about the importance and role of the initial basis.
@@ -32,7 +31,7 @@ like those embodied in the standard libraries of modern programming languages.
 An open question however is the extent to which one could ``learn from scratch.''
 As a step toward answering this question,
 we ran the following experiment:
-SCC was provided with a subset of primitives in 1959 Lisp, crucially including primitive recursion,
+SCC was provided with a minimal subset of primitives in 1959 Lisp, crucially including primitive recursion,
 and tasked with solving a small set of functional programming exercises, like appending lists or summing the elements of a list.
 After 93 hours on 64 CPUs,
 SCC rediscovered \texttt{fold}, \texttt{unfold}, \texttt{map},
@@ -58,46 +57,79 @@ inventory of primitives, like human programmers do.
 %% tasks at hands, through more abstractions if need be but not with that as a goal
 %% \textit{per se}.
 
-\subsubsection*{The evolution of task solutions over time}
+\textbf{The evolution of task solutions over time:} %\subsubsection*{The evolution of task solutions over time}
 Reviewer 1 asks about the ``evolution of solutions to a fixed task through the iterations of the main algorithm.''
 In most cases the solution to a fixed task
 stays the same,
 modulo rewriting the solution in terms of new subroutines.
 There are interesting cases however where the
-semantics of the program changes as the algorithms constructs more subroutines. Figure~\cite{geomCompiled}
+semantics of the program changes as the algorithms constructs more subroutines. Figure~1
 illustrates one case for turtle graphics.
 \begin{SCfigure}[2][h]
   \centering
-  \includegraphics[width=7cm]{figures/rebutal/spirals.eps}\label{geomCompiled}
+  \includegraphics[width=7cm]{figures/rebutal/spirals.eps}
   \caption{Three turtle graphics tasks: the task is to write a program that draws the image. Initially SSC solves the leftmost task without using a loop, but after solving the middle and rightmost tasks,
   it constructs a parametric `spiral' subroutine, which uses a loop -- on subsequent iterations it solves the leftmost task using the `spiral' routine.}
 \end{SCfigure}
 
-Reviewer 2 suggests comparing with FlashFill, the state-of-the-art program synthesizer for text editing.
+\textbf{Fragment Grammars:} Reviewers 1 \& 2 both request clarification on the mechanics of the DSL induction,
+which employs a representation from computational linguistics called Fragment Grammars (O'Donnell 2015).
+We are revising the Supplement to include a brief overview of this formalism.
+
+\textbf{Reproducibility:} %\subsubsection*{Reproducibility}
+Our source code is publicly available on GitHub,
+and a link will be added upon publication (in NIPS or elsewhere),
+along with the specific command lines  needed to run
+the experiments in the paper.
+
+\textbf{Specific questions from Reviewer 2:}
+The 236 list tasks were created by one of the authors of this paper
+several months before this project began
+and without this system (SCC) in mind,
+with the goal of
+being human-interpretable
+yet reasonably challenging for
+program synthesizers.
+The AIC (Akaike Information Criterion) is a model comparison criteria 
+similar to the BIC (Bishop 2006: ``Pattern Recognition and Machine Learning'' has an overview),
+which introduces the counting norm term in Eq.~3.
+The $\theta_{var}$ parameter
+is the probability that
+a program sampled from the prior will
+have a variable at a particular node it syntax tree -- this is specified in Algorithm 1 of the supplement,
+but we admit that this is quite buried,
+so we will include a pointer to this part of the supplement in the revised manuscript.
+We compare our full system against an ablation 
+without the recognition model,
+finding that
+the full system solves more programming tasks and takes less time to
+solve those tasks.
+
+\textbf{FlashFill:} Reviewer 2 suggests comparing with FlashFill, the state-of-the-art program synthesizer for text editing.
 We very much would like to do this comparison, but this comparison
 is encumbered by the fact that FlashFill is not freely available nor accessible outside Microsoft Excel.
 We strongly believe that FlashFill would easily solve essentially all of our text editing problems.
 Instead, we compared with the winner of the 2017 SyGuS program synthesis competition (Alur et al. 2017), 
 showing that, without hand-engineering of the DSL,
 we achieve results comparable to the 2017 winning solver (CVC4),
-when CVC4 was provided with hand-engineered DSLs (Section 3.2 of paper).
-\subsubsection*{Related Work}
+whereas CVC4 was provided with hand-engineered DSLs (Section 3.2 of paper).
+%\subsubsection*{Related Work}
 
-We thank reviewer three for suggesting points of contact between our algorithm and the broader program induction literature.
+\textbf{Related Work:} We thank reviewer three for suggesting points of contact between our algorithm and other work in program induction.
 We are revising our paper to prominently cite the work of Schmid and Kitzelmann,
 whose \textsc{Igor} systems, like ours,
 are motivated by the flexibility and generality of human learning.
 Katayama's \textsc{MagicHaskeller} synthesizer for functional programs will also be cited.
 More broadly,
-we see these pieces of related work as
-orthogonal and complementary to
+we see these  related works as
+ complementary to
 our system:
 we take a black-box synthesizer and
 learn to use it by growing the DSL and
 training a recognition model,
 and one could replace our enumerative synthesizer with
 \textsc{Igor}, Sketch (Solar-Lezama 2008), $\lambda^2$ (Feser et al. 2015), \textsc{MagicHaskeller},
-or many other synthesis algorithms.
+genetic programming, or other synthesis algorithms.
 We chose however to
 use a generic and simple enumerative approach because it allowed us to apply SCC
 to a diverse spread of problems: functional programming exercises, text editing,
@@ -116,27 +148,19 @@ turtle graphics programming, and symbolic regression from images.
 %% problems. One could replace our enumerative synthesizer
 %% with \textsc{Igor}, Sketch or \textsc{MagicHaskeller}. 
 
-This also relates to an insightful
-and suggestion for comparison by reviewer 2: FlashFill's DSL is fixed and
-manually curated and enhanced for a specific class of problems, over which is
-performs well at the loss of agility.
+%% This also relates to an insightful
+%% and suggestion for comparison by reviewer 2: FlashFill's DSL is fixed and
+%% manually curated and enhanced for a specific class of problems, over which is
+%% performs well at the loss of agility.
 
 
-\subsubsection*{More specific questions}
+%j\subsubsection*{More specific questions}
 
-\paragraph*{Reviewer 2: Origin of list task} All the list tasks were manually
-created in order to be interesting, challeging, but also human-interpretable for
-a prior behaviour experiment. They pre-existed our algorithm.
-
-\paragraph*{Reviewer 2: assesment of the recognition model} The recognition
-model's contribution was measured on lesions blabla
+%% \paragraph*{Reviewer 2: Origin of list task} All the list tasks were manually
+%% created in order to be interesting, challeging, but also human-interpretable for
+%% a prior behaviour experiment. They pre-existed our algorithm.
 
 
-\subsubsection*{Reproducibility}
-Our source code is publicly available on GitHub,
-and a link will be added upon publication (in NIPS or elsewhere),
-along with the specific command lines  needed to run
-the experiments in the paper.
 
 %% Our project --- including source code, data and automation scripts --- is
 %% already available on \url{GitHub} and future revision will include a link to it
