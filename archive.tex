@@ -8,8 +8,8 @@
 \usepackage{microtype}
 \usepackage{graphicx}
 %\usepackage{subfigure}
-\usepackage{booktabs} % for professional tables
-
+\usepackage{booktabs} \usepackage{stmaryrd}% for professional tables
+\usepackage{stmaryrd}(
 \usepackage[section]{placeins}
 % hyperref makes hyperlinks in the resulting PDF.
 % If your build breaks (sometimes temporarily if a hyperlink spans a page)
@@ -23,6 +23,7 @@
 \newcommand{\system}{\textsc{DreamCoder}~}
 \newcommand{\systemEnding}{\textsc{DreamCoder}}
 \newcommand{\lowerBound}{\mathscr{L}}
+\newcommand{\denotation}[1]{{\llbracket #1 \rrbracket}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
 \newcommand{\scode}[1]{{\tiny\texttt{#1}}}
 \newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
