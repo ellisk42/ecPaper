@@ -179,19 +179,159 @@
 %%   expressing solutions to problems in the domain.
 %% \end{abstract}
 
-\section{Introduction}
+\section{Introduction: Expertise}
+
+Human learners acquire expertise in a wide range of domains: some of
+us become experts in calculus, or cooking, or biology, music, tennis,
+or software engineering, to name just a few, and every child develops
+expertise in natural language, intuitive physics~\cite{Pete?},
+intuitive psychology (theory-of-mind), and motor control.  This
+picture contrasts sharply with the current state of machine
+intelligence, where a machine is built to be an expert in a single
+domain, like boardgames~\cite{alphaGo}, medical
+diagnosis~\cite{mycin,CNNsForDiseaseDetection}, theorem
+proving~\cite{eurisko}, or visual object recognition~\cite{alexNet}.
+Thus an outstanding challenge in the long-term program of building
+more humanlike machines is to develop an algorithm that, like people,
+autonomously acquires expertise across many different kinds of
+domains.
+
+We contribute a model of the development of expertise that combines
+two key ingredients.  First, an expert needs a sufficiently expressive
+knowledge representation.  Following a long tradition in cognitive
+science and AI, we represent knowledge as programs, which prior work
+has used to represent expertise in recognition and generation of
+handwriting and speech~\cite{lake2015human}, intuitive theories (of
+kinship, taxonomy, etc.)~\cite{Ullman2012}, and natural language
+grammar and
+semantics~\cite{DBLP:journals/cogsr/SchmidK11,piantadosi2011learning}.
+Second, atop this program representation, experts possess two kinds of
+domain expertise.  They have at their disposal a powerful, yet
+specialized, repertoire of concepts and abstractions: e.g., in
+architecture, these are concepts like `arch' or `foundation'; in
+software engineering these are libraries of code and domain-specific
+languages (DSLs).  Here our model represents knowledge as programs,
+and so we identify this kind of expertise with a DSL.  Experts also
+have knowledge of when and how to deploy these domain-specific
+concepts efficiently when solving new problems: e.g., mathematicians
+efficiently search the space of proofs, intuiting which lemmas are
+appropriate when; expert chefs intuit which compositions of
+ingredients are likely tasty, before they actually start cooking.  For
+our model, this aspect of expertise corresponds to the ability to
+quickly assemble new, useful programs out of its DSL.
+
+We integrate these ideas into a model called DreamCoder which acquires
+expertise through a novel kind of wake/sleep or `dream' learning. The
+model iterates through wake cycles -- where it solves problems by
+writing programs -- and a pair of sleep cycles: a sleep cycle that
+grows its DSL by replaying experiences from waking and consolidating
+them into new abstractions, and a sleep cycle that improves its
+knowledge of how to write programs by training a neural network on
+replayed experiences as well as `dreams', or samples, from its DSL.
+
+DreamCoder builds on multiple generations of AI research, going back
+to the 1960's~\cite{solomonoff1964formal} when program-learning was
+proposed as a paradigm for general AI.  Broadly speaking recent work
+has either developed neural approaches for learning to efficiently
+deploy a fixed
+DSL~\cite{devlin2017robustfill,balog2016deepcoder,NGDS,spiral}, or
+developed symbolic approaches for representing and searching through
+spaces of
+programs~\cite{gulwani2011automating,solar2008program,DBLP:books/daglib/0070933}.
+We were motivated by approaches that learn or grow the
+DSL~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning}.
+Our goal with DreamCoder is to show that the combination of
+neurally-guided search and DSL learning is a uniquely powerful way of
+building systems that, like human learners, autonomously acquire the
+expertise needed to navigate a new domain of problems.
+
+
+
+
+
+\section{Introduction: AI/PL/dreaming}
+
+
+An age-old dream within AI is a machine that learns and reasons by
+writing its own programs.  This vision stretches back to the
+1960's~\cite{solomonoff1964formal} and cuts to the core of much of
+what it would take to build machines that learn and think like humans.
+Computational models of cognition often explain the flexibility and
+richness of human thinking in terms of program learning: from everyday
+thinking and problem solving (motor program induction as an account of
+recognition and generation of handwriting and
+speech~\cite{lake2015human}; functional programs as a model of natural
+language semantics~\cite{SOMETHING}) to learning problems that unfold
+over longer developmental time scales: the child's acquisition of
+intuitive theories (of kinship, taxonomy, etc.)~\cite{Ullman2012} and
+natural language grammar~\cite{DBLP:journals/cogsr/SchmidK11}, to name
+just a few.  An outstanding challenge, however, is to engineer
+program-learners that display the same level of domain-generality as
+the humans they are meant to model.
+
+Recent program-learning systems developed within the AI and machine
+learning community are impressive along many dimensions, authoring
+programs for problem domains like drawing
+pictures~\cite{spiral,ellis2017learning}, transforming
+text~\cite{gulwani2011automating} and numerical
+sequences~\cite{balog2016deepcoder}, and reasoning over common sense
+knowledge bases~\cite{muggleton2015meta}.  These systems work in
+different ways, but typically hinge upon a carefully hand-engineered
+Domain Specific Language (DSL).  The DSL restricts the space of
+programs to contain the kinds of concepts needed for one specific
+domain.  For example, a picture-drawing DSL could include concepts
+like circles and spirals, and a DSL for numerical sequences could
+include sorting and reversing lists of numbers.  Modern systems also
+learn how to efficiently deploy the DSL on new
+problems~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}, but --
+unlike human learners -- do not discover the underlying system of
+concepts needed to navigate the domain.
+
+We contribute a program-induction system that learns the
+domain-specific concepts (DSL) while jointly learning how to use those
+concepts.  This joint learning problem models two complementary
+notions of domain expertise: (1) domain experts have at their disposal
+a powerful, yet specialized repertoire of concepts and abstractions
+(analogous to the DSL) while also (2) having accurate intuitions about
+when and how to use those concepts to solve new problems.
+
+Our system is called DreamCoder because it acquires these two kinds of
+expertise through a novel kind of wake/sleep or `dream'
+learning~\cite{hinton1995wake}, iterating through a wake cycle --
+where it solves problems by writing programs -- and a pair of sleep
+cycles: a sleep cycle that grows the DSL by replaying experiences from
+waking and consolidating them into new abstractions (modeled as
+fragments of code), and a sleep cycle that improves its knowledge of
+how to write programs by training a neural network based on replayed
+experiences as well as `dreams', or samples, from the DSL.
+
+DreamCoder builds on two lines of prior work.  One line of work
+considers the problem of learning new concepts, abstractions, or
+`options' from
+experience~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning},
+while the other line of work considers the problem of learning how to
+deploy those concepts
+efficiently~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}.  Our
+goal with DreamCoder is to show that the combination of these ideas is
+uniquely powerful, and pushes us toward program-writing systems that,
+like human learners, autonomously acquire the expertise needed to
+solve a new class of problems.
+
+
+
+\section{Introduction: NIPS}
 
 
 Much of everyday human thinking and learning can be understood in
 terms of program induction: constructing a procedure that maps inputs
 to desired outputs, based on observing example input-output pairs.
-People can induce programs flexibly across many different domains, often from just one or a few examples.  For instance, if
-shown that a text-editing program should map ``Jane Morris Goodall''
-to ``J. M. Goodall'', we can guess it maps ``Richard Erskine Leakey''
-to ``R. E. Leakey''; if instead the first input mapped to
-``Dr. Jane'' or ``Goodall, Jane'', we might guess
-the latter should map to ``Dr. Richard'' or ``Leakey, Richard'',
- respectively.
+People can induce programs flexibly across many different domains,
+often from just one or a few examples.  For instance, if shown that a
+text-editing program should map ``Jane Morris Goodall'' to
+``J. M. Goodall'', we can guess it maps ``Richard Erskine Leakey'' to
+``R. E. Leakey''; if instead the first input mapped to ``Dr. Jane'' or
+``Goodall, Jane'', we might guess the latter should map to
+``Dr. Richard'' or ``Leakey, Richard'', respectively.
 
 The FlashFill system~\cite{gulwani2011automating} embedded in
 Microsoft Excel solves problems such as these and is probably the best
