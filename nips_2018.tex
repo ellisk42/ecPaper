@@ -5,7 +5,7 @@
 % before loading nips_2018
 
 % ready for submission
-\usepackage{nips_2018}
+\usepackage[final]{nips_2018}
 
 % to compile a preprint version, e.g., for submission to arXiv, add
 % add the [preprint] option:
@@ -89,7 +89,7 @@
 \newcommand{\expect}{\mathds{E}} %{{\rm I\kern-.3em E}}
 \newcommand{\probability}{\mathds{P}} %{{\rm I\kern-.3em P}}
 
-\title{Search, Compress, Compile: Library Learning in Neurally-Guided Bayesian Program Learning}
+\title{Library Learning in Neurally-Guided Bayesian Program Learning}
 
 % The \author macro works with any number of authors. There are two
 % commands used to separate the names and addresses of multiple
@@ -102,14 +102,9 @@
 % author name.
 
 \author{
-  David S.~Hippocampus\thanks{Use footnote for providing further
-    information about author (webpage, alternative
-    address)---\emph{not} for acknowledging funding agencies.} \\
-  Department of Computer Science\\
-  Cranberry-Lemon University\\
-  Pittsburgh, PA 15213 \\
-  \texttt{hippo@cs.cranberry-lemon.edu} \\
-  %% examples of more authors
+  Kevin Ellis\\MIT\And Lucas Morales\\MIT\And Mathias Sabl\'e Meyer\\France
+  \AND
+  Armando Solar-Lezama\\MIT\And Joshua B. Tenenbaum\\MIT
   %% \And
   %% Coauthor \\
   %% Affiliation \\
@@ -208,13 +203,13 @@ to help write programs in the increasingly rich DSL.
           \code{[7\, 2\, 3]}$\to $\code{[7\, 3]}         \\
           \code{[1\, 2\, 3\, 4]}$\to $\code{[3\, 4]} \\
           \code{[4\, 3\, 2\, 1]}$\to $\code{[4\, 3]} \\
-          \pop{\code{$f(\ell) = $}\code{($f_1$ $\ell$ ($\lambda$ (x)}}\\
+          \pop{\code{$f(\ell) = $}\code{($f_0$ $\ell$ ($\lambda$ (x)}}\\
           \hspace{1.15cm}\pop{\code{(> x 2)))}}       \\
           \\
           \\
           \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
           \hspace{0.15cm}\code{[3\, 19\, 14]}$\to $\code{19}                \\
-          \pop{\code{$f(\ell) = $}\code{($f_2$ $\ell$)}}
+          \pop{\code{$f(\ell) = $}\code{($f_1$ $\ell$)}}
         \end{tabular}
         &
         \hspace{-0.3cm}\begin{tabular}{c}
@@ -223,7 +218,7 @@ to help write programs in the increasingly rich DSL.
           \hspace{-0.3cm}\code{[9\, 0\, 0]}$\to $\code{True\phantom{e}} \\
           \hspace{0.3cm}\code{[0]}$\to $\code{True\phantom{e}}                        \\
           \hspace{-0.3cm}\code{[0\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
-          \pop{\code{$f(\ell) = $}\code{($f_3$ $\ell$ 0)}}
+          \pop{\code{$f(\ell) = $}\code{($f_2$ $\ell$ 0)}}
         \end{tabular}
       \end{tabular}
     }
@@ -263,16 +258,16 @@ to help write programs in the increasingly rich DSL.
       % \hspace{\helpSize}($f_1$: \emph{Get the largest number in $\ell$})\\
       %NOTE: this is the actual invention, but I removed a redundant lambda
       % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
-      \popp{$f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}}\\
-      \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
-      \popp{$f_1(\ell,$\code{p}$) \,=\, $\code{(foldr $\ell$ nil ($\lambda$ (x a)}}\\
+      %% \popp{$f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}}\\
+      %% \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
+      \popp{$f_0(\ell,$\code{p}$) \,=\, $\code{(foldr $\ell$ nil ($\lambda$ (x a)}}\\
       \hspace{0.5cm}\popp{\code{(if (p x) (cons x a) a)))}}\\
-      \hspace{\helpSize}($f_1$: \emph{Higher-order filter function})\\
+      \hspace{\helpSize}($f_0$: \emph{Higher-order filter function})\\
       %(lambda (fold $0 0 (lambda (lambda (if (gt? $0 $1) $0 $1)))))
-      \popp{$f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}}\\
-      \popp{\phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}}\\
-      \hspace{\helpSize}($f_2$: \emph{Maximum element in list $\ell$})\\
-      \popp{$f_3(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}}\\
+      \popp{$f_1(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}}\\
+      \popp{\phantom{$f_1(\ell) \,=\, $}\code{(if (> a x) a x)))}}\\
+      \hspace{\helpSize}($f_1$: \emph{Maximum element in list $\ell$})\\
+      \popp{$f_2(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}}\\
       \phantom{$f_1(\ell,$}
       \popp{\code{($\lambda$ (x a) (if a a (= k x))))}}\\
       \hspace{\helpSize}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
@@ -309,7 +304,7 @@ to help write programs in the increasingly rich DSL.
   \end{tabular}
   \\\bottomrule\\
 \end{tabular}}
-\caption{Top: Tasks from each domain, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ in List Functions)}\label{initialExampleDSL}
+\caption{Top: Tasks from each domain, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_0$ in List Functions)}\label{initialExampleDSL}
 \end{table}
 
 Because any computable learning problem can in principle be cast as
@@ -1095,10 +1090,7 @@ only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DS
 \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
 but instead learns the parameters of the DSL ($\theta$), learning the parameters of a PCFG while not learning any of the structure.
 \\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first search step.
-\footnotetext[2]{Due to a last-minute bug we ran the list processing experiments
-without training the recognition model on ``Helmholtz machine'' style data. We
-are rerunning this experiment and anticipate improved quantitative results for
-list processing --- notice the recognition model helps much more for text editing and symbolic regression.} &
+&
 %For each domain,
 %% We are interested both in how many tasks the
 %% agent can solve and how quickly it can find those solutions.
