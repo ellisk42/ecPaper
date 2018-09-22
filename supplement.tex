@@ -238,13 +238,109 @@ which acts as the encoder.
 
 \section{DSL Induction}
 
-\subsection{Structure Learning}
+\subsection{Fragment grammars}
 
-We use Alg.~\ref{grammarInductionAlgorithm} to search for the structure of the DSL that best explains the frontiers.
+`Fragment grammars'~\cite{tim} is a formalism from computational linguistics
+developed for the purpose of modeling
+the reuse of structure
+in natural language.
+Here,
+we will adapt the fragment grammar formalism
+to model the reuse of structure in
+a formal language ($\lambda$ calculus),
+interpreting reuse of structure as subroutines.
+
+In the original fragment grammar formalism,
+a fragment grammar
+contains a probabilistic CFG called its \emph{base grammar};
+a \emph{fragment} is a tree drawn from the base grammar,
+but which can contain nonterminal symbols.
+As a motivating example,
+consider the following base grammar:
+\begin{align*}
+  S\to&(+ \;S\; S)\\
+  S\to&(\times \;S  \;S)\\
+  S\to&0\\
+      S\to&1  
+\end{align*}
+An example expression drawn from this grammar is $(+ \;1\; (\times \;0 \;0))$.
+An example \emph{fragment} drawn from this grammar $(+ \;1\; (\times \;S\; S))$.
+
+When extending fragment grammars to $\lambda$-calculus we write nonterminal symbols as free variables,
+and use the (current) DSL as our base grammar.
+For example, if our DSL includes addition, multiplication, and the numbers zero \& one (as in our example base grammar),
+then a possible  $\lambda$-fragment would be $(+ \;1\; (\times \;x\; y))$.
+
+In order to use fragments
+for DSL induction,
+we need several
+pieces: (1) a procedure for proposing fragments from programs found in the frontiers (described in figure~\ref{extractFragments});
+(2) a procedure for evaluating
+the likelihood of a program given that a fragment
+has been added to the DSL (defined in figure~\ref{match});
+and (3) a procedure for converting a fragment to a subroutine (i.e., a closed, typed $\lambda$-calculus expression; described in Figure~\ref{close}).
+Putting these procedures together, Algorithm~\ref{grammarInductionAlgorithm}
+is used to induce a new DSL.
+
+%\vfill\pagebreak
+\begin{figure}  
+  \begin{minipage}[c]{\textwidth}\toprule 
+    \begin{align*}
+  \text{fragments}(\lambda z.e)& = \text{fragments}'(\lambda z.e)\cup \text{fragments}(e)\\
+  \text{fragments}(f \; x)& = \text{fragments}'(f \; x)\cup \text{fragments}(f)\cup\text{fragments}(x)\\
+  \text{fragments}(e)& = \varnothing\text{, if $e$ is a variable or primitive.}\\
+  \\
+  \text{fragments}'(\lambda z.e)& = \left\{\lambda z.e' | e'\in \text{fragments}'(e) \right\}\cup \left\{v \right\}\text{, $v$ a free variable}\\
+  \text{fragments}'(f\; x)& = \left\{f'\; x' | f'\in \text{fragments}'(f),\;x'\in \text{fragments}'(x) \right\}\cup \left\{v \right\}\text{, $v$ a free variable}\\
+    \text{fragments}'(e)& = \left\{e\right\}\cup \left\{v \right\}\text{, $v$ a free variable, $e$ a variable or primitive}
+\end{align*}\bottomrule 
+    \end{minipage}
+\caption{Procedure for extracting possible fragments from a program. To prevent an explosion in the number of fragments, we also cap the number of free variables in a fragment to 3.}\label{extractFragments}
+\end{figure}
+\begin{figure}
+  \toprule \begin{minipage}[c]{\textwidth}
+    \begin{align*}
+      \text{closeFragment}(e)& = \text{closeFragment}(\lambda z.e)\text{, if $z$ is a free variable in $e$}\\
+      \text{closeFragment}(e)& = e\text{, if $e$ has no free variables.}
+    \end{align*}
+    \bottomrule 
+  \end{minipage}
+  \caption{Procedure for converting a fragment to a subroutine.}\label{close}
+\end{figure}
+
+\begin{figure}
+  \toprule \begin{minipage}[c]{\textwidth}
+    \begin{align*}
+      \probability[p|\mathcal{D},\theta]& = P_{\mathcal{D},\theta} (p|\tau,\varnothing )\text{, where $p:\tau$}\\
+      P_{\mathcal{D},\theta} (\lambda z.p|\alpha\to\beta,\mathcal{E})& =
+      P_{\mathcal{D},\theta}(p|\beta,[\tau\mapsto\alpha]\mathcal{E})\text{, where $\tau$ a fresh type variable}\\
+      P_{\mathcal{D},\theta}(e|\tau,\mathcal{E})& = \underbrace{\sum_{f,xs\in \text{parse}(e)} P'_{\mathcal{D},\theta}(f,xs|\tau,\mathcal{E})}_{\text{Marginalizing out how $\mathcal{D}$ produced $e$}}\text{, when $e$ not a $\lambda$-abstraction}\\
+      \\
+      P'_{\mathcal{D},\theta}(f,xs|\tau,\mathcal{E})& = \underbrace{\sum_{f':\tau_1\to\tau_2\to\cdots\to\tau\in \mathcal{D}}\frac{\theta_f}{Z_{\tau,\mathcal{D},\theta,\mathcal{E}}}
+        \indicator[\text{match}(f',f)\not=\bot]}_{\text{Marginalize over which fragment produced $f,xs$}}\times\\&\prod_{n=1}^{|xs|}P_{\mathcal{D},\theta}(x_n|\tau_n,\mathcal{E})\prod_{e,\tau'\in \text{match}(f',f)}P_{\mathcal{D},\theta}(e|\tau',\mathcal{E})\\
+      \\
+      \text{match}(\lambda z.b,\lambda z.b')& = \text{match}(b,b')\\
+      \text{match}(f\;x,f'\;x')& = \text{match}(f,f')\cup\text{match}(x,x')\\
+      \text{match}(p,p)& = \varnothing \text{, $p$ a primitive or variable bound in fragment}\\
+      \text{match}(v,p)& = \left\{v\mapsto p   \right\} \text{, $v$ a variable free in fragment}\\
+      \text{match}(e,e')& = \bot\text{, otherwise.}
+      \\
+      \\
+      Z_{\tau,\mathcal{D},\theta,\mathcal{E}}& = \underbrace{\sum_{f:\tau_1\to\tau_2\to\cdots\to\tau\in \mathcal{D}\cup\mathcal{E}}\theta_f}_{\text{Normalizing constant for type $\tau$}}\\\\
+      \text{parse}(f\;x)& = \left\{f',xs+[x] \;|\; f',xs\in \text{parse}(f) \right\}\cup\left\{f\;x \right\}\\
+      \text{parse}(e)& = \left\{e,[] \right\} \text{, $e$ not an application}
+    \end{align*}
+  \end{minipage}
+  \bottomrule
+  \caption{Procedure for calculating likelihood of a program after a new fragment has been added to the DSL. For simplicity we omit typing context and reuse type variables to indicate unification, as is commonly done in e.g. Prolog.}\label{match}
+  \end{figure}
+
+
+
 
 \begin{figure}[H]
   \centering
-  \begin{minipage}{0.675\textwidth}    
+  \begin{minipage}{\textwidth}    
     \begin{algorithm}[H]
     \setcounter{algorithm}{2} % there are two algorithms in the main paper.
        \caption{DSL Induction Algorithm}
@@ -258,9 +354,9 @@ We use Alg.~\ref{grammarInductionAlgorithm} to search for the structure of the D
          \STATE Define $\text{score}(\mathcal{D}) = \log \probability[\mathcal{D}] + L(\mathcal{D},\theta^*) - \|\theta\|_0$
          \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
          \WHILE {true}
-         \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, p\in \mathcal{F}_x, s\text{ a fragment  of }p\}$
+         \STATE N $\gets \{\mathcal{D}\cup \{s\} | x\in X, p\in \mathcal{F}_x, s\in \text{fragments}(p)\}$
          \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in N}\text{score}(\mathcal{D}') $
-         \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$
+         \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\left\{\text{closeFragment}(s)|s\in \mathcal{D} \right\},\theta^*(\mathcal{D})$
          \STATE $\mathcal{D}\gets\mathcal{D}'$
          \ENDWHILE
        \end{algorithmic}
