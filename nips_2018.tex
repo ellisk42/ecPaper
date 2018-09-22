@@ -30,8 +30,8 @@
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 \newcommand{\sem}[1]{\llbracket{} #1 \rrbracket{}}
 
-\newcommand{\system}{\textsc{SCC} }
-\newcommand{\systemEnding}{\textsc{SCC}}
+\newcommand{\system}{\textsc{EC$^2$} }
+\newcommand{\systemEnding}{\textsc{EC$^2$}}
 
 \newcommand{\lowerBound}{\mathscr{L}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
@@ -102,7 +102,7 @@
 % author name.
 
 \author{
-  Kevin Ellis\\MIT\And Lucas Morales\\MIT\And Mathias Sabl\'e Meyer\\France
+  Kevin Ellis\\MIT\\\texttt{ellisk@mit.edu}\And Lucas Morales\\MIT\And Mathias Sabl\'e-Meyer\\ENS Paris-Saclay
   \AND
   Armando Solar-Lezama\\MIT\And Joshua B. Tenenbaum\\MIT
   %% \And
@@ -344,15 +344,15 @@ characters is likely to be part of the solution; if every output
 contains a constant substring (e.g., ``Dr.''), inserting or appending
 that constant string is likely to be a subroutine.
 
-Our \system (\textbf{S}earch/\textbf{C}ompress/\textbf{C}ompile)
+Our \system (ECC, for \textbf{E}xplore/\textbf{C}ompress/\textbf{C}ompile)
 algorithm incorporates these insights by iterating through three steps. 
-The \textbf{Search} step takes a given set of \textbf{tasks}, typically
-several hundred, and searches for compact programs that solve these tasks
+The \textbf{Explore} step takes a given set of \textbf{tasks}, typically
+several hundred, and explores the space of programs, searching for compact programs that solve these tasks,
 guided by the current DSL and neural network.
 The \textbf{Compress} step grows the library (or DSL) of
 domain-specific subroutines which allow the agent to more compactly
 write programs in the domain; it modifies the structure of the DSL by
-discovering regularities across programs found during search, compressing
+discovering regularities across programs found during exploration, compressing
 them to distill out common code fragments across successful programs.
 The \textbf{Compile} step improves the search procedure by training a neural network to
 write programs in the current DSL, in the spirit of ``amortized'' or
@@ -504,8 +504,8 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
 \system does approximate MAP inference  by maximizing this lower bound on the joint probability,
-alternating maximization w.r.t.\ the frontiers (Search) and the DSL (Compression):
-\\\noindent \textbf{Program Search: Maxing $\lowerBound$ w.r.t.\ the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
+alternating maximization w.r.t.\ the frontiers (Explore) and the DSL (Compression):
+\\\noindent \textbf{Explore: Maxing $\lowerBound$ w.r.t.\ the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
 $\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]$
 is large.
@@ -548,7 +548,7 @@ in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can f
 %% Another complementary means of meeting search is to learn a
 %% bottom-up \emph{recognition model}
 
-\subsection{Searching for Programs}\label{explorationSection}
+\subsection{Exploration: Searching for Programs}\label{explorationSection}
 
 Now our goal is to search for programs solving the tasks.  We use the simple approach of enumerating programs from
 the DSL  in decreasing order of their probability,
@@ -1053,8 +1053,8 @@ assumptions about the space of programs and the statement of tasks.
   \multicolumn{7}{c}{\emph{List Processing}}\\
   \midrule
   \% solved&\textbf{79\%}\footnotemark & 
-  76\% &71\%&35\%&62\%&37\%\\
-  Solve time&  4.1s&5.8s&10.6s&34.7s&43.4s&20.2s\\
+  94\% &71\%&35\%&62\%&37\%\\
+  Solve time&  88s&6s&11s&35s&44s&20s\\
   \midrule
   \multicolumn{7}{c}{\emph{Text Editing}}\\
   \midrule
@@ -1089,7 +1089,7 @@ RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} a
 only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
 \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
 but instead learns the parameters of the DSL ($\theta$), learning the parameters of a PCFG while not learning any of the structure.
-\\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first search step.
+\\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first exploration step.
 &
 %For each domain,
 %% We are interested both in how many tasks the
