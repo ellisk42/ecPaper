@@ -322,7 +322,7 @@ is used to induce a new DSL.
       \text{match}(\lambda z.b,\lambda z.b')& = \text{match}(b,b')\\
       \text{match}(f\;x,f'\;x')& = \text{match}(f,f')\cup\text{match}(x,x')\\
       \text{match}(p,p)& = \varnothing \text{, $p$ a primitive or variable bound in fragment}\\
-      \text{match}(v,p)& = \left\{v\mapsto p   \right\} \text{, $v$ a variable free in fragment}\\
+      \text{match}(v,p)& = \left\{v\mapsto p   \right\} \text{, $v$ a variable free in fragment, $p$ not containing free variables bound in fragment}\\
       \text{match}(e,e')& = \bot\text{, otherwise.}
       \\
       \\
