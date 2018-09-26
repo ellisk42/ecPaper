@@ -163,19 +163,20 @@ The FlashFill system~\cite{gulwani2011automating} developed by
 Microsoft researchers and now embedded in Excel solves problems such
 as these and is probably the best known practical program-induction
 algorithm, but researchers in programming languages and AI have built
-successful program induction algorithms for many applications, 
-such as handwriting recognition and generation~\cite{lake2015human},
-procedural graphics~\cite{ellis2017learning}, question
+successful program induction algorithms for many applications, such as
+handwriting recognition and generation~\cite{lake2015human},
+procedural graphics~\cite{ellis2017learning}, cognitive
+modeling~\cite{DBLP:journals/cogsr/SchmidK11}, question
 answering~\cite{johnson2017clevr} and robot motion
-planning~\cite{devlin2017neural}, to name just a few.
-These systems work in different ways, but most hinge upon having a
-carefully engineered \textbf{Domain Specific Language (DSL)}.  This is
+planning~\cite{devlin2017neural}, to name just a few.  These systems
+work in different ways, but most hinge upon having a carefully
+engineered \textbf{Domain Specific Language (DSL)}.  This is
 especially true for systems such as FlashFill that aim to induce a
 wide range of programs very quickly, in a few seconds or less.  DSLs
 constrain the search over programs with strong prior knowledge in the
 form of a restricted set of programming primitives tuned to the needs
 of the domain: for text editing, these are operations like appending
-strings and splitting on characters.  
+strings and splitting on characters.
 
 In this work, we consider the problem of building agents that learn to solve
 program induction tasks, and also the problem of acquiring the prior knowledge
@@ -1131,12 +1132,12 @@ We see these prior works as operating in a different regime: typically, they tra
  and extend it along two dimensions: (1) we propose a new algorithm for
  inducing reusable subroutines, based on Fragment Grammars~\cite{tim};
  and (2) we show how to combine these techniques with bottom-up neural recognition models.
- Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10}, Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, and predicate invention in Inductive Logic Programming~\cite{DBLP:conf/ecai/LinDETM14}.
+ Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10}, Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, MagicHaskeller~\cite{katayama2015towards}, and predicate invention in Inductive Logic Programming~\cite{DBLP:conf/ecai/LinDETM14}.
  
 \noindent\textbf{Bayesian Program
  Learning:} Our work is an instance of
  Bayesian Program
- Learning (BPL; see~\citep{lake2015human,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
+ Learning (BPL; see~\citep{lake2015human,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10,ellis2015unsupervised}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
 \section{Discussion}
@@ -1173,6 +1174,9 @@ new domains, including the three domains considered,  but also many others?
 %%   before any training (left) and after last iteration (right).}
 %% \label{geomCompiled}
 %% \end{minipage}
+
+\subsubsection*{Acknowledgments} We are grateful for collaborations with Eyal Dechter, whose EC algorithm directly inspired this work. Funding from NSF GRFP and the MUSE program (Darpa grant FA8750-14-2-0242).
+
 
 \bibliographystyle{unsrt}
 {\small \bibliography{main}}
