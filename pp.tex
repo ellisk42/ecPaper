@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass{beamer} 
 \usetheme{metropolis}
 \usepackage{listings}
 \usepackage{amsfonts}
@@ -186,7 +186,7 @@ Character ::= a | b | c | ...
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 %Information to be included in the title page:
-\title{Growing libraries of concepts with wake-sleep program induction}
+\title{\texttt{DreamCoder}: Growing libraries of concepts with wake-sleep program induction}
 \author{Kevin Ellis\\Joint with: Lucas Morales, Mathias Sabl\'e Meyer, Armando Solar-Lezama, Joshua B. Tenenbaum\\Heavy inspiration from: Eyal Dechter}
 \institute{MIT} 
 \date{October 2018}
@@ -198,12 +198,26 @@ Character ::= a | b | c | ...
 
 
 
-\begin{frame}{The Language of Thought}
+\begin{frame}{Human program induction everywhere}
 \begin{tikzpicture}
-    \node at (-3,1) {\includegraphics[width = 6cm]{Fodor.jpg}};
-  \node at (2,2) {\includegraphics[width = 8cm]{Solomon.png}};
-%
-    \end{tikzpicture}
+  \node(Lisp) at (0,0) {\includegraphics[width = 5cm]{figures/1975.png}};
+  \visible<2->{
+    \node(colorless) at (6,0) {\includegraphics[width = 5cm]{figures/colorless.png}};
+    \node at ([yshift=-2cm]colorless.south) {\includegraphics[width = 4cm]{figures/child.jpg}};
+  }
+  \visible<3->{
+    \node(aqueduct) at ([yshift=-1cm,xshift=0cm]Lisp.south) {\includegraphics[width = 5cm]{figures/aqueduct.jpg}};
+    \node(arch) at ([xshift=1cm,yshift=0cm]aqueduct.south) {\includegraphics[width = 1.5cm]{figures/arch.jpg}};
+  }
+  \visible<4->{
+    \node at ([yshift=-1cm,xshift=-2cm]aqueduct.south) {\includegraphics[width = 2cm]{figures/tapestry.jpg}};
+    \node(wiringDiagram) at ([yshift=-1cm,xshift=1.6cm]aqueduct.south) {\includegraphics[width = 5cm]{figures/wiringDiagram.jpg}};
+  }
+  \visible<5->{
+    \node at ([xshift=2cm,yshift=1cm]wiringDiagram.east) {\includegraphics[width = 5cm]{tree.jpg}};
+    }
+  \end{tikzpicture}
+
 \end{frame}
 
 %% \begin{frame}{Engineering the language of thought}
@@ -213,7 +227,7 @@ Character ::= a | b | c | ...
 %%     \end{tikzpicture}
 %% \end{frame}
 
-\begin{frame}{Engineering the language of thought}
+\begin{frame}{Human program induction everywhere}
   \begin{tikzpicture}
     \node at(0,0) {\includegraphics[width = 8cm]{characters.png}};
     \node at(-3,2) {\includegraphics[width = 8cm]{Brendan.jpg}};
@@ -305,6 +319,15 @@ Tasks and     \pop{Programs} & DSL\\
       \end{itemize}
   \end{itemize}
   Combines ideas from Wake-Sleep \& Exploration-Compression algorithm by Eyal Dechter
+\Wider[5.4em]{
+  \begin{tikzpicture}
+    \node at (6,0) {  \includegraphics[width = 4cm]{figures/sleepingChild.jpg}};
+    \visible<2->{
+      \node(Lisp) at (-3,0) {\includegraphics[width = 3cm]{figures/Lisp.png}};
+      \node(tower) at ([xshift=1.5cm]Lisp.east) {\includegraphics[width = 3cm]{figures/pyramid1.png}};
+      \node(logo) at ([xshift=1.5cm]tower.east) {\includegraphics[width =3cm]{figures/9logo.png}}; 
+    }
+    \end{tikzpicture}}
 
 
 \end{frame}
@@ -662,9 +685,9 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
 
 \end{frame}
 
-\begin{frame}{Symbolic regression from visual input}
-\centering\includegraphics[width = 5cm]{symbolicRegression.png}
-\end{frame}
+%% \begin{frame}{Symbolic regression from visual input}
+%% \centering\includegraphics[width = 5cm]{symbolicRegression.png}
+%% \end{frame}
 
 \begin{frame}{Turtle graphics --- \small{Created \& investigated by Mathias
   Sablé--Meyer}}
