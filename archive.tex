@@ -1450,51 +1450,53 @@ a bottom-up pattern recognizer is of little use
 for acquiring this abstract knowledge
 from less than two dozen problems.
 
-\begin{figure}  \newcommand{\helpSize}{0.25cm}
-  \begin{tabular}{cl}\toprule
-    \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&
+\begin{figure*}  \newcommand{\helpSize}{0.25cm}
+  \begin{tabular}{cc}\toprule
+    \normalsize \pop{Programs} \& Tasks&\normalsize \popp{DSL}\\\midrule 
+    
+
+    %\rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&
     \begin{tabular}{l}
-      \code{[4\, 7\, 6\, 9\, 0]$\to$5}\\
-\code{[3\, 8\, 2\, 1\, 4]$\to$4}\\
-\code{[2\, 2\, 9\, 4\, 8]$\to$3}\\
-\code{[0\, 9\, 8\, 9\, 9\, 8]$\to$1}\\
-\blueCode{$f(\ell) = $($f_0$ (car $\ell$))}\\\\
+\code{[2\, 1\, 4]$\to$[2\, 1\, 4\, 0]}\\
+%\code{[9\, 4\, 8]$\to$[9\, 4\, 8\, 0]}\\
+\code{[9\, 8]$\to$[9\, 8\, 0]}\\
+\blueCode{$f(\ell) = $($f_2$ cons $\ell$ (cons 0 nil))}\\\\
 
 \code{[2\, 5\, 6\, 0\, 6]$\to$19}\\
 \code{[9\, 2\, 7\, 6\, 3]$\to$27}\\
-\blueCode{$f(\ell) = $($f_4$ + $\ell$ 0)}\\\\
+\blueCode{$f(\ell) = $($f_2$ + $\ell$ 0)}\\\\
 
 \code{[4\, 2\, 6\, 4]$\to$[8\, 4\, 12\, 8]}\\
-\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
+%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
 \code{[2\, 3\, 0\, 7]$\to$[4\, 6\, 0\, 14]}\\
-\blueCode{$f(\ell) = $($f_5$ ($\lambda$ (x) (+ x x)) $\ell$)}\\\\
+\blueCode{$f(\ell) = $($f_3$ ($\lambda$ (x) (+ x x)) $\ell$)}\\\\
 
 
-      \code{[5\, 2\, 9]}$\to$\code{[[2\, 9]\, [9]\, []]}\\
-      \code{[3\, 8\, 1\, 3]}$\to$\code{[[8\, 1\, 3]\, [1\, 3]\, [3]\, []]}\\
-      \blueCode{$f(\ell) = $($f_2$ empty? cdr cdr $\ell$)}
+      \code{[1\, 5\, 2\, 9]}$\to$\code{[1\, 2]}\\
+      \code{[3\, 8\, 1\, 3\, 1\, 2]}$\to$\code{[3\, 1\, 1]}\\
+      \blueCode{$f(\ell) = $($f_0$ empty? car}\\
+      \phantom{\blueCode{$f(\ell) = $($f_0$}}\blueCode{($\lambda$ (l) (cdr (cdr l))) $\ell$)}
       \\
       
-      \end{tabular}
-    \\\midrule
-    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
+      \end{tabular}&
+
+%    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
     \begin{tabular}{l}
-      \greenCode{$f_0($x$)\,=\,$(+ x 1)}\\
-      \hspace{\helpSize}($f_0$: \emph{increment})\\
-      \greenCode{$f_1($x$)\,=\,$(- x 1)}\\
-      \hspace{\helpSize}($f_1$: \emph{decrement})\\
-        \popp{\code{$f_2($p$,$f$,$n$,$x$)\,=\,$(if (p x) nil}}\\
-      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(cons (f x) ($f_2$ (n x))))}}\\
-        \hspace{\helpSize}($f_2$: \emph{unfold})\\
-        \popp{\code{$f_3($i$,$l$)\,=\,$(if (= i 0) (car l)}}\\
-      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{($f_3$ ($f_1$ i) (cdr l))))}}\\
-        \hspace{\helpSize}($f_3$: \emph{index})\\
-        \popp{\code{$f_4($f$,$l$,$x$)\,=\,$(if (empty? l) x}}\\
-      \phantom{\code{$f_4($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(f (car l) ($f_4$ (cdr l))))}}\\
-        \hspace{\helpSize}($f_4$: \emph{fold})\\
-        \greenCode{$f_5($f$,$l$)\,=\,$(if (empty? l) nil)}\\
-        \phantom{\greenCode{$f_5($f$,$l$)\,=\,$(if }}\greenCode{(cons (f (car l)) ($f_5$ (cdr l)))}\\
-        \hspace{\helpSize}($f_5$: \emph{map})
+        \popp{\code{$f_0($p$,$f$,$n$,$x$)\,=\,$(if (p x) nil}}\\
+      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(cons (f x) ($f_0$ (n x))))}}\\
+        \hspace{\helpSize}($f_0$: \emph{unfold})\\
+        \popp{\code{$f_1($i$,$l$)\,=\,$(if (= i 0) (car l)}}\\
+      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if}}}\popp{\code{($f_1$ (- i 1) (cdr l))))}}\\
+        \hspace{\helpSize}($f_1$: \emph{index})\\
+        \popp{\code{$f_2($f$,$l$,$x$)\,=\,$(if (empty? l) x}}\\
+      \phantom{\code{$f_2($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(f (car l) ($f_2$ (cdr l))))}}\\
+        \hspace{\helpSize}($f_2$: \emph{fold})\\
+        \greenCode{$f_3($f$,$l$)\,=\,$($f_2$ nil l ($\lambda$ (x a) (cons (f x) a)))}\\
+        \hspace{\helpSize}($f_3$: \emph{map})\\
+        \greenCode{$f_4(\ell)$\,=\,(if (empty? $\ell$) 0 (+ 1 ($f_4$ (cdr $\ell$)))))}\\
+        \hspace{\helpSize}($f_4$: \emph{length})\\
+        \greenCode{$f_5(n)$\,=\,($f_0$ (= $n$) ($\lambda$ (x) x) (+ 1) 0)}\\
+        \hspace{\helpSize}($f_5$: \emph{range})
 
 %        -0.222777	int -> int -> list(int)	#(lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (map (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
 
@@ -1505,7 +1507,7 @@ from less than two dozen problems.
     \\\bottomrule 
     \end{tabular}
   \caption{Bootstrapping a standard library of functional programming routines, starting from recursion along with primitive operations found in 1959 Lisp.}\label{learningFromScratch}
-  \end{figure}
+  \end{figure*} 
 
 We believe that program learners should \emph{not}
 start from scratch,

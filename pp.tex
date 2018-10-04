@@ -35,6 +35,13 @@
 \newcommand{\tree}[1]{\textcolor{pop3}{#1}}
 \newcommand{\orange}[1]{\textcolor{orange}{#1}}
 \newcommand{\teal}[1]{\textcolor{teal}{#1}}
+\newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
+\newcommand{\greenCode}[1]{{\footnotesize\popp{\code{#1}}}}
+\newcommand{\blueCode}[1]{{\footnotesize\pop{\code{#1}}}}
+
+
+\usepackage{pgf}  
+
 
 
 \newcommand{\nextForm}[1]{\rotatebox[origin=c]{270}{$_{\curvearrowright}$}$_{#1}$}
@@ -240,20 +247,46 @@ Character ::= a | b | c | ...
 
 
 
-\begin{frame}{Growing a domain-specific language of thought}
+\begin{frame}{Growing domain-specific knowledge}
   
   %  \Large
   Goal: acquire domain-specific knowledge needed to induce a class of programs
 
 
   
-  \pause
   \vspace{1cm}
 
   \begin{itemize}
-  \item Library of concepts (declarative knowledge)
+  \item Library of concepts (declarative knowledge; generative model over programs)
     \item Inference strategy (procedural knowledge)
-    \end{itemize}
+  \end{itemize}
+  \only<2>{
+  \begin{tikzpicture}
+    \node(problem) at (0,0) {\includegraphics[width = 2cm]{figures/functions/48.png}};
+    \node(synthesizer)[draw,align=center] at ([xshift=3cm]problem.east) {Learned \\program inducer};
+    \draw[->] (problem.east) -- (synthesizer.west);
+    \node(program)[draw, align=center] at ([xshift=3cm]synthesizer.east) {program:\\$f(x) = 0.7x^2+1.2$};
+    \draw[->] (synthesizer.east) -- (program.west);
+  \end{tikzpicture}}
+    \renewcommand\code\texttt
+    \only<3>{
+\Wider[4em]{  \begin{tikzpicture}
+    \node[draw,align=center](problem) at (0,0) {
+            \begin{tabular}{l}
+          \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
+          \code{[1\, 2\, 3\, 4]}$\to$\code{[3\, 4]} \\
+          \code{[4\, 3\, 2\, 1]}$\to$\code{[4\, 3]} \\
+          \end{tabular}
+};
+    \node(synthesizer)[draw,align=center] at ([xshift=2.5cm]problem.east) {Learned \\program inducer};
+    \draw[->] (problem.east) -- (synthesizer.west);
+    \node(program)[draw, align=center] at ([xshift=2.5cm]synthesizer.east) {program:\\\code{(filter ($\lambda$ (x)}\\\code{ (> x 2)))}};
+    \draw[->] (synthesizer.east) -- (program.west);
+  \end{tikzpicture}
+
+  \vspace{0.5cm}Concepts: \code{filter}, etc\\Inference strategy: neurosymbolic search for programs
+    }}
+  
 \end{frame}
 
 \begin{frame}{DSL: Library of concepts}
@@ -324,7 +357,9 @@ Tasks and     \pop{Programs} & DSL\\
     \node at (6,0) {  \includegraphics[width = 4cm]{figures/sleepingChild.jpg}};
     \visible<2->{
       \node(Lisp) at (-3,0) {\includegraphics[width = 3cm]{figures/Lisp.png}};
-      \node(tower) at ([xshift=1.5cm]Lisp.east) {\includegraphics[width = 3cm]{figures/pyramid1.png}};
+      \node[align=center](tower) at ([xshift=1cm]Lisp.east) {\includegraphics[width = 1cm]{figures/functions/627.png}\hspace{0.05cm}\includegraphics[width = 1cm]{figures/functions/615.png}\\
+        \includegraphics[width = 1cm]{figures/functions/382.png}\hspace{0.05cm}\includegraphics[width = 1cm]{figures/functions/0.png}%
+      };
       \node(logo) at ([xshift=1.5cm]tower.east) {\includegraphics[width =3cm]{figures/9logo.png}}; 
     }
     \end{tikzpicture}}
@@ -474,9 +509,12 @@ Tasks and     \pop{Programs} & DSL\\
   }
 \end{frame}
 
+
+\begin{comment}
+
 \begin{frame}{DreamCoder --- Sleep-G (\textbf{Refactoring})}
   \textbf{Learning higher-order \texttt{map} function}
-  
+  \Wider[5.4em]{
   \begin{tabular}{cc}
     \toprule Task&Program\\\midrule
     \begin{tabular}{l}
@@ -500,7 +538,7 @@ Tasks and     \pop{Programs} & DSL\\
     \end{tabular}
     
     \\\bottomrule
-  \end{tabular}
+  \end{tabular}}
 
      \visible<2->{
       \centering
@@ -514,12 +552,12 @@ Tasks and     \pop{Programs} & DSL\\
 
 \begin{frame}{DreamCoder --- Sleep-G (\textbf{Refactoring})}
   \textbf{Learning higher-order \texttt{map} function}
-  
+    \Wider[5.4em]{
   \begin{tabular}{cc}
     \toprule Task&Program\\\midrule
     \begin{tabular}{l}
-      \texttt{(1 2)}$\to$\texttt{(2 4)}\\
-      \texttt{(1 9)}$\to$\texttt{(2 18)}\\
+      \texttt{(1 2 3)}$\to$\texttt{(2 4 6)}\\
+      \texttt{(1 9 2)}$\to$\texttt{(2 18 4)}\\
     \end{tabular}&
 \begin{tabular}{l}
 \texttt{(}\orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l) nil}}\\
@@ -531,9 +569,10 @@ Tasks and     \pop{Programs} & DSL\\
     \begin{tabular}{l}
     \end{tabular}\\\midrule
     \begin{tabular}{l}
-      \texttt{(1 2)}$\to$\texttt{(2 3)}\\
-      \texttt{(1 9)}$\to$\texttt{(2 10)}\\
-    \end{tabular}&
+      \texttt{(1 2 3)}$\to$\texttt{(2 3 4)}\\
+      \texttt{(1 9 2)}$\to$\texttt{(2 10 3)}\\
+    \end{tabular}
+    &
     \begin{tabular}{l}
 \begin{tabular}{l}
 \texttt{(}\orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l) nil}}\\
@@ -544,7 +583,7 @@ Tasks and     \pop{Programs} & DSL\\
     \end{tabular}
     
     \\\bottomrule
-  \end{tabular}
+  \end{tabular}}
 
 
       \centering
@@ -622,7 +661,8 @@ Tasks and     \pop{Programs} & DSL\\
     }
     \end{tikzpicture}
     }
-  \end{frame}
+\end{frame}
+ \end{comment}
 
 
 
@@ -660,9 +700,18 @@ Tasks and     \pop{Programs} & DSL\\
   %\captionof{table}{Some tasks in our list function domain.}\label{listExamples}\vspace{-0.5cm}
 \end{figure}
 
-  Discovers 38 concepts, including `filter'. With different tasks will also learn `map', `fold', `unfold', etc. starting with 1950's Lisp
+  Discovers 38 concepts, including `filter'. %With different tasks will also learn `map', `fold', `unfold', etc. starting with 1950's Lispthe
+  
+\begin{picture}(50,70) \put(250,0){\hbox{\includegraphics[width = 3cm]{figures/Lucas}}} \end{picture} 
 \end{frame}
+\begin{frame}{Learning the basics of programming}
+  \includegraphics[width = \textwidth]{figures/McCarthy.png}
 
+\centering  McCarthy 1959 Lisp  $\longrightarrow$ Modern functional programming
+  
+  22 tasks. 64 CPUs. 93 hours.
+
+  \end{frame}
 
 \begin{frame}{Text editing}
   In the style of FlashFill (Gulwani 2012)
@@ -685,12 +734,19 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
 
 \end{frame}
 
+\begin{frame}{Learned text processing DSL}
+  \only<1>{  \includegraphics[width = \textwidth]{figures/textPrimitives.pdf}}
+  \only<2>{  \includegraphics[width = \textwidth]{figures/textPrimitives.png}}
+
+  \end{frame}
+
 %% \begin{frame}{Symbolic regression from visual input}
 %% \centering\includegraphics[width = 5cm]{symbolicRegression.png}
 %% \end{frame}
 
 \begin{frame}{Turtle graphics --- \small{Created \& investigated by Mathias
-  Sablé--Meyer}}
+      Sablé--Meyer}}
+    \begin{picture}(50,50) \put(280,-20){\hbox{\includegraphics[width = 2cm]{figures/French}}} \end{picture} \vspace{-2cm}
 
   \begin{block}{DSL}
     \texttt{OP ::= FW x | RT x | UP | DOWN | SET state}
@@ -801,6 +857,7 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
     \vspace{0.2cm}
     \texttt{\alert{NUM} ::= 1 | $\pi$ | $\infty$ | $\varepsilon$ | + | - | * | / }
   }
+
 \end{frame}
 
 \begin{frame}{Turtle graphics --- Training tasks}
@@ -811,29 +868,41 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
 \begin{frame}{Turtle graphics --- Learning curves}
   \centering
   \includegraphics[width=9cm]{figures/dreams/montageTalkLC.eps}
-  \begin{itemize}
-    \item $\frac\pi2$ and $\frac\pi4$ from $\pi$, $2$, $+$ and $/$
-    \item A line of length \texttt{n} followed with a right angle
-    \item Loops of length \texttt{n} that uses the number \texttt{n} inside.
-    \item Unit line then teleport back to origin
-    \item ...
-  \end{itemize}
+  %% \begin{itemize}
+  %%   \item $\frac\pi2$ and $\frac\pi4$ from $\pi$, $2$, $+$ and $/$
+  %%   \item A line of length \texttt{n} followed with a right angle
+  %%   \item Loops of length \texttt{n} that uses the number \texttt{n} inside.
+  %%   \item Unit line then teleport back to origin
+  %%   \item ...
+  %% \end{itemize}
 \end{frame}
+
+\begin{frame}{Turtle graphics --- Illustration of learned DSL}
+
+  \only<1>{\centering\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_4.png}}
+  \only<2>{\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_1.png}}
+  \only<3>{\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_7.png}}
+  \only<4>{\centering\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_12.png}}
+  \only<5>{\centering\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_14.png}}
+  \only<6>{\centering\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_5.png}}
+  \only<7>{\centering\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_13.png}}
+
+  \end{frame}
 
 \begin{frame}{Turtle graphics --- Dreams}
   \centering
   \includegraphics[width=7cm]{figures/dreams/montageTalkDreams.eps}
 \end{frame}
 
-\begin{frame}{Turtle graphics --- More dreams, 5 minutes, 1st iteration}
-  \centering
-  \includegraphics[width=8cm]{figures/dreams/5m_firstIteration.eps}
-\end{frame}
+%% \begin{frame}{Turtle graphics --- More dreams, 5 minutes, 1st iteration}
+%%   \centering
+%%   \includegraphics[width=8cm]{figures/dreams/5m_firstIteration.eps}
+%% \end{frame}
 
-\begin{frame}{Turtle graphics --- More dreams, 5 minutes, last iteration}
-  \centering
-  \includegraphics[width=8cm]{figures/dreams/5m_final.eps}
-\end{frame}
+%% \begin{frame}{Turtle graphics --- More dreams, 5 minutes, last iteration}
+%%   \centering
+%%   \includegraphics[width=8cm]{figures/dreams/5m_final.eps}
+%% \end{frame}
 
 \begin{frame}{Turtle graphics --- Dreaming from learned generative model}
   \centering
@@ -878,6 +947,8 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
     \end{figure}
   }
 \end{frame}
+
+\begin{comment}
 \begin{frame}{Tower building in blocks world}
   \large
 \centering  
@@ -901,7 +972,8 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
 
   \includegraphics[width = \textwidth]{figures/brickwall.png} 
 
-  \end{frame}
+\end{frame}
+  \end{comment}
 
 \begin{frame}{Vision}
 
