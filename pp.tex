@@ -102,90 +102,7 @@ by=0mm, boxrule=0pt,boxsep=0pt,breakable,fontupper=\color{white}}
 %%          | (recurse List)
 
             
-\begin{SaveVerbatim}[]{ListSketch}
-Bool ::= (<= Int) | (>= Int)
-       | (= Int)
-Int  ::= 0
-       | (+1 Int) | (-1 Int)
-       | (length List)
-       | (head List)
-List ::= nil | X
-       | (filter Bool List)
-       | (tail List)
-       | (list Int)
-\end{SaveVerbatim}
 
-\begin{SaveVerbatim}[]{ListSketchFull}
-Program ::= (if (Bool Int)
-                List
-                (append RecursiveList
-                        RecursiveList
-                        RecursiveList))
-RecursiveList ::= List
-                | (recurse List)
-Bool ::= (<= Int) | (>= Int)
-       | (= Int)
-Int  ::= 0
-       | (+1 Int) | (-1 Int)
-       | (length List)
-       | (head List)
-List ::= nil | X
-       | (filter Bool List)
-       | (tail List)
-       | (list Int)
-\end{SaveVerbatim}
-
-\begin{SaveVerbatim}[]{Reverse}
-(if (<= (+1 0) (length X))
-    X
-    (append (recurse (tail X))
-            (list (head X))))
-\end{SaveVerbatim}
-\begin{SaveVerbatim}[]{Reversep}
-(if (= (+1 0) (length X))
-    X
-    (append (recurse (filter (<= (+1 0)) (tail X)))
-            (list (head X))))
-\end{SaveVerbatim}
-
-\begin{SaveVerbatim}[]{Count}
-(length (filter (= (head X)) (tail X)))
-\end{SaveVerbatim}
-
-\begin{SaveVerbatim}[]{Countp}
-(-1 (length (filter (= (head X)) X)))
-\end{SaveVerbatim}
-
-\begin{SaveVerbatim}[]{Sort}
-(if (<= (+1 0) (length X))
-    X
-    (append (recurse (filter (<= (head X)) (tail X)))
-            (list (head X))
-            (recurse (filter (>= (head X)) (tail X)))))
-\end{SaveVerbatim}
-
-\begin{SaveVerbatim}[]{Sortp}
-(if (= (+1 0) (length X))
-    X
-    (append (recurse (tail X))
-            (list (length X))))
-\end{SaveVerbatim}
-
-\begin{SaveVerbatim}[]{TextSketch}
-Program ::= Term
-          | Program + Term
-Term    ::= String
-          | substr(Pos,Pos)
-Pos     ::= Number
-          | pos(Str,Str,Num)
-Num     ::= 0 | 1 | 2 | ... 
-          | -1 | -2 | ...
-Str     ::= Character 
-          | Character + String
-Character ::= a | b | c | ...
-\end{SaveVerbatim}
-
-\newcommand{\theSystem}{\textsc{ProgramSample}}
 \usepackage{arydshln}
 
 \newcommand{\Expect}{\mathds{E}} %{{\rm I\kern-.3em E}}
@@ -220,9 +137,9 @@ Character ::= a | b | c | ...
     \node at ([yshift=-1cm,xshift=-2cm]aqueduct.south) {\includegraphics[width = 2cm]{figures/tapestry.jpg}};
     \node(wiringDiagram) at ([yshift=-1cm,xshift=1.6cm]aqueduct.south) {\includegraphics[width = 5cm]{figures/wiringDiagram.jpg}};
   }
-  \visible<5->{
-    \node at ([xshift=2cm,yshift=1cm]wiringDiagram.east) {\includegraphics[width = 5cm]{tree.jpg}};
-    }
+  %% \visible<5->{
+  %%   \node at ([xshift=2cm,yshift=1cm]wiringDiagram.east) {\includegraphics[width = 5cm]{tree.jpg}};
+  %%   }
   \end{tikzpicture}
 
 \end{frame}
@@ -267,25 +184,38 @@ Character ::= a | b | c | ...
     \draw[->] (problem.east) -- (synthesizer.west);
     \node(program)[draw, align=center] at ([xshift=3cm]synthesizer.east) {program:\\$f(x) = 0.7x^2+1.2$};
     \draw[->] (synthesizer.east) -- (program.west);
-  \end{tikzpicture}}
-    \renewcommand\code\texttt
+  \end{tikzpicture}
+  
+    \vspace{0.2cm}Concepts: $x^2$, etc\\Inference strategy: neurosymbolic search for programs}
+  \renewcommand\code\texttt
     \only<3>{
-\Wider[4em]{  \begin{tikzpicture}
-    \node[draw,align=center](problem) at (0,0) {
-            \begin{tabular}{l}
-          \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
-          \code{[1\, 2\, 3\, 4]}$\to$\code{[3\, 4]} \\
-          \code{[4\, 3\, 2\, 1]}$\to$\code{[4\, 3]} \\
-          \end{tabular}
-};
-    \node(synthesizer)[draw,align=center] at ([xshift=2.5cm]problem.east) {Learned \\program inducer};
+  \begin{tikzpicture}
+    \node(problem) at (0,0) {\includegraphics[width = 2cm]{figures/logoTasks/logo43.png}};
+    \node(synthesizer)[draw,align=center] at ([xshift=3cm]problem.east) {Learned \\program inducer};
     \draw[->] (problem.east) -- (synthesizer.west);
-    \node(program)[draw, align=center] at ([xshift=2.5cm]synthesizer.east) {program:\\\code{(filter ($\lambda$ (x)}\\\code{ (> x 2)))}};
+    \node(program)[draw, align=center] at ([xshift=3cm]synthesizer.east) {program:\\\code{(for (i 4)}\\ \code{ (circle i))}};
     \draw[->] (synthesizer.east) -- (program.west);
   \end{tikzpicture}
+  
+  \vspace{0.2cm}Concepts: \code{circle}, etc\\Inference strategy: neurosymbolic search for programs
+    }
+%%     \only<4>{
+%% \Wider[4em]{  \begin{tikzpicture}
+%%     \node[draw,align=center](problem) at (0,0) {
+%%             \begin{tabular}{l}
+%%           \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
+%%           \code{[1\, 2\, 3\, 4]}$\to$\code{[3\, 4]} \\
+%%           \code{[4\, 3\, 2\, 1]}$\to$\code{[4\, 3]} \\
+%%           \end{tabular}
+%% };
+%%     \node(synthesizer)[draw,align=center] at ([xshift=2.5cm]problem.east) {Learned \\program inducer};
+%%     \draw[->] (problem.east) -- (synthesizer.west);
+%%     \node(program)[draw, align=center] at ([xshift=2.5cm]synthesizer.east) {program:\\\code{(filter ($\lambda$ (x)}\\\code{ (> x 2)))}};
+%%     \draw[->] (synthesizer.east) -- (program.west);
+%%   \end{tikzpicture}
 
-  \vspace{0.5cm}Concepts: \code{filter}, etc\\Inference strategy: neurosymbolic search for programs
-    }}
+%%   \vspace{0.5cm}Concepts: \code{filter}, etc\\Inference strategy: neurosymbolic search for programs
+%%     }}
   
 \end{frame}
 
@@ -402,9 +332,11 @@ Tasks and     \pop{Programs} & DSL\\
   \end{tikzpicture}
   
 
-\vspace{1cm}
+\vspace{0.5cm}
   
-  \textbf{[Dechter et al., 2013]}  [Liang et al, 2010]; [Lake et al, 2015]
+\textbf{[Dechter et al., 2013]}  [Liang et al, 2010]; [Lake et al, 2015]
+
+\textbf{Dechter et al.}: Exploration-Compression. Inspiration for DreamCoder.
 
   %% \vfill
   %% Gray: Observed.\\
@@ -460,7 +392,7 @@ Tasks and     \pop{Programs} & DSL\\
 
 \end{tikzpicture}
 
-\pause
+
 
 \textbf{New:} amortized inference +\\ better program representation (Lisp) + \\better DSL inference 
 
@@ -704,14 +636,7 @@ Tasks and     \pop{Programs} & DSL\\
   
 \begin{picture}(50,70) \put(250,0){\hbox{\includegraphics[width = 3cm]{figures/Lucas}}} \end{picture} 
 \end{frame}
-\begin{frame}{Learning the basics of programming}
-  \includegraphics[width = \textwidth]{figures/McCarthy.png}
 
-\centering  McCarthy 1959 Lisp  $\longrightarrow$ Modern functional programming
-  
-  22 tasks. 64 CPUs. 93 hours.
-
-  \end{frame}
 
 \begin{frame}{Text editing}
   In the style of FlashFill (Gulwani 2012)
@@ -721,6 +646,7 @@ Tasks and     \pop{Programs} & DSL\\
 \vspace{-0.5cm}  SyGuS problems: solves 3\% before learning, vs 75\% after learning. Best prior work: 80\%
 
 \end{frame}
+
 \begin{frame}{List functions \& Text editing: Learning curves on hold out tasks}
 
   \begin{center}
@@ -734,15 +660,25 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
 
 \end{frame}
 
+
 \begin{frame}{Learned text processing DSL}
   \only<1>{  \includegraphics[width = \textwidth]{figures/textPrimitives.pdf}}
   \only<2>{  \includegraphics[width = \textwidth]{figures/textPrimitives.png}}
 
+\end{frame}
+
+\begin{frame}{Learning the fundamentals of programming}
+  \includegraphics[width = \textwidth]{figures/McCarthy.png}
+
+\centering  McCarthy 1959 Lisp  $\longrightarrow$ Modern functional programming
+  
+  22 tasks. 64 CPUs. 93 hours.
+
   \end{frame}
 
-%% \begin{frame}{Symbolic regression from visual input}
-%% \centering\includegraphics[width = 5cm]{symbolicRegression.png}
-%% \end{frame}
+\begin{frame}{Symbolic regression from visual input}
+\centering\includegraphics[width = 5cm]{symbolicRegression.png}
+\end{frame}
 
 \begin{frame}{Turtle graphics --- \small{Created \& investigated by Mathias
       Sablé--Meyer}}
@@ -865,17 +801,17 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
   \includegraphics[width=11cm]{figures/tasksMinusBehaviour.png}
 \end{frame}
 
-\begin{frame}{Turtle graphics --- Learning curves}
-  \centering
-  \includegraphics[width=9cm]{figures/dreams/montageTalkLC.eps}
-  %% \begin{itemize}
-  %%   \item $\frac\pi2$ and $\frac\pi4$ from $\pi$, $2$, $+$ and $/$
-  %%   \item A line of length \texttt{n} followed with a right angle
-  %%   \item Loops of length \texttt{n} that uses the number \texttt{n} inside.
-  %%   \item Unit line then teleport back to origin
-  %%   \item ...
-  %% \end{itemize}
-\end{frame}
+%% \begin{frame}{Turtle graphics --- Learning curves}
+%%   \centering
+%%   \includegraphics[width=9cm]{figures/dreams/montageTalkLC.eps}
+%%   %% \begin{itemize}
+%%   %%   \item $\frac\pi2$ and $\frac\pi4$ from $\pi$, $2$, $+$ and $/$
+%%   %%   \item A line of length \texttt{n} followed with a right angle
+%%   %%   \item Loops of length \texttt{n} that uses the number \texttt{n} inside.
+%%   %%   \item Unit line then teleport back to origin
+%%   %%   \item ...
+%%   %% \end{itemize}
+%% \end{frame}
 
 \begin{frame}{Turtle graphics --- Illustration of learned DSL}
 
@@ -885,7 +821,7 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
   \only<4>{\centering\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_12.png}}
   \only<5>{\centering\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_14.png}}
   \only<6>{\centering\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_5.png}}
-  \only<7>{\centering\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_13.png}}
+%  \only<7>{\centering\includegraphics[width = \textwidth]{figures/logo_primitives/logo_primitive_13.png}}
 
   \end{frame}
 
@@ -981,7 +917,7 @@ Learning curves for DreamCoder both with (\orange{in orange}) and without
    \underline{More human-like machine intelligence}\\%Flexibly adapting to new problem domains:
    \begin{itemize}
    \item    Acquiring a domain-specific representation (DSL)
-     \item Learning  to write programs (recognition model)
+     \item Learning  to use that representation (recognition model)
    \end{itemize}
    DreamCoder: an algorithm for jointly realizing these goals
 
