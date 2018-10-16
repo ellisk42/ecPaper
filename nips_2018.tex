@@ -102,9 +102,9 @@
 % author name.
 
 \author{
-  Kevin Ellis\\MIT\\\texttt{ellisk@mit.edu}\And Lucas Morales\\MIT\And Mathias Sabl\'e-Meyer\\ENS Paris-Saclay
+  Kevin Ellis\\MIT\\\texttt{ellisk@mit.edu}\And Lucas Morales\\MIT\\\texttt{lucas@lucasem.com}\And Mathias Sabl\'e-Meyer\\ENS Paris-Saclay\\\texttt{mathsm@mit.edu}
   \AND
-  Armando Solar-Lezama\\MIT\And Joshua B. Tenenbaum\\MIT
+  Armando Solar-Lezama\\MIT\\\texttt{asolar@csail.mit.edu}\And Joshua B. Tenenbaum\\MIT\\\texttt{jbt@mit.edu}
   %% \And
   %% Coauthor \\
   %% Affiliation \\
@@ -710,40 +710,6 @@ We replace this marginal with an AIC approximation, giving the following objecti
 \begin{equation}
       \log \probability[\mathcal{D}] + \argmax_{\theta}\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta] + \log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \label{AIC}
   \end{equation}
-
-
-\begin{wrapfigure}{R}{0.6\textwidth}
-  \begin{minipage}{0.6\textwidth}    
-    \begin{algorithm}[H]
-      \caption{The \system Algorithm}
-      \label{mainAlgorithm}
-      \begin{algorithmic}
-        \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
-        \STATE \textbf{Hyperparameters:} Enumeration timeout $T$
-        %     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
-        \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
-        \FOR{$i=1$ {\bfseries to} $I$}
-        %     \FOR{$x:\tau\in X$}
-        \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in
-        \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$
-        \footnotesize{\hspace{0.1cm}(\textbf{Search})}
-        \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ \hspace{0.2cm}(\footnotesize{\textbf{Compile}})
-        \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in
-        \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$
-        \footnotesize{\hspace{0.15cm}\textbf{(Search)}}
-        
-        \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Compress)}}
-        %% \STATE Define $Q_x(z) \propto \begin{cases}
-        %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
-        %%   0&x\not \in \mathcal{F}_x
-        %% \end{cases}
-        \ENDFOR
-        \STATE \textbf{return} $\mathcal{D},\theta,q$
-      \end{algorithmic}
-    \end{algorithm}
-  \end{minipage}
-\end{wrapfigure}%% To appropriately score each proposed $\mathcal{D}$ we must reestimate the weight vector $\theta$.
-
 We induce a DSL by searching locally through the space of DSLs,
 proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC} fails to increase.
 The search moves work by introducing new
@@ -756,8 +722,12 @@ extracting fragments that unify with programs in the frontiers.  This
 idea of storing and reusing fragments of expressions comes from
 Fragment Grammars~\cite{tim} and Tree-Substitution
 Grammars~\cite{cohn2010inducing}, and is closely related to the idea
-of antiunification~\cite{henderson2013cumulative}.
-
+of antiunification~\cite{henderson2013cumulative,hwang2011inducing}.
+Care must be taken
+to ensure that
+this `fragmenting' obeys variable scoping rules;
+Section 4 of the supplement gives an overview of Fragment Grammars
+and how we adapt them to the lexical scoping rules of $\lambda$-calculus.
 \begin{figure}[b!]\tabcolsep=2pt
 \centering  \begin{minipage}[c]{0.2\textwidth}
   \begin{tikzpicture}[scale=0.7]
@@ -851,8 +821,37 @@ highlighted in {\orange{orange}},
   from which we extract a fragment and add it to the DSL (bottom). \textbf{Right:} actual programs,
   from which we extract fragments that  (top) slice from the beginning of a list or (bottom) perform character substitutions.}\label{fragmentExample}
 \end{figure}
-
-
+\begin{wrapfigure}{R}{0.6\textwidth}\vspace{-1cm}
+  \begin{minipage}{0.6\textwidth}    
+    \begin{algorithm}[H]
+      \caption{The \system Algorithm}
+      \label{mainAlgorithm}
+      \begin{algorithmic}
+        \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
+        \STATE \textbf{Hyperparameters:} Enumeration timeout $T$
+        %     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
+        \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
+        \FOR{$i=1$ {\bfseries to} $I$}
+        %     \FOR{$x:\tau\in X$}
+        \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in
+        \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$
+        \footnotesize{\hspace{0.0cm}(\textbf{Explore})}
+        \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ \hspace{0.2cm}(\footnotesize{\textbf{Compile}})
+        \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in
+        \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$
+        \footnotesize{\hspace{0.0cm}\textbf{(Explore)}}
+        
+        \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Compress)}}
+        %% \STATE Define $Q_x(z) \propto \begin{cases}
+        %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
+        %%   0&x\not \in \mathcal{F}_x
+        %% \end{cases}
+        \ENDFOR
+        \STATE \textbf{return} $\mathcal{D},\theta,q$
+      \end{algorithmic}
+    \end{algorithm}
+  \end{minipage}\vspace{-1cm}
+\end{wrapfigure}
 To define the prior distribution over $(\mathcal{D},\theta})$, we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
 and place a symmetric Dirichlet prior over the weight vector $\theta$.
 %% , $  \probability[\theta|\mathcal{D}] = \text{Dir}(\theta|\alpha)$, where
@@ -896,7 +895,7 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 %% comparing \system with lesioned versions
 %% of our model that are analogous to prior work.
 
-
+\pagebreak
 \section{Programs that manipulate sequences}\label{sequences}
 We apply \system to list processing (Section~\ref{listSection}) and text editing (Section~\ref{textSection}).
 For both these domains we use a bidirectional GRU~\cite{cho2014learning} for
@@ -906,7 +905,7 @@ of list processing primitives:
 \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
 \code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
 
-
+\vspace{0.5cm}
 
 \subsection{List Processing}\label{listSection}
 Synthesizing programs that manipulate data structures is a widely studied
@@ -1053,9 +1052,9 @@ assumptions about the space of programs and the statement of tasks.
   \midrule
   \multicolumn{7}{c}{\emph{List Processing}}\\
   \midrule
-  \% solved&\textbf{79\%}\footnotemark & 
-  94\% &71\%&35\%&62\%&37\%\\
-  Solve time&  88s&6s&11s&35s&44s&20s\\
+  \% solved&\textbf{94\%} & 
+  79\% &71\%&35\%&62\%&37\%\\
+  Solve time&  88s&39s&11s&35s&44s&20s\\
   \midrule
   \multicolumn{7}{c}{\emph{Text Editing}}\\
   \midrule
@@ -1107,7 +1106,7 @@ but instead learns the parameters of the DSL ($\theta$), learning the parameters
 
 
 \begin{figure}\centering
-  \includegraphics[width = 4.5cm]{figures/listLearningCurve.eps}
+  \includegraphics[width = 4.35cm]{figures/listLearningCurve.eps}
   \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}
   \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}
   \caption{Learning curves for \system both with (\orange{in orange}) and without
@@ -1132,7 +1131,7 @@ We see these prior works as operating in a different regime: typically, they tra
  and extend it along two dimensions: (1) we propose a new algorithm for
  inducing reusable subroutines, based on Fragment Grammars~\cite{tim};
  and (2) we show how to combine these techniques with bottom-up neural recognition models.
- Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10}, Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, MagicHaskeller~\cite{katayama2015towards}, and predicate invention in Inductive Logic Programming~\cite{DBLP:conf/ecai/LinDETM14}.
+ Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10}, Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, MagicHaskeller~\cite{katayama2015towards}, Bayesian program merging~\cite{hwang2011inducing}, and predicate invention in Inductive Logic Programming~\cite{DBLP:conf/ecai/LinDETM14}.
  
 \noindent\textbf{Bayesian Program
  Learning:} Our work is an instance of
