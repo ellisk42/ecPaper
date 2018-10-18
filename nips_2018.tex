@@ -1090,18 +1090,18 @@ only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DS
 \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
 but instead learns the parameters of the DSL ($\theta$), learning the parameters of a PCFG while not learning any of the structure.
 \\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first exploration step.
-&
+
 %For each domain,
-%% We are interested both in how many tasks the
-%% agent can solve and how quickly it can find those solutions.
-%% Tbl.~\ref{baselineComparisons}
-%% compares our model against these alternatives.
-%% We consistently
-%% improve on the baselines,
-%% and find that lesioning the recognition model
-%% and lesioning it also slows down the convergence of the algorithm,
-%% taking more iterations to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
-%% This supports a view of the recognition model as a way of amortizing the cost of search.
+We are interested both in how many tasks the
+agent can solve and how quickly it can find those solutions.
+Tbl.~\ref{baselineComparisons}
+compares our model against these alternatives.
+We consistently
+improve on the baselines,
+and also find that lesioning the recognition model
+impairs the convergence of the algorithm,
+causing it to hit a `plateau' after which it stops solving new tasks after an initial spurt of learning (Fig.~\ref{learningCurves}) -- without the neural network, search becomes intractable.
+This `plateau' supports a view of the recognition model as a way of amortizing the cost of search.
 
 
 
