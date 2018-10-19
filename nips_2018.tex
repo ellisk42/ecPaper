@@ -1042,7 +1042,7 @@ comparison of program synthesizers is complicated by the fact that
 each system, including ours, makes idiosyncratic 
 assumptions about the space of programs and the statement of tasks.
 \begin{wraptable}{r}{0.55\textwidth}
-\vspace{-5pt}
+\vspace{8pt}
 %% This radically shrinks the table
 \tabcolsep=2.5pt
 \renewcommand{\arraystretch}{0.5}
@@ -1059,7 +1059,8 @@ assumptions about the space of programs and the statement of tasks.
   \multicolumn{7}{c}{\emph{Text Editing}}\\
   \midrule
   \% solved&\textbf{74\%} &43\% &30\%&33\%&0\%&4\%\\
-  Solve time& 29s&65s&38s&80s&--&235s\\
+  Solve time& 29s&49s % FIXME: 65 in the table but 49 on the graph? 65s
+  &38s&80s&--&235s\\
   \midrule
   \multicolumn{7}{c}{\emph{Symbolic Regression}}\\
   \midrule
@@ -1074,7 +1075,7 @@ assumptions about the space of programs and the statement of tasks.
   %% symbolic regression MDL is 0 nats.
   %% For symbolic regression MDL is a
   %% proxy for \# of continuous parameters.
-}\vspace{-0.5cm}\label{baselineComparisons} \end{wraptable}
+}\vspace{-0cm}\label{baselineComparisons} \end{wraptable}
 Nevertheless, much prior work can be modeled within our setup. 
 We compare with the following ablations (Tbl~\ref{baselineComparisons};
 Fig~\ref{learningCurves}):
@@ -1100,8 +1101,8 @@ We consistently
 improve on the baselines,
 and also find that lesioning the recognition model
 impairs the convergence of the algorithm,
-causing it to hit a `plateau' after which it stops solving new tasks after an initial spurt of learning (Fig.~\ref{learningCurves}) -- without the neural network, search becomes intractable.
-This `plateau' supports a view of the recognition model as a way of amortizing the cost of search.
+causing it to hit a lower `plateau' after which it stops solving new tasks, following an initial spurt of learning (Fig.~\ref{learningCurves}) -- without the neural network, search becomes intractable.
+This lowered `plateau' supports a view of the recognition model as a way of amortizing the cost of search.
 
 
 
