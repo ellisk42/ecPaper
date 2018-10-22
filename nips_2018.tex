@@ -102,7 +102,7 @@
 % author name.
 
 \author{
-  Kevin Ellis\\MIT\\\texttt{ellisk@mit.edu}\And Lucas Morales\\MIT\\\texttt{lucas@lucasem.com}\And Mathias Sabl\'e-Meyer\\ENS Paris-Saclay\\\texttt{mathsm@mit.edu}
+  Kevin Ellis\\MIT\\\texttt{ellisk@mit.edu}\And Lucas Morales\\MIT\\\texttt{lucasem@mit.edu}\And Mathias Sabl\'e-Meyer\\ENS Paris-Saclay\\\texttt{mathsm@mit.edu}
   \AND
   Armando Solar-Lezama\\MIT\\\texttt{asolar@csail.mit.edu}\And Joshua B. Tenenbaum\\MIT\\\texttt{jbt@mit.edu}
   %% \And
@@ -330,7 +330,7 @@ so we amortize the cost of search by training a
 neural network to assist the search procedure.
 
 Our algorithm takes inspiration from several ways that skilled human
-programmers have learned to code: Skilled coders build libraries of
+programmers have learned to code: skilled coders build libraries of
 reusable subroutines that are shared across related programming tasks,
 and can be composed to generate increasingly complex and powerful
 subroutines.  In text editing, a good library should support routines
@@ -638,7 +638,7 @@ generating programs wholesale.  We share this aspect with
 DeepCoder~\cite{balog2016deepcoder} and~\cite{menon2013machine}.
 
 How should we get the data to train $q$?
-This is nonobvious  because we are considering a weakly supervised setting (i.e., learning only from tasks and not from (program, task) pairs).
+This is non-obvious  because we are considering a weakly supervised setting (i.e., learning only from tasks and not from task/program pairs).
 One approach is to sample programs from the DSL,
 run them to get their input/outputs,
 and then train $q$ to predict the program from the input/outputs.
@@ -933,7 +933,7 @@ manipulate lists, and which also perform arithmetic operations upon lists of num
 We created 236 human-interpretable list manipulation tasks, each with 15
 input/output examples (Tbl.~\ref{listexamples}).
 Our data set is interesting in three major ways: many of the tasks require
-complex solutions; the tasks were not generated from some latent DSL, and
+complex solutions; the tasks were not generated from some latent DSL; and
 the agent must learn to solve these complicated problems from only 236
 tasks.
 Our data set assumes arithmetic operations as well as sequence operations,
