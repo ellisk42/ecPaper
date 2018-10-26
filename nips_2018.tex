@@ -353,7 +353,7 @@ guided by the current DSL and neural network.
 The \textbf{Compress} step grows the library (or DSL) of
 domain-specific subroutines which allow the agent to more compactly
 write programs in the domain; it modifies the structure of the DSL by
-discovering regularities across programs found during exploration, compressing
+discovering regularities across programs found during the Explore step, compressing
 them to distill out common code fragments across successful programs.
 The \textbf{Compile} step improves the search procedure by training a neural network to
 write programs in the current DSL, in the spirit of ``amortized'' or
@@ -387,7 +387,7 @@ neural approaches  (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids 
 symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}).
 A notable exception is the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316},
 which also learns a library of subroutines.
-We find EC motivating, and go beyond it and other prior work through the following contributions:%% \begin{itemize}
+We find EC motivating, and go beyond it and other prior work through the following contributions: %% \begin{itemize}
 %%   \setlength\itemsep{0}
 %%   \item We show how to learn-to-learn programs in an expressive Lisp-like programming language;
 %%   \item We give an algorithm for learning DSLs, built on a formalism known
@@ -480,7 +480,8 @@ is wildly intractable because evaluating $J(\mathcal{D},\theta)$ involves
 summing over the  infinite set of all programs.
 In practice we will only ever be able to sum over a finite set of programs.
 So, for each task, we define a finite set of programs, called a \emph{frontier}, and only marginalize over the frontiers:
-\\\noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
+
+\noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
 is a finite set of programs s.t. $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
 
 Using the frontiers we  define the following intuitive lower bound on the joint probability, called $\lowerBound$:
@@ -506,30 +507,59 @@ Using the frontiers we  define the following intuitive lower bound on the joint 
 %% &+  \log P(\theta|\mathcal{D}) - ||\theta||_0 \label{AIC}
 %%   \end{align}
 \system does approximate MAP inference  by maximizing this lower bound on the joint probability,
-alternating maximization w.r.t.\ the frontiers (Explore) and the DSL (Compression):
+alternating maximization w.r.t.\ the frontiers (Explore) and the DSL (Compress):
 \\\noindent \textbf{Explore: Maxing $\lowerBound$ w.r.t.\ the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
 $\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]$
 is large.
 %% which we can accomplish by adding new programs to the frontiers means searching for new programs $p$ for task $x$
 %% where  is large.
-\\\noindent \textbf{DSL Induction: Maxing $\int \lowerBound\;\mathrm{d}\theta$ w.r.t.\ the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound\;\mathrm{d}\theta$.
+\\\noindent \textbf{Compress: Maxing $\int \lowerBound\;\mathrm{d}\theta$ w.r.t.\ the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound\;\mathrm{d}\theta$.
 Once we have a DSL $\mathcal{D}$ we can update $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\})$. 
 
 
 Searching for programs is hard because
 of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $q(\cdot |\cdot )$,
-during the compilation phase: $q$ is trained to approximate the
+during the Compile step: $q$ is trained to approximate the
 posterior over programs, $q(p|x)\approx \probability[p|x,\mathcal{D},\theta]\propto\probability[x|p]\probability[p|\mathcal{D},\theta}]$,
   thus amortizing the cost of finding programs with high posterior probability.
 
-\textbf{Neural recognition model: tractably maxing $\lowerBound$ w.r.t. the
+\textbf{Compile: learning to tractably maxing $\lowerBound$ w.r.t. the
   frontiers.}  Here we train %% a neural network, $q$, to predict a
 %% distribution over programs conditioned on a task. The objective of $q$
 %% is
 $q(p|x)$ to assign high probability to programs $p$ where
 $\probability[x|p]\probability[p|\mathcal{D},\theta]$ is large, because including those programs
-in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can find programs for
+in the frontiers will most increase $\lowerBound$.
+We train $q$ both on programs found during the Explore step and
+on samples from the current DSL.
+
+\begin{wrapfigure}{r}{0.6\textwidth}\vspace{-0.55cm}\centering
+  \begin{tikzpicture}[scale=0.9]
+    {\footnotesize
+    \begin{scope}[shift = {(1,-1)}]
+    \node[align = center](synthesis) at (6,4) {Search for \\programs: $p$};
+    \node[align = center](DSL) at (3,1) {DSL: $\mathcal{D}$};
+    \node[align = center](recognitionModel) at (9,1) {Recognition \\model: $q$};
+
+    \draw [->,thick] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Compress)}} (DSL.30);
+    \draw [->,thick] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Compile)}} (recognitionModel.150);
+    \draw [->,thick] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Compile)}} (recognitionModel.west);
+
+    \draw [->,thick,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Inductive bias}\\\footnotesize{(Explore)}} (synthesis.west);
+    \draw [->,thick,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Explore)}} (synthesis.east);
+  \end{scope}}
+    \end{tikzpicture}
+  \caption{How these steps bootstrap each other.}  \label{feeding}\vspace{-1cm}
+\end{wrapfigure}%
+Crucially, each of these three steps bootstraps the others (Fig.~\ref{feeding}): improving either the DSL or the recognition model
+makes search easier, so we find more programs solving tasks;
+both improving the DSL and solving more tasks expands the training data for the recognition model;
+and finding more programs that solve tasks
+gives more data from which to learn a DSL.
+
+
+%% With $q$ in hand we can find programs for
 %% the frontier $\mathcal{F}_x$ by searching for programs that maximize
 %% $q(p|x)$.
 %% Rather than directly predicting a distribution over $p$ conditioned on $x$,
@@ -549,8 +579,45 @@ in the frontiers will most increase $\lowerBound$.  %% With $q$ in hand we can f
 %% by exposing a domain-specific basis for constructing programs.
 %% Another complementary means of meeting search is to learn a
 %% bottom-up \emph{recognition model}
+\vspace{0.5cm}Putting all these ingredients together, Alg.~\ref{mainAlgorithm} describes how we combine program search,
+recognition model training, and DSL induction.
+For added robustness,
+we interleave an extra program search step (Explore) before training the recognition model,
+and just enumerate from the prior $(\mathcal{D},\theta)$ during this extra Explore step.
 
-\subsection{Exploration: Searching for Programs}\label{explorationSection}
+\begin{figure}[h]
+\centering  \begin{minipage}{0.9\textwidth}    
+    \begin{algorithm}[H]
+      \caption{The \system Algorithm}
+      \label{mainAlgorithm}
+      \begin{algorithmic}
+        \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
+        \STATE \textbf{Hyperparameters:} Enumeration timeout $T$
+        %     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
+        \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
+        \FOR{$i=1$ {\bfseries to} $I$}
+        %     \FOR{$x:\tau\in X$}
+        \STATE For each task $x\in X$, set  $\mathcal{F}^{\theta}_x\gets \{p| p\in
+        \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$
+        \hfill(\textbf{Explore})
+        \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ (see Sec.~\ref{recognitionSection})\hfill(\textbf{Compile})
+        \STATE For each task $x\in X$, set $\mathcal{F}^{q}_x\gets\{p|p\in
+        \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$
+        \hfill\textbf{(Explore)}
+        
+        \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  (see Sec.~\ref{grammarInductionSection})\hfill\textbf{(Compress)}
+        %% \STATE Define $Q_x(z) \propto \begin{cases}
+        %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
+        %%   0&x\not \in \mathcal{F}_x
+        %% \end{cases}
+        \ENDFOR
+        \STATE \textbf{return} $\mathcal{D},\theta,q$
+      \end{algorithmic}
+    \end{algorithm}
+  \end{minipage}
+\end{figure}
+
+\subsection{Explore: Searching for Programs}\label{explorationSection}
 
 Now our goal is to search for programs solving the tasks.  We use the simple approach of enumerating programs from
 the DSL  in decreasing order of their probability,
@@ -621,7 +688,7 @@ by automatically differentiating through the program and setting the constants u
 
 
 
-\subsection{Compilation: Learning a Neural Recognition Model}\label{recognitionSection}
+\subsection{Compile: Learning a Neural Recognition Model}\label{recognitionSection}
 
 The purpose of training the recognition model is to amortize the cost of searching for
 programs.  It does this by learning to predict, for each task,
@@ -643,18 +710,17 @@ This is non-obvious  because we are considering a weakly supervised setting (i.e
 One approach is to sample programs from the DSL,
 run them to get their input/outputs,
 and then train $q$ to predict the program from the input/outputs.
-This is like how a Helmholtz machine
-trains its recognition model during its ``sleep'' phase~\cite{dayan1995helmholtz}.
-The advantage of ``Helmholtz machine'' training is that
+This is like how the wake-sleep algorithm for the Helmholtz machine
+trains its recognition model during its sleep phase~\cite{dayan1995helmholtz}.
+The advantage of training on samples, or ``fantasies,'' is that
 we can draw unlimited samples from the DSL,
 training on a large amount of data.
 Another approach is
- self-supervised learning,
-training $q$ on the (program, task)
-pairs discovered by search.
-The advantage of self-supervised learning
+to train $q$ on the (program, task)
+pairs discovered by the Explore step.
+The advantage here
 is that the training data is much higher quality,
-because we are training on the actual tasks.
+because we are training on real tasks.
 Due to these complementary advantages,
 we train on both these sources of data.
 
@@ -663,11 +729,11 @@ Formally, $q$ should approximate the true posteriors over programs: minimizing t
 %% \begin{equation*}
 %%   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
 %% \end{equation*}
- where the expectation is taken over tasks. Taking this expectation over the empirical distribution of tasks gives self-supervised training; taking it over samples from the generative model gives  Helmholtz-machine style training.
- The  objective for a recognition model ($\mathcal{L}_{\text{RM}}$) combines the Helmholtz machine ($\mathcal{L}_{\text{HM}}$) and self supervised ($\mathcal{L}_{\text{SS}}$) objectives, $\mathcal{L}_{\text{RM}} = \mathcal{L}_\text{SS} + \mathcal{L}_\text{HM}$:
+ where the expectation is taken over tasks. Taking this expectation over the empirical distribution of tasks trains $q$ on the real data; taking it over samples from the generative model trains $q$ on ``fantasies.''
+ The  objective for a recognition model ($\mathcal{L}_{\text{RM}}$) combines the fantasy ($\mathcal{L}_{\text{f}}$) and real-data ($\mathcal{L}_{\text{r}}$) objectives, $\mathcal{L}_{\text{RM}} = \mathcal{L}_\text{r} + \mathcal{L}_\text{f}$:
 \begin{align}\nonumber
-\mathcal{L}_{\text{HM}} = \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right]\quad
-\mathcal{L}_{\text{SS}} = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
+\mathcal{L}_{\text{f}} = \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right]\quad
+\mathcal{L}_{\text{r}} = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
   \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\log q(p|x)\right]
 \end{align}
 \begin{comment}
@@ -693,7 +759,7 @@ from the empirical observed distribution of inputs in $X$.
 %% inputs/outputs we use a multilayer perceptron.  We MaxPool across all
 %% of the input/output examples. See Supplement for details.
 
-\subsection{Compression: Learning a Generative Model (a DSL)}\label{grammarInductionSection}
+\subsection{Compress: Learning a Generative Model (a DSL)}\label{grammarInductionSection}
 
 The purpose of the DSL is to
 offer a set of abstractions
@@ -729,7 +795,7 @@ to ensure that
 this `fragmenting' obeys variable scoping rules;
 Section 4 of the supplement gives an overview of Fragment Grammars
 and how we adapt them to the lexical scoping rules of $\lambda$-calculus.
-\begin{figure}[b!]\tabcolsep=2pt
+\begin{figure}[h!]\tabcolsep=2pt
 \centering  \begin{minipage}[c]{0.2\textwidth}
   \begin{tikzpicture}[scale=0.7]
     %% \node[rotate=30] at (-2,0) {\begin{tabular}{c}
@@ -822,37 +888,6 @@ highlighted in {\orange{orange}},
   from which we extract a fragment and add it to the DSL (bottom). \textbf{Right:} actual programs,
   from which we extract fragments that  (top) slice from the beginning of a list or (bottom) perform character substitutions.}\label{fragmentExample}
 \end{figure}
-\begin{figure}%{R}{0.6\textwidth}\vspace{-1cm}
-\centering  \begin{minipage}{0.9\textwidth}    
-    \begin{algorithm}[H]
-      \caption{The \system Algorithm}
-      \label{mainAlgorithm}
-      \begin{algorithmic}
-        \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
-        \STATE \textbf{Hyperparameters:} Enumeration timeout $T$
-        %     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
-        \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
-        \FOR{$i=1$ {\bfseries to} $I$}
-        %     \FOR{$x:\tau\in X$}
-        \STATE For each task $x\in X$, set  $\mathcal{F}^{\theta}_x\gets \{p| p\in
-        \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$
-        \footnotesize{\hfill(\textbf{Explore})}
-        \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ (see Sec.~\ref{recognitionSection})\hfill(\footnotesize{\textbf{Compile}})
-        \STATE For each task $x\in X$, set $\mathcal{F}^{q}_x\gets\{p|p\in
-        \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$
-        \footnotesize{\hfill\textbf{(Explore)}}
-        
-        \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  (see Sec.~\ref{grammarInductionSection})\footnotesize{\hfill\textbf{(Compress)}}
-        %% \STATE Define $Q_x(z) \propto \begin{cases}
-        %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
-        %%   0&x\not \in \mathcal{F}_x
-        %% \end{cases}
-        \ENDFOR
-        \STATE \textbf{return} $\mathcal{D},\theta,q$
-      \end{algorithmic}
-    \end{algorithm}
-  \end{minipage}
-\end{figure}
 To define the prior distribution over $(\mathcal{D},\theta})$, we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
 and place a symmetric Dirichlet prior over the weight vector $\theta$.
 %% , $  \probability[\theta|\mathcal{D}] = \text{Dir}(\theta|\alpha)$, where
@@ -865,30 +900,7 @@ and place a symmetric Dirichlet prior over the weight vector $\theta$.
 %% our DSLs are context-sensitive due to the presence of variables
 %% in the programs and also due to the polymorphic typing system.
 %% In the Supplement we derive a tractable MAP estimator for $\theta$.
-Putting all these ingredients together, Alg.~\ref{mainAlgorithm} describes how we combine program search,
-recognition model training, and DSL induction.
-For added robustness,
-we interleave an extra program search step (Exploration) before training the recognition model,
-and just enumerate from the prior $(\mathcal{D},\theta)$ during this extra Exploration step.
  
-\begin{comment}
-\subsection{Implementing \system}
-
-Alg.~\ref{mainAlgorithm} describes how we combine program search,
-recognition model training, and DSL induction.
-We note the following implementation details:
-(1) We perform an search cycle before each compression and compilation  cycle.
-(2) On the first iteration, we do \emph{not} train the recognition model on samples from
-the generative model because a generative model has not yet been learned --
-we instead train the network to only maximize $\mathcal{L}_{\text{AE}}$.
-%% (3) Because the frontiers can grow very large,
-%% we only keep around the top $10^4$ programs $p$ in each frontier $\mathcal{F}_x$
-%% with the highest likelihood $\probability[x,p|\mathcal{D},\theta]$.
-(3) During both DSL induction and neural net training, we calculate Eq.~\ref{AIC} and $\mathcal{L}_{\text{RM}}$
-by only summing over the top $K$
-programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]$ -- we found that $K = 2$ sufficed.
-(4) For added robustness, we enumerate programs from both the generative model $(\mathcal{D},\theta)$ and the recognition model.
-\end{comment}
 
 
 
@@ -899,7 +911,7 @@ programs in $\mathcal{F}_x$ as measured by $\probability[x,p|\mathcal{D},\theta]
 %% comparing \system with lesioned versions
 %% of our model that are analogous to prior work.
 
-\pagebreak
+%\pagebreak
 \section{Programs that manipulate sequences}\label{sequences}
 We apply \system to list processing (Section~\ref{listSection}) and text editing (Section~\ref{textSection}).
 For both these domains we use a bidirectional GRU~\cite{cho2014learning} for
@@ -1059,7 +1071,7 @@ RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} a
 only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
 \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
 but instead learns the parameters of the DSL ($\theta$), learning the parameters of a PCFG while not learning any of the structure.
-\\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first exploration step.
+\\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first Explore step.
 
 \begin{wraptable}{r}{0.55\textwidth}
 \vspace{-10pt}
@@ -1146,32 +1158,18 @@ We see these prior works as operating in a different regime: typically, they tra
  Learning (BPL; see~\citep{lake2015human,Dechter:2013:BLV:2540128.2540316,ellis2016sampling,DBLP:conf/icml/LiangJK10,ellis2015unsupervised}). Previous BPL systems have largely assumed a fixed DSL (but see~\cite{DBLP:conf/icml/LiangJK10}),
  and our contribution here is a general way of doing BPL with less hand-engineering of the DSL.
  
- \section{Limitations of EC$^2$}
+ %% \section{Limitations of EC$^2$}
 
- We have presented an algorithm that, starting from relatively little,
- learned to solve program synthesis problems in three
- different domains.  However, our system was also given (and also,
- critically \emph{needs}) a corpus of training tasks to solve for each
- domain.  Is constructing (or curating) corpra of tasks any easier or
- better than hand-engineering DSLs?  In the immediate future, we
- expect some degree of hand-engineering of DSLs to continue, especially
- in domains where humans have strong intuitions about the underlying
- system of domain specific concepts, like text editing. However, if
- program induction is to become a standard part of the AI toolkit,
- then, in the long-term, we need to build agents that autonomously
- acquire the domain specific knowledge needed to navigate a new
- domain.  So, through the lens of program synthesis, EC$^2$ carries
- the limitation that it requires a high-quality corpus of training
- tasks; but, for the program-induction approach to AI, this limitation
- is natural.
-
- The particular implementation of EC$^2$ developed here
- inherits a key limitation from a specific arbitrary engineering decision:
- our enumerative program search strategy cannot possibly
- scale to large bodies of code, even with a good recognition model --- but one could in principle replace
- our enumerative approach with stochastic search~\cite{schkufza2013stochastic,DBLP:books/daglib/0070933},
- constraint solving~\cite{solar2008program}, type-directed synthesis~\cite{polikarpova2016program},
- or other techniques from the program synthesis community.
+ %% We have presented an algorithm that, starting from relatively little,
+ %% learned to solve program synthesis problems in three
+ %% different domains.  
+ %% The particular implementation of EC$^2$ developed here
+ %% inherits a key limitation from a specific arbitrary engineering decision:
+ %% our enumerative program search strategy cannot possibly
+ %% scale to large bodies of code, even with a good recognition model --- but one could in principle replace
+ %% our enumerative approach with stochastic search~\cite{schkufza2013stochastic,DBLP:books/daglib/0070933},
+ %% constraint solving~\cite{solar2008program}, type-directed synthesis~\cite{polikarpova2016program},
+ %% or other techniques from the program synthesis community.
  
  
  
@@ -1179,38 +1177,44 @@ We see these prior works as operating in a different regime: typically, they tra
 
  \section{Discussion}
 
-%\parbox{0.58\textwidth}{
-
-%\paragraph{Outlook.}
 We contribute an algorithm, \systemEnding, that learns to program by
 bootstrapping a DSL with new domain-specific primitives that the algorithm
 itself discovers, together with a neural recognition model that learns how to
 efficiently deploy the DSL on new tasks. We believe this integration of top-down
 symbolic representations and bottom-up neural networks --- both of them learned
---- helps make program induction systems more generally useful for AI. Many
+--- helps make program induction systems more generally useful for AI.
+
+A feature of our system
+is that it learns from (and also, critically \emph{needs})
+a corpus of training tasks.  Is constructing (or curating) corpra of tasks any easier or
+ better than hand-engineering DSLs?  In the immediate future, we
+ expect some degree of hand-engineering of DSLs to continue, especially
+ in domains where humans have strong intuitions about the underlying
+ system of domain-specific concepts, like text editing. However, if
+ program induction is to become a standard part of the AI toolkit,
+ then, in the long-term, we need to build agents that autonomously
+ acquire the  knowledge needed to navigate a new
+ domain.  So, through the lens of program synthesis, EC$^2$ carries
+ the restriction that it requires a high-quality corpus of training
+ tasks; but, for the program-induction approach to AI, this restriction
+ is a feature, not a bug.
+
+
+Many
 directions remain open.
-%\paragraph{Future.}
 Two immediate goals are to integrate more sophisticated neural recognition
 models~\cite{devlin2017robustfill} and program
 synthesizers~\cite{solar2008program}, which may improve performance in some
-domains over the generic methods used here.
-%% We are in the process of applying our algorithm to generative programs and
-%% prototyped this with a turtle-like domain: Figure~\ref{geomCompiled} gives some
-%% preliminary results for turtle graphics  --- see Section 1 of the supplementary material for more
-%% details.
+domains over the generic methods used here:
+while our focus in this work was
+learning to quickly write small programs,
+we believe more sophisticated neural models,
+coupled with more powerful program search algorithms,
+could extend our approach to
+synthesize larger bodies of code.
 Another direction is to explore DSL meta-learning: can we find a
 \emph{single} universal primitive set that could effectively bootstrap DSLs for
 new domains, including the three domains considered,  but also many others?
-%% }\hfill
-%% \begin{minipage}{0.4\textwidth}
-%%   \centering
-%%   \includegraphics[width=\textwidth]{figures/geomCompiled.eps} 
-%%   \captionof{figure}{
-%%   Top left: Example training tasks. Top right: samples from the learned DSL.
-%%  Bottom: \% holdout testing tasks solved (middle), on sides are the averaged samples from the DSL
-%%   before any training (left) and after last iteration (right).}
-%% \label{geomCompiled}
-%% \end{minipage}
 
 \subsubsection*{Acknowledgments} We are grateful for collaborations with Eyal Dechter, whose EC algorithm directly inspired this work, and for funding from the NSF GRFP, the MUSE program (Darpa grant FA8750-14-2-0242),
 and an AWS ML Research Award.
