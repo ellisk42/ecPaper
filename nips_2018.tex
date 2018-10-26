@@ -1136,6 +1136,9 @@ We see these prior works as operating in a different regime: typically, they tra
  inducing reusable subroutines, based on Fragment Grammars~\cite{tim};
  and (2) we show how to combine these techniques with bottom-up neural recognition models.
  Other instances of this related idea are~\cite{DBLP:conf/icml/LiangJK10}, Schmidhuber's OOPS model~\cite{schmidhuber2004optimal}, MagicHaskeller~\cite{katayama2015towards}, Bayesian program merging~\cite{hwang2011inducing}, and predicate invention in Inductive Logic Programming~\cite{DBLP:conf/ecai/LinDETM14}.
+ Concurrent with this work, closely related ideas were applied to mining `code idioms' from imperative programs~\cite{8355713}
+ and for synthesizing functional programs from natural language~\cite{Alex}.
+ 
  
 \noindent\textbf{Bayesian Program
  Learning:} Our work is an instance of
@@ -1146,7 +1149,7 @@ We see these prior works as operating in a different regime: typically, they tra
  \section{Limitations of EC$^2$}
 
  We have presented an algorithm that, starting from relatively little,
- learned to solve nontrivial program synthesis problems in three
+ learned to solve program synthesis problems in three
  different domains.  However, our system was also given (and also,
  critically \emph{needs}) a corpus of training tasks to solve for each
  domain.  Is constructing (or curating) corpra of tasks any easier or
