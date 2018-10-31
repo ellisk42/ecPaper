@@ -77,8 +77,9 @@
 \usepackage{verbatim}
  \usepackage{booktabs}
  % For algorithms
-\usepackage{algorithm}
-\usepackage{algorithmic}
+%\usepackage{algorithm}
+%\usepackage{algorithmic}
+\usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
 \usepackage{tikz}
 \usepackage{circuitikz}
 \usetikzlibrary{fit,bayesnet}
@@ -102,7 +103,12 @@
 \newcommand{\indicator}{\mathds{1}} %{{\rm I\kern-.3em E}}
 \newcommand{\expect}{\mathds{E}} %{{\rm I\kern-.3em E}}
 \newcommand{\probability}{\mathds{P}} %{{\rm I\kern-.3em P}}
+\newcommand{\shift}[1]{\uparrow^{#1}}
+\newcommand{\substitute}[2]{[\$ #1 \mapsto #2]}
+\newcommand{\reduce}{\longrightarrow}
+\newcommand{\manyReduce}{\longrightarrow^*}
 
+\newtheorem{definition}{Definition}
 
 
 % If accepted, instead use the following line for the camera-ready submission:
@@ -1090,29 +1096,282 @@ from the empirical observed distribution of inputs in $X$.
 The purpose of the DSL is to
 offer a set of abstractions
 that allow an agent to easily express solutions to the tasks at hand.
-%In the \system algorithm we infer the DSL from a collection of frontiers.
-Intuitively, we want the algorithm to
-look at  the frontiers and
-generalize beyond them, 
-both so the DSL can better express the current solutions,
-and  also so that the DSL might expose new abstractions
-which will later be used to
-discover more programs.
- Formally, we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{mathematicalFraming}).
+Intuitively, we want the algorithm to look at the programs found
+during waking and generalize beyond them, both so the DSL can better
+express the current solutions, and also so that the DSL might expose
+new abstractions which will later be used to discover more programs.
+
+Formally, we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{mathematicalFraming}).
 We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
 \begin{align}
 \nonumber      \log \probability[\mathcal{D}]& + 
 \argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \\&+\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\Bigg)
 \label{AIC}
-  \end{align}
-We induce a DSL by searching locally through the space of DSLs,
-proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC} fails to increase.
-The search moves work by introducing new
-$\lambda$-expressions into the DSL.
-We propose these new expressions by extracting fragments of
-programs already in the frontiers (Tbl.~\ref{fragmentExample}).
-An important point here is that we are \emph{not} simply adding
-subexpressions of programs to $\mathcal{D}$, as done in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316} and other prior work~\cite{DBLP:conf/ecai/LinDETM14}.  Instead, we are
+\end{align}
+At a high level, our approach is to search locally through the space
+of DSLs, proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC}
+fails to increase.  These small changes consist of introducing new
+candidate $\lambda$-expressions into the DSL.
+
+However, there is a snag with this simple approach:
+whenever we add a new expression $e$ to the DSL,
+the programs found during waking ($\left\{\mathcal{F}_x \right\}$)
+are not written in terms of $e$.
+Concretely, imagine we wanted to discover a new DSL procedure for doubling numbers,
+after having found the programs
+\code{(cons (+ 9 9) nil)} and \code{($\lambda$ (x) (+ (car x) (car x)))}.
+As human programmers,
+we can look at these pieces of code and recognize that,
+if we define a new procedure called \code{double},
+defined as \code{($\lambda$ (x) (+ x x))},
+then we can rewrite the original programs as
+\code{(cons (double 9) nil)} and \code{($\lambda$ (x) (double (car x)))}.
+This process is a kind of refactoring
+where a new subroutine is defined (\code{double})
+and the old programs rewritten
+in terms of the new subroutine.
+Figure~\ref{mapFactor}
+diagrams this refactoring
+process for a more complicated
+setting,
+where the agent must rediscover the higher-order function \code{map}
+starting from the basics of Lisp and the Y-combinator.
+
+Formally, we want a DSL
+which puts high probability on
+any refactoring of the programs found during waking, maximizing:
+\begin{align}
+\nonumber      \log \probability[\mathcal{D}]& + 
+\argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \\&+\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\manyReduce p}\probability[p'|\mathcal{D},\theta]\Bigg)
+\label{factorObjective}
+\end{align}
+where $p'\manyReduce p$
+is the standard notation for ``expression $p'$ evaluates to $p$ by the standard rules of $\lambda$-calculus''~\cite{pierce}.
+
+Equation~\ref{factorObjective} captures the idea that we want
+to add new components to the DSL while jointly refactoring our old
+programs in terms of these new components.  But
+this joint inference problem is intractable, because there are
+infinitely many ways of refactoring a program.
+We combine two ideas to make this refactoring process tractable:
+
+\textbf{Idea 1:} Limit the degree to which
+a piece of code can be refactored.
+Instead of considering every refactoring,
+bound the number of $\lambda$-calculus evaluation steps
+separating a refactoring from its original program.
+Formally,
+we define the set of $n$-step refactorings as:
+\begin{equation}
+  R_n(p) = \left\{p'\;:\;p'\underbrace{\reduce p''\reduce\cdots\reduce}_{\text{$\leq n$ times}} p \right\}
+\end{equation}
+where $p_1\reduce p_2$ is the standard notation for ``$p_1$ rewrites to $p_2$
+in one step according to the rules of $\lambda$-calculus''~\cite{pierce}.
+For example,
+\begin{align*}
+  \code{((lambda (x) (x x)) (lambda (y) y))}\reduce&\\
+  \code{((lambda (y) y) (lambda (y) y))}\reduce&\\
+  \code{(lambda (y) y)}&
+\end{align*}
+Returning to Equation~\ref{factorObjective},
+this approximation gives the following objective:
+\begin{align}
+\nonumber      \log \probability[\mathcal{D}]& + 
+\argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \\+&\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\in R_n(p)}\probability[p'|\mathcal{D},\theta]\Bigg)
+\label{limitedObjective}
+\end{align}
+In practice, setting the number of refactoring steps $n$ to 3 suffices
+to give a competent DSL learning algorithm.  Although the number of
+refactorings is now finite, it is still prohibitively large, and in
+fact grows exponentially quickly both as a function of $n$ and as a
+function of the size of the program being refactored.  Next, we show
+how to tame this exponential explosion.
+
+\textbf{Idea 2:} Rather than explicitly enumerate every refactoring,
+we developed a technique for compactly representing and efficiently
+calculating the set of all refactorings.  The key idea is to represent
+the set of refactorings using a \emph{version
+  space}~\cite{lau2001programming,mitchell1977version,polozov2015flashmeta}.
+A version space is a tree-shaped data structure
+that compactly represents a large set of programs.
+We first define version spaces over $\lambda$-calculus expressions,
+and then give a dynamic program for constructing a version space
+that represents the set of possible refactorings (i.e., $R_n(p)$).
+
+A version space is either:
+\begin{itemize}
+\item A deBuijn index: written $\$i$, where $i$ is a natural number
+\item An abstraction: written $\lambda v$, where $v$ is a version space
+\item A  application: written $(f \;x)$, where both  $f$ and $x$ are version spaces
+\item A  union: $\uplus V$, where $V$ is a set of version spaces
+\item The empty set, $\varnothing$
+\item The set of all $\lambda$-calculus expressions, $\Lambda$
+\end{itemize}
+The purpose of a version space to compactly represent a set of programs.
+We refer to this set as the \textbf{extension} of the version space:
+\begin{definition}
+  The \textbf{extension} of a version space $v$ is written $\denotation{v}$
+  and is defined recursively as:
+  \begin{align*}
+    \denotation{\$i}& = \left\{\$i \right\}\\
+    \denotation{\lambda v}& = \left\{\lambda e : e\in \denotation{v} \right\}\\
+    \denotation{(v_1\; v_2)}& = \left\{(e_1\;e_2) : e_1\in \denotation{v_1},\;e_2\in \denotation{v_2} \right\}\\
+    \denotation{\uplus V}& = \left\{e : v\in V,\;e\in \denotation{v} \right\}\\
+    \denotation{\varnothing}& = \varnothing\\
+    \denotation{\Lambda}& = \Lambda
+    \end{align*}
+\end{definition}
+Version spaces also support efficient membership checking, which we
+write as $e\in v$, and which is equivalent to $e\in \denotation{v}$.
+Important for our purposes, it is also efficient to refactor the
+members of a version space's extension in terms of a new DSL.
+We define $\textsc{refactor}(v|\mathcal{D})$ inductively as:
+\begin{align*}
+  \textsc{refactor}(v|\mathcal{D}) &= \begin{cases}
+    e\text{, if $e\in \mathcal{D}$ and $e\in v$}\\
+    \textsc{refactor}'(v|\mathcal{D})\text{, otherwise.}
+  \end{cases}\\
+  \textsc{refactor}'(e|\mathcal{D})& = e\text{, if $e$ is a leaf}\\
+  \textsc{refactor}'(\lambda b|\mathcal{D}) &= \lambda \textsc{refactor}(b|\mathcal{D})\\
+  \textsc{refactor}'(f\;x|\mathcal{D}) &= \textsc{refactor}(f|\mathcal{D})\;\textsc{refactor}(x|\mathcal{D})\\
+  \textsc{refactor}'(\uplus V|\mathcal{D}) &= \argmin_{e\in \left\{\textsc{refactor}(v|\mathcal{D})\;:\;v\in V \right\}}\ell(e|\mathcal{D})
+  \end{align*}
+where $\ell(e|\mathcal{D})$ for program $e$ and DSL $\mathcal{D}$
+is the size of the syntax tree of $e$,
+when members of $\mathcal{D}$ are counted as having size 1.
+Concretely, $  \textsc{refactor}(v|\mathcal{D})$ calculates $\argmin_{p\in \denotation{v}}\ell(p|\mathcal{D})$.
+
+In Appendix~\ref{appendixVersion}, we describe a dynamic program for
+efficiently constructing a version space containing every $n$-step
+refactoring.
+This dynamic program, which we call $I\beta^n(p)$,
+satisfies $\denotation{I\beta^n(p)} =  R_n(p)$.
+In other words,
+this dynamic program
+builds a data structure
+that represents the entire set of
+refactorings -- but without having to explicitly enumerate all of the refactorings.
+
+With this machinery in hand, we now have all the pieces needed to
+learn a DSL (Algorithm~\ref{grammarInductionAlgorithm})
+
+    \begin{algorithm*}[H]
+    %\setcounter{algorithm}{2} % there are two algorithms in the main paper.
+       \caption{DSL Induction Algorithm}
+       \label{grammarInductionAlgorithm}
+       \begin{algorithmic}[1]
+         \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
+%         \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
+         \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+         \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
+         \WHILE {true}         
+         \STATE $\forall p\in \bigcup_{x}\mathcal{F}_x: $ $v_p\gets I\beta_n(p)$ \Comment{Construct a version space for each program}
+         \STATE Define $\text{refactor}(p|\mathcal{D}') = \argmin_{e\in \denotation{v_p}} \ell (e|\mathcal{D}')$ \Comment{Rewrites $p$ assuming $\mathcal{D}'$ is the DSL}
+         \STATE Define $L(\mathcal{D}',\theta) =  \prod_x \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[\text{\textsc{refactor}}(p|\mathcal{D}')|\mathcal{D}',\theta]$ \Comment{Likelihood if $(\mathcal{D}',\theta)$ were the DSL}
+         \STATE Define $\theta^*(\mathcal{D}') = \argmax_\theta \probability[\theta|\mathcal{D}'] L(\mathcal{D}',\theta)$ \Comment{MAP estimate of $\theta$}
+         \STATE Define $\text{score}(\mathcal{D}') = \log \probability[\mathcal{D}'] + L(\mathcal{D}',\theta^*) - \|\theta\|_0$ \Comment{objective function}
+         \STATE components $\gets$ $\left\{\textsc{refactor}(v|\mathcal{D})\;:\;\forall x, \forall p\in \mathcal{F}_x, \forall v\in \text{children}(v_p) \right\}$ \Comment{Propose many new DSL components}
+         \STATE proposals $\gets$ $\left\{\mathcal{D}\cup\left\{c \right\}\;:\;\forall c\in \text{components} \right\}$ \Comment{Propose many new DSLs}
+         \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new DSL}
+         \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to DSL led to a better score}
+         \STATE $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better DSL. Update DSL.}
+         \STATE $\forall x\;:\;\mathcal{F}_x\gets\left\{\text{\textsc{refactor}}(p|\mathcal{D})\;:\; p\in \mathcal{F}_x\right\}$\Comment{Refactor frontiers in terms of new DSL}
+         \ENDWHILE
+       \end{algorithmic}
+    \end{algorithm}
+
+
+
+
+\begin{figure*}
+  \centering\begin{tikzpicture}[every node/.style={inner sep=1,outer sep=0}]
+    \node(p1)[draw] at (-1,0) {
+      \begin{tabular}{l}
+      \texttt{(Y ($\lambda$ (r l) (if (nil? l) nil}\\
+      \texttt{ (cons (+ (car l) (car l))}\\
+      \phantom{\texttt{(cons }}\texttt{ (r (cdr l))))))}
+    \end{tabular}
+    };
+    \node(r1)[draw,inner sep=0,outer sep=0] at ([yshift=-3cm]p1.south) {
+      \begin{tabular}{l}
+  \texttt{(}\orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l)}}\\
+\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{nil}}\\
+\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{(cons (f (car l))}}\\
+\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{ (r (cdr l)))))))}}\\
+\texttt{ ($\lambda$ (z) (+ z z)))}
+      \end{tabular}
+    };
+
+        \node(p2)[draw] at ([xshift=4.5cm]p1.east) {
+    \begin{tabular}{l}
+      \texttt{(Y ($\lambda$ (r l) (if (nil? l) nil}\\
+      \texttt{ (cons (- (car l) 1)}\\
+      \phantom{\texttt{(cons }}\texttt{ (r (cdr l))))))}
+    \end{tabular}
+    
+    };
+    \node(r2)[draw] at ([yshift=-3cm]p2.south) {
+\begin{tabular}{l}
+  \texttt{(}\orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l)}}\\
+\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{nil}}\\
+\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{(cons (f (car l))}}\\
+\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{ (r (cdr l)))))))}}\\
+\texttt{ ($\lambda$ (z) (- z 1)))}
+      \end{tabular}
+
+    };
+
+    \draw [->] (p1.south)  --(r1.north) node[fill=white,midway] {refactor};
+    \draw [->] (p2.south)  --(r2.north) node[fill=white,midway] {refactor};
+
+    \node[draw](m) at (3,-7) {
+\begin{tabular}{l}
+          \fbox{\textsc{map}} = \orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l) nil}}\\
+  \phantom{\texttt{\emph{map}} = \texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if }}\orange{\texttt{(cons (f (car l))}}\\
+  \phantom{\texttt{\emph{map}} = \texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if }}\orange{\texttt{(r (cdr l))))))}}\\
+  \code{(}\fbox{\textsc{map}}\code{ ($\lambda$ (z) (+ z z)))}\quad(program rewritten w/ new \fbox{\textsc{map}} primitive)\\
+  \code{(}\fbox{\textsc{map}}\code{ ($\lambda$ (z) (+ z 1)))}\quad(program rewritten w/ new \fbox{\textsc{map}} primitive)\\
+      \end{tabular}      
+    };
+    \draw [->](r1.south)--(m.north);
+    \draw [->](r2.south)--(m.north);
+    \node[fill=white] at ([yshift=0.5cm]m.north) {\textbf{Compress (MDL/Bayes objective)}};
+    %% \visible<2-3>{
+    %%   \node[fill=orange!50!white,align=center] at (r1) {\Huge $10^{14}$\\\Huge  refactorings };
+    %%   \node[fill=orange!50!white,align=center] at (r2) {\Huge $10^{13}$\\\Huge  refactorings };
+    %% }
+    %% \visible<3>{
+    %%   \node[fill=orange!50!white,align=center] at ([yshift=7cm]m.north) {\Huge version space: set of programs\\
+    %%   \huge Lau 2003; Gulwani 2012};
+    %%   }
+    %% \visible<4>{
+    %%   \node[fill=orange!50!white,align=center] at (r1) {\Huge $\leq 10^6$\\\Huge version spaces };
+    %%   \node[fill=orange!50!white,align=center] at (r2) {\Huge $\leq 10^6$\\\Huge version spaces };
+    %% }
+
+       \node(t1)[draw] at ([yshift=1.5cm]p1.north) {\begin{tabular}{ll}
+           \textbf{Task}:&\texttt{(1 2 3)$\to$(2 4 6)}\\
+           &\texttt{(4 3 4)$\to$(8 6 8)}
+       \end{tabular}};
+       \draw [->] (t1.south)  --(p1.north) node[fill=white,midway] {program search};
+       \node(t2)[draw] at ([yshift=1.5cm]p2.north) {\begin{tabular}{ll}
+           \textbf{Task}:&\texttt{(1 2 3)$\to$(0 1 2)}\\
+           &\texttt{(4 3 4)$\to$(3 2 3)}
+       \end{tabular}};
+       \draw [->] (t2.south)  --(p2.north) node[fill=white,midway] {program search};
+       
+  \end{tikzpicture}
+  \caption{DSL learning as code refactoring. For each task we discover programs during waking, then refactor the code from those programs to expose common subprograms (highlighted in \orange{orange}). Common subprograms are incorporated into the DSL when they increase a Bayesian objective. Intuitively, these new DSL components best compress the programs found during waking.}\label{mapFactor}
+  \end{figure*}
+
+\begin{comment}
+
+We propose these new expressions
+by extracting fragments of programs already in the frontiers
+(Tbl.~\ref{fragmentExample}).  An important point here is that we are
+\emph{not} simply adding subexpressions of programs to $\mathcal{D}$,
+as done in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}
+and other prior work~\cite{DBLP:conf/ecai/LinDETM14}.  Instead, we are
 extracting fragments that unify with programs in the frontiers.  This
 idea of storing and reusing fragments of expressions comes from
 Fragment Grammars~\cite{tim} and Tree-Substitution
@@ -1238,6 +1497,7 @@ highlighted in {\orange{orange}},
   from which we extract fragments that  (top) slice from the beginning of a list or (bottom) perform character substitutions.}\label{fragmentExample}
 \end{figure*}
 
+  \end{comment}
 \begin{comment}
   \begin{wrapfigure}{R}{0.6\textwidth}
   \begin{minipage}{0.6\textwidth}    
@@ -1669,4 +1929,28 @@ new domains, including the domains considered here,  but also many others?
 
 \bibliography{main}
 \bibliographystyle{icml2018}
+
+\appendix
+
+\section{Appendix}
+
+\subsection{Refactoring code with version spaces}\label{appendixVersion}
+Observe that every $\lambda$-calculus expression is also a version space,
+and that, if $e$ is an expression, then $\denotation{e} = \left\{e \right\}$.
+
+\begin{align}
+  S_n(v)& = \left\{\shift{n}v\mapsto \$n \right\}\cup
+  \begin{cases}
+    \text{if $v$ is primitive:}&\left\{\Lambda\mapsto v \right\}\\
+    \text{if $v = \$i$ and $i < n$:}&\left\{\Lambda\mapsto \$i \right\}\\
+    \text{if $v = \$i$ and $i\geq n$:}&\left\{\Lambda\mapsto \$(i + 1) \right\}\\
+    \text{if $v = \lambda b$:}&\left\{v'\mapsto \lambda b' \;:\; v'\mapsto b'\in S_{n + 1}(b)  \right\}\\
+    \text{if $v = (f\;x)$:}&\left\{v_1\cap v_2\mapsto (f'\;x') \;:\; v_1\mapsto f'\in S_n(f),\; v_2\mapsto x'\in S_n(x) \right\}\\
+    \text{if $v = \uplus V$:}&\bigcup_{v'\in V}S_n(v')\\
+    \text{if $v$ is $\varnothing$:}&\varnothing\\
+    \text{if $v$ is $\Lambda$:}&\left\{\Lambda\mapsto\Lambda \right\}\\
+  \end{cases}
+  \\
+  
+  \end{align}
 \end{document}
