@@ -2,7 +2,7 @@
 %%%%%%%% ICML 2018 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
 
 \documentclass{article}
-
+\usepackage[margin=1in]{geometry}
 \usepackage{dblfloatfix}    % To enable figures at the bottom of page
 % Recommended, but optional, packages for figures and better typesetting:
 \usepackage{microtype}
@@ -28,7 +28,7 @@
 \newcommand{\scode}[1]{{\tiny\texttt{#1}}}
 \newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
 % Use the following line for the initial blind version submitted for review:
-\usepackage[nohyperref]{icml2018}
+%\usepackage[nohyperref]{icml2018}
 
 \usepackage{xcolor}
 \definecolor{pop1}{HTML}{1F78b4}
@@ -77,7 +77,7 @@
 \usepackage{verbatim}
  \usepackage{booktabs}
  % For algorithms
-%\usepackage{algorithm}
+\usepackage{algorithm}
 %\usepackage{algorithmic}
 \usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
 \usepackage{tikz}
@@ -111,79 +111,9 @@
 \newtheorem{definition}{Definition}
 
 
-% If accepted, instead use the following line for the camera-ready submission:
-%\usepackage[accepted]{icml2018}
-
-% The \icmltitle you define below is probably too long as a header.
-% Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Bootstrapping Domain-Specific Languages for Neurally-Guided Bayesian Program Learning}
 
 \begin{document}
 
-\twocolumn[
-\icmltitle{\systemEnding: Bootstrapping Domain-Specific Languages for Neurally-Guided Bayesian Program Learning}
-
-% It is OKAY to include author information, even for blind
-% submissions: the style file will automatically remove it for you
-% unless you've provided the [accepted] option to the icml2018
-% package.
-
-% List of affiliations: The first argument should be a (short)
-% identifier you will use later to specify author affiliations
-% Academic affiliations should list Department, University, City, Region, Country
-% Industry affiliations should list Company, City, Region, Country
-
-% You can specify symbols, otherwise they are numbered in order.
-% Ideally, you should not use this facility. Affiliations will be numbered
-% in order of appearance and this is the preferred way.
-\icmlsetsymbol{equal}{*}
-
-\begin{icmlauthorlist}
-\icmlauthor{Kevin Ellis}{MIT}
-\icmlauthor{Lucas Morales}{MIT}
-\icmlauthor{Mathias}{MIT}
-\icmlauthor{Maxwell Nye}{MIT}
-\icmlauthor{Armando Solar-Lezama}{MIT}
-\icmlauthor{Joshua B. Tenenbaum}{MIT}
-\end{icmlauthorlist}
-
-%\icmlaffiliation{to}{Department of Computation, University of Torontoland, Torontoland, Canada}
-\icmlaffiliation{MIT}{MIT}
-%\icmlaffiliation{ed}{School of Computation, University of Edenborrow, Edenborrow, United Kingdom}
-
-\icmlcorrespondingauthor{Kevin Ellis}{ellisk@mit.edu}
-%\icmlcorrespondingauthor{Eee Pppp}{ep@eden.co.uk}
-
-% You may provide any keywords that you
-% find helpful for describing your paper; these are used to populate
-% the "keywords" metadata in the PDF but will not be shown in the document
-\icmlkeywords{Machine Learning, ICML}
-
-\vskip 0.3in
-]
-
-% this must go after the closing bracket ] following \twocolumn[ ...
-
-% This command actually creates the footnote in the first column
-% listing the affiliations and the copyright notice.
-% The command takes one argument, which is text to display at the start of the footnote.
-% The \icmlEqualContribution command is standard text for equal contribution.
-% Remove it (just {}) if you do not need this facility.
-
-%\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
-%\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
-
-%% \begin{abstract}
-%%   Successful approaches to program induction require a hand-engineered
-%%   domain-specific language (DSL), constraining the space of allowed
-%%   programs and imparting prior knowledge of the domain.  We contribute
-%%   a program induction algorithm called \system that learns a DSL while
-%%   jointly training a neural network to efficiently search for programs
-%%   in the learned DSL.\@ We use our model to synthesize functions on lists,
-%%   edit text, and solve symbolic regression problems, showing how the
-%%   model learns a domain-specific library of program components for
-%%   expressing solutions to problems in the domain.
-%% \end{abstract}
 
 \section{Introduction: Expertise}
 
@@ -1031,17 +961,12 @@ The purpose of training the recognition model is to amortize the cost
 of searching for programs.  It does this by learning to predict, for
 each task, programs with high likelihood according to
 $\probability[x|p]$ while also being probable under the prior
-$(\mathcal{D},\theta)$.  Concretely, the recognition model $q$
-predicts, for each task $x\in X$, a weight vector $q(x) =
-\theta^{(x)}\in \mathbb{R}^{|\mathcal{D}| + 1}$.  Together with the
-DSL, this defines a distribution over programs,
-$\probability[p|\mathcal{D},\theta = q(x)]$.  We abbreviate this
-distribution as $q(p|x)$.  The crucial aspect of this framing is that
-the neural network leverages the structure of the learned DSL, so it
-is \emph{not} responsible for generating programs wholesale.  We share
-this aspect with DeepCoder~\cite{balog2016deepcoder}
-and~\cite{menon2013machine}.
+$(\mathcal{D},\theta)$.  Concretely, the recognition model $Q$
+predicts, for each task $x\in X$, a distribution over programs,
+$Q(\cdot |x)$.
+We want $Q(\cdot |x)$ to approximate the posterior $\probability[\cdot |x,\mathcal{D},\theta]$.
 
+\subsubsection{Training $Q$}
 How should we get the data to train $q$?
 This is nonobvious  because we are considering a weakly supervised setting (i.e., learning only from tasks and not from (program, task) pairs).
 One approach is to sample programs from the DSL,
@@ -1091,6 +1016,78 @@ we need to sample the inputs as well.
 Our solution is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
 
+\subsubsection{Parameterizing $Q$}
+
+Broadly the literature contains two different approaches to
+parameterizing conditional distributions over programs.  The first
+approach, seen in systems like RobustFill~\cite{devlin2017robustfill}
+and~\cite{zavershynskyi2018naps}, is to use a recurrent neural network
+to predict the program token-by-token ala Seq2Seq or Seq2Tree.  The
+advantage of this approach is that the neural net can predict the
+entire program, so if the network is sufficiently powerful, it can
+completely solve the synthesis problem.  There are two disadvantages
+to this approach.  First, these models perform poorly at out-of-sample
+generalization~\cite{}, which is critical for our setting, as the
+agent may need to solve new tasks that are qualitatively different
+from the tasks it has solved so far.  Second, a powerful deep
+recurrent network may be costly to sample or enumerate from ---
+so if the network cannot easily solve a task, we cannot compensate
+with rapid sampling or enumeration.  In contrast, state-of-the-art
+enumerative program synthesizers evaluate millions of programs per
+second~\cite{feser2015synthesizing}.
+
+The second approach is to have $Q$ predict a fixed-dimensional weight
+vector, which then biases a fast enumerator~\cite{balog2016deepcoder}
+or sampler~\cite{menon2013machine}.  This approach can enjoy strong
+out-of-sample generalization, because it can fall back on enumeration
+or sampling when the target program is unlike the training programs.
+A main drawback is that the neural net is deliberately handicapped,
+and can only send so much information about the target program.
+
+We adopt a middle ground between these two extremes.  Our recognition
+model predicts a distribution over primitives in the DSL,
+conditioned on the local context in the syntax tree of the
+program. When predicting the next node to add to the syntax tree of a program,
+the recognition model
+conditions on the parent node, as well as
+which argument is being generated.
+This is a kind of `bigram' model over trees,
+where the bigrams
+take the form of (parent, child, argument index).
+See Figure~\ref{bg}.
+This parameterization
+has three main advantages:
+(1) it supports fast enumeration
+and sampling of programs,
+because the
+recognition model
+only needs to run once for each task;
+(2) it allows the recognition model to provide fine-grained
+information about the structure of the target program;
+and (3)
+training this recognition model
+causes it to learn to break symmetries in the space of programs,
+described next.
+\begin{figure}
+\centering  \begin{tikzpicture}%[every node/.style={inner sep=0,outer sep=0}]
+    \node(l)[draw] at (0,0) {\code{$\lambda$ (x)}};
+    \node(k)[draw] at ([yshift=-50]l.south) {\code{+}};
+    \node(o)[draw] at ([xshift=-50,yshift=-50]k.south) {\code{1}};
+    \node(m)[draw] at ([xshift=50,yshift=-50]k.south) {\code{*}};
+    \node(x1)[draw] at ([xshift=50,yshift=-50]m.south) {\code{x}};
+    \node(x2)[draw] at ([xshift=-50,yshift=-50]m.south) {\code{x}};
+
+    \draw[->] (l.south)-- node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{+}|\text{start})$}(k.north);
+    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{1}|\code{+}_1)$}(o.north);
+    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{*}|\code{+}_2)$}(m.north);
+    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{x}|\code{*}_2)$}(x1.north);
+    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{x}|\code{*}_1)$}(x2.north);
+\end{tikzpicture}
+\caption{Parameterization of distribution over programs predicted by recognition model.
+  Here the program (syntax tree shown above) is \code{($\lambda$ (x) (+ 1 (* x x)))}.
+Each conditional distribution predicted by the recognition model is written $q(\text{child}|\text{parent}_{\text{argument index}})$.}
+  \end{figure}
+
 \subsection{Sleep-G: Learning a Generative Model (a DSL)}\label{grammarInductionSection}
 
 The purpose of the DSL is to
@@ -1100,7 +1097,6 @@ Intuitively, we want the algorithm to look at the programs found
 during waking and generalize beyond them, both so the DSL can better
 express the current solutions, and also so that the DSL might expose
 new abstractions which will later be used to discover more programs.
-
 Formally, we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{mathematicalFraming}).
 We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
 \begin{align}
@@ -1146,7 +1142,7 @@ any refactoring of the programs found during waking, maximizing:
 \label{factorObjective}
 \end{align}
 where $p'\manyReduce p$
-is the standard notation for ``expression $p'$ evaluates to $p$ by the standard rules of $\lambda$-calculus''~\cite{pierce}.
+is the standard notation for ``expression $p'$ evaluates to $p$ by the rules of $\lambda$-calculus''~\cite{pierce}.
 
 Equation~\ref{factorObjective} captures the idea that we want
 to add new components to the DSL while jointly refactoring our old
@@ -1184,8 +1180,10 @@ In practice, setting the number of refactoring steps $n$ to 3 suffices
 to give a competent DSL learning algorithm.  Although the number of
 refactorings is now finite, it is still prohibitively large, and in
 fact grows exponentially quickly both as a function of $n$ and as a
-function of the size of the program being refactored.  Next, we show
-how to tame this exponential explosion.
+function of the size of the program being refactored.  For example,
+for the programs in Figure~\ref{mapFactor}, there are approximately
+$10^{14}$ possible refactorings.  Next, we show how to tame this
+exponential explosion.
 
 \textbf{Idea 2:} Rather than explicitly enumerate every refactoring,
 we developed a technique for compactly representing and efficiently
@@ -1197,12 +1195,19 @@ that compactly represents a large set of programs.
 We first define version spaces over $\lambda$-calculus expressions,
 and then give a dynamic program for constructing a version space
 that represents the set of possible refactorings (i.e., $R_n(p)$).
-
-A version space is either:
+This technique is astronomically more efficient than
+explicitly representing
+the space of possible refactorings:
+for the example in Figure~\ref{mapFactor},
+we represent
+the space of refactorings using a version space with
+$10^6$ nodes,
+which encodes $10^{14}$ refactorings.
+Formally, a version space is either:
 \begin{itemize}
-\item A deBuijn index: written $\$i$, where $i$ is a natural number
+\item A deBuijn\footnote{deBuijn indices are an alternative way of naming variables in $\lambda$-calculus. When using deBuijn indices, $\lambda$-abstractions are written \emph{without} a variable name, and variables are written as the count of the number of $\lambda$-abstractions up in the syntax tree the variable is bound to. For example, $\lambda x.\lambda y. (x\;y)$ is written $\lambda\lambda (\$1\;\$0)$ using deBuijn indices. See~\cite{pierce} for more details.} index: written $\$i$, where $i$ is a natural number
 \item An abstraction: written $\lambda v$, where $v$ is a version space
-\item A  application: written $(f \;x)$, where both  $f$ and $x$ are version spaces
+\item An  application: written $(f \;x)$, where both  $f$ and $x$ are version spaces
 \item A  union: $\uplus V$, where $V$ is a set of version spaces
 \item The empty set, $\varnothing$
 \item The set of all $\lambda$-calculus expressions, $\Lambda$
@@ -1226,20 +1231,20 @@ write as $e\in v$, and which is equivalent to $e\in \denotation{v}$.
 Important for our purposes, it is also efficient to refactor the
 members of a version space's extension in terms of a new DSL.
 We define $\textsc{refactor}(v|\mathcal{D})$ inductively as:
-\begin{align*}
+\begin{align}
   \textsc{refactor}(v|\mathcal{D}) &= \begin{cases}
-    e\text{, if $e\in \mathcal{D}$ and $e\in v$}\\
+    e\text{, if $e\in \mathcal{D}$ and $e\in v$. Exploits the fact that $e\in v$ can be efficiently computed.}\\
     \textsc{refactor}'(v|\mathcal{D})\text{, otherwise.}
-  \end{cases}\\
-  \textsc{refactor}'(e|\mathcal{D})& = e\text{, if $e$ is a leaf}\\
-  \textsc{refactor}'(\lambda b|\mathcal{D}) &= \lambda \textsc{refactor}(b|\mathcal{D})\\
-  \textsc{refactor}'(f\;x|\mathcal{D}) &= \textsc{refactor}(f|\mathcal{D})\;\textsc{refactor}(x|\mathcal{D})\\
-  \textsc{refactor}'(\uplus V|\mathcal{D}) &= \argmin_{e\in \left\{\textsc{refactor}(v|\mathcal{D})\;:\;v\in V \right\}}\ell(e|\mathcal{D})
+  \end{cases}\label{FACTORING}\\\nonumber
+  \textsc{refactor}'(e|\mathcal{D})& = e\text{, if $e$ is a leaf}\\\nonumber
+  \textsc{refactor}'(\lambda b|\mathcal{D}) &= \lambda \textsc{refactor}(b|\mathcal{D})\\\nonumber
+  \textsc{refactor}'(f\;x|\mathcal{D}) &= \textsc{refactor}(f|\mathcal{D})\;\textsc{refactor}(x|\mathcal{D})\\\nonumber
+  \textsc{refactor}'(\uplus V|\mathcal{D}) &= \argmin_{e\in \left\{\textsc{refactor}(v|\mathcal{D})\;:\;v\in V \right\}}\text{size}(e|\mathcal{D})\nonumber
   \end{align*}
-where $\ell(e|\mathcal{D})$ for program $e$ and DSL $\mathcal{D}$
+where $\text{size}(e|\mathcal{D})$ for program $e$ and DSL $\mathcal{D}$
 is the size of the syntax tree of $e$,
 when members of $\mathcal{D}$ are counted as having size 1.
-Concretely, $  \textsc{refactor}(v|\mathcal{D})$ calculates $\argmin_{p\in \denotation{v}}\ell(p|\mathcal{D})$.
+Concretely, $  \textsc{refactor}(v|\mathcal{D})$ calculates $\argmin_{p\in \denotation{v}}\text{size}(p|\mathcal{D})$.
 
 In Appendix~\ref{appendixVersion}, we describe a dynamic program for
 efficiently constructing a version space containing every $n$-step
@@ -1253,32 +1258,45 @@ that represents the entire set of
 refactorings -- but without having to explicitly enumerate all of the refactorings.
 
 With this machinery in hand, we now have all the pieces needed to
-learn a DSL (Algorithm~\ref{grammarInductionAlgorithm})
+learn a DSL (Algorithm~\ref{grammarInductionAlgorithm}).
+To define the prior distribution over $(\mathcal{D},\theta})$ (Algorithm~\ref{grammarInductionAlgorithm}, lines 7-8), we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
+  and $\lambda$ controls how strongly we regularize the size of the DSL.
+  We place a symmetric Dirichlet prior over the weight vector $\theta$.
 
-    \begin{algorithm*}[H]
-    %\setcounter{algorithm}{2} % there are two algorithms in the main paper.
-       \caption{DSL Induction Algorithm}
-       \label{grammarInductionAlgorithm}
-       \begin{algorithmic}[1]
-         \STATE {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
-%         \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
-         \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
-         \STATE $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
-         \WHILE {true}         
-         \STATE $\forall p\in \bigcup_{x}\mathcal{F}_x: $ $v_p\gets I\beta_n(p)$ \Comment{Construct a version space for each program}
-         \STATE Define $\text{refactor}(p|\mathcal{D}') = \argmin_{e\in \denotation{v_p}} \ell (e|\mathcal{D}')$ \Comment{Rewrites $p$ assuming $\mathcal{D}'$ is the DSL}
-         \STATE Define $L(\mathcal{D}',\theta) =  \prod_x \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[\text{\textsc{refactor}}(p|\mathcal{D}')|\mathcal{D}',\theta]$ \Comment{Likelihood if $(\mathcal{D}',\theta)$ were the DSL}
-         \STATE Define $\theta^*(\mathcal{D}') = \argmax_\theta \probability[\theta|\mathcal{D}'] L(\mathcal{D}',\theta)$ \Comment{MAP estimate of $\theta$}
-         \STATE Define $\text{score}(\mathcal{D}') = \log \probability[\mathcal{D}'] + L(\mathcal{D}',\theta^*) - \|\theta\|_0$ \Comment{objective function}
-         \STATE components $\gets$ $\left\{\textsc{refactor}(v|\mathcal{D})\;:\;\forall x, \forall p\in \mathcal{F}_x, \forall v\in \text{children}(v_p) \right\}$ \Comment{Propose many new DSL components}
-         \STATE proposals $\gets$ $\left\{\mathcal{D}\cup\left\{c \right\}\;:\;\forall c\in \text{components} \right\}$ \Comment{Propose many new DSLs}
-         \STATE $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new DSL}
-         \STATE \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to DSL led to a better score}
-         \STATE $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better DSL. Update DSL.}
-         \STATE $\forall x\;:\;\mathcal{F}_x\gets\left\{\text{\textsc{refactor}}(p|\mathcal{D})\;:\; p\in \mathcal{F}_x\right\}$\Comment{Refactor frontiers in terms of new DSL}
-         \ENDWHILE
-       \end{algorithmic}
-    \end{algorithm}
+To appropriately score each proposed $\mathcal{D}$ we must reestimate
+ the weight vector $\theta$ (Algorithm~\ref{grammarInductionAlgorithm}, line 7).
+Although this  may seem 
+very similar to estimating the parameters of a probabilistic context free grammar,
+for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
+our DSLs are context-sensitive due to the presence of variables
+in the programs and also due to the polymorphic typing system.
+Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
+
+
+
+\begin{algorithm}%[H]
+  %\setcounter{algorithm}{2} % there are two algorithms in the main paper.
+  \caption{DSL Induction Algorithm}
+  \label{grammarInductionAlgorithm}
+  \begin{algorithmic}[1]
+    \State {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
+    %         \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
+    \State \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+    \State $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
+    \While{true}         
+    \State $\forall p\in \bigcup_{x}\mathcal{F}_x: $ $v_p\gets I\beta_n(p)$ \Comment{Construct a version space for each program}
+    \State Define $L(\mathcal{D}',\theta) =  \prod_x \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[\text{\textsc{refactor}}(p|\mathcal{D}')|\mathcal{D}',\theta]$ \Comment{Likelihood if $(\mathcal{D}',\theta)$ were the DSL}
+    \State Define $\theta^*(\mathcal{D}') = \argmax_\theta \probability[\theta|\mathcal{D}'] L(\mathcal{D}',\theta)$ \Comment{MAP estimate of $\theta$}
+    \State Define $\text{score}(\mathcal{D}') = \log \probability[\mathcal{D}'] + L(\mathcal{D}',\theta^*) - \|\theta\|_0$ \Comment{objective function}
+    \State components $\gets$ $\left\{\textsc{refactor}(v|\mathcal{D})\;:\;\forall x, \forall p\in \mathcal{F}_x, \forall v\in \text{children}(v_p) \right\}$ \Comment{Propose many new DSL components}
+    \State proposals $\gets$ $\left\{\mathcal{D}\cup\left\{c \right\}\;:\;\forall c\in \text{components} \right\}$ \Comment{Propose many new DSLs}
+    \State $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new DSL}
+    \State \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to DSL led to a better score}
+    \State $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better DSL. Update DSL.}
+    \State $\forall x\;:\;\mathcal{F}_x\gets\left\{\text{\textsc{refactor}}(p|\mathcal{D})\;:\; p\in \mathcal{F}_x\right\}$\Comment{Refactor frontiers in terms of new DSL}
+    \EndWhile
+  \end{algorithmic}
+\end{algorithm}
 
 
 
@@ -1330,7 +1348,7 @@ learn a DSL (Algorithm~\ref{grammarInductionAlgorithm})
   \phantom{\texttt{\emph{map}} = \texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if }}\orange{\texttt{(cons (f (car l))}}\\
   \phantom{\texttt{\emph{map}} = \texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if }}\orange{\texttt{(r (cdr l))))))}}\\
   \code{(}\fbox{\textsc{map}}\code{ ($\lambda$ (z) (+ z z)))}\quad(program rewritten w/ new \fbox{\textsc{map}} primitive)\\
-  \code{(}\fbox{\textsc{map}}\code{ ($\lambda$ (z) (+ z 1)))}\quad(program rewritten w/ new \fbox{\textsc{map}} primitive)\\
+  \code{(}\fbox{\textsc{map}}\code{ ($\lambda$ (z) (- z 1)))}\quad(program rewritten w/ new \fbox{\textsc{map}} primitive)\\
       \end{tabular}      
     };
     \draw [->](r1.south)--(m.north);
@@ -1928,29 +1946,167 @@ Another direction is DSL meta-learning: can we find a
 new domains, including the domains considered here,  but also many others?
 
 \bibliography{main}
-\bibliographystyle{icml2018}
+\bibliographystyle{plain}
 
 \appendix
 
 \section{Appendix}
 
 \subsection{Refactoring code with version spaces}\label{appendixVersion}
-Observe that every $\lambda$-calculus expression is also a version space,
-and that, if $e$ is an expression, then $\denotation{e} = \left\{e \right\}$.
-
-\begin{align}
-  S_n(v)& = \left\{\shift{n}v\mapsto \$n \right\}\cup
+Recall that our goal is to define an operator over version spaces, $I\beta_n$,
+which calculates the set of $n$-step refactorings.
+We define this operator recursively as follows:
+\begin{align*}
+  I\beta_n(v)& = \uplus \left\{ \underbrace{I\beta'(I\beta'(I\beta'(\cdots}_{i \text{ times}} v))) \;:\; 0\leq i \leq n \right\}\\
+  I\beta'(v)& = \uplus \left\{(\lambda b)v\;:\;v\mapsto b\in S_0(v)\text{, when }v\not=\Lambda \right\}\cup
   \begin{cases}
-    \text{if $v$ is primitive:}&\left\{\Lambda\mapsto v \right\}\\
-    \text{if $v = \$i$ and $i < n$:}&\left\{\Lambda\mapsto \$i \right\}\\
-    \text{if $v = \$i$ and $i\geq n$:}&\left\{\Lambda\mapsto \$(i + 1) \right\}\\
-    \text{if $v = \lambda b$:}&\left\{v'\mapsto \lambda b' \;:\; v'\mapsto b'\in S_{n + 1}(b)  \right\}\\
-    \text{if $v = (f\;x)$:}&\left\{v_1\cap v_2\mapsto (f'\;x') \;:\; v_1\mapsto f'\in S_n(f),\; v_2\mapsto x'\in S_n(x) \right\}\\
-    \text{if $v = \uplus V$:}&\bigcup_{v'\in V}S_n(v')\\
-    \text{if $v$ is $\varnothing$:}&\varnothing\\
-    \text{if $v$ is $\Lambda$:}&\left\{\Lambda\mapsto\Lambda \right\}\\
+    \text{if $v$ is a primitive or index:}&\varnothing\\
+    \text{if $v = \lambda b$:}&\lambda I\beta'(b)\\
+    \text{if $v = (f\;x)$:}&(I\beta'(f)\;I\beta'(x))\\
   \end{cases}
   \\
-  
-  \end{align}
+  S_k(v)& = \left\{\shift{k}v\mapsto \$k \right\}\cup
+  \begin{cases}
+    \text{if $v$ is primitive:}&\left\{\Lambda\mapsto v \right\}\\    
+    \text{if $v = \$i$ and $i < k$:}&\left\{\Lambda\mapsto \$i \right\}\\
+    \text{if $v = \$i$ and $i\geq k$:}&\left\{\Lambda\mapsto \$(i + 1) \right\}\\
+    \text{if $v = \lambda b$:}&\left\{v'\mapsto \lambda b' \;:\; v'\mapsto b'\in S_{k + 1}(b)  \right\}\\
+    \text{if $v = (f\;x)$:}&\left\{v_1\cap v_2\mapsto (f'\;x') \;:\; v_1\mapsto f'\in S_k(f),\; v_2\mapsto x'\in S_k(x) \right\}\\
+    \text{if $v = \uplus V$:}&\bigcup_{v'\in V}S_n(v')\\
+    \text{if $v$ is $\varnothing$:}&\varnothing\\
+    \text{if $v$ is $\Lambda$:}&\left\{\Lambda\mapsto\Lambda \right\}
+  \end{cases}
+\end{align*}
+where $\shift^k$ is the shifting operator~\cite{pierce},
+which adds $k$ to all of the free variables in a $\lambda$-expression or version space.
+We have written the definition of $I\beta_n$ recursively,
+but implement it using a dynamic program:
+we hash cons each version space,
+and only calculate the operators $I\beta_n$,
+$I\beta'$, and $S_k$ once per each version space.
+Refactoring is similarly done more quickly with dynamic programming (see Equation~\ref{FACTORING} for the recursive definition of \textsc{refactor}).
+
+\subsubsection{Computational complexity of DSL learning}
+
+How long does each update to the DSL in
+Algorithm~\ref{grammarInductionAlgorithm} take?  Constructing the
+version spaces takes time linear in the number of programs (written
+$P$) in the frontiers (Algorithm~\ref{grammarInductionAlgorithm}, line
+5), and, in the worst case, exponential time as a function of the
+number of refactoring steps $n$ --- but we bound the number of steps
+to be a small number (typically $n = 3$).  Writing $V$ for the number
+of version spaces, this means that $V$ is $O(P2^n)$.  The number of
+proposals (line 10) is linear in the number of distinct version
+spaces, so is $O(V)$.  For each proposal we have to refactor every
+program (line 6), so this means we spend $O(V^2) = O(P^22^n)$ per DSL
+update.  In practice this quadratic dependence on $P$ (the number of
+programs) is prohibitively slow.
+We now describe a linear time approximation to the
+refactor step in Algorithm~\ref{grammarInductionAlgorithm} based on beam search.
+
+For each version space $v$ we calculate a \emph{beam}, which is a
+function from a DSL $\mathcal{D}$ to a shortest program in
+$\denotation{v}$ using primitives in $\mathcal{D}$.  Our strategy will
+be to only maintain the top $B$ shortest programs in the beam;
+throughout all of the experiments in this paper, we set $B = 10^6$,
+and in the limit $B\to\infty$ we recover the exact behavior of \textsc{refactor}.
+The following recursive equations
+define how we calculate these beams;
+the set `proposals' is defined in line 10 of Algorithm~\ref{grammarInductionAlgorithm},
+and $\mathcal{D}$ is the current DSL:
+\begin{align*}
+  \text{beam}_v(\mathcal{D}')& = \begin{cases}
+    \text{if }\mathcal{D}'\in \text{dom}(b_v)\text{: }&b_v(\mathcal{D}')\\
+    \text{if }\mathcal{D}'\not\in \text{dom}(b_v)\text{: }&\textsc{refactor}(v,\mathcal{D})
+  \end{cases}\\
+  b_v& = \text{the $B$ pairs $(\mathcal{D}'\mapsto p)$ in $b_v'$ where the syntax tree of $p$ is smallest}\\
+  b_v'(\mathcal{D}')& = \begin{cases}
+    \text{if $\mathcal{D}'\in \text{proposals}$ and $e\in \mathcal{D}'$ and  $e\in v$: }e\\
+    \text{otherwise if $v$ is a primitive or index:} $v$
+    \text{otherwise if $v = \lambda b$: } $\lambda $\text{beam}_b(\mathcal{D}')\\
+    \text{otherwise if $v = (f\;x)$: } $(\text{beam}_f(\mathcal{D}')\;\text{beam}_x\mathcal{D}'))\\
+    \text{otherwise if $v = \uplus V$: } \argmin_{e\in \left\{b'_{v'}(\mathcal{D}')\;:\;v'\in V \right\}}\text{size}(e|\mathcal{D}')
+    \end{cases}
+  \end{align*}
+We calculate $\text{beam}_v(\cdot )$ for each version space using
+dynamic programming.  Using a minheap to represent
+$\text{beam}_v(\cdot )$, this takes time $O(VB\log B)$, replacing the
+quadratic dependence on $V$ (and therefore the number of programs,
+$P$) with a $B\log B$ term, where the parameter $B$ can be chosen
+freely, but at the cost of a less accurate beam search.
+
+After performing this beam search,
+we take only the top $I$ proposals as measured by $-\sum_x\min_{p\in \mathcal{F}_x}\text{beam}_{v_p}(\mathcal{D}')$.
+We set $I = 300$ in all of our experiments,
+so $I \ll B$.
+The reason why we
+only take the top $I$ proposals (rather than take the top $B$) is because
+parameter estimation (estimating $\theta$ for each proposal) is much more expensive than
+performing the beam search ---
+so we perform a very wide beam search and then at the very end
+tim the beam down to
+only $I = 300$ proposals.
+Next,
+we describe our MAP estimator for the continuous parameters ($\theta$) of the DSL.
+
+
+
+\subsection{Estimating the continuous parameters $\theta$ of a DSL}\label{mapAppendix}
+We use an EM algorithm to estimate the continuous parameters of the DSL, i.e. $\theta$.
+Suppressing dependencies on $\mathcal{D}$, the EM updates are
+\begin{align}
+\label{maximizeStep}  \theta& = \argmax_\theta \log P(\theta) + \sum_x \expect_{Q_x}\left[\log \probability\left[p|\theta \right] \right]\\
+  Q_x(p)&\propto \probability[x|p]\probability[p|\theta]\indicator\left[p\in \mathcal{F}_x \right]
+\end{align}
+In the M step of EM we will update $\theta$ by instead maximizing a lower bound on $\log \probability[p|\theta]$,
+making our approach an instance of Generalized EM.
+
+We write $c(e,p)$ to mean the number of times that primitive $e$ was used in program $p$; $c(p)= \sum_{e\in \mathcal{D}}c(e,p)$ to mean the total number of primitives used in program $p$; $c(\tau,p)$ to mean the number of times that type $\tau$ was the input to sample in Algorithm~\ref{sampleProgram} while sampling program $p$. Jensen's inequality gives a lower bound on the likelihood:
+\begin{align*}
+  &\sum_x\expect_{Q_x}\left[  \log \probability[p|\theta] \right] =\\
+  &\sum_{e\in \mathcal{D}} \log \theta_e \sum_x\expect_{Q_x}\left[c(e,p_x) \right] -
+  \sum_\tau\expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]\log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
+ =   &\sum_e C(e)\log \theta_e  - \beta\sum_\tau\frac{\expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]}{\beta}\log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
+ \geq    &\sum_e C(e)\log \theta_e  - \beta\log \sum_\tau\frac{\expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]}{\beta}\sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
+     =     &\sum_e C(e)\log \theta_e  - \beta\log \sum_\tau\frac{R(\tau)}{\beta}\sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  
+  %% &\geq\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \frac{1}{c(p)}\sum_{\tau\in R(p)} \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
+  %% & = \sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log\frac{1}{c(p)} \sum_{e\in \mathcal{D}} r(e,p)\theta_e
+\end{align*}
+where we have defined
+\begin{align*}
+  C(e)&\triangleq  \sum_x\expect_{Q_x}\left[c(e,p_x) \right]\\
+  R(\tau)&\triangleq \expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]\\
+  \beta&\triangleq\sum_\tau \expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]
+\end{align*}
+Crucially it was defining $\beta$ that let us use Jensen's inequality. 
+Recalling from the main paper that $P(\theta)\triangleq\text{Dir}(\alpha)$,
+we have the following lower bound on M-step objective:
+\begin{align}
+\sum_e (C(e) + \alpha)\log \theta_e  - \beta\log \sum_\tau\frac{R(\tau)}{\beta}\sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e    
+\end{align}
+Differentiate with respect to $\theta_e$, where $e:\tau$, and set to zero to obtain:
+\begin{align}
+  &  \frac{C(e) + \alpha}{\theta_e}\propto\sum_{\tau'}\indicator\left[\text{unify}(\tau,\tau') \right] R(\tau')\\
+&  \theta_e\propto\frac{C(e) + \alpha}{\sum_{\tau'}\indicator\left[\text{unify}(\tau,\tau') \right] R(\tau')}
+\end{align}
+The above is our estimator for $\theta_e$.
+The above estimator has an intuitive interpretation.
+The quantity $C(e)$ is the expected number of times that we used $e$.
+The quantity $\sum_{\tau'}\indicator\left[\text{unify}(\tau,\tau') \right] R(\tau')$
+is the expected number of times that we \emph{could have} used $e$.
+The hyperparameter $\alpha$ acts as pseudocounts that are
+added to the number of times that we used each primitive,
+and are not added to the number of times that we could have used each primitive.
+
+
+We are only maximizing a lower bound on the log posterior; when is this lower bound tight?
+This lower bound is tight whenever all
+of the types of the expressions in the DSL are not polymorphic, in which case our DSL is equivalent to a PCFG
+and this estimator is equivalent to the inside/outside algorithm.
+Polymorphism introduces context-sensitivity to the DSL,
+and exactly maximizing the likelihood with respect to $\theta$
+becomes intractable,
+so for domains with polymorphic types we use this estimator.
+
+
 \end{document}
