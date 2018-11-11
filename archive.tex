@@ -9,7 +9,7 @@
 \usepackage{graphicx}
 %\usepackage{subfigure}
 \usepackage{booktabs} \usepackage{stmaryrd}% for professional tables
-\usepackage{stmaryrd}(
+ 
 \usepackage[section]{placeins}
 % hyperref makes hyperlinks in the resulting PDF.
 % If your build breaks (sometimes temporarily if a hyperlink spans a page)
@@ -82,10 +82,10 @@
 \usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
 \usepackage{tikz}
 \usepackage{circuitikz}
-\usetikzlibrary{fit,bayesnet}
-%\usetikzlibrary{arrows.meta}
-%\usetikzlibrary{positioning}
-%\usetikzlibrary{decorations.text}
+\usetikzlibrary{fit,bayesnet,calc}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{decorations.text}
 \usetikzlibrary{decorations.pathmorphing}
 \tikzset{squiggle/.style={decorate, decoration={snake,amplitude=.4mm}}}
 \usepackage{dsfont}
@@ -408,7 +408,7 @@ to help write programs in the increasingly rich DSL.
 
   \end{tabular}
   \\\bottomrule\\
-\end{tabular}}\vspace{-0.5cm}
+\end{tabular}}\vspace{-0.5cm} 
 \caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}%\vspace{-0.5cm}
 \end{table*}
 
@@ -563,17 +563,16 @@ is wildly intractable because evaluating $J(\mathcal{D},\theta)$ involves
 summing over the  infinite set of all programs.
 In practice we will only ever be able to sum over a finite set of programs.
 So, for each task, we define a finite set of programs, called a \emph{frontier}, and only marginalize over the frontiers:
-\\\noindent\textbf{Definition.} A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
+\begin{definition}
+   A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
 is a finite set of programs s.t. $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
-
+  \end{definition}
 Using the frontiers we  define the following intuitive lower bound on the joint probability, called $\lowerBound$:
 \begin{align}
  J\geq \lowerBound\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
 \end{align}
 We alternate maximization of $\lowerBound$ w.r.t. $\left\{\mathcal{F}_x \right\}_{x\in X}$  (\textbf{Wake})
 and $(\mathcal{D},\theta)$ (\textbf{Sleep-G}):
-
-
 \\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
 $\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]\propto\probability[p|x,\mathcal{D},\theta]$ 
@@ -586,16 +585,16 @@ and then updating $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\le
 %To represent DSLs and search the space of DSLs, we use Fragment Grammars~\cite{tim}.
 
 Searching for programs is hard because
-of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $q(\cdot |\cdot )$,
-during the \textbf{Sleep-R} phase: $q$ is trained to approximate the
-posterior over programs, $q(p|x)\approx \probability[p|x,\mathcal{D}]\propto\probability[x|p]\probability[p|\mathcal{D}}]$.
+of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $Q(\cdot |\cdot )$,
+during the \textbf{Sleep-R} phase: $Q$ is trained to approximate the
+posterior over programs, $Q(p|x)\approx \probability[p|x,\mathcal{D}]\propto\probability[x|p]\probability[p|\mathcal{D}]$.
   Thus training the neural network amortizes the cost of finding programs with high posterior probability.
 
-\textbf{Sleep-R: tractably maxing $\lowerBound$ w.r.t. the
+\noindent\textbf{Sleep-R: tractably maxing $\lowerBound$ w.r.t. the
   frontiers.}  Here we train %% a neural network, $q$, to predict a
 %% distribution over programs conditioned on a task. The objective of $q$
 %% is
-$q(p|x)$ to assign high probability to programs $p$ where
+$Q(p|x)$ to assign high probability to programs $p$ where
 $\probability[x|p]\probability[p|\mathcal{D},\theta]$ is large, because incorporating those programs
 into the frontiers will most increase $\lowerBound$.
 
@@ -608,7 +607,7 @@ the recognition model gets both more data, and higher-quality data, whenever the
     \begin{scope}[shift = {(1,-1)}]
     \node[align = center](synthesis) at (6,4) {Search for \\programs: $p$};
     \node[align = center](DSL) at (3,1) {DSL: $\mathcal{D}$};
-    \node[align = center](recognitionModel) at (9,1) {Recognition \\model: $q$};
+    \node[align = center](recognitionModel) at (9,1) {Recognition \\model: $Q$};
 
     \draw [->,thick] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-G)}} (DSL.30);
     \draw [->,thick] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.150);
@@ -621,267 +620,9 @@ the recognition model gets both more data, and higher-quality data, whenever the
   \caption{\system solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
 \end{figure}
 
-\begin{figure}
-  \begin{tikzpicture}
-    \node at (0,0) (d){DSL};
-    \node at ([yshift = -2cm]d) (t){$\text{Task}$};
-
-    \node at ([xshift = 2cm]t) (nn){
-      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
-        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-        \node[rectangle] at (1,1) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (I-\name) at (0,-\y) {};
-        \foreach \name / \y in {1,...,3}
-            \node[neuron] (H-\name) at (1,-\y-0.5) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (O-\name) at (2,-\y) {};
-        \foreach \source in {1,...,4}
-            \foreach \dest in {1,...,3}
-                \draw [-latex] (I-\source) -- (H-\dest);
-        \foreach \source in {1,...,3}
-            \foreach \dest in {1,...,4}
-                \draw [-latex] (H-\source) -- (O-\dest);
-      \end{tikzpicture}
-    };
-    \node[align = center, text width = 1cm] at ([yshift = 0.6cm]nn.north) {\baselineskip=0pt \small Recognition model\par};
-    \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
-
-    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
-    \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
-
-    \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
-    \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
-
-    \node[align=left] at (7,-1) (f) {Frontier\\{\small (set of programs)}};
-    \draw [->  ] (s.east) -- (f.west);
-
-    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
-    \node at ([xshift = 0.5cm,yshift = -0.75cm]s.south) {Spec};
-
-    \node at (4,-3.5) {\textbf{\textsc{Wake: Problem Solving}}};
-    
-    
-  \end{tikzpicture}
-
-  \vspace{1cm}
-  
-  
-
-  \begin{tikzpicture}
-    \node at (0,0) (f1){Frontier$_1$};
-    \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
-    \node at ([yshift = -1cm]f2.south) (f3){Frontier$_3$};
-
-    \node at ([xshift = 2cm]f1.east) (p1){program$_1$};
-    \node at ([xshift = 2cm]f2.east) (p2){program$_2$};
-    \node at ([xshift = 2cm]f3.east) (p3){program$_3$};
 
 
-    \draw [->,squiggle ] (f1.east) -- node[above]{\small sample} (p1.west);
-    \draw [->,squiggle ] (f2.east) -- node[above]{\small sample} (p2.west);
-    \draw [->,squiggle ] (f3.east) -- node[above]{\small sample} (p3.west);
-    
-    \node at ([xshift = 1.5cm]p1.east) (t1){task$_1$};
-    \node at ([xshift = 1.5cm]p2.east) (t2){task$_2$};
-    \node at ([xshift = 1.5cm]p3.east) (t3){task$_3$};
 
-    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Experience Replay}}};
-  \end{tikzpicture}
-
-  \begin{tikzpicture}
-    \node[align=center] at (0,0) (d){DSL\\$(\mathcal{D},\theta)$};
-    \node at ([xshift = 3cm]d.east) (p2){program};
-    \node at ([yshift = 1.5cm]p2) (p1){program};
-    \node at ([yshift = -1.5cm]p2) (p3){program};
-
-
-    \draw[squiggle,-> ] (d.east) -- node[above]{\small sample} (p2.west);
-    \draw[squiggle,-> ] (d.east) -- (p1.west);
-    \draw[squiggle,-> ] (d.east) -- (p3.west);
-
-    \node at ([xshift = 2cm]p1.east) (t1){task};
-    \node at ([xshift = 2cm]p2.east) (t2){task};
-    \node at ([xshift = 2cm]p3.east) (t3){task};
-    \draw [-> ] (p1.east) -- node[above]{\small execute} (t1.west);
-    \draw [-> ] (p3.east) -- node[above]{\small execute} (t3.west);
-    \draw [-> ] (p2.east) -- node[above]{\small execute} (t2.west);
-
-    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Dreaming}}};
-  \end{tikzpicture}
-  
-  \vspace{2cm}
-  
-  \begin{tikzpicture}
-    \node at (0,0) (f1){Frontier$_1$};
-    \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
-    \node at ([yshift = -0.7cm]f2.south) (ff){\textbf{$\vdots$}};
-    \node at ([yshift = -1.2cm]f2.south) (ff){\textbf{$\vdots$}};
-    \node at ([yshift = -1cm]ff.south) (f3){Frontier$_N$};
-
-    \node(c)[rectangle, rounded corners, draw, minimum width = 3cm, minimum height = 6cm, anchor = north west] at (2,1) {};
-    \node[anchor=north] at (c.north) {Compression};
-
-    \draw [-> ] (f1.east) -- (c.west|-f1.east);
-    \draw [-> ] (f2.east) -- (c.west|-f2.east);
-    \draw [-> ] (f3.east) -- (c.west|-f3.east);
-
-    \node[right](d) at ([xshift = 1.2cm,yshift = 0.7cm]c.east) {DSL $\mathcal{D}$};
-    \node[right](t) at ([xshift = 1.2cm,yshift = -0.7cm]c.east) {Weights $\theta$};
-    \draw [-> ] (c.east) -- (d.west);
-    \draw [-> ] (c.east) -- (t.west);
-
-    \node at (c.center) {
-\begin{tikzpicture}[scale=0.7]
-    %% \node[rotate=30] at (-2,0) {\begin{tabular}{c}
-    %%     \footnotesize Program:\\
-    %%     \code{($\lambda$ (x) (+ (- x) 1))}
-    %% \end{tabular}};
-    %\node at (,0.5) {\code{cons}};
-%    \node [rotate=90] at (-2.3,-0.5) {\small program};
-    
-          \node(l1) at (0,0) {};
-  \node[color=pop3](p1) at (-1,-1) {\code{+}};
-  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
-  \node(x1) at (0,-1) {\code{1}};
-  \draw[color=pop3] (l1.south) -- (p1.north);
-  \draw[color=pop3] (l1.south) -- (n1.north);
-  \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
-
-  \node(t) at (-0.5,0.5) {};
-  \draw (l1.south) -- (t.south);
-  \node(c) at (-1.5,-0.2) {\code{cons}};
-  \draw (t.south) -- (c.north);
-  
-%    \draw  (l1.south) -- (-0.5,0.5);
-
-  %% \node(c) at (-0.5,-1.5) {\code{-}};
-  %% \node(z) at (0.5,-1.5) {\code{x}};
-
-  %% \draw (0,-1) -- (c.north);
-  %% \draw (0,-1) -- (z.north);
-  
-  \begin{scope}[shift={(-1,-2.5)}]
-      \node(l1) at (0,0) {};
-  \node[color=pop3](p1) at (-1,-1) {\code{+}};
-  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
-  %\node(x1) at (0,-1) {};
-  \draw[color=pop3] (l1.south) -- (p1.north);
-  \draw[color=pop3] (l1.south) -- (n1.north);
-  \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
-
-
-  \node(c) at (-0.5,-1.5) {\code{car}};
-  \node(z) at (0.5,-1.5) {\code{z}};
-
-  \draw (0,-1) -- (c.north);
-  \draw (0,-1) -- (z.north);
-
-%  \node [rotate=90] at (-2.3,-0.7) {\small program};
-  
-  \end{scope}
-
-\begin{scope}[shift={(0,-5)}]
-  \node[pop3](p1) at (-1,-1) {\code{+}};
-  \node[pop3](n1) at (0.8,-0.7) {\code{1}};
-  \node[pop3](a) at (0,-1) {\code{ }};
-  %\node(x1) at (0,-1) {};
-  \draw[pop3] (0,0) -- (p1.north);
-  \draw[pop3] (0,0) -- (n1.north);
-  \draw[pop3] (-0.55,-0.4) -- (a.north);
-%  \node [rotate=90] at (-2.3,-0.7) {\small fragment};
-
-  \end{scope}
-
-\end{tikzpicture}
-    };
-
-    \node at ([yshift=-2.5cm,xshift = 4cm]c.south) {\textsc{\textbf{Sleep-G: Memory Consolidation}}};
-
-    \end{tikzpicture}
-  \end{figure}
-
-\begin{figure}[h]
-\centering
-%  \includegraphics{figures/iterations.eps}
-\begin{tikzpicture}
-  \begin{scope}[shift={(2.5,0)}]
-    \node[obs] at (3,3) (dx){$\mathcal{D}$};
-    \node[latent] at (3.5,1.75) (zp){$p$};
-%    \node[obs] at (4,3) (tx){$\theta^{(x)}$};
-    \node[obs] at (3.5,0.7) (xp) {$x$};
-    \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Wake: Infer $p$};
-    \draw [->,red] (xp.east) to[out = 0,in = 90] node(nn){} (zp.north);
-%    \draw [->,red] (tx) -- (zp);
-    \draw [->] (dx) -- (zp);
-    \node at (nn) {
-      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
-        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-        \node[rectangle] at (1,1) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (I-\name) at (0,-\y) {};
-        \foreach \name / \y in {1,...,3}
-            \node[neuron] (H-\name) at (1,-\y-0.5) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (O-\name) at (2,-\y) {};
-        \foreach \source in {1,...,4}
-            \foreach \dest in {1,...,3}
-                \draw [-latex] (I-\source) -- (H-\dest);
-        \foreach \source in {1,...,3}
-            \foreach \dest in {1,...,4}
-                \draw [-latex] (H-\source) -- (O-\dest);
-      \end{tikzpicture}
-    };
-    \node[shift={+(0,-0.65)}] at (nn) [fill=white]{ $q(x)$ };
-  \end{scope}
-
-  \begin{scope}[shift={(0.7,-4.2)}]
-    \node[obs] at (3,3) (dt){$\mathcal{D},\theta$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]dt.south) (p2){$p_2$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p2.south) (x2){$x_2$};
-    \draw [->] (p2.south) -- (x2.north);
-    \draw [->] (dt.south) -- (p2.north);
-
-
-    \node[obs] at ([yshift = 0cm,xshift = -0.5cm]p2.west) (p1){$p_1$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p1.south) (x1){$x_1$};
-    \draw [->] (p1.south) -- (x1.north);
-    \draw [->] (dt.south) -- (p1.north);
-
-    \node[obs] at ([yshift = 0cm,xshift = 0.5cm]p2.east) (p3){$p_3$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p3.south) (x3){$x_3$};
-    \draw [->] (p3.south) -- (x3.north);
-    \draw [->] (dt.south) -- (p3.north);
-
-    \node at ([yshift = 0cm,xshift = 0.3cm]p3.east) {$\cdots $};
-    \node at ([yshift = 0cm,xshift = 0.3cm]x3.east) {$\cdots $};
-      
-    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]p3.east) (zp){$p$};
-    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]x3.east) (xp) {$x$};
-    \draw [->] (zp.south) -- (xp.north);
-    \plate {}{(zp)(xp)}{$x\in X$};
-
-    \draw[dashed,cyan,very thick] ([yshift = 0.5cm,xshift = -2]p1.west)
-    rectangle  ([yshift = -0.45cm,xshift = +2]xp.east);
-    \node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Sleep-R: Train $q$\\training data: cyan $(x,p)$};
-  \end{scope}
-    
-  \begin{scope}[shift={(7.7,-4)}]
-    \node[latent] at (0.5,3) (d){$\mathcal{D}$};
-    \node[latent] at (1.5,3) (t){$\theta$};
-    \node[obs] at (1,1.75) (z){$p$};
-%     \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
-    \node[obs] at (1,0.5) (x) {$x$};
-    \edge {z}{x};
-    \edge {d,t}{z};
-    \plate {}{(z)(x)}{$x\in X$};
-    \node[align = center] at ([yshift = -1cm]x.south) {Sleep-G: Induce $(\mathcal{D},\theta)$};
-  \end{scope}
-
-\end{tikzpicture}
-\end{figure}
 
 \subsection{Wake: Searching for Programs}\label{explorationSection}
 
@@ -915,23 +656,68 @@ used in functional programming languages like OCaml and Haskell.
 %% See Supplement for more detail on program representation.
 We now define DSLs:
 
-\noindent\textbf{Definition: $(\mathcal{D},\theta)$.}
+\begin{definition}
 A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
-%\\\noindent\textbf{Definition.}
 A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| + 1$ real numbers:
 one number for each DSL element $e\in \mathcal{D}$, written $\theta_e$ and controlling the probability of  $e$ occurring in a program,
 and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
+\end{definition}
 
-Together with its weight vector,
-a DSL defines a distribution over programs, $\probability[p|\mathcal{D},\theta]$.
-In the supplement, we define this distribution  
-by specifying a procedure for drawing samples from $\probability[p|\mathcal{D},\theta]$.
-Care must be taken to ensure that programs are well-typed
- and that variable scoping rules are obeyed.
-%% With this distribution in hand, we search for programs by enumerating
-%% $\lambda$-calculus expressions in decreasing order of their probability under
-%% $(\mathcal{D},\theta)$.
+Together with its weight vector, a DSL defines a distribution over
+programs, $\probability[p|\mathcal{D},\theta]$.  We define this
+distribution by specifying a procedure for drawing samples from
+$\probability[p|\mathcal{D},\theta]$ (Algorithm~\ref{sampleProgram}).
+Care must be taken to ensure that variable scoping rules are obeyed
+and that programs are well-typed.  We ensure well-typed programs by
+performing Hindley-Milner type inference~\cite{pierce} during
+sampling, and assume that each task is annotated with the type of the
+program that will solve it.
+ \begin{algorithm}
+   \caption{Generative model over programs}
+   \label{sampleProgram}
+   \begin{algorithmic}[1]
+     \State \textbf{function} sample$(\mathcal{D}, \theta, \tau)$:
+     \State {\bfseries Input:} DSL $(\mathcal{D},\theta)$, type $\tau$
+     \State \textbf{Output:} a program whose type unifies with $\tau$
+     \State  \textbf{return }sample$'(\mathcal{D}, \theta, \varnothing, \tau)$
 
+     \Statex
+     \State \textbf{function} sample$'(\mathcal{D}, \theta, \mathcal{E}, \tau)$:
+     \State {\bfseries Input:} DSL $(\mathcal{D},\theta)$, environment $\mathcal{E}$, type $\tau$\Comment{Environment $\mathcal{E}$ starts out as $\varnothing$}
+     \State \textbf{Output:} a program whose type unifies with $\tau$
+     \If{$\tau = \alpha\to\beta$}\Comment{Function type --- start with a lambda}
+     \State var $\gets$ an unused variable name
+     \State body $\sim$ sample$'(\mathcal{D},\theta,\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$\Comment{Recursively sample function body}
+     \State \textbf{return} \code{(lambda (}var\code{) }body\code{)}
+     %\Endif
+     \Else\Comment{Build an application to give something w/ type $\tau$}
+     \State $\text{primitives} \gets \{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
+     $\text{if }\tau\text{ can unify with yield}(\tau') \}$\Comment{Everything in scope w/ type $\tau$}
+     \State $\text{variables}\gets\left\{p\;|\;p\in \text{primitives}\text{ and }p\text{ a variable} \right\}$
+     \State Draw $e\sim \text{primitives}$, w.p. $\propto\begin{cases}
+       \theta_e&\text{ if }e\in \mathcal{D}\\
+\theta_{var}/|\text{variables}|&\text{ if }e\in \mathcal{E}
+       \end{cases}$
+     \State Unify $\tau$ with yield$(\tau')$.\Comment{Ensure well-typed program}
+     \State $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{args}(\tau')$ 
+     %   \State unify$(\tau,\beta)$
+     \For{$k=1$ {\bfseries to} $K$}\Comment{Recursively sample arguments}
+     \State $a_k\sim\text{sample}'(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
+     \EndFor
+     \State \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
+     \EndIf
+     \Statex
+     \Statex\textbf{where:}
+     \State yield$(\tau) = \begin{cases}
+       \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+       \tau   &\text{ otherwise.}
+     \end{cases}$ \Comment{Final return type of $\tau$}
+     \State  args$(\tau) = \begin{cases}
+       [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+       []   &\text{ otherwise.}
+     \end{cases}$\Comment{Types of arguments needed to get something w/ type $\tau$}
+   \end{algorithmic}
+ \end{algorithm}
 
 Why enumerate, when the program synthesis community has invented many
 sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
@@ -961,72 +747,84 @@ The purpose of training the recognition model is to amortize the cost
 of searching for programs.  It does this by learning to predict, for
 each task, programs with high likelihood according to
 $\probability[x|p]$ while also being probable under the prior
-$(\mathcal{D},\theta)$.  Concretely, the recognition model $Q$
-predicts, for each task $x\in X$, a distribution over programs,
-$Q(\cdot |x)$.
-We want $Q(\cdot |x)$ to approximate the posterior $\probability[\cdot |x,\mathcal{D},\theta]$.
+$(\mathcal{D},\theta)$,
+thereby approximating the posterior $\probability[\cdot |x,\mathcal{D},\theta]$.
 
-\subsubsection{Training $Q$}
-How should we get the data to train $q$?
-This is nonobvious  because we are considering a weakly supervised setting (i.e., learning only from tasks and not from (program, task) pairs).
-One approach is to sample programs from the DSL,
+\subsubsection{Training $Q$}\label{recognitionTraining}
+How should we get the data to train $Q$?
+This is non-obvious  because we are considering a weakly supervised setting (i.e., learning only from tasks and not from task/program pairs).
+One approach is to draw programs from the DSL,
 run them to get their input/outputs,
-and then train $q$ to predict the program from the input/outputs.
-This is like how a Helmholtz machine
-trains its recognition model during its ``sleep'' phase~\cite{dayan1995helmholtz}.
-The advantage of ``Helmholtz machine'' training is that
+and then train $Q$ to predict the program from the input/outputs.
+This is like how the wake-sleep algorithm for the Helmholtz machine
+trains its recognition model during its sleep phase~\cite{dayan1995helmholtz}.
+The advantage of training on samples, or ``dreams,'' is that
 we can draw unlimited samples from the DSL,
 training on a large amount of data.
 Another approach is
- self-supervised learning,
-training $q$ on the (program, task)
-pairs discovered during waking.
-The advantage of self-supervised learning
+to train $Q$ on the (program, task)
+pairs discovered by the Wake phase.
+The advantage here
 is that the training data is much higher quality,
-because we are training on the actual tasks.
+because we are training on real tasks.
 Due to these complementary advantages,
 we train on both these sources of data.
 
-Formally, $q$ should approximate the true posteriors over programs: minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|q(p|x) \right) \right]$,
- equivalently maximizing $  \expect[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) ]$,
-%% \begin{equation*}
-%%   \expect\left[\sum_p\probability[p|x,\mathcal{D},\theta]\log q(p|x) \right]
-%% \end{equation*}
- where the expectation is taken over tasks. Taking this expectation over the empirical distribution of tasks gives self-supervised training; taking it over samples from the generative model gives  Helmholtz-machine style training.
- The  objective for a recognition model ($\mathcal{L}_{\text{RM}}$) combines the Helmholtz machine ($\mathcal{L}_{\text{HM}}$) and self supervised ($\mathcal{L}_{\text{SS}}$) objectives:
- \begin{align}
-   \mathcal{L}_{\text{RM}} &= \mathcal{L}_\text{SS} + \mathcal{L}_\text{HM}\\
-\nonumber\mathcal{L}_{\text{HM}} &= \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log q(p|x)\right]\\
-\nonumber\mathcal{L}_{\text{SS}} &= \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
-  \frac{\probability\left[x,p|\mathcal{D},\theta \right]}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\log q(p|x)\right]
-\end{align}
-
-  The $\mathcal{L}_{\text{HM}}$ objective is essential for data efficiency:
+Formally, $Q$ should approximate the true posteriors over programs.
+We can either train $Q$ to perform full posterior inference by minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|Q(p|x) \right) \right]$,
+or we can train $Q$ to perform MAP inference
+by maximizing $\expect\left[\max_{p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]} \log Q(p|x) \right]$,
+where in both cases the expectation is taken over tasks. Taking this expectation over the empirical distribution of tasks trains $Q$ on the real data; taking it over samples from the generative model trains $Q$ on ``dreams.''
+We define a pair of alternative objectives for the recognition model,
+$\mathcal{L}_{\text{RM}}^{\text{posterior}}$ and $\mathcal{L}_{\text{RM}}^{\text{MAP}}$,
+which either train $Q$ to perform full posterior inference or MAP inference, respectively.
+These objectives combine real-data and dream data:
+\begin{align*}
+  \mathcal{L}_{\text{RM}}^{\text{posterior}} &= \mathcal{L}_{\text{Real}}^{\text{posterior}} + \mathcal{L}_{\text{Dream}}^{\text{posterior}}&
+  \mathcal{L}_{\text{RM}}^{\text{MAP}} &= \mathcal{L}_{\text{Real}}^{\text{MAP}} + \mathcal{L}_{\text{Dream}}^{\text{MAP}}\\
+  \mathcal{L}_{\text{Real}}^{\text{posterior}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
+    \frac{\probability\left[x,p|\mathcal{D},\theta \right]\log Q(p|x)}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\right] &
+\mathcal{L}_{\text{Real}}^{\text{MAP}}& = \expect_{x\sim X}\left[\max_{\substack{p\in \mathcal{F}_x\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}} \log Q(p|x) \right]  \\
+  \mathcal{L}_{\text{Dream}}^{\text{posterior}} &= \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log Q(p|x)\right]&
+    \mathcal{L}_{\text{Dream}}^{\text{MAP}} &= \expect_{x\sim(\mathcal{D},\theta) }\left[\max_{\substack{p\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}}\log Q(p)\right]
+\end{align*}
+  The `dream' objectives are essential for data efficiency:
 all of our experiments train \system on only a few hundred tasks, which is too little for
-a high-capacity neural network $q$.
+a high-capacity neural network.
 Once we bootstrap a $(\mathcal{D},\theta)$,
 we can draw unlimited samples from $(\mathcal{D},\theta)$
 and train $q$ on those samples.
-
-Evaluating $\mathcal{L}_{\text{HM}}$ involves sampling programs from
+But, evaluating $\mathcal{L}_{\text{Dream}}$ involves drawing programs from
 the current DSL, running them to get their outputs,
-and then training $q$ to regress from the input/outputs to the program.
+and then training $Q$ to regress from the input/outputs to the program.
 Since these programs map inputs to outputs,
 we need to sample the inputs as well.
 Our solution is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
 
-\subsubsection{Parameterizing $Q$}
+The $\mathcal{L}_{\text{Dream}}^{\text{MAP}}$ objective involves
+finding the MAP program solving a task drawn from the DSL.
+To make this tractable,
+rather than \emph{sample} programs as training data for $\mathcal{L}_{\text{Dream}}^{\text{MAP}}$,
+we \emph{enumerate} programs
+in decreasing order of their prior probability,
+tracking,
+for each dreamed task $x$,
+the set of enumerated programs maximizing
+$\probability[x,p|\mathcal{D},\theta]$.
+
+
+\subsubsection{Parameterizing $Q$}\label{recognitionParameterization}
 
 Broadly the literature contains two different approaches to
 parameterizing conditional distributions over programs.  The first
 approach, seen in systems like RobustFill~\cite{devlin2017robustfill}
 and~\cite{zavershynskyi2018naps}, is to use a recurrent neural network
-to predict the program token-by-token ala Seq2Seq or Seq2Tree.  The
+to predict the program token-by-token as in Seq2Seq or Seq2Tree.  The
 advantage of this approach is that the neural net can predict the
 entire program, so if the network is sufficiently powerful, it can
 completely solve the synthesis problem.  There are two disadvantages
-to this approach.  First, these models perform poorly at out-of-sample
+to this approach.  First, these models can perform poorly at out-of-sample
 generalization~\cite{}, which is critical for our setting, as the
 agent may need to solve new tasks that are qualitatively different
 from the tasks it has solved so far.  Second, a powerful deep
@@ -1054,7 +852,23 @@ which argument is being generated.
 This is a kind of `bigram' model over trees,
 where the bigrams
 take the form of (parent, child, argument index).
-See Figure~\ref{bg}.
+
+Formally,
+$Q$ predicts a $(|\mathcal{D}|+2)\times (|\mathcal{D}|+1)\times A$-dimensional tensor,
+where $A$ is the maximum arity\footnote{The arity of a function is the number of arguments that it takes as input.} of any primitive in the DSL.
+Slightly abusing notation, we write this tensor as $Q_{ijk}(x)$,
+where $x$ is a task,
+$i\in \mathcal{D}\cup\left\{\text{start},\text{var}\right\}$,
+$j\in \mathcal{D}\cup\left\{\text{var} \right\}$,
+and $k\in \left\{1,2,\cdots,A \right\}$.
+The output $Q_{ijk}(x)$
+controls the probability of
+sampling primitive $j$ given that
+$i$ is the parent node in the syntax tree
+and we are sampling the $k^{\text{th}}$ argument.
+Figure~\ref{bg} diagrams this generative process, Algorithm~\ref{recognitionSample}
+specifies a sampling procedure for $Q(\cdot |x)$,
+and Figure~\ref{neuralPipeline} diagrams the neurally guided program inference procedure.
 This parameterization
 has three main advantages:
 (1) it supports fast enumeration
@@ -1070,23 +884,150 @@ causes it to learn to break symmetries in the space of programs,
 described next.
 \begin{figure}
 \centering  \begin{tikzpicture}%[every node/.style={inner sep=0,outer sep=0}]
-    \node(l)[draw] at (0,0) {\code{$\lambda$ (x)}};
-    \node(k)[draw] at ([yshift=-50]l.south) {\code{+}};
-    \node(o)[draw] at ([xshift=-50,yshift=-50]k.south) {\code{1}};
-    \node(m)[draw] at ([xshift=50,yshift=-50]k.south) {\code{*}};
-    \node(x1)[draw] at ([xshift=50,yshift=-50]m.south) {\code{x}};
-    \node(x2)[draw] at ([xshift=-50,yshift=-50]m.south) {\code{x}};
+    \node(l)[draw] at (0,0) {\texttt{$\lambda$ (a)}};
+    \node(k)[draw] at ([yshift=-50]l.south) {\texttt{+}};
+    \node(o)[draw] at ([xshift=-50,yshift=-50]k.south) {\texttt{9}};
+    \node(m)[draw] at ([xshift=50,yshift=-50]k.south) {\texttt{*}};
+    \node(x1)[draw] at ([xshift=50,yshift=-50]m.south) {\texttt{a}};
+    \node(x2)[draw] at ([xshift=-50,yshift=-50]m.south) {\texttt{a}};
 
-    \draw[->] (l.south)-- node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{+}|\text{start})$}(k.north);
-    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{1}|\code{+}_1)$}(o.north);
-    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{*}|\code{+}_2)$}(m.north);
-    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{x}|\code{*}_2)$}(x1.north);
-    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$q(\code{x}|\code{*}_1)$}(x2.north);
+    \draw[->] (l.south)-- node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\text{start},\texttt{+},1}(x)$}(k.north);
+    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{+},\texttt{9},1}(x)$}(o.north);
+    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{+},\texttt{*},2}(x)$}(m.north);
+    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{*},\text{var},2}(x)$}(x1.north);
+    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{*},\text{var},1}(x)$}(x2.north);
 \end{tikzpicture}
 \caption{Parameterization of distribution over programs predicted by recognition model.
-  Here the program (syntax tree shown above) is \code{($\lambda$ (x) (+ 1 (* x x)))}.
-Each conditional distribution predicted by the recognition model is written $q(\text{child}|\text{parent}_{\text{argument index}})$.}
-  \end{figure}
+  Here the program (syntax tree shown above) is \texttt{($\lambda$ (a) (+ 9 (* a a )))}.
+Each conditional distribution predicted by the recognition model is written $Q_{\text{parent},\text{child},\text{argument index}}(x)$, where $x$ is a task.}\label{bg}
+\end{figure}
+ \begin{algorithm}
+   \caption{Drawing from distribution over programs predicted by recognition model. Compare w/ Algorithm~\ref{sampleProgram}}
+   \label{recognitionSample}
+   \begin{algorithmic}[1]
+     \State \textbf{function} recognitionSample$(Q, x, \mathcal{D}, \tau)$:
+     \State {\bfseries Input:} recognition model $Q$, task $x$, DSL $\mathcal{D}$, type $\tau$
+     \State \textbf{Output:} a program whose type unifies with $\tau$
+     \State \textbf{return } $\text{recognitionSample}'(Q,x,\text{start},1,\mathcal{D},\varnothing,\tau)$
+     \Statex
+
+     \State \textbf{function} recognitionSample$'(Q, x, \text{parent}, \text{argumentIndex}, \mathcal{D}, \mathcal{E}, \tau)$:
+     \State {\bfseries Input:} recognition model $Q$, task $x$, DSL $\mathcal{D}$, parent $\in \mathcal{D}\cup\left\{\text{start},\text{var} \right\}$, argumentIndex $\in \mathbb{N}$, environment $\mathcal{E}$, type $\tau$
+     \State \textbf{Output:} a program whose type unifies with $\tau$
+     \If{$\tau = \alpha\to\beta$}\Comment{Function type --- start with a lambda}
+     \State var $\gets$ an unused variable name
+     \State body $\sim$ recognitionSample$'(Q,x,\text{parent},\text{argumentIndex},\mathcal{D},\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$%\Comment{Recursively sample function body}
+     \State \textbf{return} \code{(lambda (}var\code{) }body\code{)}
+     %\Endif
+     \Else\Comment{Build an application to give something w/ type $\tau$}
+     \State $\text{primitives} \gets \{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
+     $\text{if }\tau\text{ can unify with yield}(\tau') \}$\Comment{Everything in scope w/ type $\tau$}
+     \State $\text{variables}\gets\left\{p\;|\;p\in \text{primitives}\text{ and }p\text{ a variable} \right\}$
+     \State Draw $e\sim \text{primitives}$, w.p. $\propto\begin{cases}
+       Q_{\text{parent},e,\text{argumentIndex}}(x)&\text{ if }e\in \mathcal{D}\\
+Q_{\text{parent},\text{var},\text{argumentIndex}}(x)/|\text{variables}|&\text{ if }e\in \mathcal{E}
+       \end{cases}$
+     \State Unify $\tau$ with yield$(\tau')$.\Comment{Ensure well-typed program}
+     \State newParent$\gets\begin{cases}
+     e &\text{ if }e\in \mathcal{D}\\
+     \text{var}&\text{ if }e\in \mathcal{E}\end{cases}$
+     \State $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{args}(\tau')$ 
+     %   \State unify$(\tau,\beta)$
+     \For{$k=1$ {\bfseries to} $K$}\Comment{Recursively sample arguments}
+     \State $a_k\sim\text{recognitionSample}'(Q,x,\text{newParent},k,\mathcal{D},\mathcal{E},\alpha_k)$
+     \EndFor
+     \State \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
+     \EndIf
+     %% \Statex
+     %% \Statex\textbf{where:}
+     %% \State yield$(\tau) = \begin{cases}
+     %%   \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+     %%   \tau   &\text{ otherwise.}
+     %% \end{cases}$ \Comment{Final return type of $\tau$}
+     %% \State  args$(\tau) = \begin{cases}
+     %%   [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+     %%   []   &\text{ otherwise.}
+     %% \end{cases}$\Comment{Types of arguments needed to get something w/ type $\tau$}
+   \end{algorithmic}
+ \end{algorithm}
+ \begin{figure}
+   \begin{tikzpicture}
+     \node(x)[draw,align=center] at (0,0) {Task $x$\\e.g., input/outputs};
+     \node(e)[draw, align=center] at ([xshift=3cm]x.east) {Domain-specific encoder\\
+       e.g., RNN or CNN};
+     \node(m)[draw,align = center] at ([xshift=1.1cm]e.east) {MLP};%\\Output: $(|\mathcal{D}| + 2)\times(|\mathcal{D}| + 1)\times A$};
+     \node[draw,align = center](s) at ([xshift=3cm]m.east) {Enumerate\\(Algorithm~\ref{recognitionSample})};
+     \node(f)[draw,align = center] at ([xshift=2cm]s.east) {Frontier\\$\mathcal{F}_x$};
+
+     \draw[->] (x.east) -- (e.west);
+     \draw[->] (e.east) -- (m.west);
+     \draw[->] (m.east) -- node(p)[fill=white,align=center,midway,inner sep=0,outer sep=0,rotate=90]{\small $Q_{ijk}(x)$}(s.west);
+     \draw[->] (s.east) -- (f.west);
+     \draw[->] (x.north) -- ([yshift=15]x.north) -- node[above = 0pt,midway]{\small likelihood $\probability[x|p]$}([yshift=15,xshift=40]s.north) -- ($(s.east)!0.5!(f.west)$);
+     \draw[decoration = {brace,mirror,raise = 5pt},decorate,thick]
+     ([xshift = -5,yshift = -25]e.west) -- node[below = 3pt] {{Recognition model $Q(p|x)$}} ([xshift = 155,yshift = -25]e.west);
+     \draw[decoration = {brace,mirror,raise = 5pt},decorate,thick]
+     ([xshift = -5,yshift = -25]s.west) -- node[below = 3pt] {{ Search}} ([xshift = 5,yshift = -25]f.east);
+     %% \draw[decoration = {brace,mirror,raise = 5pt},decorate,thick]
+     %% ([xshift = -5,yshift = -25]p.west) -- node[below = 3pt] {{\small Params}} ([xshift = 5,yshift = -25]p.east);
+   \end{tikzpicture}
+   \caption{Neurally-guided program inference pipeline. Recognition model outputs distribution over program $Q(p|x)$ parameterized by tensor $Q_{ijk}$. Program output by enumerative search incorporated into frontier if likelihood $\probability[x|p] > 0$}
+   \label{neuralPipeline}
+   \end{figure}
+
+\subsubsection{Learning to break symmetries in program space}
+
+A good DSL not only exposes high-level building blocks,
+but also carefully restricts the ways in which those building blocks are allowed to compose.
+For example,
+a DSL for list manipulation should contain both the empty list and
+a routine for appending lists,
+but should not allow
+appending the empty list.
+Similarly a DSL for arithmetic should contain both addition and
+the number zero but
+disallow adding zero.
+These restrictions break symmetries in the space of programs.
+Here we show that the
+combination of the $\mathcal{L}^{\text{MAP}}$ training objective (Section~\ref{recognitionTraining}) and bigram parameterization (Section~\ref{recognitionParameterization})
+interact in a way that spontaneously breaks symmetries in the program space,
+allowing the agent to more efficiently
+explore the space of programs.
+
+Consider an agent tasked with writing programs built from addition, multiplication, and the constants zero and one.
+A bigram parameterization of $Q$ allows
+it to represent the fact that it should never add zero ($Q_{\code{+},\code{0},0} = Q_{\code{+},\code{0},1} = 0$)
+or never multiply by  1 ($Q_{\code{*},\code{1},0} = Q_{\code{*},\code{1},1} = 0$), or
+that addition should always associate to the right
+($Q_{\code{+},\code{+},0} = 0$).
+The $\mathcal{L}^{\text{MAP}}$ training objective encourages
+learning these canonical forms.
+Consider two recognition models, $Q_1$ and $Q_2$,
+and two programs in frontier $\mathcal{F}_x$,
+$p_1=\code{(+ (+ 1 1) 1)}$ and $p_2=\code{(+ 1 (+ 1 1))}$,
+where
+\begin{align*}
+  Q_1(p_1|x) = \frac{\epsilon}{2}&\qquad Q_1(p_2|x) = \frac{\epsilon}{2}\\
+  Q_2(p_1|x) = 0&\qquad  Q_2(p_2|x) = \epsilon
+\end{align*}
+i.e., $Q_2$ breaks a symmetry by forcing right associative addition,
+but $Q_1$ does not, instead splitting its probability mass equally between $p_1$ and $p_2$.
+Now because $\probability[p_1|\mathcal{D},\theta] = \probability[p_2|\mathcal{D},\theta]$
+(Algorithm~\ref{sampleProgram}),
+we have
+\begin{align*}
+  \mathcal{L}^{\text{posterior}}_{\text{real}}(Q_1)& = \frac{\probability[p_1|\mathcal{D},\theta]\log \frac{\epsilon}{2} + \probability[p_2|\mathcal{D},\theta]\log \frac{\epsilon}{2}}{\probability[p_1|\mathcal{D},\theta] + \probability[p_2|\mathcal{D},\theta]} = \log \frac{\epsilon}{2}\\
+  \mathcal{L}^{\text{posterior}}_{\text{real}}(Q_2)& = \frac{\probability[p_1|\mathcal{D},\theta]\log 0 + \probability[p_2|\mathcal{D},\theta]\log \epsilon}{\probability[p_1|\mathcal{D},\theta] + \probability[p_2|\mathcal{D},\theta]} = +\infty\\
+  \mathcal{L}^{\text{MAP}}_{\text{real}}(Q_1)& = \log Q_1(p_1)           = \log Q_1(p_2)   = \log \frac{\epsilon}{2}\\
+  \mathcal{L}^{\text{MAP}}_{\text{real}}(Q_2)& = \log Q_2(p_2) \phantom{ = \log Q_1(p_2) } = \log \epsilon\\
+\end{align*}
+So the $\mathcal{L}^{\text{MAP}}$ prefers $Q_2$ (the symmetry breaking recognition model),
+while $\mathcal{L}^{\text{posterior}}$ reverses this preference.
+We can confirm this experimentally by training
+four recognition models:
+a 
+
+
 
 \subsection{Sleep-G: Learning a Generative Model (a DSL)}\label{grammarInductionSection}
 
@@ -1099,12 +1040,12 @@ express the current solutions, and also so that the DSL might expose
 new abstractions which will later be used to discover more programs.
 Formally, we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{mathematicalFraming}).
 We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
-\begin{align}
-\nonumber      \log \probability[\mathcal{D}]& + 
-\argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \\&+\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\Bigg)
+\begin{equation}
+        \log \probability[\mathcal{D}] + 
+\argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 +\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\Bigg)
 \label{AIC}
-\end{align}
-At a high level, our approach is to search locally through the space
+  \end{equation}
+At a high level, our approach is to search locally through the space 
 of DSLs, proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC}
 fails to increase.  These small changes consist of introducing new
 candidate $\lambda$-expressions into the DSL.
@@ -1136,11 +1077,11 @@ starting from the basics of Lisp and the Y-combinator.
 Formally, we want a DSL
 which puts high probability on
 any refactoring of the programs found during waking, maximizing:
-\begin{align}
-\nonumber      \log \probability[\mathcal{D}]& + 
-\argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \\&+\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\manyReduce p}\probability[p'|\mathcal{D},\theta]\Bigg)
+\begin{equation}
+        \log \probability[\mathcal{D}] + 
+\argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 +\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\manyReduce p}\probability[p'|\mathcal{D},\theta]\Bigg)
 \label{factorObjective}
-\end{align}
+  \end{equation}
 where $p'\manyReduce p$
 is the standard notation for ``expression $p'$ evaluates to $p$ by the rules of $\lambda$-calculus''~\cite{pierce}.
 
@@ -1171,11 +1112,10 @@ For example,
 \end{align*}
 Returning to Equation~\ref{factorObjective},
 this approximation gives the following objective:
-\begin{align}
-\nonumber      \log \probability[\mathcal{D}]& + 
-\argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 \\+&\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\in R_n(p)}\probability[p'|\mathcal{D},\theta]\Bigg)
+\begin{equation}
+        \log \probability[\mathcal{D}] + \argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 +\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\in R_n(p)}\probability[p'|\mathcal{D},\theta]\Bigg)
 \label{limitedObjective}
-\end{align}
+  \end{equation}
 In practice, setting the number of refactoring steps $n$ to 3 suffices
 to give a competent DSL learning algorithm.  Although the number of
 refactorings is now finite, it is still prohibitively large, and in
@@ -1249,8 +1189,8 @@ Concretely, $  \textsc{refactor}(v|\mathcal{D})$ calculates $\argmin_{p\in \deno
 In Appendix~\ref{appendixVersion}, we describe a dynamic program for
 efficiently constructing a version space containing every $n$-step
 refactoring.
-This dynamic program, which we call $I\beta^n(p)$,
-satisfies $\denotation{I\beta^n(p)} =  R_n(p)$.
+This dynamic program, which we call $I\beta_n(p)$,
+satisfies $\denotation{I\beta_n(p)} =  R_n(p)$.
 In other words,
 this dynamic program
 builds a data structure
@@ -1636,6 +1576,52 @@ all of the tasks,
 and perform comparably to the best
 prior work.
 
+\subsection{Programs that make plans and take actions}
+
+We apply \system to two domains where the agent plans a series of actions
+in order to draw a picture (Sec.~\ref{logoSection}) or build a tower out of blocks (Sec.~\ref{towerSection}).
+For drawing pictures,
+the agent controls a `pen' that it can pick up or place down while moving across a canvas.
+For building towers,
+the agent controls a `hand' that it moves through a simulated world while
+placing down differently sized blocks.
+For each of these domains,
+the agent observes a target picture or block tower,
+and must either draw the picture or build the tower.
+The recognition model is a CNN that
+observes an image of the target picture or tower.
+The system is initially provided with two control flow operators:
+\code{loop} (a `for' loop) and \code{get/set},
+which saves and then restores the current state of the pen or hand.
+
+\subsubsection{Programs that draw pictures}\label{logoSection}
+
+We take inspiration from LOGO Turtle graphics~\cite{turtle},
+and task our agent with drawing 90 different pictures (Figure~\ref{everyLogo}).
+The agent has primitives for moving the pen forward and rotating it (\code{move}),
+picking the pen up and then putting it down (\code{pen-up}),
+arithmetic operations on angles and distances,
+and constants ($2\pi$, 0 through 9, and $\infty$\footnote{To ensure that programs terminate, we set $\infty = 20$}).
+
+Over the course of 5 wake/sleep iterations,
+the system authors a DSL
+containing parametric and, sometimes, higher-order drawing routines,
+allowing it to write programs for objects like
+polygons, circles, spirals, and snowflakes.
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/logo90.png}
+  \caption{LOGO graphics tasks. The agent must learn to write programs that draw these 90 pictures.}\label{everyLogo}
+\end{figure}
+\begin{figure}
+\centering  \begin{tabular}{c|c}
+      \includegraphics[width = 0.5\textwidth]{figures/initialDreams/montage.png}&
+  \includegraphics[width = 0.5\textwidth]{figures/finalDreams/montage.png}
+    \end{tabular}
+  \caption{Dreams, or samples, from the DSL before (left) and after (right) training on tasks in Figure~\ref{everyLogo}. Blue: where the agent started drawing. Pink: where the agent ended drawing.}\label{logoDreams}
+\end{figure}
+
+\subsubsection{Building towers out of `Lego' blocks}\label{towerSection}
+
 \subsection{Symbolic Regression: Programs from visual input}\label{regressionSection}
 We apply \system
 to symbolic regression problems.  Here, the
@@ -1977,7 +1963,7 @@ We define this operator recursively as follows:
     \text{if $v$ is $\Lambda$:}&\left\{\Lambda\mapsto\Lambda \right\}
   \end{cases}
 \end{align*}
-where $\shift^k$ is the shifting operator~\cite{pierce},
+where $\shift{k}$ is the shifting operator~\cite{pierce},
 which adds $k$ to all of the free variables in a $\lambda$-expression or version space.
 We have written the definition of $I\beta_n$ recursively,
 but implement it using a dynamic program:
@@ -2022,9 +2008,9 @@ and $\mathcal{D}$ is the current DSL:
   b_v& = \text{the $B$ pairs $(\mathcal{D}'\mapsto p)$ in $b_v'$ where the syntax tree of $p$ is smallest}\\
   b_v'(\mathcal{D}')& = \begin{cases}
     \text{if $\mathcal{D}'\in \text{proposals}$ and $e\in \mathcal{D}'$ and  $e\in v$: }e\\
-    \text{otherwise if $v$ is a primitive or index:} $v$
-    \text{otherwise if $v = \lambda b$: } $\lambda $\text{beam}_b(\mathcal{D}')\\
-    \text{otherwise if $v = (f\;x)$: } $(\text{beam}_f(\mathcal{D}')\;\text{beam}_x\mathcal{D}'))\\
+    \text{otherwise if $v$ is a primitive or index:} v
+    \text{otherwise if $v = \lambda b$: } \lambda \text{beam}_b(\mathcal{D}')\\
+    \text{otherwise if $v = (f\;x)$: } (\text{beam}_f(\mathcal{D}')\;\text{beam}_x\mathcal{D}'))\\
     \text{otherwise if $v = \uplus V$: } \argmin_{e\in \left\{b'_{v'}(\mathcal{D}')\;:\;v'\in V \right\}}\text{size}(e|\mathcal{D}')
     \end{cases}
   \end{align*}
@@ -2055,28 +2041,28 @@ we describe our MAP estimator for the continuous parameters ($\theta$) of the DS
 We use an EM algorithm to estimate the continuous parameters of the DSL, i.e. $\theta$.
 Suppressing dependencies on $\mathcal{D}$, the EM updates are
 \begin{align}
-\label{maximizeStep}  \theta& = \argmax_\theta \log P(\theta) + \sum_x \expect_{Q_x}\left[\log \probability\left[p|\theta \right] \right]\\
-  Q_x(p)&\propto \probability[x|p]\probability[p|\theta]\indicator\left[p\in \mathcal{F}_x \right]
+\label{maximizeStep}  \theta& = \argmax_\theta \log P(\theta) + \sum_x \expect_{q_x}\left[\log \probability\left[p|\theta \right] \right]\\
+  q_x(p)&\propto \probability[x|p]\probability[p|\theta]\indicator\left[p\in \mathcal{F}_x \right]
 \end{align}
 In the M step of EM we will update $\theta$ by instead maximizing a lower bound on $\log \probability[p|\theta]$,
 making our approach an instance of Generalized EM.
 
 We write $c(e,p)$ to mean the number of times that primitive $e$ was used in program $p$; $c(p)= \sum_{e\in \mathcal{D}}c(e,p)$ to mean the total number of primitives used in program $p$; $c(\tau,p)$ to mean the number of times that type $\tau$ was the input to sample in Algorithm~\ref{sampleProgram} while sampling program $p$. Jensen's inequality gives a lower bound on the likelihood:
 \begin{align*}
-  &\sum_x\expect_{Q_x}\left[  \log \probability[p|\theta] \right] =\\
-  &\sum_{e\in \mathcal{D}} \log \theta_e \sum_x\expect_{Q_x}\left[c(e,p_x) \right] -
-  \sum_\tau\expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]\log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
- =   &\sum_e C(e)\log \theta_e  - \beta\sum_\tau\frac{\expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]}{\beta}\log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
- \geq    &\sum_e C(e)\log \theta_e  - \beta\log \sum_\tau\frac{\expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]}{\beta}\sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
+  &\sum_x\expect_{q_x}\left[  \log \probability[p|\theta] \right] =\\
+  &\sum_{e\in \mathcal{D}} \log \theta_e \sum_x\expect_{q_x}\left[c(e,p_x) \right] -
+  \sum_\tau\expect_{q_x}\left[\sum_x c(\tau,p_x)  \right]\log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
+ =   &\sum_e C(e)\log \theta_e  - \beta\sum_\tau\frac{\expect_{q_x}\left[\sum_x c(\tau,p_x)  \right]}{\beta}\log \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
+ \geq    &\sum_e C(e)\log \theta_e  - \beta\log \sum_\tau\frac{\expect_{q_x}\left[\sum_x c(\tau,p_x)  \right]}{\beta}\sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  \\
      =     &\sum_e C(e)\log \theta_e  - \beta\log \sum_\tau\frac{R(\tau)}{\beta}\sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e  
   %% &\geq\sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log \frac{1}{c(p)}\sum_{\tau\in R(p)} \sum_{\substack{e:\tau'\in \mathcal{D}\\\text{unify}(\tau,\tau')}}\theta_e\\
   %% & = \sum_{e\in \mathcal{D}} c(e,p)\log \theta_e - c(p)\log\frac{1}{c(p)} \sum_{e\in \mathcal{D}} r(e,p)\theta_e
 \end{align*}
 where we have defined
 \begin{align*}
-  C(e)&\triangleq  \sum_x\expect_{Q_x}\left[c(e,p_x) \right]\\
-  R(\tau)&\triangleq \expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]\\
-  \beta&\triangleq\sum_\tau \expect_{Q_x}\left[\sum_x c(\tau,p_x)  \right]
+  C(e)&\triangleq  \sum_x\expect_{q_x}\left[c(e,p_x) \right]\\
+  R(\tau)&\triangleq \expect_{q_x}\left[\sum_x c(\tau,p_x)  \right]\\
+  \beta&\triangleq\sum_\tau \expect_{q_x}\left[\sum_x c(\tau,p_x)  \right]
 \end{align*}
 Crucially it was defining $\beta$ that let us use Jensen's inequality. 
 Recalling from the main paper that $P(\theta)\triangleq\text{Dir}(\alpha)$,
@@ -2108,5 +2094,265 @@ and exactly maximizing the likelihood with respect to $\theta$
 becomes intractable,
 so for domains with polymorphic types we use this estimator.
 
+\begin{figure}
+  \begin{tikzpicture}
+    \node at (0,0) (d){DSL};
+    \node at ([yshift = -2cm]d) (t){$\text{Task}$};
 
+    \node at ([xshift = 2cm]t) (nn){
+      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+        \node[rectangle] at (1,1) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (I-\name) at (0,-\y) {};
+        \foreach \name / \y in {1,...,3}
+            \node[neuron] (H-\name) at (1,-\y-0.5) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (O-\name) at (2,-\y) {};
+        \foreach \source in {1,...,4}
+            \foreach \dest in {1,...,3}
+                \draw [-latex] (I-\source) -- (H-\dest);
+        \foreach \source in {1,...,3}
+            \foreach \dest in {1,...,4}
+                \draw [-latex] (H-\source) -- (O-\dest);
+      \end{tikzpicture}
+    };
+    \node[align = center, text width = 1cm] at ([yshift = 0.6cm]nn.north) {\baselineskip=0pt \small Recognition model\par};
+    \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
+
+    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
+    \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
+
+    \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
+    \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
+
+    \node[align=left] at (7,-1) (f) {Frontier\\{\small (set of programs)}};
+    \draw [->  ] (s.east) -- (f.west);
+
+    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
+    \node at ([xshift = 0.5cm,yshift = -0.75cm]s.south) {Spec};
+
+    \node at (4,-3.5) {\textbf{\textsc{Wake: Problem Solving}}};
+    
+    
+  \end{tikzpicture}
+
+  \vspace{1cm}
+  
+  
+
+  \begin{tikzpicture}
+    \node at (0,0) (f1){Frontier$_1$};
+    \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
+    \node at ([yshift = -1cm]f2.south) (f3){Frontier$_3$};
+
+    \node at ([xshift = 2cm]f1.east) (p1){program$_1$};
+    \node at ([xshift = 2cm]f2.east) (p2){program$_2$};
+    \node at ([xshift = 2cm]f3.east) (p3){program$_3$};
+
+
+    \draw [->,squiggle ] (f1.east) -- node[above]{\small sample} (p1.west);
+    \draw [->,squiggle ] (f2.east) -- node[above]{\small sample} (p2.west);
+    \draw [->,squiggle ] (f3.east) -- node[above]{\small sample} (p3.west);
+    
+    \node at ([xshift = 1.5cm]p1.east) (t1){task$_1$};
+    \node at ([xshift = 1.5cm]p2.east) (t2){task$_2$};
+    \node at ([xshift = 1.5cm]p3.east) (t3){task$_3$};
+
+    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Experience Replay}}};
+  \end{tikzpicture}
+
+  \begin{tikzpicture}
+    \node[align=center] at (0,0) (d){DSL\\$(\mathcal{D},\theta)$};
+    \node at ([xshift = 3cm]d.east) (p2){program};
+    \node at ([yshift = 1.5cm]p2) (p1){program};
+    \node at ([yshift = -1.5cm]p2) (p3){program};
+
+
+    \draw[squiggle,-> ] (d.east) -- node[above]{\small sample} (p2.west);
+    \draw[squiggle,-> ] (d.east) -- (p1.west);
+    \draw[squiggle,-> ] (d.east) -- (p3.west);
+
+    \node at ([xshift = 2cm]p1.east) (t1){task};
+    \node at ([xshift = 2cm]p2.east) (t2){task};
+    \node at ([xshift = 2cm]p3.east) (t3){task};
+    \draw [-> ] (p1.east) -- node[above]{\small execute} (t1.west);
+    \draw [-> ] (p3.east) -- node[above]{\small execute} (t3.west);
+    \draw [-> ] (p2.east) -- node[above]{\small execute} (t2.west);
+
+    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Dreaming}}};
+  \end{tikzpicture}
+  
+  \vspace{2cm}
+  
+  \begin{tikzpicture}
+    \node at (0,0) (f1){Frontier$_1$};
+    \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
+    \node at ([yshift = -0.7cm]f2.south) (ff){\textbf{$\vdots$}};
+    \node at ([yshift = -1.2cm]f2.south) (ff){\textbf{$\vdots$}};
+    \node at ([yshift = -1cm]ff.south) (f3){Frontier$_N$};
+
+    \node(c)[rectangle, rounded corners, draw, minimum width = 3cm, minimum height = 6cm, anchor = north west] at (2,1) {};
+    \node[anchor=north] at (c.north) {Compression};
+
+    \draw [-> ] (f1.east) -- (c.west|-f1.east);
+    \draw [-> ] (f2.east) -- (c.west|-f2.east);
+    \draw [-> ] (f3.east) -- (c.west|-f3.east);
+
+    \node[right](d) at ([xshift = 1.2cm,yshift = 0.7cm]c.east) {DSL $\mathcal{D}$};
+    \node[right](t) at ([xshift = 1.2cm,yshift = -0.7cm]c.east) {Weights $\theta$};
+    \draw [-> ] (c.east) -- (d.west);
+    \draw [-> ] (c.east) -- (t.west);
+
+    \node at (c.center) {
+\begin{tikzpicture}[scale=0.7]
+    %% \node[rotate=30] at (-2,0) {\begin{tabular}{c}
+    %%     \footnotesize Program:\\
+    %%     \code{($\lambda$ (x) (+ (- x) 1))}
+    %% \end{tabular}};
+    %\node at (,0.5) {\code{cons}};
+%    \node [rotate=90] at (-2.3,-0.5) {\small program};
+    
+          \node(l1) at (0,0) {};
+  \node[color=pop3](p1) at (-1,-1) {\code{+}};
+  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+  \node(x1) at (0,-1) {\code{1}};
+  \draw[color=pop3] (l1.south) -- (p1.north);
+  \draw[color=pop3] (l1.south) -- (n1.north);
+  \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
+
+  \node(t) at (-0.5,0.5) {};
+  \draw (l1.south) -- (t.south);
+  \node(c) at (-1.5,-0.2) {\code{cons}};
+  \draw (t.south) -- (c.north);
+  
+%    \draw  (l1.south) -- (-0.5,0.5);
+
+  %% \node(c) at (-0.5,-1.5) {\code{-}};
+  %% \node(z) at (0.5,-1.5) {\code{x}};
+
+  %% \draw (0,-1) -- (c.north);
+  %% \draw (0,-1) -- (z.north);
+  
+  \begin{scope}[shift={(-1,-2.5)}]
+      \node(l1) at (0,0) {};
+  \node[color=pop3](p1) at (-1,-1) {\code{+}};
+  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+  %\node(x1) at (0,-1) {};
+  \draw[color=pop3] (l1.south) -- (p1.north);
+  \draw[color=pop3] (l1.south) -- (n1.north);
+  \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
+
+
+  \node(c) at (-0.5,-1.5) {\code{car}};
+  \node(z) at (0.5,-1.5) {\code{z}};
+
+  \draw (0,-1) -- (c.north);
+  \draw (0,-1) -- (z.north);
+
+%  \node [rotate=90] at (-2.3,-0.7) {\small program};
+  
+  \end{scope}
+
+\begin{scope}[shift={(0,-5)}]
+  \node[pop3](p1) at (-1,-1) {\code{+}};
+  \node[pop3](n1) at (0.8,-0.7) {\code{1}};
+  \node[pop3](a) at (0,-1) {\code{ }};
+  %\node(x1) at (0,-1) {};
+  \draw[pop3] (0,0) -- (p1.north);
+  \draw[pop3] (0,0) -- (n1.north);
+  \draw[pop3] (-0.55,-0.4) -- (a.north);
+%  \node [rotate=90] at (-2.3,-0.7) {\small fragment};
+
+  \end{scope}
+
+\end{tikzpicture}
+    };
+
+    \node at ([yshift=-2.5cm,xshift = 4cm]c.south) {\textsc{\textbf{Sleep-G: Memory Consolidation}}};
+
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+%  \includegraphics{figures/iterations.eps}
+\begin{tikzpicture}
+  \begin{scope}[shift={(2.5,0)}]
+    \node[obs] at (3,3) (dx){$\mathcal{D}$};
+    \node[latent] at (3.5,1.75) (zp){$p$};
+%    \node[obs] at (4,3) (tx){$\theta^{(x)}$};
+    \node[obs] at (3.5,0.7) (xp) {$x$};
+    \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Wake: Infer $p$};
+    \draw [->,red] (xp.east) to[out = 0,in = 90] node(nn){} (zp.north);
+%    \draw [->,red] (tx) -- (zp);
+    \draw [->] (dx) -- (zp);
+    \node at (nn) {
+      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+        \node[rectangle] at (1,1) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (I-\name) at (0,-\y) {};
+        \foreach \name / \y in {1,...,3}
+            \node[neuron] (H-\name) at (1,-\y-0.5) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (O-\name) at (2,-\y) {};
+        \foreach \source in {1,...,4}
+            \foreach \dest in {1,...,3}
+                \draw [-latex] (I-\source) -- (H-\dest);
+        \foreach \source in {1,...,3}
+            \foreach \dest in {1,...,4}
+                \draw [-latex] (H-\source) -- (O-\dest);
+      \end{tikzpicture}
+    };
+    \node[shift={+(0,-0.65)}] at (nn) [fill=white]{ $q(x)$ };
+  \end{scope}
+
+  \begin{scope}[shift={(0.7,-4.2)}]
+    \node[obs] at (3,3) (dt){$\mathcal{D},\theta$};
+    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]dt.south) (p2){$p_2$};
+    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p2.south) (x2){$x_2$};
+    \draw [->] (p2.south) -- (x2.north);
+    \draw [->] (dt.south) -- (p2.north);
+
+
+    \node[obs] at ([yshift = 0cm,xshift = -0.5cm]p2.west) (p1){$p_1$};
+    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p1.south) (x1){$x_1$};
+    \draw [->] (p1.south) -- (x1.north);
+    \draw [->] (dt.south) -- (p1.north);
+
+    \node[obs] at ([yshift = 0cm,xshift = 0.5cm]p2.east) (p3){$p_3$};
+    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p3.south) (x3){$x_3$};
+    \draw [->] (p3.south) -- (x3.north);
+    \draw [->] (dt.south) -- (p3.north);
+
+    \node at ([yshift = 0cm,xshift = 0.3cm]p3.east) {$\cdots $};
+    \node at ([yshift = 0cm,xshift = 0.3cm]x3.east) {$\cdots $};
+      
+    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]p3.east) (zp){$p$};
+    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]x3.east) (xp) {$x$};
+    \draw [->] (zp.south) -- (xp.north);
+    \plate {}{(zp)(xp)}{$x\in X$};
+
+    \draw[dashed,cyan,very thick] ([yshift = 0.5cm,xshift = -2]p1.west)
+    rectangle  ([yshift = -0.45cm,xshift = +2]xp.east);
+    \node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Sleep-R: Train $q$\\training data: cyan $(x,p)$};
+  \end{scope}
+    
+  \begin{scope}[shift={(7.7,-4)}]
+    \node[latent] at (0.5,3) (d){$\mathcal{D}$};
+    \node[latent] at (1.5,3) (t){$\theta$};
+    \node[obs] at (1,1.75) (z){$p$};
+%     \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
+    \node[obs] at (1,0.5) (x) {$x$};
+    \edge {z}{x};
+    \edge {d,t}{z};
+    \plate {}{(z)(x)}{$x\in X$};
+    \node[align = center] at ([yshift = -1cm]x.south) {Sleep-G: Induce $(\mathcal{D},\theta)$};
+  \end{scope}
+
+\end{tikzpicture}
+\end{figure}
 \end{document}
