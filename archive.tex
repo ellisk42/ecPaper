@@ -104,11 +104,14 @@
 \newcommand{\expect}{\mathds{E}} %{{\rm I\kern-.3em E}}
 \newcommand{\probability}{\mathds{P}} %{{\rm I\kern-.3em P}}
 \newcommand{\shift}[1]{\uparrow^{#1}}
+\newcommand{\downshift}[1]{\downarrow^{#1}}
 \newcommand{\substitute}[2]{[\$ #1 \mapsto #2]}
 \newcommand{\reduce}{\longrightarrow}
 \newcommand{\manyReduce}{\longrightarrow^*}
 
 \newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
 
 
 
@@ -1673,10 +1676,42 @@ the system authors a DSL
 containing parametric and, sometimes, higher-order drawing routines,
 allowing it to write programs for objects like
 polygons, circles, spirals, and snowflakes.
+Figure~\ref{logoPrimitives}
+illustrates several learned DSL subroutines.
+Once it has synthesized these new subroutines,
+the agent generates a rich and highly varied
+data set of dreams on which to train the recognition model.
+Figure~\ref{logoDreams}
+illustrates  dreams before and after learning ---
+one sees that
+the system has learned to recombine
+the building blocks and motifs in the training data.
 \begin{figure}
   \includegraphics[width = \textwidth]{figures/logo90.png}
   \caption{LOGO graphics tasks. The agent must learn to write programs that draw these 90 pictures.}\label{everyLogo}
 \end{figure}
+\begin{figure}
+\centering  \begin{tabular}{cc}
+    \toprule
+    Parametric drawing routines&Higher-order drawing routine\\\midrule
+    \begin{tabular}{rl}
+      Semicircle:& \raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_24.png}}\\
+      Spiral:&\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_25.png}}\\
+      Greek Spiral:&\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_10.png}}\\
+      S-Curves:&\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_11.png}}        \\
+        Polygons \& Stars:
+&\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_12.png}}
+    \end{tabular}
+    &
+    \begin{tabular}{c}
+      Repeat and rotate subprogram:\\
+          \includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_18.png}
+      \end{tabular}
+    
+    \\\bottomrule 
+  \end{tabular}
+  \caption{Example primitives learned by \system when trained on tasks in Figure~\ref{everyLogo}. Agent learns parametric routines for drawing families of curves (left) as well as subroutines that take entire programs as input (right). Each row of images on the left is the same code executed with different parameters. Each image on the right is the same code executed with different parameters and with a different subprogram provided as input.}\label{logoPrimitives}
+  \end{figure}
 \begin{figure}
 \centering  \begin{tabular}{c|c}
       \includegraphics[width = 0.5\textwidth]{figures/initialDreams/montage.png}&
@@ -1686,6 +1721,41 @@ polygons, circles, spirals, and snowflakes.
 \end{figure}
 
 \subsubsection{Building towers out of `Lego' blocks}\label{towerSection}
+
+Inspired by the classic AI `copy task' --- where an agent must look at
+an image of a tower made of toy blocks and re-create the
+tower~\cite{towerCopy} --- we give \system 112 tower `copy tasks'
+(Figure~\ref{towerTasks}).  Here the agent observes both an image of a
+tower and the locations of each of its blocks, and must write a
+program that plans how a simulated hand would build the tower.
+These towers are built from Lego-style blocks
+that snap together on a discrete grid (e.g., we do not model gravity
+and discretize the coordinates of the blocks).
+
+The system starts out with four domain-specific primitives:
+\code{left} and \code{right}, which take an integer $n$ as input and
+move the hand left/right $n$ Lego grid spaces; along with
+\code{horizontal} and \code{vertical}, which put down
+horizontal/vertical Lego blocks.  As with LOGO graphics we also
+include our two standard planning primitives (\code{for} and
+\code{get/set}).
+Starting with this basis
+the system can only solve
+12.5\% of the copy tasks.
+With successive wake/sleep cycles
+we assemble a DSL containing
+parametric option-like subroutines (Figure~\ref{towerPrimitives}),
+allowing the agent to solve 90\% of the tasks.
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/every_tower.png}
+  \caption{}\label{towerTasks}
+\end{figure}
+\begin{figure}
+  \caption{Learned subroutines for building towers out of Lego-style blocks when trained on tasks in Figure~\ref{towerTasks}. These subroutines act like parametric options~\cite{options},
+  giving higher-level building blocks that the agent can use to plan.}
+  \end{figure}
+
+
 
 \subsection{Symbolic Regression: Programs from visual input}\label{regressionSection}
 We apply \system
@@ -1855,65 +1925,7 @@ For images, we learn programs controlling a simulated ``pen,''
 and the task is to look at an image and explain it in terms of a graphics program.
 For text, we learn probabilistic regular expressions -- a simple probabilistic program for which inference is always tractable -- and the task is to
 infer a regex from a collection of strings.
-\begin{figure}[t]
-  \includegraphics[width=\columnwidth]{figures/geomCompiled.eps} 
-  \caption{
-  Top left: Example training tasks. Top right: samples from the learned DSL.
- Bottom: \% holdout testing tasks solved (middle); on the sides are averaged samples from the DSL
-  before any training (left) and after last iteration (right).}\label{geomCompiled}
 
-  \end{figure}
-
-\begin{figure}
-\centering
-\tiny
-\tabcolsep=2pt
-\vspace{0pt}
-\begin{tabular}{cc}
-\begin{tabular}{ccc}
-\multicolumn{3}{c}{Tasks:}\\
-\hline
-1.14531&F&110.9 \\ 
-?&CL&163.2 \\
-1.29857&F&207.3\\
-?&PCFL&143.3 \\
-\multicolumn{3}{c}{Learned generative models:}\\
-\hline
- \scode{\textbackslash?\textbar(1\textbackslash .\textbackslash d+)}& \scode{((\textbackslash u\textbackslash u)*)\textbar F}& \scode{\textbackslash d\textbackslash d\textbackslash d\textbackslash.\textbackslash d} \\
- \multicolumn{3}{c}{Samples from synthesized generative models:}\\
-\hline
-1.61&DQDF& 343.8 \\ 
-?&F&241.2\\
-?&F&647.5\\
-1.2&KI&246.8\\
-1.5080987&F&728.6\\
-?&GL&029.3\\
-1.453&F&289.1\\
-    \hline
-        \\
-\end{tabular} 
-&
-\begin{tabular}{c}
-\begin{tabular}{l}
-\multicolumn{1}{c}{Learned DSL:}\\
-\hline
-$f_1() = $ \scode{\textbackslash u\textbackslash w*}\\
-$f_2(x) = $ \scode{($x$|$f_1$)*} $=$ \scode{($x$|\textbackslash u\textbackslash w*)*}\\
-$f_3(x) =  f_2(\scode{space}) = $\scode{( \textbar\textbackslash u\textbackslash w*)*}\\
-\hline
-$f_4(x) = $ \scode{($x$*$x$)}\\
-\emph{ (equivalent to regex `plus')}\\
-$f_5() = f_4(\scode{\textbackslash l}) = \scode{\textbackslash l*\textbackslash l}$\\
-    \hline
-\end{tabular}
-\\
-\\
-\includegraphics[width=.4\linewidth]{figures/nampiregexjoshcurve3.eps} 
-\end{tabular}
-\end{tabular}
-\vspace{-.3cm}
-\caption{regex stuff}
-\end{figure}
 
 
 \subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
@@ -2110,7 +2122,7 @@ We define this operator recursively as follows:
     \text{if $v = (f\;x)$:}&(I\beta'(f)\;I\beta'(x))\\
   \end{cases}
   \\
-  S_k(v)& = \left\{\shift{k}v\mapsto \$k \right\}\cup
+  S_k(v)& = \left\{\downshift{k}_0v\mapsto \$k \right\}\cup
   \begin{cases}
     \text{if $v$ is primitive:}&\left\{\Lambda\mapsto v \right\}\\    
     \text{if $v = \$i$ and $i < k$:}&\left\{\Lambda\mapsto \$i \right\}\\
@@ -2120,7 +2132,14 @@ We define this operator recursively as follows:
     \text{if $v = \uplus V$:}&\bigcup_{v'\in V}S_n(v')\\
     \text{if $v$ is $\varnothing$:}&\varnothing\\
     \text{if $v$ is $\Lambda$:}&\left\{\Lambda\mapsto\Lambda \right\}
-  \end{cases}
+  \end{cases}\\
+  \downshift{k}_c \$i& = \$i\text{, when $i < c$}\\
+  \downshift{k}_c \$i& = \$(i - k)\text{, when $i\geq c + k$}\\
+  \downshift{k}_c \$i& = \varnothing \text{, when $c\leq i <  c + k$}\\
+  \downshift{k}_c \lambda b &= \lambda\downshift{k}_{c + 1}b\\
+  \downshift{k}_c (f\;x)& = (\downshift{k}_cf\;\downshift{k}_cx)\\
+  \downshift{k}_c \uplus V& = \uplus \left\{\downshift{k}_c v \;|\;v\in V \right\}\\
+  \downshift{k}_c v& = v\text{, when }v\text{ is a primitive or }\varnothing \text{ or }\Lambda
 \end{align*}
 where $\shift{k}$ is the shifting operator~\cite{pierce},
 which adds $k$ to all of the free variables in a $\lambda$-expression or version space.
@@ -2130,6 +2149,142 @@ we hash cons each version space,
 and only calculate the operators $I\beta_n$,
 $I\beta'$, and $S_k$ once per each version space.
 Refactoring is similarly done more quickly with dynamic programming (see Equation~\ref{FACTORING} for the recursive definition of \textsc{refactor}).
+
+We now formally proved that $I\beta$ exhaustively enumerates the space of possible refactorings.
+Our approach is to first prove that $S_k$ exhaustively enumerates
+the space of possible substitutions that
+could give rise to a program.
+The following pair of technical lemmas are useful; both are easily proven by structural induction.
+\begin{lemma}
+  Let $e$ be a program or version space and $n$, $c$ be natural numbers. \\Then $\shift{-1}_{n + c}\shift{n + 1}_ce = \shift{n}_c e$,
+  and in particular $\shift{-1}_{n}\shift{n + 1}e = \shift{n} e$.
+\label{neutralizeShift}\end{lemma}
+\begin{lemma}
+  Let $e$ be a program or version space and $n$, $c$ be natural numbers. \\Then $\downshift{n}_{c}\shift{n}_ce =  e$,
+  and in particular $\downshift{n}\shift{n}e =  e$.
+  \label{neutralizeDown}
+\end{lemma}
+
+
+\begin{theorem}
+  \textbf{Consistency of $S_n$}. \\If $(v\mapsto b)\in S_n(u)$ then
+  for every $v'\in v$ and $b'\in b$ we have $\shift{-1}_n[\$n\mapsto \shift{1 + n}v']b'\in u$.
+\end{theorem}
+\begin{proof}
+  Suppose $b = \$n$ and therefore, by the definition of $S_n$, also $v = \downshift{n}_0 u$.
+  Invoking Lemmas~\ref{neutralizeShift} and~\ref{neutralizeDown}
+  we know that $u = \shift{-1}_n\shift{n + 1}v$
+  and so for every $v'\in v$ we have $\shift{-1}_n\shift{n + 1}v'\in u$.
+  Because $b = \$n = b'$ we can rewrite this to $\shift{-1}_n[\$n\mapsto \shift{n + 1}v']b'\in u$.
+  
+
+  
+  Otherwise assume $b\not= \$n$ and proceed by structural induction on $u$:
+
+  \begin{itemize}
+  \item If $u = \$i < n$ then we have to consider the case that $v = \Lambda$ and $b = u = \$i = b'$.
+    Pick $v'\in \Lambda$ arbitrarily. Then $\shift{-1}_n[\$n\mapsto \shift{1 + n}v']b' = \shift{-1}_n\$i = \$i\in u$.
+  \item If $u = \$i\geq n$ then we have consider the case that $v = \Lambda$ and $b = \$(i + 1) = b'$.
+    Pick $v'\in \Lambda$ arbitrarily. Then $\shift{-1}_n[\$n\mapsto \shift{1 + n}v']b' = \shift{-1}_n\$(i + 1) = \$i\in u$.
+  \item If $u$ is primitive then we have to consider the case that $v = \Lambda$ and $b = u = b'$.
+    Pick $v'\in \Lambda$ arbitrarily. Then $\shift{-1}_n[\$n\mapsto \shift{1 + n}v']b' = \shift{-1}_nu = u\in u$.
+  \item If $u$ is of the form $\lambda a$,
+    then $S_n(u)\subset\left\{v\mapsto \lambda b\;|\; (v\mapsto b)\in S_{n + 1}(a) \right\}$.
+    Let $v\mapsto \lambda b\in S_n(u)$.
+    By induction for every $v'\in v$ and $b'\in b$ we have $\shift{-1}_{n + 1}[\$n\mapsto \shift{2 + n}v']b'\in a$,
+    which we can rewrite to $\shift{-1}_{n}[\$n\mapsto \shift{1 + n}v']\lambda b'\in \lambda a = u$.
+  \item If $u$ is of the form $(f\;x)$ then
+    then $S_n(u)\subset\left\{v_f\cap v_x\mapsto (b_f\;b_x)\;|\; (v_f\mapsto b_f)\in S_{n}(f),\;(v_x\mapsto b_x)\in S_{n}(x) \right\}$.
+    Pick $v'\in v_f\cap v_x$ arbitrarily.
+    By induction for every $v_f'\in v_f$, $v_x'\in v_x$, $b_f'\in b_f$, $b_x'\in b_x$
+    we have $\shift{-1}_{n}[\$n\mapsto \shift{1 + n}v_f'] b_f' \in f$ and $\shift{-1}_{n}[\$n\mapsto \shift{1 + n}v_x'] b_x' \in x$.
+    Combining these facts gives
+    $\shift{-1}_{n}[\$n\mapsto \shift{1 + n}v'] (b_f'\;b_x') \in (f\;x) = u$.
+  \item If $u$ is of the form $\uplus U$ then
+    pick $(v\mapsto b)\in S_n(u)$ arbitrarily.
+    By the definition of $S_n$ there is a $z$ such that $(v\mapsto b)\in S_n(z)$,
+    and the theorem holds immediately by induction.
+  \item If $u$  is $\varnothing $ or $\Lambda$ then the theorem holds vacuously.
+    \end{itemize}
+\end{proof}
+\begin{theorem}
+  \textbf{Completeness of $S_n$}.\\
+  If there exists programs $v'$  and $b'$, and a version space $u$, such that $\shift{-1}_n[\$n\mapsto \shift{1 + n}v']b'\in u$,
+  then there also exists $(v\mapsto b)\in S_n(u)$ such that $v'\in v$ and $b'\in b$.
+\end{theorem}
+\begin{proof}
+  As before we first consider the case that $b' = \$n$.
+  If so then
+  $\shift{-1}_n\shift{1 + n}v'\in u$ or (invoking Lemma~\ref{neutralizeShift}) that $\shift{n}v'\in u$
+  and (invoking Lemma~\ref{neutralizeDown}) that $v'\in \downshift{n}u$.
+  From the definition of $S_n$ we know that $(\downshift{n}u\mapsto \$n)\in S_n(u)$ which is what was to be shown.
+
+  Otherwise assume that $b'\not=\$n$. Proceeding by structural induction on $u$:
+  \begin{itemize}
+  \item If $u = \$i$ then,
+    because $b'$ is not $\$n$,
+    we have $\shift{-1}_nb' = \$i$.
+    Let $b' = \$j$,
+    and so
+    $$
+    i =
+    \begin{cases}
+      j&\text{ if }j < n\\
+      j - 1&\text{ if }j > n
+    \end{cases}
+    $$
+    where $j = n$ is impossible because by assumption $b'\not=\$n$.
+    
+    If $j < n$ then
+    $i = j$ and so $u = b'$.
+    By the definition of $S_n$ we have
+    $(\Lambda\mapsto \$i)\in S_n(u)$,
+    completing this inductive step because $v'\in \Lambda$ and $b'\in \$i$.
+    Otherwise assume $j > n$
+    and so $\$i = \$(j - 1) = u$.
+    By the definition of $S_n$ we have
+    $(\Lambda\mapsto \$(i + 1))\in S_n(u)$,
+    completing this inductive step because $v'\in \Lambda$
+    and $b' = \$j = \$(i + 1)$.
+  \item If $u$ is a primitive then,
+    because $b'$ is not $\$n$,
+    we have $\shift{-1}_nb' = u$,
+    and so $b' = u$.
+    By the definition of $S_n$ we have $(\Lambda\mapsto u)\in S_n(u)$
+    completing this inductive step because $v'\in \Lambda$ and $b' = u$.
+  \item If $u$ is of the form $\lambda a$ then,
+    because of the assumption that $b'\not=\$n$,
+    we know that $b'$ is of the form $\lambda c'$ 
+    and that $\lambda \shift{-1}_{n + 1}[\$(n + 1)\mapsto \shift{2 + n}v']c'\in \lambda a$.
+    By induction this means that there is a $(v\mapsto c)\in S_{n + 1}(a)$
+    satisfying $v'\in v$ and $c'\in c$.
+    By the definition of $S_n$ we also know that
+    $(v\mapsto  \lambda c)\in S_n(u)$,
+    completing this inductive step because $b' = \lambda c'\in \lambda c$.
+  \item If $u$ is of the form $(f\;x)$
+    then,
+    because of the assumption that $b'\not=\$n$,
+    we know that $b'$ is of the form $(b_f'\;b_x')$
+    and that both
+    $\shift{-1}_n[\$n\mapsto \shift{1 + n}v']b_f'\in f$ and $\shift{-1}_n[\$n\mapsto \shift{1 + n}v']b_x'\in x$.
+    Invoking the inductive hypothesis twice
+    gives a
+    $(v_f\mapsto b_f)\in S_n(f)$ satisfying $v'\in v_f$, $b_f'\in b_f$
+    and a
+    $(v_x\mapsto b_x)\in S_n(x)$ satisfying $v'\in v_x$, $b_x'\in b_x$.
+    By the definition of $S_n$
+    we know that $(v_f\cap v_x\mapsto b_f\;b_x)\in S_n(u)$
+    completing the inductive step because $v'$ is guaranteed to be
+    in both $v_f$ and $v_x$ and we know that
+    $b' = (b_f'\;b_x')\in (b_f\;b_x)$.
+
+  \item If $u$ is of the form $\uplus U$
+    then there must be a $z\in U$ such that $\shift{-1}_n[\$n\mapsto \shift{1 + n}v']b'\in z$.
+    By induction there is a $(v\mapsto b)\in S_n(z)$ such that $v'\in v$ and $b'\in v$.
+    By the definition of $S_n$ we know that $(v\mapsto b)$ is also in $S_n(u)$ completing the inductive step.
+  \item If $u$  is $\varnothing $ or $\Lambda$ then the theorem holds vacuously.    
+    \end{itemize}
+\end{proof}
 
 
 
@@ -2436,84 +2591,81 @@ so for domains with polymorphic types we use this estimator.
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}[h]
-\centering
-%  \includegraphics{figures/iterations.eps}
-\begin{tikzpicture}
-  \begin{scope}[shift={(2.5,0)}]
-    \node[obs] at (3,3) (dx){$\mathcal{D}$};
-    \node[latent] at (3.5,1.75) (zp){$p$};
-%    \node[obs] at (4,3) (tx){$\theta^{(x)}$};
-    \node[obs] at (3.5,0.7) (xp) {$x$};
-    \node[align = center] at ([yshift = -0.6cm,xshift = 0.5cm]xp.south) {Wake: Infer $p$};
-    \draw [->,red] (xp.east) to[out = 0,in = 90] node(nn){} (zp.north);
-%    \draw [->,red] (tx) -- (zp);
-    \draw [->] (dx) -- (zp);
-    \node at (nn) {
-      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
-        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-        \node[rectangle] at (1,1) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (I-\name) at (0,-\y) {};
-        \foreach \name / \y in {1,...,3}
-            \node[neuron] (H-\name) at (1,-\y-0.5) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (O-\name) at (2,-\y) {};
-        \foreach \source in {1,...,4}
-            \foreach \dest in {1,...,3}
-                \draw [-latex] (I-\source) -- (H-\dest);
-        \foreach \source in {1,...,3}
-            \foreach \dest in {1,...,4}
-                \draw [-latex] (H-\source) -- (O-\dest);
-      \end{tikzpicture}
-    };
-    \node[shift={+(0,-0.65)}] at (nn) [fill=white]{ $q(x)$ };
-  \end{scope}
+\begin{table*}%[t!]
+  \makebox[\textwidth][c]{
+    \scriptsize
+  \tabcolsep=4pt
+  \renewcommand\code\texttt
+  \renewcommand\codechar[1]{\texttt{"#1"}}
+  \newcommand{\helpSize}{0.25cm}
+  \begin{tabular}{cccc}
+    \toprule
+    &{\normalsize Symbolic regression}&{\normalsize Laws of motion}&\\\midrule
+    \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&{\tabcolsep=7pt
+    \begin{tabular}{cc}
+      \includegraphics[width = 3em]{figures/functions/4.png}&
+      \includegraphics[width = 3em]{figures/functions/146}\\
+      \pop{\code{$f($x$) = $($f_1$ x)}}&    \pop{\code{$f($x$) = $($f_6$ x)}}\\
+      ~\\
+      \includegraphics[width = 3em]{figures/functions/112.png}&
+        \includegraphics[width = 3em]{figures/functions/92.png}
+      \\
+      \pop{\code{$f($x$) = $($f_4$ x)}}&    \pop{\code{$f($x$) = $($f_3$ x)}}\\
 
-  \begin{scope}[shift={(0.7,-4.2)}]
-    \node[obs] at (3,3) (dt){$\mathcal{D},\theta$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]dt.south) (p2){$p_2$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p2.south) (x2){$x_2$};
-    \draw [->] (p2.south) -- (x2.north);
-    \draw [->] (dt.south) -- (p2.north);
+    \end{tabular}
+    }
+    &
+    \begin{tabular}{cc}
+      \includegraphics[width = 15em]{figures/massOnSpring.png} &
+            \includegraphics[width = 15em]{figures/planets.png}
+      \\
+      \begin{tabular}{l}
+              \blueCode{$f($o,$\Delta) = $($f_3$ o $\Delta$}\\
+      \hspace{1cm}\blueCode{(- (* $k$ (pos o))}\\
+      \hspace{1cm}\phantom{\code{(- }}\blueCode{(* $-9.8$ $\hat{x}$)))}\\
+      \end{tabular}&
+      \begin{tabular}{l}
+              \blueCode{$f($a,b,$\Delta) = $($f_3$ a $\Delta$}\\
+      \hspace{1cm}\blueCode{(/ (* $G$ (mass a) (mass b))}\\
+      \hspace{1cm}\phantom{\code{(- }}\blueCode{(square (- (pos a) (pos b)))))}\\
+        \end{tabular}
+      \end{tabular}
+    &
+
+    ~\\
+    \midrule
+    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
+      \begin{tabular}{l}
+    \popp{$f_0($\code{x}$)\,=\,$\code{(+ x real)}}\\
+    \popp{$f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} }\\
+    \popp{$f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}}\\
+    \popp{$f_3($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_2$\code{ x)))}}\\
+    \popp{$f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}}\\
+    \hspace{\helpSize}\emph{($f_4$: 4th order polynomial)}\\
+    \popp{$f_5($\code{x}$)\,=\,$\code{(/ real x)}}\\
+    \popp{$f_6($\code{x}$)\,=\,$\code{($f_5$ ($f_0$ x))}}\\
+    \hspace{\helpSize}\emph{($f_6$: rational function)}\\
+
+  \end{tabular}
+      &
+      \begin{tabular}{l}
+        \greenCode{$f_0($\code{o},$\Delta)\, = \,$(set-pos o (+ (pos o) (* $\Delta$ (vel o))))}\\
+        \hspace{\helpSize}\emph{($f_0$: integrates position)}\\
+        \greenCode{$f_1($\code{o},\code{a},$\Delta)\, = \,$(set-vel o (+ (vel o) (* $\Delta$ a)))}\\
+        \hspace{\helpSize}\emph{($f_1$: integrates velocity)}\\
+        \greenCode{$f_2($\code{o},\code{F}$)\, = \,$(/ F (mass o))}\\
+        \hspace{\helpSize}\emph{($f_2$: Newton's second law)}\\
+        \greenCode{$f_3($\code{o},$\Delta$,\code{F}$)\, = \,$($f_0$ o $\Delta$ ($f_1$ o ($f_2$ o F) $\Delta$))}\\
+        \hspace{\helpSize}\emph{($f_3$: applies Newton's second law and integrates)}
+        
+        \end{tabular}
 
 
-    \node[obs] at ([yshift = 0cm,xshift = -0.5cm]p2.west) (p1){$p_1$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p1.south) (x1){$x_1$};
-    \draw [->] (p1.south) -- (x1.north);
-    \draw [->] (dt.south) -- (p1.north);
+&
 
-    \node[obs] at ([yshift = 0cm,xshift = 0.5cm]p2.east) (p3){$p_3$};
-    \node[obs] at ([yshift = -0.7cm,xshift = 0.0cm]p3.south) (x3){$x_3$};
-    \draw [->] (p3.south) -- (x3.north);
-    \draw [->] (dt.south) -- (p3.north);
 
-    \node at ([yshift = 0cm,xshift = 0.3cm]p3.east) {$\cdots $};
-    \node at ([yshift = 0cm,xshift = 0.3cm]x3.east) {$\cdots $};
-      
-    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]p3.east) (zp){$p$};
-    \node[obs] at ([yshift = 0cm,xshift = 1.3cm]x3.east) (xp) {$x$};
-    \draw [->] (zp.south) -- (xp.north);
-    \plate {}{(zp)(xp)}{$x\in X$};
-
-    \draw[dashed,cyan,very thick] ([yshift = 0.5cm,xshift = -2]p1.west)
-    rectangle  ([yshift = -0.45cm,xshift = +2]xp.east);
-    \node[align = center] at ([yshift = -1cm,xshift = 0.6cm]x2.south) {Sleep-R: Train $q$\\training data: cyan $(x,p)$};
-  \end{scope}
-    
-  \begin{scope}[shift={(7.7,-4)}]
-    \node[latent] at (0.5,3) (d){$\mathcal{D}$};
-    \node[latent] at (1.5,3) (t){$\theta$};
-    \node[obs] at (1,1.75) (z){$p$};
-%     \node[latent] at (3.5,1.5) (tx){$\theta^{(x)}$};
-    \node[obs] at (1,0.5) (x) {$x$};
-    \edge {z}{x};
-    \edge {d,t}{z};
-    \plate {}{(z)(x)}{$x\in X$};
-    \node[align = center] at ([yshift = -1cm]x.south) {Sleep-G: Induce $(\mathcal{D},\theta)$};
-  \end{scope}
-
-\end{tikzpicture}
-\end{figure}
+  \\\bottomrule\\
+\end{tabular}}\vspace{-0.5cm} 
+\caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}%\vspace{-0.5cm}
+\end{table*}
 \end{document}
