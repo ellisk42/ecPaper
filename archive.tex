@@ -296,6 +296,9 @@ in three domains are shown in Table~\ref{initialExampleDSL}.  Our solution is an
 algorithm that grows or boostraps a DSL while jointly training a neural network
 to help write programs in the increasingly rich DSL.
 
+\begin{tabular}{}
+  \end{tabular}
+
 \begin{table*}%[t!]
   \makebox[\textwidth][c]{
     \scriptsize
@@ -305,7 +308,7 @@ to help write programs in the increasingly rich DSL.
   \newcommand{\helpSize}{0.25cm}
   \begin{tabular}{>{\hspace{-0em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-2.5em}}c<{\hspace{-0.8em}}>{\hspace{-1em}}c<{\hspace{-1em}}}
     \toprule
-    &{\normalsize List Functions}&{\normalsize Text Editing}&{\normalsize Symbolic Regression}\\\midrule
+    &{\normalsize List Processing}&{\normalsize Text Editing}&{\normalsize Symbolic Regression}\\\midrule
     \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&{\tabcolsep=7pt
       \begin{tabular}{cc}
         \begin{tabular}{c}
@@ -600,8 +603,12 @@ posterior over programs, $Q(p|x)\approx \probability[p|x,\mathcal{D}]\propto\pro
 $Q(p|x)$ to assign high probability to programs $p$ where
 $\probability[x|p]\probability[p|\mathcal{D},\theta]$ is large, because incorporating those programs
 into the frontiers will most increase $\lowerBound$.
+This neural net is trained on two sources of data: samples, or `dreams',
+drawn from the DSL,
+as well as
+replays of (program, task) pairs discovered during waking.
 
-Intuitively, this 3-phase inference procedure can work in practice because each of the 3 phases bootstraps off of the others (Figure~\ref{feeding}). As the DSL grows and as the recognition model becomes more accurate, waking becomes more effective, allowing the agent to solve more tasks; when we solve more tasks during waking,
+Intuitively, this 3-phase inference procedure can work in practice because each of the 3 phases bootstraps off of the others (Figures~\ref{feeding}~and~\ref{bayesianSummary}). As the DSL grows and as the recognition model becomes more accurate, waking becomes more effective, allowing the agent to solve more tasks; when we solve more tasks during waking,
 the Sleep-G phase has more data from which to learn the DSL; and, because Sleep-R is trained on both
 samples from the DSL and programs found during waking,
 the recognition model gets both more data, and higher-quality data, whenever the DSL improves and whenever we discover more successful programs.
@@ -800,7 +807,7 @@ all of our experiments train \system on only a few hundred tasks, which is too l
 a high-capacity neural network.
 Once we bootstrap a $(\mathcal{D},\theta)$,
 we can draw unlimited samples from $(\mathcal{D},\theta)$
-and train $q$ on those samples.
+and train $Q$ on those samples.
 But, evaluating $\mathcal{L}_{\text{Dream}}$ involves drawing programs from
 the current DSL, running them to get their outputs,
 and then training $Q$ to regress from the input/outputs to the program.
@@ -1853,13 +1860,23 @@ from less than two dozen problems.
   \begin{tabular}{cc}\toprule
     \normalsize \pop{Programs} \& Tasks&\normalsize \popp{DSL}\\\midrule 
     
-
-    %\rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&
     \begin{tabular}{l}
+      \code{[1\, 9]}$\to $\code{2}\\
+      \code{[5\, 3\, 8]$\to$3}\\
+    \blueCode{$f(\ell) = $($f_4$ $\ell$)}\\\\
+      \code{[true\, false]}$\to $\code{2}\\
+      \code{[false\, false\, false]$\to$3}\\
+    \blueCode{$f(\ell) = $($f_4$ $\ell$)}\\\\
+
 \code{[2\, 1\, 4]$\to$[2\, 1\, 4\, 0]}\\
 %\code{[9\, 4\, 8]$\to$[9\, 4\, 8\, 0]}\\
 \code{[9\, 8]$\to$[9\, 8\, 0]}\\
 \blueCode{$f(\ell) = $($f_2$ cons $\ell$ (cons 0 nil))}\\\\
+
+\code{[2\, 1\, 4]$\to$[2\, 1]}\\
+%\code{[9\, 4\, 8]$\to$[9\, 4\, 8\, 0]}\\
+\code{[9\, 8]$\to$[9]}\\
+\blueCode{$f(\ell) = $($f_0$ ($\lambda$ (z) (empty? (cdr z))) car cdr $\ell$)}\\\\
 
 \code{[2\, 5\, 6\, 0\, 6]$\to$19}\\
 \code{[9\, 2\, 7\, 6\, 3]$\to$27}\\
@@ -1869,13 +1886,34 @@ from less than two dozen problems.
 %\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
 \code{[2\, 3\, 0\, 7]$\to$[4\, 6\, 0\, 14]}\\
 \blueCode{$f(\ell) = $($f_3$ ($\lambda$ (x) (+ x x)) $\ell$)}\\\\
+\code{[4\, 2\, 6\, 4]$\to$[-4\, -2\, -6\, -4]}\\
+%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
+\code{[2\, 3\, 0\, 7]$\to$[-2\, -3\, -0\, -7]}\\
+\blueCode{$f(\ell) = $($f_3$ (- 0) $\ell$)}\\\\
+\code{[4\, 2\, 6\, 4]$\to$[5\, 3\, 7\, 5]}\\
+%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
+\code{[2\, 3\, 0\, 7]$\to$[3\, 4\, 1\, 8]}\\
+\blueCode{$f(\ell) = $($f_3$ (+ 1) $\ell$)}\\\\
+
 
 
       \code{[1\, 5\, 2\, 9]}$\to$\code{[1\, 2]}\\
       \code{[3\, 8\, 1\, 3\, 1\, 2]}$\to$\code{[3\, 1\, 1]}\\
       \blueCode{$f(\ell) = $($f_0$ empty? car}\\
       \phantom{\blueCode{$f(\ell) = $($f_0$}}\blueCode{($\lambda$ (l) (cdr (cdr l))) $\ell$)}
-      \\
+      \\\\
+
+      \code{3$\to $[0\, 1\, 2]}\\
+      \code{2$\to $[0\, 1]}\\
+      \blueCode{$f(n) = $($f_5$ ($\lambda$ (x) x) 0 $n$)}\\\\
+
+      \code{3$\to $[0\, 1\, 2\, 3]}\\
+      \code{2$\to $[0\, 1\, 2]}\\
+      \blueCode{$f(n) = $($f_5$ ($\lambda$ (x) x) 0 (+ 1 $n$))}\\\\
+
+      
+
+
       
       \end{tabular}&
 
@@ -1894,8 +1932,8 @@ from less than two dozen problems.
         \hspace{\helpSize}($f_3$: \emph{map})\\
         \greenCode{$f_4(\ell)$\,=\,(if (empty? $\ell$) 0 (+ 1 ($f_4$ (cdr $\ell$)))))}\\
         \hspace{\helpSize}($f_4$: \emph{length})\\
-        \greenCode{$f_5(n)$\,=\,($f_0$ (= $n$) ($\lambda$ (x) x) (+ 1) 0)}\\
-        \hspace{\helpSize}($f_5$: \emph{range})
+        \greenCode{$f_5(\code{f},\code{m},\code{n})$\,=\,($f_0$ (= m) f (+ 1) n)}\\
+        \hspace{\helpSize}($f_5$: \emph{generalization of range})
 
 %        -0.222777	int -> int -> list(int)	#(lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (map (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
 
@@ -2112,16 +2150,27 @@ This is similar in spirit to iterative deepening depth first search~\cite{Russel
 \subsection{Refactoring code with version spaces}\label{appendixVersion}
 Recall that our goal is to define an operator over version spaces, $I\beta_n$,
 which calculates the set of $n$-step refactorings.
-We define this operator recursively as follows:
+We define this operator recursively in terms of another operator, $I\beta'$, which performs a single step of refactoring:
 \begin{align*}
-  I\beta_n(v)& = \uplus \left\{ \underbrace{I\beta'(I\beta'(I\beta'(\cdots}_{i \text{ times}} v))) \;:\; 0\leq i \leq n \right\}\\
-  I\beta'(v)& = \uplus \left\{(\lambda b)v\;:\;v\mapsto b\in S_0(v)\text{, when }v\not=\Lambda \right\}\cup
+  I\beta_n(v)& = \uplus \left\{ \underbrace{I\beta'(I\beta'(I\beta'(\cdots}_{i \text{ times}} v))) \;:\; 0\leq i \leq n \right\}
+\end{align*}
+where
+  \begin{align*}
+    I\beta'(u)& = \uplus \left\{(\lambda b)v\;:\;v\mapsto b\in S_0(u)%\text{, when }v\not=\Lambda
+    \right\}\cup
   \begin{cases}
-    \text{if $v$ is a primitive or index:}&\varnothing\\
-    \text{if $v = \lambda b$:}&\lambda I\beta'(b)\\
-    \text{if $v = (f\;x)$:}&(I\beta'(f)\;I\beta'(x))\\
-  \end{cases}
-  \\
+    \text{if $u$ is a primitive or index or $\varnothing $ or $\Lambda$:}&\varnothing\\
+    \text{if $u = \lambda b$:}&\lambda I\beta'(b)\\
+    \text{if $u = (f\;x)$:}&(I\beta'(f)\;I\beta'(x))\\
+    \text{if $u = \uplus V$:}&\uplus\left\{I\beta'(u')\;|\;u'\in V \right\}
+  \end{cases}  
+  \end{align*}
+  where we have defined $I\beta'$
+  in terms of another operator, $S_k:\text{VS}\to 2^{\text{VS}\times\text{VS}}$,
+  whose purpose is to construct the set of
+  substitutions that are refactorings of a program in a version space.
+We define $S$ as:
+  \begin{align*}
   S_k(v)& = \left\{\downshift{k}_0v\mapsto \$k \right\}\cup
   \begin{cases}
     \text{if $v$ is primitive:}&\left\{\Lambda\mapsto v \right\}\\    
@@ -2142,9 +2191,11 @@ We define this operator recursively as follows:
   \downshift{k}_c v& = v\text{, when }v\text{ is a primitive or }\varnothing \text{ or }\Lambda
 \end{align*}
 where $\shift{k}$ is the shifting operator~\cite{pierce},
-which adds $k$ to all of the free variables in a $\lambda$-expression or version space.
-We have written the definition of $I\beta_n$ recursively,
-but implement it using a dynamic program:
+which adds $k$ to all of the free variables in a $\lambda$-expression or version space,
+and we have defined a new operator, $\downshift$, whose purpose is to
+undo the action of $\shift$.
+We have written definitions recursively,
+but implement them using a dynamic program:
 we hash cons each version space,
 and only calculate the operators $I\beta_n$,
 $I\beta'$, and $S_k$ once per each version space.
@@ -2286,6 +2337,37 @@ The following pair of technical lemmas are useful; both are easily proven by str
     \end{itemize}
 \end{proof}
 
+From these results the consistency and completeness of $I\beta$ follows immediately by its definition.
+
+%% First observe that
+%% we do not \emph{enumerate} every refactoring,
+%% but only those for which every expression of the form $(\lambda x.b)v$ has
+%% $x$ free in $b$.
+%% For example, we do not refactor $\code{+}$ into $(\lambda x. \code{+})v$ where $v$ is arbitrary,
+%% because there are infinitely many such refactorings.
+%% Define the following relation,
+%% which captures this restricted kind of
+%% refactoring:
+%% \begin{gather*}
+%%   \frac{f\reduce^\sim f'}{f\;x \reduce^\sim f'\;x}\qquad
+%%   \frac{x\reduce^\sim x'}{f\;x \reduce^\sim f\;x'}\qquad
+%%   \frac{b\reduce^\sim b'}{\lambda b \reduce^\sim \lambda b'}\qquad
+%%   \frac{\$0 \text{ occurs free in }b}{(\lambda b)v\reduce^\sim \shift{-1}[\$0\mapsto \shift{1}v]b}
+%%   \end{gather*}
+%% \begin{theorem}
+%%   \textbf{Completeness of $I\beta'$.}
+%%   Let $v$ be a version space and let $p\in v$.
+%%   If $p'\reduce^\sim p$
+%%   then $p'\in I\beta'(v)$.
+%% \end{theorem}
+%% \begin{proof}
+%%   We know (from the definition of $\reduce^\sim$) that $p'$ and $p$ differ only
+%%   in that there exists a single subexpression in
+%%   $p'$ of the form $(\lambda b)v$
+%%   where that subexpression occurs in
+%%   $p$ as $\shift{-1}[\$0\mapsto \shift{1}v]b$.
+%%   From Theorem~\ref{}
+%% \end{proof}
 
 
 \subsubsection{Computational complexity of DSL learning}
