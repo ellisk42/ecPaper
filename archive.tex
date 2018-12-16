@@ -369,7 +369,8 @@
 
     \end{scope}
     
-    \end{tikzpicture}
+  \end{tikzpicture}
+  \caption{}\label{threeCycles}
   \end{figure}
 
 %% \section{Introduction: Expertise}
@@ -520,13 +521,16 @@ navigate a new domain of problems.
 \section{Deep Wake/Sleep Program Induction}
 
 \system~takes as its goal to
-acquire domain-specific expertise.
-It gets this expertise from
+acquire domain-specific expertise,
+which it learns by
 solving a collection of
-programming \textbf{tasks} -- typically about a hundred --
-while jointly
-authoring a library of code (the DSL)
-and training a neural network
+programming \textbf{tasks} -- typically about a hundred.
+During its Wake phase,
+it searches for programs solving tasks,
+guided by its current DSL and recognition model.
+It cycles through Wake
+
+
 
 %% \section{Introduction: NIPS}
 
@@ -2428,10 +2432,11 @@ where
     I\beta'(u)& = \uplus \left\{(\lambda b)v\;:\;v\mapsto b\in S_0(u)%\text{, when }v\not=\Lambda
     \right\}\cup
   \begin{cases}
-    \text{if $u$ is a primitive or index or $\varnothing $ or $\Lambda$:}&\varnothing\\
-    \text{if $u = \lambda b$:}&\lambda I\beta'(b)\\
-    \text{if $u = (f\;x)$:}&(I\beta'(f)\;I\beta'(x))\\
-    \text{if $u = \uplus V$:}&\uplus\left\{I\beta'(u')\;|\;u'\in V \right\}
+    \text{if $u$ is a primitive or index or $\varnothing $:}&\varnothing\\
+    \text{if $u$ is $\Lambda$:}&\left\{\Lambda \right\}\\
+    \text{if $u = \lambda b$:}&\left\{\lambda I\beta'(b) \right\}\\
+    \text{if $u = (f\;x)$:}&\left\{(I\beta'(f)\;x),\;(f\;I\beta'(x)) \right\}\\
+    \text{if $u = \uplus V$:}&\left\{I\beta'(u')\;|\;u'\in V \right\}
   \end{cases}  
   \end{align*}
   where we have defined $I\beta'$
@@ -2606,7 +2611,121 @@ The following pair of technical lemmas are useful; both are easily proven by str
     \end{itemize}
 \end{proof}
 
-From these results the consistency and completeness of $I\beta$ follows immediately by its definition.
+From these results the consistency and completeness of $I\beta$ follows:
+\begin{theorem}
+  \textbf{Consistency of $I\beta'$.}\\
+  If $p\in \denotation{I\beta'(u)}$ then there exists $p'\in \denotation{u}$ such that $p\reduce p'$.
+\end{theorem}
+\begin{proof}
+  Proceed by structural induction on $u$. If $p\in \denotation{I\beta'(u)}$ then, from the definition of $I\beta'$ and $\denotation{\cdot }$, at least one of the following holds:
+  \begin{itemize}
+  \item Case $p = (\lambda b')v'$ where $v'\in v$, $b'\in b$, and $v\mapsto b\in S_0(u)$:
+    From the definition of $\beta$-reduction we know that $p\reduce \shift{-1}[\$0\mapsto \shift{1}v']b'$.
+    From the consistency of $S_n$ we know that $\shift{-1}[\$0\mapsto \shift{1}v']b'\in u$.
+    Identify $p' = \shift{-1}[\$0\mapsto \shift{1}v']b'$.
+  \item Case $u = \lambda b$ and $p = \lambda b'$
+    where $b'\in \denotation{I\beta'(b)}$:
+    By induction there exists $b''\in \denotation{b}$ such that $b'\reduce b''$.
+    So $p \reduce \lambda b''$.
+    But $\lambda b''\in \denotation{\lambda b} = \denotation{u}$,
+    so identify $p' = \lambda b''$.
+  \item Case $u = (f\; x)$ and $p = (f'\; x')$ where $f'\in \denotation{I\beta'(f)}$ and $x'\in \denotation{x}$:
+    By induction there exists $f''\in \denotation{f}$
+    such that $f'\reduce f''$.
+    So $(f'\;x')\reduce (f''\;x')$.
+    But $(f''\;x')\in \denotation{(f\;x)} = \denotation{u}$,
+    so identify $p' = (f''\;x')$.
+  \item  Case $u = (f\; x)$ and $p = (f'\; x')$ where $x'\in \denotation{I\beta'(x)}$ and $f'\in \denotation{f}$: Symmetric to the previous case.
+  \item Case $u = \uplus U$ and $p \in \denotation{I\beta'(u')}$ where $u'\in U$:
+    By induction there is a $p'\in \denotation{u'}$ satisfying $p'\reduce p$.
+    But $\denotation{u'}\subseteq \denotation{u}$, so also $p'\in \denotation{u}$.
+  \item Case $u$ is an index, primitive, $\varnothing$, or $\Lambda$: The theorem holds vacuously.    
+    \end{itemize}  
+\end{proof}
+\begin{theorem}
+  \textbf{Completeness of $I\beta'$.}\\
+  Let $p\reduce p'$ and $p'\in \denotation{u}$.
+  Then $p\in \denotation{I\beta'(u)}$.
+\end{theorem}
+\begin{proof}
+  Structural induction on $u$.
+  If $u = \uplus V$
+  then there is a $v\in V$
+      such that $p' \in \denotation{v}$;
+      by induction on $v$ combined with the definition of $I\beta'$ we have $p\in \denotation{I\beta'(v)}\subseteq \denotation{I\beta'(u)}$,
+      which is what we were to show.
+      Otherwise assume that $u\not=\uplus V$.
+  
+  From the definition of $p\reduce p'$
+  at least one of these cases must hold:
+  \begin{itemize}
+  \item Case $p = (\lambda b')v'$ and $p' = \shift{-1}[\$0\mapsto \shift{1}v']b'$:
+    Using the fact that $\shift{-1}[\$0\mapsto \shift{1}v']b'\in \denotation{u}$, we can invoke the completeness of $S_n$ to construct a $(v\mapsto  b)\in S_0(u)$
+    such that $v'\in \denotation{v}$
+    and $b'\in \denotation{b}$.
+    Combine these facts with the definition of $I\beta'$
+    to get
+    $p = (\lambda b')v'\in \denotation{(\lambda b)v}\subseteq I\beta'(u)$.
+  \item Case $p = \lambda b$ and $p' = \lambda b'$ where
+    $b\reduce b'$:
+    Because $p' = \lambda b'\in \denotation{u}$
+    and by assumption $u\not=\uplus V$,
+    we know that $u = \lambda v$ and $b'\in \denotation{v}$. By
+    induction $b\in \denotation{I\beta'(v)}$.
+    Combine with the definition of $I\beta'$ to get $p = \lambda b \in \denotation{\lambda I\beta'(v)}\subseteq \denotation{I\beta'(u)}$.
+  \item Case $p = (f\;x)$ and $p' = (f'\;x)$ where $f\reduce f'$:
+    Because $p' = (f'\;x)\in \denotation{u}$
+    and by assumption $u\not=\uplus V$
+    we know that $u = (a\;b)$
+    where $f'\in \denotation{a}$
+    and $x\in \denotation{b}$.
+    By induction on $a$
+    we know
+    $f\in \denotation{I\beta'(a)}$.
+    Therefore
+    $p = (f\;x)\in \denotation{(I\beta'(a)\; b)}\subseteq\denotation{I\beta'((a\;b))}\subseteq\denotation{I\beta'(u)}$.
+  \item Case $p = (f\;x)$ and $p' = (f\;x')$ where $x\reduce x'$: Symmetric to the previous case.    
+  \end{itemize}
+\end{proof}
+Finally we have our main result:
+\begin{theorem}
+  \textbf{Consistency and completeness of $I\beta_n$.}
+  Let $p$ and $p'$
+  be programs.
+  Then $p\underbrace{\reduce q\reduce\cdots\reduce}_{\text{$\leq n$ times}} p'$  if and only
+  if $p\in \denotation{I\beta_n(p')}$.
+\end{theorem}
+\begin{proof}
+  Induction on $n$.
+
+  If $n = 0$
+  then $\denotation{I\beta_n(p')} = \left\{p \right\}$
+  and $p = p'$;
+  the theorem holds immediately. Assume $n > 0$.
+  
+  If $p\underbrace{\reduce q\reduce\cdots\reduce}_{\text{$\leq n$ times}} p'$
+  then $q\underbrace{\reduce\cdots\reduce}_{\text{$\leq n - 1$ times}} p'$;
+  induction on $n$
+  gives $q\in \denotation{I\beta_{n - 1}(p')}$.
+  Combined with $p\reduce q$ we can invoke the completeness of $I\beta'$
+  to get $p\in \denotation{I\beta'(I\beta_{n - 1}(p'))}\subset\denotation{I\beta_n(p')}$.
+  
+  If $p\in \denotation{I\beta_n(p')}$
+  then
+  there exists a $i\leq n$
+  such that $p\in \denotation{\underbrace{I\beta'(I\beta'(I\beta'(\cdots}_{i \text{ times}} p')))}$.
+  If $i = 0$
+  then $p = p'$ and $p$ reduces to $p'$ in $0\leq n$ steps.
+  Otherwise $i > 0$
+  and $p\in \denotation{I\beta'(\underbrace{I\beta'(I\beta'(\cdots}_{i - 1 \text{ times}} p'))}$.
+  Invoking the
+  consistency of $I\beta'$
+  we know that $p\reduce q$
+  for a program $q\in \denotation{\underbrace{I\beta'(I\beta'(\cdots}_{i - 1 \text{ times}} p'))}\subseteq\denotation{I\beta_{i - 1}(p')}$.
+  By induction $q\underbrace{\reduce\cdots\reduce}_{\text{$\leq i - 1$ times}} p'$,
+  which combined with $p\reduce q$
+  gives  $p\underbrace{\reduce q\reduce\cdots\reduce}_{\text{$\leq i\leq n$ times}} p'$.  
+\end{proof}
 
 %% First observe that
 %% we do not \emph{enumerate} every refactoring,
@@ -2653,9 +2772,9 @@ proposals (line 10) is linear in the number of distinct version
 spaces, so is $O(V)$.  For each proposal we have to refactor every
 program (line 6), so this means we spend $O(V^2) = O(P^22^n)$ per DSL
 update.  In practice this quadratic dependence on $P$ (the number of
-programs) is prohibitively slow.
-We now describe a linear time approximation to the
-refactor step in Algorithm~\ref{grammarInductionAlgorithm} based on beam search.
+programs) is prohibitively slow.  We now describe a linear time
+approximation to the refactor step in
+Algorithm~\ref{grammarInductionAlgorithm} based on beam search.
 
 For each version space $v$ we calculate a \emph{beam}, which is a
 function from a DSL $\mathcal{D}$ to a shortest program in
