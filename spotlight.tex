@@ -99,64 +99,79 @@
   Explore/Compress/Compile (EC$^2$) learns to solve programming tasks like these by growing a library of code and training a neural net to search for programs written using the library
 
   \end{frame}
+\begin{frame}{Library learning}
 
-\begin{frame}{Library Learning}
-\centering
-  \renewcommand\code\texttt
-  \renewcommand\codechar[1]{\texttt{"#1"}}
-  \newcommand{\helpSize}{0.25cm}
-\begin{tabular}{cc}
-    \toprule
-Tasks and     \pop{Programs} & DSL\\
-    \midrule
-      \begin{tabular}{cc}
-        \begin{tabular}{c}
-          \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
+  \centering
+\Large
+  \begin{tabular}{c}
+              \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
           \code{[1\, 2\, 3\, 4]}$\to$\code{[3\, 4]} \\
-          \code{[4\, 3\, 2\, 1]}$\to$\code{[4\, 3]} \\
-          \pop{\code{$f(\ell) = $}\code{($f_1$ $\ell$ ($\lambda$ (x)}}\\
-          \hspace{1.15cm}\pop{\code{(> x 2)))}}       \\
-          \\
-          \\
-          \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
-          \hspace{0.15cm}\code{[3\, 19\, 14]}$\to $\code{19}                \\
-          \pop{\code{$f(\ell) = $}\code{($f_2$ $\ell$)}}
-        \end{tabular}
-        &
-        \hspace{-0.3cm}\begin{tabular}{c}
-          \code{[7\, 3]}$\to $\code{False}                              \\
-          \hspace{0.3cm}\code{[3]}$\to $\code{False}                    \\
-          \hspace{-0.3cm}\code{[9\, 0\, 0]}$\to $\code{True\phantom{e}} \\
-          \hspace{0.3cm}\code{[0]}$\to $\code{True\phantom{e}}                        \\
-          \hspace{-0.3cm}\code{[0\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
-          \pop{\code{$f(\ell) = $}\code{($f_3$ $\ell$ 0)}}
-        \end{tabular}
-      \end{tabular}
-    &
-    \begin{tabular}{l}
-      \popp{$f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}}\\
-      \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
-      \popp{$f_1(\ell,$\code{p}$) \,=\, $\code{(foldr $\ell$ nil ($\lambda$ (x a)}}\\
-      \hspace{0.5cm}\popp{\code{(if (p x) (cons x a) a)))}}\\
-      \hspace{\helpSize}($f_1$: \emph{Higher-order filter function})\\
-      %(lambda (fold $0 0 (lambda (lambda (if (gt? $0 $1) $0 $1)))))
-      \popp{$f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}}\\
-      \popp{\phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}}\\
-      \hspace{\helpSize}($f_2$: \emph{Maximum element in list $\ell$})\\
-      \popp{$f_3(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}}\\
-      \phantom{$f_1(\ell,$}
-      \popp{\code{($\lambda$ (x a) (if a a (= k x))))}}\\
-      \hspace{\helpSize}($f_2$: \emph{Whether $\ell$ contains }\code{k})\\
-    \end{tabular}
-  \\\bottomrule
+          \code{[4\, 3\, 2\, 1]}$\to$\code{[4\, 3]} \\\\
+          \visible<3->{
+          \code{$f(\ell) = $}\code{($f_1$ $\ell$ ($\lambda$ (x) (> x 2)))}}
   \end{tabular}
-  \begin{itemize}
-  \item Learned DSL primitives can call each other
-    \item Rediscovers higher-order functions like \code{filter}
-    \end{itemize}
+  \vspace{2cm}
+  
+  \visible<2->{
+    \textbf{Library:}\\
+          $f_1(\ell,$\code{p}$) \,=\, $\code{(foldr $\ell$ nil ($\lambda$ (x a) (if (p x) (cons x a) a)))}\\
+    \hspace{\helpSize}($f_1$: \emph{Higher-order filter function})\\
+    \hspace{\helpSize}(\emph{Get elements} $x$ \emph{ from $\ell$ where \code{(p $x$)} returns true})
+    }
+
 \end{frame}
 
-\begin{frame}{Explore/Compress/Compile as {\color{red}Amortized} Bayesian Inference}
+\begin{frame}{Subset of 38 learned library routines for list processing}
+  \Large\centering
+  \begin{tabular}{ll}
+    \begin{tabular}{l}
+            $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}
+      \end{tabular}&$f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$}\\\\
+    \begin{tabular}{l}
+      $f_1(\ell,$\code{p}$) \,=\, $\code{(foldr $\ell$ nil ($\lambda$ (x a)}\\
+  \hspace{0.5cm}\code{(if (p x) (cons x a) a)))}
+      \end{tabular}&    
+$f_1$: \emph{Higher-order filter function}\\\\
+    \begin{tabular}{l}
+      $f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}\\
+\phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}
+      \end{tabular}
+&$f_2$: \emph{Maximum element in list $\ell$}\\\\
+    \begin{tabular}{l}
+      $f_3(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}\\
+      \phantom{$f_1(\ell,$}
+\code{($\lambda$ (x a) (if a a (= k x))))}
+      \end{tabular}
+&$f_2$: \emph{Whether $\ell$ contains }\code{k}
+    \end{tabular}
+  \end{frame}
+
+\begin{frame}{Explore/Compress/Compile as Bayesian Inference}
+  
+\centering
+
+  \begin{tikzpicture}[scale=1,line width=0.5mm]
+
+  \node[latent,scale=1] at (3.5,3) (dx){DSL};
+  \node[latent,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[latent,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  
+  \node[latent,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+
+
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \end{tikzpicture}
+\end{frame}
+\begin{frame}{Explore/Compress/Compile as {\color{red}Amortized} Bayesian Inference}\centering
   
 \newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
       \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
@@ -175,130 +190,7 @@ Tasks and     \pop{Programs} & DSL\\
           \foreach \dest in {1,...,4}
               \draw [-latex] (H-\source) -- (O-\dest);
     \end{tikzpicture}}
-
-
-\begin{minipage}[c]{0.6\textwidth}
-  \visible<2->{  \begin{tikzpicture}[scale=0.8,line width=0.5mm]
-      \node at (2,1) {\underline{\textbf{Explore}: Infer programs, fixing DSL and neural net}};
-      \begin{scope}[shift = {(-3,0)}]
-    \node at (0,0) (d){DSL};
-    \node at ([yshift = -2cm]d) (t){$\text{Task}$};
-
-    \node at ([xshift = 2cm]t) (nn){
-      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
-        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-        \node[rectangle] at (1,1) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (I-\name) at (0,-\y) {};
-        \foreach \name / \y in {1,...,3}
-            \node[neuron] (H-\name) at (1,-\y-0.5) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (O-\name) at (2,-\y) {};
-        \foreach \source in {1,...,4}
-            \foreach \dest in {1,...,3}
-                \draw [-latex] (I-\source) -- (H-\dest);
-        \foreach \source in {1,...,3}
-            \foreach \dest in {1,...,4}
-                \draw [-latex] (H-\source) -- (O-\dest);
-      \end{tikzpicture}
-    };
-    \node[align = center, text width = 1cm] at ([yshift = 0.9cm,xshift=-0.5cm]nn.north) {\baselineskip=0pt \small Recog. model\par};
-    \draw [red,-{>[scale=0.2]}] (t.east) -- ([xshift = -0.5cm]nn.west);
-
-    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
-
-    \draw [red,->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
-    \draw [->,rounded corners,] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
-
-    \node[align=left] at ([xshift=2cm]s.east) (f) {Programs};
-    \draw [->  ] (s.east) -- (f.west);
-
-    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
-      \end{scope}
-      \visible<5->{
-        \node(repeat)[scale=8] at (6,-3.5) {$\circlearrowleft$};
-        \node at (repeat) {\emph{Repeat!}};
-      }
-  \end{tikzpicture}}
-
-  \vspace{-1.5cm}
-  
-\visible<3->{  \begin{tikzpicture}[scale=0.4,line width=0.5mm]
-    \node at (0,0) (f1){progs. for task$_1$};
-    \node at ([yshift = -1.4cm]f1.south) (f2){progs. for task$_2$};
-    \node at ([yshift = -1.4cm,xshift=1.5cm]f2.south) (f3){DSL};
-
-    \node(c)[rectangle, rounded corners, draw, minimum width = 3cm, minimum height = 2.5cm, anchor = north west] at (5.2,1) {};
-%    \node[anchor=north] at (c.north) {Compression};
-    \node at ([yshift=1cm,xshift=-3cm]c.north) {\underline{\textbf{Compress}: Update DSL, fixing programs}};
-    \draw [-> ] (f1.east) -- (c.west|-f1.east);
-    \draw [-> ] (f2.east) -- (c.west|-f2.east);
-    \draw [-> ] (f3.east) -- (c.west|-f3.east);
-
-    \node[right](d) at ([xshift = 1.6cm,yshift = -0.0cm]c.east) {
-      \begin{tikzpicture}[scale=0.6]
-        \node[align=center] at (0,0) {DSL+};
-\begin{scope}[shift={(0.6,-0.5)}]
-  \node[pop3](p1) at (-1,-1) {\code{+}};
-  \node[pop3](n1) at (0.6,-0.9) {\code{1}};
-  \node[pop3](a) at (0,-1) {\code{ }};
-  \draw[pop3] (0,0) -- (p1.north);
-  \draw[pop3] (0,0) -- (n1.north);
-  \draw[pop3] (-0.3,-0.3) -- (a.north);
-  \end{scope}
-        \end{tikzpicture}
-      };
-    \draw [-> ] (c.east) -- (d.west);
-
-
-    \node at (c.center) {
-\begin{tikzpicture}[scale=0.6]
-    
-          \node(l1) at (0,0) {};
-  \node[color=pop3](p1) at (-1,-1) {\code{+}};
-  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
-  \node(x1) at (0,-1) {\code{1}};
-  \draw[color=pop3] (l1.south) -- (p1.north);
-  \draw[color=pop3] (l1.south) -- (n1.north);
-  \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
-
-  \node(t) at (-0.5,0.5) {};
-  \draw (l1.south) -- (t.south);
-  \node(c) at (-1.5,-0.2) {\code{cons}};
-  \draw (t.south) -- (c.north);
-  
-  \begin{scope}[shift={(0.9,-1.3)}]
-      \node(l1) at (0,0) {};
-  \node[color=pop3](p1) at (-1,-1) {\code{+}};
-  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
-  %\node(x1) at (0,-1) {};
-  \draw[color=pop3] (l1.south) -- (p1.north);
-  \draw[color=pop3] (l1.south) -- (n1.north);
-  \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
-
-
-  \node(c) at (-0.5,-1.5) {\code{car}};
-  \node(z) at (0.5,-1.5) {\code{z}};
-
-  \draw (0,-1) -- (c.north);
-  \draw (0,-1) -- (z.north);
-
-%  \node [rotate=90] at (-2.3,-0.7) {\small program};
-  
-  \end{scope}
-
-
-
-\end{tikzpicture}
-    };
-
-    \end{tikzpicture}}
-  
-\end{minipage}%
-\begin{minipage}[c]{0.28\textwidth}
-  \vspace{-1cm}
-  \begin{tikzpicture}[scale=1,line width=0.5mm]
+\begin{tikzpicture}[scale=1,line width=0.5mm]
 
   \node[latent,scale=1] at (3.5,3) (dx){DSL};
   \node[latent,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
@@ -326,35 +218,602 @@ Tasks and     \pop{Programs} & DSL\\
   \draw[thin] ([xshift=1.9cm,yshift=0.4cm]dx.east) rectangle
   ([xshift=0.5cm,yshift=-0.3cm]nnn.south);
   \end{tikzpicture}
+\end{frame}
 
-  \vspace{0.5cm}
+\begin{frame}{\underline{\textbf{Explore}}/Compress/Compile as {\color{red}Amortized} Bayesian Inference}\centering
+  \underline{\textbf{Explore}: Infer programs, fixing DSL and neural recognition model}\vspace{1cm}
+  
+\newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
+\begin{tikzpicture}[scale=1,line width=0.5mm]
+
+  \node[obs,scale=1] at (3.5,3) (dx){DSL};
+  \node[latent,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[latent,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+  
+  \node[latent,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+
+
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \draw [->,red] ([xshift=2cm]dx.east) -- ([xshift=3cm]dx.east);
+  \node at ([xshift=3.2cm]dx.east]) (uses){is};k
+  \node at ([xshift=0.5cm]uses.east) (nnn){\NeuralNetwork{0.17}};
+  \draw[thin] ([xshift=1.9cm,yshift=0.4cm]dx.east) rectangle
+  ([xshift=0.5cm,yshift=-0.3cm]nnn.south);
+  \end{tikzpicture}
+  \end{frame}
+
+\begin{frame}{\underline{\textbf{Explore}}/Compress/Compile as {\color{red}Amortized} Bayesian Inference}\centering
+  \underline{\textbf{Explore}: Infer programs, fixing DSL and neural recognition model}%
 
   
-\visible<4->{  \begin{tikzpicture}[scale=0.8,line width=0.5mm]
-    \node at (0,0) {\underline{\textbf{Compile}: Train {\color{red} recognition model}}};
-          \node[align=center] at (-3,-1) (d){DSL};
+%  \vspace{1cm}
+
+    \begin{tikzpicture}[scale=1.2,line width=0.5mm]
+
+      \begin{scope}[shift = {(-3,0)}]
+        \node[align=right] at (0,0) (d){\textbf{DSL}\\
+        $f_1$, $f_2$, ...};
+    \node[align=center] at ([yshift = -2cm]d) (t){\textbf{Task}\\
+      \footnotesize            \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
+      \footnotesize    \code{[1\, 2\, 3\, 4]}$\to$\code{[3\, 4]} \\
+      \footnotesize    \code{[4\, 3\, 2\, 1]}$\to$\code{[4\, 3]} };
+
+    \node at ([xshift = 1.3cm]t.east) (nn){
+      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+        \node[rectangle] at (1,1) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (I-\name) at (0,-\y) {};
+        \foreach \name / \y in {1,...,3}
+            \node[neuron] (H-\name) at (1,-\y-0.5) {};
+        \foreach \name / \y in {1,...,4}
+            \node[neuron] (O-\name) at (2,-\y) {};
+        \foreach \source in {1,...,4}
+            \foreach \dest in {1,...,3}
+                \draw [-latex] (I-\source) -- (H-\dest);
+        \foreach \source in {1,...,3}
+            \foreach \dest in {1,...,4}
+                \draw [-latex] (H-\source) -- (O-\dest);
+      \end{tikzpicture}
+    };
+    \node[align = center, text width = 1cm] at ([yshift = 0.5cm,xshift=0cm]nn.north) {\baselineskip=0pt \small Recog. model\par};
+    \draw [red,-{>[scale=0.2]}] (t.east) -- ([xshift = -0.5cm]nn.west);
+
+    \node[draw,rounded corners, align=center, inner sep = 10] at ([xshift = 4.2cm,yshift = 1cm]t.east) (s){Neurally-Guided\\ Enumerative Search};
+
+    \draw [red,->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
+    \draw [->,rounded corners,] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
+
+    \node[align=left] at ([xshift=3cm]s.east) (f) {\textbf{Programs:}\\
+\small    \code{($f_1$ $\ell$ ($\lambda$ (x) (> x 2)))}};
+    \draw [->  ] (s.east) -- (f.west);
+
+    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
+      \end{scope}
+
+      \node at ([yshift=-2.8cm,xshift=-0.5cm]f.south) {
+  \newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
+\begin{tikzpicture}[scale=0.8,line width=0.25mm]
+
+  \node[obs,scale=1] at (3.5,3) (dx){DSL};
+  \node[latent,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[latent,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+  
+  \node[latent,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+
+
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \draw [->,red] ([xshift=2cm]dx.east) -- ([xshift=3cm]dx.east);
+  \node at ([xshift=3.2cm]dx.east]) (uses){is};k
+  \node at ([xshift=0.5cm]uses.east) (nnn){\NeuralNetwork{0.12}};
+  \draw[thin] ([xshift=1.9cm,yshift=0.4cm]dx.east) rectangle
+  ([xshift=0.5cm,yshift=-0.3cm]nnn.south);
+  \end{tikzpicture}
+      };
+  \end{tikzpicture}
+
+
+
+\end{frame}
+
+\begin{frame}{Explore/\underline{\textbf{Compress}}/Compile as {\color{red}Amortized} Bayesian Inference}\centering
+  \underline{\textbf{Compress}: Update DSL, fixing programs}
+\vspace{1cm}
+  
+\newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
+\begin{tikzpicture}[scale=1,line width=0.5mm]
+
+  \node[latent,scale=1] at (3.5,3) (dx){DSL};
+  \node[obs,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[obs,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+  
+  \node[obs,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+
+
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \draw [->,red] ([xshift=2cm]dx.east) -- ([xshift=3cm]dx.east);
+  \node at ([xshift=3.2cm]dx.east]) (uses){is};k
+  \node at ([xshift=0.5cm]uses.east) (nnn){\NeuralNetwork{0.17}};
+  \draw[thin] ([xshift=1.9cm,yshift=0.4cm]dx.east) rectangle
+  ([xshift=0.5cm,yshift=-0.3cm]nnn.south);
+  \end{tikzpicture}
+  \end{frame}
+
+\begin{frame}{Explore/\underline{\textbf{Compress}}/Compile as {\color{red}Amortized} Bayesian Inference}\centering
+  \underline{\textbf{Compress}: Update DSL, fixing programs}
+
+
+  \begin{tikzpicture}[scale=0.4,line width=0.5mm]
+    \node at (0,0) (f1){progs. for task$_1$};
+    \node at ([yshift = -1.4cm]f1.south) (f2){progs. for task$_2$};
+    \node at ([yshift = -1.4cm,xshift=1.5cm]f2.south) (f3){DSL};
+
+    \node(c)[rectangle, rounded corners, draw, minimum width = 8cm, minimum height = 3cm, anchor = north west] at (5.2,1) {};
+    \draw [-> ] (f1.east) -- (c.west|-f1.east);
+    \draw [-> ] (f2.east) -- (c.west|-f2.east);
+    \draw [-> ] (f3.east) -- (c.west|-f3.east);
+
+    \node[right](d) at ([xshift = 1.6cm,yshift = -0.0cm]c.east) {
+      \begin{tikzpicture}[scale=0.9,line width=0.5mm]
+        \node[align=center] at (0,0) {DSL+};
+        \begin{scope}[shift={(0.6,-0.5)}]
+          \node[pop3](p1) at (-1,-1) {\code{+}};
+          \node[pop3](n1) at (0.6,-0.9) {\code{1}};
+          \node[pop3](a) at (0,-1) {\code{ }};
+          \draw[pop3] (0,0) -- (p1.north);
+          \draw[pop3] (0,0) -- (n1.north);
+          \draw[pop3] (-0.3,-0.3) -- (a.north);
+        \end{scope}
+    \end{tikzpicture}};
+    \draw [-> ] (c.east) -- (d.west);
+
+
+    \node at (c.center) {
+\begin{tikzpicture}[scale=1.2,line width=0.5mm]
+    
+          \node(l1) at (0,0) {};
+  \node[color=pop3](p1) at (-1,-1) {\code{+}};
+  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+  \node(x1) at (0,-1) {\code{1}};
+  \draw[color=pop3] (l1.south) -- (p1.north);
+  \draw[color=pop3] (l1.south) -- (n1.north);
+  \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
+
+  \node(t) at (-0.5,0.5) {};
+  \draw (l1.south) -- (t.south);
+  \node(c) at (-1.5,-0.2) {\code{cons}};
+  \draw (t.south) -- (c.north);
+  
+  \begin{scope}[shift={(3,0.5)}]
+      \node(l1) at (0,0) {};
+  \node[color=pop3](p1) at (-1,-1) {\code{+}};
+  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+  %\node(x1) at (0,-1) {};
+  \draw[color=pop3] (l1.south) -- (p1.north);
+  \draw[color=pop3] (l1.south) -- (n1.north);
+  \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
+
+
+  \node(c) at (-0.5,-1.5) {\code{car}};
+  \node(z) at (0.5,-1.5) {\code{z}};
+
+  \draw (0,-1) -- (c.north);
+  \draw (0,-1) -- (z.north);
+
+%  \node [rotate=90] at (-2.3,-0.7) {\small program};
+  
+  \end{scope}
+
+
+
+\end{tikzpicture}
+    };
+
+    \node at ([yshift=-5.8cm,xshift=-0.5cm]d.south) {
+  \newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
+\begin{tikzpicture}[scale=0.8,line width=0.25mm]
+
+  \node[latent,scale=1] at (3.5,3) (dx){DSL};
+  \node[obs,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[obs,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+  
+  \node[obs,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+
+
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \draw [->,red] ([xshift=2cm]dx.east) -- ([xshift=3cm]dx.east);
+  \node at ([xshift=3.2cm]dx.east]) (uses){is};
+  \node at ([xshift=0.5cm]uses.east) (nnn){\NeuralNetwork{0.12}};
+  \draw[thin] ([xshift=1.9cm,yshift=0.4cm]dx.east) rectangle
+  ([xshift=0.5cm,yshift=-0.3cm]nnn.south);
+  \end{tikzpicture}
+      };
+
+  \end{tikzpicture}
+
+
+\end{frame}
+\begin{frame}{Explore/Compress/\underline{\textbf{Compile}} as {\color{red}Amortized} Bayesian Inference}\centering
+\underline{\textbf{Compile}: Train {\color{red} recognition model}}
+\vspace{1cm}
+  
+\newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
+\begin{tikzpicture}[scale=1,line width=0.5mm]
+
+  \node[obs,scale=1] at (3.5,3) (dx){DSL};
+  \node[obs,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[obs,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+  
+  \node[obs,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+
+
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \draw [->,red] ([xshift=2cm]dx.east) -- ([xshift=3cm]dx.east);
+  \node at ([xshift=3.2cm]dx.east]) (uses){is};k
+  \node at ([xshift=0.5cm]uses.east) (nnn){\NeuralNetwork{0.17}};
+  \draw[thin] ([xshift=1.9cm,yshift=0.4cm]dx.east) rectangle
+  ([xshift=0.5cm,yshift=-0.3cm]nnn.south);
+  \end{tikzpicture}
+  \end{frame}
+\begin{frame}{Explore/Compress/\underline{\textbf{Compile}} as {\color{red}Amortized} Bayesian Inference}\centering
+\underline{\textbf{Compile}: Train {\color{red} recognition model}}
+\vspace{1cm}
+
+  \newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
+\hspace{1.5cm}\begin{tikzpicture}[scale=1.2,line width=0.5mm]
+            \node[align=center] at (-3,-1) (d){\Large DSL};
       %    \node at ([xshift = 3cm]d.east) (p2){program};
-      \node at ([xshift=2.5cm,yshift = 0cm]d.east) (p1){program};
+      \node at ([xshift=2.5cm,yshift = 0cm]d.east) (p1){\Large  program};
 
-      \draw[squiggle,-> ] (d.east) -- node[sloped,above]{\footnotesize  sample} (p1.west);
+      \draw[squiggle,-> ] (d.east) -- node[sloped,above]{sample} (p1.west);
 
-      \node at ([xshift = 2.5cm]p1.east) (t1){ task};
+      \node at ([xshift = 2.5cm]p1.east) (t1){ \Large  task};
 
-      \draw [-> ] (p1.east) -- node[above]{\footnotesize  run} (t1.west);
+      \draw [-> ] (p1.east) -- node[above]{ run} (t1.west);
 
       \node(n) at ([yshift=-1.2cm,xshift=1.6cm]p1.south) {
         \NeuralNetwork{0.17}};
       \draw [->,red] (t1.south) to[out = -90,in = 0]  ([xshift=0.4cm]n.east);
       \draw [->,red] ([xshift=-0.4cm]n.west) to[out = -180,in = -70]  ([xshift=-0.25cm,yshift=0.1cm]p1.south);
-%      \node at ([xshift=-0.5cm]$(p1.south)!0.5!(n.west)$) {\textbf{Loss4%}};
 
+    \node at ([yshift=-3cm,xshift=2cm]t1.south) {
+  \newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
     \end{tikzpicture}}
-\end{minipage}
+\begin{tikzpicture}[scale=0.8,line width=0.25mm]
+
+  \node[obs,scale=1] at (3.5,3) (dx){DSL};
+  \node[obs,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[obs,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+  
+  \node[obs,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
 
 
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \draw [->,red] ([xshift=2cm]dx.east) -- ([xshift=3cm]dx.east);
+  \node at ([xshift=3.2cm]dx.east]) (uses){is};
+  \node at ([xshift=0.5cm]uses.east) (nnn){\NeuralNetwork{0.12}};
+  \draw[thin] ([xshift=1.9cm,yshift=0.4cm]dx.east) rectangle
+  ([xshift=0.5cm,yshift=-0.3cm]nnn.south);
+  \end{tikzpicture}
+      };
+
+  \end{tikzpicture}
 
 
 \end{frame}
+
+\begin{frame}{Explore/Compress/Compile as {\color{red}Amortized} Bayesian Inference}
+
+  \begin{tikzpicture}[line width=0.5mm]
+    \node at (0,0) (e){
+  \newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
+\begin{tikzpicture}[scale=0.7,line width=0.25mm]
+
+  \node[obs,scale=1] at (3.5,3) (dx){DSL};
+  \node[latent,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[latent,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+  
+  \node[latent,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+
+
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \draw [->,red] ([xshift=2cm]dx.east) -- ([xshift=3cm]dx.east);
+  \node at ([xshift=3.2cm]dx.east]) (uses){is};k
+  \node at ([xshift=0.5cm]uses.east) (nnn){\NeuralNetwork{0.12}};
+  \draw[thin] ([xshift=1.9cm,yshift=0.4cm]dx.east) rectangle
+  ([xshift=0.5cm,yshift=-0.3cm]nnn.south);
+  \end{tikzpicture}
+      };
+
+    \node at ([xshift=5cm,yshift=-2cm]e.south) (cc){
+  \newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
+\begin{tikzpicture}[scale=0.8,line width=0.25mm]
+
+  \node[obs,scale=1] at (3.5,3) (dx){DSL};
+  \node[obs,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[obs,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+  
+  \node[obs,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+
+
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \end{tikzpicture}
+    };
+      \node at ([xshift=-5cm,yshift=-2cm]e.south) (c){
+\begin{tikzpicture}[scale=0.8,line width=0.25mm]
+
+  \node[latent,scale=1] at (3.5,3) (dx){DSL};
+  \node[obs,scale=1] at ([yshift=-1.5cm,xshift=2cm]dx) (zp){prog};
+  \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+  \node[obs,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+  
+  \node[obs,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+  \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+  \draw [->] (zp1.south) -- (xp1.north);
+  \draw [->] (dx.south) -- (zp1.north);
+  \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+
+
+  \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+  \draw [->] (dx.south) -- (zp.north);
+  \draw [->] (zp.south) -- (xp.north);
+
+  \end{tikzpicture}
+      };
+      \node at (e.north) {\textbf{\underline{Explore}}};
+      \node at ([yshift=-0.25cm]cc.south) {\textbf{\underline{Compile}}};
+      \node at ([yshift=-0.25cm]c.south) {\textbf{\underline{Compress}}};
+      \draw[->] (c.east) -- (cc.west);
+      \draw[->] (e.west) -- (c.north);
+      \draw[->] (cc.north) -- (e.east);
+    \end{tikzpicture}
+  \end{frame}
+
+
 
 %% \begin{frame}{Explore/Compress/Compile as {\color{red}Amortized} Bayesian Inference}
   
@@ -719,49 +1178,48 @@ Tasks and     \pop{Programs} & DSL\\
 %%   \end{tikzpicture}
 %% \end{frame}
 
-\begin{frame}{Domain: List processing}
-      Starts with: \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
-\code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
-\code{car}, \code{cdr}, \code{nil}, \code{is-nil},  \code{mod}, \code{*}, \code{>}, \code{is-square}, \code{is-prime}.
-\\236 human-interpretable list processing tasks.
-\\Discovers 38 new DSL primitives, including \code{filter}
+%% \begin{frame}{Domain: List processing}
+%%       Starts with: \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
+%% \code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
+%% \code{car}, \code{cdr}, \code{nil}, \code{is-nil},  \code{mod}, \code{*}, \code{>}, \code{is-square}, \code{is-prime}.
+%% \\236 human-interpretable list processing tasks.
+%% \\Discovers 38 new DSL primitives, including \code{filter}
 
-\vspace{0.25cm}
+%% \vspace{0.25cm}
 
-\centering \begin{minipage}[c]{0.6\textwidth}
-  \begin{tabular}{lll}
-    \toprule
-    Name & Input & Output \\\midrule
-    repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
-    drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
-    rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
-    count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
-    keep-mod-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
-    product & [7\, 1\, 6\, 2] & 84 \\
-    \bottomrule
-  \end{tabular}
-\end{minipage}%
-%% \begin{minipage}[c]{0.3\textwidth}
-%%   \includegraphics[width = \textwidth]{figures/listLearningCurve_color.eps}
-%% {   \color{orange}orange: } full system. {\color{teal}teal: } no neural recognition model
-%% \end{minipage}
+%% \centering \begin{minipage}[c]{0.6\textwidth}
+%%   \begin{tabular}{lll}
+%%     \toprule
+%%     Name & Input & Output \\\midrule
+%%     repeat-2 & [7\, 0] & [7\, 0\, 7\, 0] \\
+%%     drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
+%%     rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
+%%     count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
+%%     keep-mod-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
+%%     product & [7\, 1\, 6\, 2] & 84 \\
+%%     \bottomrule
+%%   \end{tabular}
+%% \end{minipage}%
+%% %% \begin{minipage}[c]{0.3\textwidth}
+%% %%   \includegraphics[width = \textwidth]{figures/listLearningCurve_color.eps}
+%% %% {   \color{orange}orange: } full system. {\color{teal}teal: } no neural recognition model
+%% %% \end{minipage}
 
-\vspace{0.25cm}
+%% \vspace{0.25cm}
 
-\centering \textbf{With functional programming ``problem set'' + 93 hours on 64 CPUs, rediscovers:}\\
-\textbf{\code{map}, \code{foldr}, \code{unfold}, \code{range}, \code{length}, \code{index}, \code{zip}}, +some arithmetic routines
+%% \centering \textbf{With functional programming ``problem set'' + 93 hours on 64 CPUs, rediscovers:}\\
+%% \textbf{\code{map}, \code{foldr}, \code{unfold}, \code{range}, \code{length}, \code{index}, \code{zip}}, +some arithmetic routines
 
 
-  \end{frame}
+%%   \end{frame}
 
 \begin{frame}{Domain: Text Editing}
-  In the style of FlashFill (Gulwani 2012). Starts with: \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
-\code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
-\code{car}, \code{cdr}, \code{nil}, \code{is-nil}
-, plus string \& character constants.\\
-
-\begin{minipage}[c]{0.4\textwidth}
+  In the style of FlashFill (Gulwani 2012). Starts with \code{map}, \code{fold}, etc.
+  
+  \centering
+\vspace{1cm}
   \begin{tabular}{ll}
+  
     \toprule
     Input&Output\\\midrule
     +106 769-438&106.769.438\\
@@ -770,22 +1228,18 @@ Tasks and     \pop{Programs} & DSL\\
           Temple Anna H&TAH\\
       Lara Gregori&LG
     \\\bottomrule 
-    \end{tabular}
-  %% \begin{figure}
-  %% \includegraphics[width = 0.8\textwidth]{figures/textLearningCurve.eps}
-  %%   \end{figure}
-  \end{minipage}
-\begin{minipage}[c]{0.5\textwidth}
-      \begin{figure}        
-        \includegraphics[width = \textwidth]{figures/textPrimitives.png}\vspace{-0.8cm}
-      \caption{11 learned DSL primitives over 3 successive iterations (3 columns). Learned primitives call each other (arrows).}
-      \end{figure}  
-  \end{minipage}
+  \end{tabular}
 \end{frame}
+\begin{frame}{Text editing: Library learning builds on itself}
+\centering        \includegraphics[width=0.6\textwidth]{figures/textPrimitives.png}
+\\      Learned DSL primitives over 3 iterations (3 columns). Learned primitives call each other (arrows).
 
-\begin{frame}{Domain: Symbolic regression from visual input}
-  Starts with: \code{plus}, \code{times}, \code{divide}, \code{real-number}. Autograds through program
-  \\  Bayesian likelihood $\probability[\text{data}|\text{prog}]$ favors fewer continuous parameters
+  \end{frame}
+\begin{frame}{Programs with numerical parameters: Symbolic regression from visual input}
+Fits parameters by autograd-ing thru program
+\\
+\\
+\textbf{Recognition model looks at picture of function's graph}
 
   \centering
   %% \begin{minipage}[c]{0.4\textwidth}
@@ -833,22 +1287,23 @@ Tasks and     \pop{Programs} & DSL\\
   \end{tabular}
   \\\bottomrule\\
 \end{tabular}
-  \end{frame}
+\end{frame}
 
 \begin{frame}{New domain: Generative  graphics  programs (Turtle/LOGO)}
-  \begin{tabular}{cc|c}
-    Training tasks& DSL samples before learning&DSL samples after learning\\
-              \raisebox{-.5\height}{\includegraphics[width = 0.2\textwidth]{figures/logo90.png}$\quad\quad$ }&
-      \raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/initialDreams/montage.png}}&
-  \raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/finalDreams/montage.png}}
+\centering  Training tasks:
+
+\includegraphics[width = 0.4\textwidth]{figures/logo90.png}
+\end{frame}
+\begin{frame}{Generative graphics programs: Samples from DSL}\centering
+  \begin{tabular}{c|c}
+     DSL samples before learning&DSL samples after learning\\
+          \raisebox{-.5\height}{\includegraphics[width = 0.45\textwidth]{figures/initialDreams/montage.png}}&
+  \raisebox{-.5\height}{\includegraphics[width = 0.45\textwidth]{figures/finalDreams/montage.png}}
   \end{tabular}
+  \end{frame}
 
-  \vspace{0.3cm}
-
-  \pause
-  
-  Learned DSL contains parametric drawing routines:
-      \begin{tabular}{rlrl}
+\begin{frame}{Generative graphics programs: Learned library contains parametric drawing routines}
+\centering      \begin{tabular}{rlrl}
       Semicircle:& \raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_24.png}}&
       Spiral:&\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_25.png}}\\
       Greek Spiral:&\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_10.png}}&

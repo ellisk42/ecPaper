@@ -113,82 +113,336 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
+\newcommand{\NeuralNetwork}[1]{    \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=#1,shift={+(-1,2.5)}}]
+      \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+      \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+      \node[rectangle] at (1,1) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (I-\name) at (0,-\y) {};
+      \foreach \name / \y in {1,...,3}
+          \node[neuron] (H-\name) at (1,-\y-0.5) {};
+      \foreach \name / \y in {1,...,4}
+          \node[neuron] (O-\name) at (2,-\y) {};
+      \foreach \source in {1,...,4}
+          \foreach \dest in {1,...,3}
+              \draw [-latex] (I-\source) -- (H-\dest);
+      \foreach \source in {1,...,3}
+          \foreach \dest in {1,...,4}
+              \draw [-latex] (H-\source) -- (O-\dest);
+    \end{tikzpicture}}
+\newcommand{\spiral}[2]{
+  \draw[ultra thick,->] ([shift={#1}]-30:#2) arc [radius = #2, start angle = -30, end angle = 90];
+  \draw[ultra thick,->] ([shift={#1}]-30:#2) arc [radius = #2, start angle = -30, end angle = 95];
+
+  
+      \draw[ultra thick,->] ([shift={#1}]90:#2) arc [radius = #2, start angle = 90, end angle = 210];
+      \draw[ultra thick,->] ([shift={#1}]90:#2) arc [radius = #2, start angle = 90, end angle = 205];
+      
+      \draw[ultra thick,->] ([shift={#1}]210:#2) arc [radius = #2, start angle = 210, end angle = 340];
+      \draw[ultra thick,->] ([shift={#1}]210:#2) arc [radius = #2, start angle = 210, end angle = 335];
+}
+\newcommand{\legend}{
+  \begin{tikzpicture}
+    \node at (0,0) (uses){is};
+    \draw[->,red] ([xshift=-0.6cm]uses.west)  -- (uses.west);
+    \node at ([xshift=0.4cm]uses.east) {\NeuralNetwork{0.15}};
+    \draw[thin] (-1,-0.4) rectangle (1.2,0.4);
+  \end{tikzpicture}
+  }
 
 
 \begin{document}
 
+\begin{figure}
+  \begin{tikzpicture}[line width=0.4mm]
+    \draw (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
+    \node at (5.5,1.25) {\textsc{\textbf{Wake}}};
 
-\section{Introduction: Expertise}
+    
+    \begin{scope}[shift={(0.5,0.5)}]
+      \node[align=right] at (0,0) (d){\textbf{DSL}\\
+        $f_1$, $f_2$, ...};
+      \node[align=center] at ([yshift = -2cm]d) (t){\textbf{Task}\\
+        \footnotesize            \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
+        \footnotesize    \code{[4\, 3\, 2\, 1]}$\to$\code{[4\, 3]} };
 
-Human learners acquire expertise in a wide range of domains: some of
-us become experts in calculus, or cooking, or biology, music, tennis,
-or software engineering, to name just a few, and every child develops
-expertise in natural language, intuitive physics~\cite{Pete?},
-intuitive psychology (theory-of-mind), and motor control.  This
-picture contrasts sharply with the current state of machine
-intelligence, where a machine is built to be an expert in a single
-domain, like boardgames~\cite{alphaGo}, medical
-diagnosis~\cite{mycin,CNNsForDiseaseDetection}, theorem
-proving~\cite{eurisko}, or visual object recognition~\cite{alexNet}.
-Thus an outstanding challenge in the long-term program of building
-more humanlike machines is to develop an algorithm that, like people,
-autonomously acquires expertise across many different kinds of
-domains.
+      \node at ([xshift = 1.25cm]t.east) (nn){\NeuralNetwork{0.25}};
+      \node[align = center, text width = 1cm] at ([yshift = 0.7cm,xshift=0cm]nn.north) {\baselineskip=0pt \small Recog. model\par};
+      \draw [red,-{>[scale=0.2]}] (t.east) -- ([xshift = -0.5cm]nn.west);
 
-We contribute a model of the development of expertise that combines
-two key ingredients.  First, an expert needs a sufficiently expressive
-knowledge representation.  Following a long tradition in cognitive
-science and AI, we represent knowledge as programs, which prior work
-has used to represent expertise in recognition and generation of
-handwriting and speech~\cite{lake2015human}, intuitive theories (of
-kinship, taxonomy, etc.)~\cite{Ullman2012}, and natural language
-grammar and
-semantics~\cite{DBLP:journals/cogsr/SchmidK11,piantadosi2011learning}.
-Second, atop this program representation, experts possess two kinds of
-domain expertise.  They have at their disposal a powerful, yet
-specialized, repertoire of concepts and abstractions: e.g., in
-architecture, these are concepts like `arch' or `foundation'; in
-software engineering these are libraries of code and domain-specific
-languages (DSLs).  Here our model represents knowledge as programs,
-and so we identify this kind of expertise with a DSL.  Experts also
-have knowledge of when and how to deploy these domain-specific
-concepts efficiently when solving new problems: e.g., mathematicians
-efficiently search the space of proofs, intuiting which lemmas are
-appropriate when; expert chefs intuit which compositions of
-ingredients are likely tasty, before they actually start cooking.  For
-our model, this aspect of expertise corresponds to the ability to
-quickly assemble new, useful programs out of its DSL.
+      \node[draw,rounded corners, align=center, inner sep = 10] at ([xshift = 4.2cm,yshift = 1cm]t.east) (s){Neurally-Guided\\ Enumerative Search};
 
-We integrate these ideas into a model called DreamCoder which acquires
-expertise through a novel kind of wake/sleep or `dream' learning. The
-model iterates through wake cycles -- where it solves problems by
-writing programs -- and a pair of sleep cycles: a sleep cycle that
-grows its DSL by replaying experiences from waking and consolidating
-them into new abstractions, and a sleep cycle that improves its
-knowledge of how to write programs by training a neural network on
-replayed experiences as well as `dreams', or samples, from its DSL.
+      \draw [red,->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
+      \draw [->,rounded corners,] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
 
-DreamCoder builds on multiple generations of AI research, going back
-to the 1960's~\cite{solomonoff1964formal} when program-learning was
-proposed as a paradigm for general AI.  Broadly speaking recent work
-has either developed neural approaches for learning to efficiently
-deploy a fixed
-DSL~\cite{devlin2017robustfill,balog2016deepcoder,NGDS,spiral}, or
-developed symbolic approaches for representing and searching through
-spaces of
-programs~\cite{gulwani2011automating,solar2008program,DBLP:books/daglib/0070933}.
-We were motivated by approaches that learn or grow the
-DSL~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning}.
-Our goal with DreamCoder is to show that the combination of
-neurally-guided search and DSL learning is a uniquely powerful way of
-building systems that, like human learners, autonomously acquire the
-expertise needed to navigate a new domain of problems.
+      \node[align=left] at ([xshift=3cm]s.east) (f) {\textbf{Programs:}\\
+        \small    \code{($f_1$ $\ell$ ($\lambda$ (x) (> x 2)))}\\
+        \small $\cdots\cdots\cdots$};
+      \draw [->  ] (s.east) -- (f.west);
+
+      \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
+    \end{scope}
+    \begin{scope}[shift={(9.4,-3.5)},scale=0.6,line width=0.05mm]
+      \node[obs,scale=0.7] at (3.5,3) (dx){DSL};
+      \node[latent,scale=0.7] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
+      \node[obs,scale=0.7] at ([yshift=-1.45cm]zp) (xp) {task};
+      \node[latent,scale=0.7] at ([xshift=1.5cm]zp) (zp1){prog};
+      \node[obs,scale=0.7] at ([xshift=1.5cm]xp) (xp1) {task};
+      \draw [->] (zp1.south) -- (xp1.north);
+      \draw [->] (dx.south) -- (zp1.north);
+      \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+      \node[latent,scale=0.7] at ([xshift=-1.5cm]zp) (zp1){prog};
+      \node[obs,scale=0.7] at ([xshift=-1.5cm]xp) (xp1) {task};
+      \draw [->] (zp1.south) -- (xp1.north);
+      \draw [->] (dx.south) -- (zp1.north);
+      \draw [->] (dx.south) -- (zp.north);
+      \draw [->] (zp.south) -- (xp.north);
+      \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+      \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+    \end{scope}
 
 
+    \node at (0.5,-4.75) {\textbf{\textsc{Memory Consolidation}}};
+    \draw (-2,-5) -- (3,-5) -- (3,-10) -- (5.5,-10) -- (5.5,-13) -- (-2,-13) -- (-2,-5);
+    \node at (11.5,-4.75) {\textbf{\textsc{Dreaming}}};
+    \draw (14,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (14,-13) -- (14,-5);
+
+    \begin{scope}[shift={(9,-4.5)}]
+      \node(dreaming) at (2,-1) {\underline{Fantasies}};
+      \node at ([yshift=-0.75cm,xshift=-1.5cm]dreaming.south) (d){DSL};
+      \node at ([xshift=1.5cm]d.east) (p1){prog.};
+      \draw[squiggle,-> ] (d.east) -- node[sloped,above]{\small sample} (p1.west);
+      \node at ([xshift = 1.5cm]p1.east) (t1){ task};
+      \draw [-> ] (p1.east) -- node[above]{\small run} (t1.west);
+      \node(n) at ([yshift=-1.2cm,xshift=0.4cm]p1.south) {
+        \NeuralNetwork{0.17}};
+      \draw [->,red] (t1.south) to[out = -90,in = 0]  ([xshift=0.4cm]n.east);
+      \draw [dashed,red] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
+
+
+      \node(replay) at (2,-5) {\underline{Replays}};
+      \node[align=center] at ([yshift=-0.75cm,xshift=-1.5cm]replay.south) (d){progs.\\for\\task};
+      \node at ([xshift=1.5cm]d.east) (p1){prog.};
+      \draw[squiggle,-> ] (d.east) -- node[sloped,above]{\small sample} (p1.west);
+      \node at ([xshift = 1.5cm]p1.east) (t1){ task};
+      \draw [-> ] (p1.east) -- node[above]{\small run} (t1.west);
+      \node(n) at ([yshift=-1.2cm,xshift=0.4cm]p1.south) {
+        \NeuralNetwork{0.17}};
+      \draw [->,red] (t1.south) to[out = -90,in = 0]  ([xshift=0.4cm]n.east);
+      \draw [dashed,red] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
+
+      \begin{scope}[shift={(-3.3,-8)},scale=0.6,line width=0.05mm]
+        \node[obs,scale=0.7] at (3.5,3) (dx){DSL};
+        \node[obs,scale=0.7] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
+        \node[obs,scale=0.7] at ([yshift=-1.45cm]zp) (xp) {task};
+        \node[obs,scale=0.7] at ([xshift=1.5cm]zp) (zp1){prog};
+        \node[obs,scale=0.7] at ([xshift=1.5cm]xp) (xp1) {task};
+        \draw [->] (zp1.south) -- (xp1.north);
+        \draw [->] (dx.south) -- (zp1.north);
+        \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+        \node[obs,scale=0.7] at ([xshift=-1.5cm]zp) (zp1){prog};
+        \node[obs,scale=0.7] at ([xshift=-1.5cm]xp) (xp1) {task};
+        \draw [->] (zp1.south) -- (xp1.north);
+        \draw [->] (dx.south) -- (zp1.north);
+        \draw [->] (dx.south) -- (zp.north);
+        \draw [->] (zp.south) -- (xp.north);
+        \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+        \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+      \end{scope}
+
+
+      \end{scope}
+
+    %%}b memory consolidation
+    \begin{scope}[shift={(-2,-4.5)}]
+      \node[align=center] at (0.8,-1.2) (f1){progs. for\\task$_1$:\\\scode{(+ (car z) 1)}};
+      \node[align=center] at ([xshift = 1cm]f1.east) (f2){progs. for\\task$_2$:\\\scode{(cons (+ 1 1))}};
+      \node[align=center] at ([yshift = 0cm,xshift=1cm]f2.east) (f3){\textbf{DSL}\\\scode{cons}, \scode{+}, \\...};
+      \node(c)[rectangle, rounded corners, dashed, draw, minimum width = 3.75cm, minimum height = 3cm, anchor = north] at ([yshift=-0.8cm]f2.south) {};
+      \draw [-> ] (f1.south) -- (f1.south|-c.north);
+      \draw [-> ] (f2.south) -- (f2.south|-c.north);
+      \draw [-> ] (f3.south) -- (f3.south|-c.north);
+
+      
+      \node(d) at ([yshift = -1.8cm]c.south) {
+        \begin{tikzpicture}[scale=0.9,line width=0.5mm]
+          \node[align=center] at (0,0) {DSL w/ \code{(+ x 1)}:};
+          \begin{scope}[shift={(0.6,-0.5)}]
+            \node[pop3](p1) at (-1,-1) {\code{+}};
+            \node[pop3](n1) at (0.6,-0.9) {\code{1}};
+            \node[pop3](a) at (0,-1) {\code{ }};
+            \draw[pop3] (0,0) -- (p1.north);
+            \draw[pop3] (0,0) -- (n1.north);
+            \draw[pop3] (-0.3,-0.3) -- (a.north);
+          \end{scope}
+      \end{tikzpicture}};
+      \draw [-> ] (c.south) -- (d.north);
 
 
 
-\section{Introduction: AI/PL/dreaming}
+      \node at (c.center) {
+        \begin{tikzpicture}[scale=0.9,line width=0.35mm]
+          
+          \node(l1) at (0,0) {};
+          \node[color=pop3](p1) at (-1,-1) {\code{+}};
+          \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+          \node(x1) at (0,-1) {\code{1}};
+          \draw[color=pop3] (l1.south) -- (p1.north);
+          \draw[color=pop3] (l1.south) -- (n1.north);
+          \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
+
+          \node(t) at (-0.5,0.5) {};
+          \draw (l1.south) -- (t.south);
+          \node(c) at (-1.5,-0.2) {\code{cons}};
+          \draw (t.south) -- (c.north);
+          
+          \begin{scope}[shift={(1,2)}]
+            \node(l1) at (0,0) {};
+            \node[color=pop3](p1) at (-1,-1) {\code{+}};
+            \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+            %\node(x1) at (0,-1) {};
+            \draw[color=pop3] (l1.south) -- (p1.north);
+            \draw[color=pop3] (l1.south) -- (n1.north);
+            \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
+
+
+            \node(c) at (-0.5,-1.5) {\code{car}};
+            \node(z) at (0.5,-1.5) {\code{z}};
+
+            \draw (0,-1) -- (c.north);
+            \draw (0,-1) -- (z.north);
+
+            %  \node [rotate=90] at (-2.3,-0.7) {\small program};
+            
+          \end{scope}
+
+
+
+        \end{tikzpicture}
+      };
+
+      \begin{scope}[shift={(4,-8)},scale=0.6,line width=0.05mm]
+        \node[latent,scale=0.7] at (3.5,3) (dx){DSL};
+        \node[obs,scale=0.7] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
+        \node[obs,scale=0.7] at ([yshift=-1.45cm]zp) (xp) {task};
+        \node[obs,scale=0.7] at ([xshift=1.5cm]zp) (zp1){prog};
+        \node[obs,scale=0.7] at ([xshift=1.5cm]xp) (xp1) {task};
+        \draw [->] (zp1.south) -- (xp1.north);
+        \draw [->] (dx.south) -- (zp1.north);
+        \node[obs,scale=0.7] at ([xshift=-1.5cm]zp) (zp1){prog};
+        \node[obs,scale=0.7] at ([xshift=-1.5cm]xp) (xp1) {task};
+        \draw [->] (zp1.south) -- (xp1.north);
+        \draw [->] (dx.south) -- (zp1.north);
+        \draw [->] (dx.south) -- (zp.north);
+        \draw [->] (zp.south) -- (xp.north);
+      \end{scope}
+
+
+      \end{scope}
+
+
+    
+    %% center spiral
+    \begin{scope}[shift={(3.25,-7.9)},scale=0.8]    
+      \spiral{(3.5,1)}{3.5}
+      \node[latent,scale=1] at (3.5,3) (dx){DSL};
+      \node[latent,scale=1] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
+      \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
+      \node[latent,scale=1] at ([xshift=2cm]zp) (zp1){prog};
+      \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
+      \draw [->] (zp1.south) -- (xp1.north);
+      \draw [->] (dx.south) -- (zp1.north);
+      \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+      
+      \node[latent,scale=1] at ([xshift=-2cm]zp) (zp1){prog};
+      \node[obs,scale=1] at ([xshift=-2cm]xp) (xp1) {task};
+      \draw [->] (zp1.south) -- (xp1.north);
+      \draw [->] (dx.south) -- (zp1.north);
+      \draw [->,red] (xp1.east) to[out = 30,in = -30] node(nn){} (zp1.east);
+
+
+      \draw [->,red] (xp.east) to[out = 30,in = -30] node(nn){} (zp.east);
+      \draw [->] (dx.south) -- (zp.north);
+      \draw [->] (zp.south) -- (xp.north);
+
+      \node at ([yshift=-0.6cm]xp.south) {\legend};
+
+    \end{scope}
+    
+    \end{tikzpicture}
+  \end{figure}
+
+%% \section{Introduction: Expertise}
+
+%% Human learners acquire expertise in a wide range of domains: some of
+%% us become experts in calculus, or cooking, or biology, music, tennis,
+%% or software engineering, to name just a few, and every child develops
+%% expertise in natural language, intuitive physics~\cite{Pete?},
+%% intuitive psychology (theory-of-mind), and motor control.  This
+%% picture contrasts sharply with the current state of machine
+%% intelligence, where a machine is built to be an expert in a single
+%% domain, like boardgames~\cite{alphaGo}, medical
+%% diagnosis~\cite{mycin,CNNsForDiseaseDetection}, theorem
+%% proving~\cite{eurisko}, or visual object recognition~\cite{alexNet}.
+%% Thus an outstanding challenge in the long-term program of building
+%% more humanlike machines is to develop an algorithm that, like people,
+%% autonomously acquires expertise across many different kinds of
+%% domains.
+
+%% We contribute a model of the development of expertise that combines
+%% two key ingredients.  First, an expert needs a sufficiently expressive
+%% knowledge representation.  Following a long tradition in cognitive
+%% science and AI, we represent knowledge as programs, which prior work
+%% has used to represent expertise in recognition and generation of
+%% handwriting and speech~\cite{lake2015human}, intuitive theories (of
+%% kinship, taxonomy, etc.)~\cite{Ullman2012}, and natural language
+%% grammar and
+%% semantics~\cite{DBLP:journals/cogsr/SchmidK11,piantadosi2011learning}.
+%% Second, atop this program representation, experts possess two kinds of
+%% domain expertise.  They have at their disposal a powerful, yet
+%% specialized, repertoire of concepts and abstractions: e.g., in
+%% architecture, these are concepts like `arch' or `foundation'; in
+%% software engineering these are libraries of code and domain-specific
+%% languages (DSLs).  Here our model represents knowledge as programs,
+%% and so we identify this kind of expertise with a DSL.  Experts also
+%% have knowledge of when and how to deploy these domain-specific
+%% concepts efficiently when solving new problems: e.g., mathematicians
+%% efficiently search the space of proofs, intuiting which lemmas are
+%% appropriate when; expert chefs intuit which compositions of
+%% ingredients are likely tasty, before they actually start cooking.  For
+%% our model, this aspect of expertise corresponds to the ability to
+%% quickly assemble new, useful programs out of its DSL.
+
+%% We integrate these ideas into a model called DreamCoder which acquires
+%% expertise through a novel kind of wake/sleep or `dream' learning. The
+%% model iterates through wake cycles -- where it solves problems by
+%% writing programs -- and a pair of sleep cycles: a sleep cycle that
+%% grows its DSL by replaying experiences from waking and consolidating
+%% them into new abstractions, and a sleep cycle that improves its
+%% knowledge of how to write programs by training a neural network on
+%% replayed experiences as well as `dreams', or samples, from its DSL.
+
+%% DreamCoder builds on multiple generations of AI research, going back
+%% to the 1960's~\cite{solomonoff1964formal} when program-learning was
+%% proposed as a paradigm for general AI.  Broadly speaking recent work
+%% has either developed neural approaches for learning to efficiently
+%% deploy a fixed
+%% DSL~\cite{devlin2017robustfill,balog2016deepcoder,NGDS,spiral}, or
+%% developed symbolic approaches for representing and searching through
+%% spaces of
+%% programs~\cite{gulwani2011automating,solar2008program,DBLP:books/daglib/0070933}.
+%% We were motivated by approaches that learn or grow the
+%% DSL~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning}.
+%% Our goal with DreamCoder is to show that the combination of
+%% neurally-guided search and DSL learning is a uniquely powerful way of
+%% building systems that, like human learners, autonomously acquire the
+%% expertise needed to navigate a new domain of problems.
+
+
+
+
+
+\section{Introduction}
 
 
 An age-old dream within AI is a machine that learns and reasons by
@@ -234,17 +488,24 @@ a powerful, yet specialized repertoire of concepts and abstractions
 (analogous to the DSL) while also (2) having accurate intuitions about
 when and how to use those concepts to solve new problems.
 
-Our system is called DreamCoder because it acquires these two kinds of
+We call our system `DreamCoder' because it acquires these two kinds of
 expertise through a novel kind of wake/sleep or `dream'
 learning~\cite{hinton1995wake}, iterating through a wake cycle --
 where it solves problems by writing programs -- and a pair of sleep
-cycles: a sleep cycle that grows the DSL by replaying experiences from
-waking and consolidating them into new abstractions (modeled as
-fragments of code), and a sleep cycle that improves its knowledge of
-how to write programs by training a neural network based on replayed
-experiences as well as `dreams', or samples, from the DSL.
+cycles, both of which are loosely biologically inspired by actual
+human sleep.  The first sleep cycle, which we refer to as
+\textbf{memory consolidation}, grows the DSL by replying experiences
+from waking and consolidating them into new code abstractions.  This
+cycle is inspired by the formation of abstractions during sleep memory
+consolidation~\cite{DUDAI201520}.  The second sleep cycle, which we
+refer to as \textbf{dreaming}, improves the agents knowledge of how to
+write programs by training a neural network on replayed experiences as
+well as `fantasies', or samples, from the DSL.  These two kinds of
+dreams are inspired by the distinct episodic replay and hallucination
+components of dream sleep~\cite{fosse2003dreaming}.
 
-DreamCoder builds on two lines of prior work.  One line of work
+This dream-learning architecture unifies two lines of prior work.
+One line of work
 considers the problem of learning new concepts, abstractions, or
 `options' from
 experience~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning},
@@ -254,50 +515,56 @@ efficiently~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}.  Our
 goal with DreamCoder is to show that the combination of these ideas is
 uniquely powerful, and pushes us toward program-writing systems that,
 like human learners, autonomously acquire the expertise needed to
-solve a new class of problems.
+navigate a new domain of problems.
+
+\section{Deep Wake/Sleep Program Induction}
+
+\system~takes as its goal to
+acquire domain-specific expertise.
+It gets this expertise from
+solving a collection of
+programming \textbf{tasks} -- typically about a hundred --
+while jointly
+authoring a library of code (the DSL)
+and training a neural network
+
+%% \section{Introduction: NIPS}
 
 
+%% Much of everyday human thinking and learning can be understood in
+%% terms of program induction: constructing a procedure that maps inputs
+%% to desired outputs, based on observing example input-output pairs.
+%% People can induce programs flexibly across many different domains,
+%% often from just one or a few examples.  For instance, if shown that a
+%% text-editing program should map ``Jane Morris Goodall'' to
+%% ``J. M. Goodall'', we can guess it maps ``Richard Erskine Leakey'' to
+%% ``R. E. Leakey''; if instead the first input mapped to ``Dr. Jane'' or
+%% ``Goodall, Jane'', we might guess the latter should map to
+%% ``Dr. Richard'' or ``Leakey, Richard'', respectively.
 
-\section{Introduction: NIPS}
+%% The FlashFill system~\cite{gulwani2011automating} embedded in
+%% Microsoft Excel solves problems such as these and is probably the best
+%% known practical program-induction algorithm, but researchers in
+%% programming languages and AI have had successes in many domains, such as handwriting recognition and
+%% generation~\cite{lake2015human}, procedural
+%% graphics~\cite{ellis2017learning,DBLP:journals/corr/abs-1804-01118}, question
+%% answering~\cite{johnson2017clevr} and robot motion
+%% planning~\cite{devlin2017neural}.  These systems
+%% work in different ways, but most hinge upon a carefully engineered
+%% \textbf{Domain Specific Language (DSL)}.  This is especially true for
+%% systems like FlashFill that induce a wide range of programs
+%% very quickly, in a few seconds or less.  DSLs constrain the search
+%% over programs with strong prior knowledge in the form of a restricted
+%% inventory of programming primitives finely tuned to the domain: for
+%% text editing, these are operations like appending and
+%% splitting on characters.
 
-
-Much of everyday human thinking and learning can be understood in
-terms of program induction: constructing a procedure that maps inputs
-to desired outputs, based on observing example input-output pairs.
-People can induce programs flexibly across many different domains,
-often from just one or a few examples.  For instance, if shown that a
-text-editing program should map ``Jane Morris Goodall'' to
-``J. M. Goodall'', we can guess it maps ``Richard Erskine Leakey'' to
-``R. E. Leakey''; if instead the first input mapped to ``Dr. Jane'' or
-``Goodall, Jane'', we might guess the latter should map to
-``Dr. Richard'' or ``Leakey, Richard'', respectively.
-
-The FlashFill system~\cite{gulwani2011automating} embedded in
-Microsoft Excel solves problems such as these and is probably the best
-known practical program-induction algorithm, but researchers in
-programming languages and AI have had successes in many domains, such as handwriting recognition and
-generation~\cite{lake2015human}, procedural
-graphics~\cite{ellis2017learning,DBLP:journals/corr/abs-1804-01118}, question
-answering~\cite{johnson2017clevr} and robot motion
-planning~\cite{devlin2017neural}.  These systems
-work in different ways, but most hinge upon a carefully engineered
-\textbf{Domain Specific Language (DSL)}.  This is especially true for
-systems like FlashFill that induce a wide range of programs
-very quickly, in a few seconds or less.  DSLs constrain the search
-over programs with strong prior knowledge in the form of a restricted
-inventory of programming primitives finely tuned to the domain: for
-text editing, these are operations like appending and
-splitting on characters.
-
-In this work, we consider the problem of building agents that learn to solve
-program induction tasks, and also the problem of acquiring the prior knowledge
-necessary to quickly solve these tasks in a new domain.  Representative problems
-in three domains are shown in Table~\ref{initialExampleDSL}.  Our solution is an
-algorithm that grows or boostraps a DSL while jointly training a neural network
-to help write programs in the increasingly rich DSL.
-
-\begin{tabular}{}
-  \end{tabular}
+%% In this work, we consider the problem of building agents that learn to solve
+%% program induction tasks, and also the problem of acquiring the prior knowledge
+%% necessary to quickly solve these tasks in a new domain.  Representative problems
+%% in three domains are shown in Table~\ref{initialExampleDSL}.  Our solution is an
+%% algorithm that grows or boostraps a DSL while jointly training a neural network
+%% to help write programs in the increasingly rich DSL.
 
 \begin{table*}%[t!]
   \makebox[\textwidth][c]{
@@ -965,7 +1232,7 @@ Q_{\text{parent},\text{var},\text{argumentIndex}}(x)/|\text{variables}|&\text{ i
    \end{algorithmic}
  \end{algorithm}
  \begin{figure}
-   \begin{tikzpicture}
+   \begin{tikzpicture}[every node/.style={rounded corners,thick}]
      \node(x)[draw,align=center] at (0,0) {Task $x$\\e.g., input/outputs};
      \node(e)[draw, align=center] at ([xshift=3cm]x.east) {Domain-specific encoder\\
        e.g., RNN or CNN};
@@ -1317,8 +1584,8 @@ Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
 
 
 \begin{figure*}
-  \centering\begin{tikzpicture}[every node/.style={inner sep=1,outer sep=0}]
-    \node(p1)[draw] at (-1,0) {
+  \centering\begin{tikzpicture}[every node/.style={inner sep=1,outer sep=0,rounded corners,thick}]
+    \node(p1)[draw,rounded corners,thick] at (-1,0) {
       \begin{tabular}{l}
       \texttt{(Y ($\lambda$ (r l) (if (nil? l) nil}\\
       \texttt{ (cons (+ (car l) (car l))}\\
@@ -1703,6 +1970,8 @@ the building blocks and motifs in the training data.
     Parametric drawing routines&Higher-order drawing routine\\\midrule
     \begin{tabular}{rl}
       Semicircle:& \raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_24.png}}\\
+      Circles:
+      &\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_23.png}}\\
       Spiral:&\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_25.png}}\\
       Greek Spiral:&\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_10.png}}\\
       S-Curves:&\raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_11.png}}        \\
