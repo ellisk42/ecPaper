@@ -26,6 +26,7 @@
 \newcommand{\denotation}[1]{{\llbracket #1 \rrbracket}}
 \newcommand{\code}[1]{{\footnotesize\texttt{#1}}}
 \newcommand{\scode}[1]{{\tiny\texttt{#1}}}
+\newcommand{\mcode}[1]{{\scriptsize\texttt{#1}}}
 \newcommand{\codechar}[1]{{\footnotesize{\texttt{"#1"}}}}
 % Use the following line for the initial blind version submitted for review:
 %\usepackage[nohyperref]{icml2018}
@@ -82,7 +83,7 @@
 \usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
 \usepackage{tikz}
 \usepackage{circuitikz}
-\usetikzlibrary{fit,bayesnet,calc}
+\usetikzlibrary{fit,bayesnet,calc,tikzmark}
 \usetikzlibrary{arrows.meta}
 \usetikzlibrary{positioning}
 \usetikzlibrary{decorations.text}
@@ -155,7 +156,7 @@
 
 \begin{figure}
   \begin{tikzpicture}[line width=0.4mm]
-    \draw (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
+    \draw[fill=white] (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
     \node at (5.5,1.25) {\textsc{\textbf{Wake}}};
 
     
@@ -202,9 +203,9 @@
     \end{scope}
 
 
-    \node at (0.5,-4.75) {\textbf{\textsc{Memory Consolidation}}};
+    \node at (0.5,-4.75) {\textbf{\textsc{Sleep: Consolidation}}};
     \draw (-2,-5) -- (3,-5) -- (3,-10) -- (5.5,-10) -- (5.5,-13) -- (-2,-13) -- (-2,-5);
-    \node at (11.5,-4.75) {\textbf{\textsc{Dreaming}}};
+    \node at (11.5,-4.75) {\textbf{\textsc{Sleep: Dreaming}}};
     \draw (14,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (14,-13) -- (14,-5);
 
     \begin{scope}[shift={(9,-4.5)}]
@@ -217,7 +218,7 @@
       \node(n) at ([yshift=-1.2cm,xshift=0.4cm]p1.south) {
         \NeuralNetwork{0.17}};
       \draw [->,red] (t1.south) to[out = -90,in = 0]  ([xshift=0.4cm]n.east);
-      \draw [dashed,red] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
+      \draw [dashed] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
 
 
       \node(replay) at (2,-5) {\underline{Replays}};
@@ -229,7 +230,7 @@
       \node(n) at ([yshift=-1.2cm,xshift=0.4cm]p1.south) {
         \NeuralNetwork{0.17}};
       \draw [->,red] (t1.south) to[out = -90,in = 0]  ([xshift=0.4cm]n.east);
-      \draw [dashed,red] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
+      \draw [dashed] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
 
       \begin{scope}[shift={(-3.3,-8)},scale=0.6,line width=0.05mm]
         \node[obs,scale=0.7] at (3.5,3) (dx){DSL};
@@ -255,10 +256,10 @@
 
     %%}b memory consolidation
     \begin{scope}[shift={(-2,-4.5)}]
-      \node[align=center] at (0.8,-1.2) (f1){progs. for\\task$_1$:\\\scode{(+ (car z) 1)}};
-      \node[align=center] at ([xshift = 1cm]f1.east) (f2){progs. for\\task$_2$:\\\scode{(cons (+ 1 1))}};
-      \node[align=center] at ([yshift = 0cm,xshift=1cm]f2.east) (f3){\textbf{DSL}\\\scode{cons}, \scode{+}, \\...};
-      \node(c)[rectangle, rounded corners, dashed, draw, minimum width = 3.75cm, minimum height = 3cm, anchor = north] at ([yshift=-0.8cm]f2.south) {};
+      \node[align=center] at (0.8,-1.2) (f1){progs. for\\task$_1$:\\\mcode{(+ (car z) 1)}};
+      \node[align=center] at ([xshift = 1cm]f1.east) (f2){progs. for\\task$_2$:\\\mcode{(cons (+ 1 1))}};
+      \node[align=center] at ([yshift = 0cm,xshift=0.4cm]f2.east) (f3){\textbf{DSL}\\\mcode{cons}, \mcode{+}, \\...};
+      \node(c)[rectangle, rounded corners, dashed, draw, minimum width = 3.75cm, minimum height = 3cm, anchor = north] at ([yshift=-0.8cm,xshift=-0.3cm]f2.south) {};
       \draw [-> ] (f1.south) -- (f1.south|-c.north);
       \draw [-> ] (f2.south) -- (f2.south|-c.north);
       \draw [-> ] (f3.south) -- (f3.south|-c.north);
@@ -371,6 +372,88 @@
     
   \end{tikzpicture}
   \caption{}\label{threeCycles}
+  \end{figure}
+
+\begin{figure}
+  \begin{tikzpicture}
+%    \draw (0,0) rectangle (10,5);
+    \node(t1)[align=left] at (1,-1) {
+      \small +106 769-43$\to $106.769.43\\
+      \small +83 973-831$\to $83.973.831\\
+      \small $f(\text{\code{s}}) = $\code{(}\subnode{f01}{$f_0$}\code{  \codechar{.} \codechar{-}}\\
+      \small \hspace{1.25cm}\code{($f_0$ \codechar{.} \codechar{ }}\\
+      \small \hspace{1.4cm}\code{(cdr s)))}
+    };
+    \node(t2)[align=left] at ([xshift=2cm]t1.east) {
+      \small Dream Coder$\to$Dr. Dream\\
+      \small Andy Cencici$\to$Dr. Andy\\
+      \small Jan Kotas$\to$Dr. Jan\\
+      \small Nancy Jones$\to$Dr. Nancy\\
+      $f(\text{\code{s}}) = $\code{($f_3$ ($f_4$ \codechar{ } s))}
+    };
+    \node(t3)[align=left] at ([xshift=2cm]t2.east) {
+      \small Dream (Coder)$\to$Coder\\
+      \small 1 (2) 3 4$\to$2\\
+      \small the (dog) ran$\to$ran\\
+      \small +817(33)99$\to$33\\
+      $f(\text{\code{s}}) = $\code{($f_6$ \codechar{(} \codechar{)} s)}
+    };
+
+    \node(substitution)[draw,rounded corners,align=center] at (1,-4) {
+      \small $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\\
+       \mcode{(map ($\lambda$ (x) (if}\\
+      \mcode{(= x a) b x)) s)}
+    };
+    \node[anchor = north] at (substitution.south) {substitute characters};
+    \node(cat)[draw,rounded corners,align=center] at (1,-6) {
+      \small $f_1($\code{a}$,$\code{b}$) \,=\, $\\
+       \mcode{(fold ($\lambda$ (x y)}\\\mcode{ (cons x y)) a b))}
+    };
+    \node[anchor = north] at (cat.south) {concat strings};
+    \node(looping)[draw,rounded corners,align=center] at (1,-8) {
+      \small $f_2($\code{c}$,$\code{p}$,$\code{s}$) \,=\, $\\
+       \mcode{(unfold l ($\lambda$ (x)}\\\mcode{(= c (car x)))}\\\mcode{ p ($\lambda$ (z) (cdr z)))}
+    };
+    \node[anchor = north] at (looping.south) {loop until char};
+
+    \node(constant)[draw,rounded corners,align=center] at (4.5,-4) {
+      \small $f_3($\code{s}$) \,=\, $\\
+       \mcode{($f_0$ s string)}
+    };
+    \node[anchor = north] at (constant.south) {prepend constant};
+    \node(drop)[draw,rounded corners,align=center] at (4.5,-6) {
+      \small $f_4($\code{c}$) \,=\, $\\
+      \mcode{($f_2$ c ($\lambda$ }\\\mcode{(z) (car z)))}
+    };
+    \node[anchor = north] at (drop.south) {prefix};
+    \node(suffix)[draw,rounded corners,align=center] at ([yshift=-2cm]drop.center) {
+      \small $f_5($\code{s}$,$\code{c}$) \,=\, $\\
+      \mcode{(fold ($\lambda$ (x y) }\\\mcode{(cdr (if (= x c)}\\\mcode{ s y))) s s)}
+    };
+    \node[anchor = north] at (suffix.south) {suffix};
+    \node(delimited)[draw, rounded corners, align=center,text width=2.5cm] at ([xshift=3.5cm]constant.center) {
+      \code{$f_6($x$,$y$,$s$)\,=\,$}\\
+      \mcode{($f_4$ x ($f_5$ y c))}};
+    \node[anchor = north] at (delimited.south) {delimited substring};
+    \draw[->] (delimited.west) -- (drop.east);
+    \draw[->] (delimited.west) -- (suffix.east);
+    
+    \draw[->] (drop.west) -- (looping.east);
+    \draw[->] (constant.west) -- (cat.east);
+
+    \draw[->] ([xshift=-0.5cm]t2.south) -- (constant.north);
+    \draw[->] ([xshift=0.3cm]t2.south) to[in=30,out=-30] ([xshift=1cm]drop.north);
+
+    \draw[->] ([yshift=0.5cm,xshift=-0.4cm]t1.south) to[in=100,out=200] (substitution.north);
+    \draw[->] ([yshift=0.8cm,xshift=-0.5cm]t1.south) to[in=120,out=200] ([xshift=-0.5cm]substitution.north);
+    \draw[->] ([xshift=-0.5cm]t3.south) -- (delimited.north);
+    
+
+    
+
+    
+
+    \end{tikzpicture}
   \end{figure}
 
 %% \section{Introduction: Expertise}
@@ -505,7 +588,7 @@ well as `fantasies', or samples, from the DSL.  These two kinds of
 dreams are inspired by the distinct episodic replay and hallucination
 components of dream sleep~\cite{fosse2003dreaming}.
 
-This dream-learning architecture unifies two lines of prior work.
+This dream-learning architecture brings together two lines of prior work.
 One line of work
 considers the problem of learning new concepts, abstractions, or
 `options' from
@@ -520,15 +603,28 @@ navigate a new domain of problems.
 
 \section{Deep Wake/Sleep Program Induction}
 
-\system~takes as its goal to
-acquire domain-specific expertise,
-which it learns by
-solving a collection of
-programming \textbf{tasks} -- typically about a hundred.
-During its Wake phase,
-it searches for programs solving tasks,
-guided by its current DSL and recognition model.
-It cycles through Wake
+\system~takes as its goal to acquire domain-specific expertise, which
+it learns by solving a collection of programming \textbf{tasks} --
+typically about a hundred.  It alternatingly finds programs that solve
+tasks (Wake -- Figure~\ref{threeCycles} top); improving its DSL by
+discovering and reusing domain-specific subroutines (Memory
+Consolidation -- Figure~\ref{threeCycles} left); and training a neural
+network that efficiently guides search for programs in the DSL
+(Dreaming -- Figure~\ref{threeCycles} right).  The learned DSL
+effectively encodes a prior on programs likely to solve tasks in the
+domain, while the neural net looks at the example input-output pairs
+for a specific task and produces a ``posterior'' for programs likely
+to solve that specific task (Figure~\ref{threeCycles} middle).  The
+neural network thus functions as a \textbf{recognition model}
+supporting a form of approximate Bayesian program induction, jointly
+trained with a \textbf{generative model} for programs encoded in the
+DSL, in the spirit of the Helmholtz machine~\cite{hinton1995wake}. The
+recognition model ensures that searching for programs remains
+tractable even as the DSL (and hence the search space for programs)
+expands.
+
+
+
 
 
 
@@ -571,12 +667,9 @@ It cycles through Wake
 %% to help write programs in the increasingly rich DSL.
 
 \begin{table*}%[t!]
-  \makebox[\textwidth][c]{
-    \scriptsize
-  \tabcolsep=4pt
-  \renewcommand\code\texttt
-  \renewcommand\codechar[1]{\texttt{"#1"}}
-  \newcommand{\helpSize}{0.25cm}
+  \makebox[\textwidth][c]{ \scriptsize \tabcolsep=4pt
+    \renewcommand\code\texttt \renewcommand\codechar[1]{\texttt{"#1"}}
+    \newcommand{\helpSize}{0.25cm}
   \begin{tabular}{>{\hspace{-0em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-2.5em}}c<{\hspace{-0.8em}}>{\hspace{-1em}}c<{\hspace{-1em}}}
     \toprule
     &{\normalsize List Processing}&{\normalsize Text Editing}&{\normalsize Symbolic Regression}\\\midrule
@@ -1504,27 +1597,27 @@ We refer to this set as the \textbf{extension} of the version space:
   The \textbf{extension} of a version space $v$ is written $\denotation{v}$
   and is defined recursively as:
   \begin{align*}
-    \denotation{\$i}& = \left\{\$i \right\}\\
-    \denotation{\lambda v}& = \left\{\lambda e : e\in \denotation{v} \right\}\\
+    \denotation{\$i}& = \left\{\$i \right\}&
+    \denotation{\lambda v}& = \left\{\lambda e : e\in \denotation{v} \right\}&
     \denotation{(v_1\; v_2)}& = \left\{(e_1\;e_2) : e_1\in \denotation{v_1},\;e_2\in \denotation{v_2} \right\}\\
-    \denotation{\uplus V}& = \left\{e : v\in V,\;e\in \denotation{v} \right\}\\
-    \denotation{\varnothing}& = \varnothing\\
+    \denotation{\uplus V}& = \left\{e : v\in V,\;e\in \denotation{v} \right\}&
+    \denotation{\varnothing}& = \varnothing&
     \denotation{\Lambda}& = \Lambda
     \end{align*}
 \end{definition}
 Version spaces also support efficient membership checking, which we
-write as $e\in v$, and which is equivalent to $e\in \denotation{v}$.
+write as  $e\in \denotation{v}$.
 Important for our purposes, it is also efficient to refactor the
 members of a version space's extension in terms of a new DSL.
 We define $\textsc{refactor}(v|\mathcal{D})$ inductively as:
 \begin{align}
   \textsc{refactor}(v|\mathcal{D}) &= \begin{cases}
-    e\text{, if $e\in \mathcal{D}$ and $e\in v$. Exploits the fact that $e\in v$ can be efficiently computed.}\\
+    e\text{, if $e\in \mathcal{D}$ and $e\in \denotation{v}$. Exploits the fact that $\denotation{e}\in v$ can be efficiently computed.}\\
     \textsc{refactor}'(v|\mathcal{D})\text{, otherwise.}
-  \end{cases}\label{FACTORING}\\\nonumber
-  \textsc{refactor}'(e|\mathcal{D})& = e\text{, if $e$ is a leaf}\\\nonumber
+  \end{cases}\label{FACTORING}\\\nonumber    
+  \textsc{refactor}'(e|\mathcal{D})& = e\text{, if $e$ is a leaf}&%\\\nonumber
   \textsc{refactor}'(\lambda b|\mathcal{D}) &= \lambda \textsc{refactor}(b|\mathcal{D})\\\nonumber
-  \textsc{refactor}'(f\;x|\mathcal{D}) &= \textsc{refactor}(f|\mathcal{D})\;\textsc{refactor}(x|\mathcal{D})\\\nonumber
+  \textsc{refactor}'(f\;x|\mathcal{D}) &= \textsc{refactor}(f|\mathcal{D})\;\textsc{refactor}(x|\mathcal{D})&%\\\nonumber
   \textsc{refactor}'(\uplus V|\mathcal{D}) &= \argmin_{e\in \left\{\textsc{refactor}(v|\mathcal{D})\;:\;v\in V \right\}}\text{size}(e|\mathcal{D})\nonumber
   \end{align*}
 where $\text{size}(e|\mathcal{D})$ for program $e$ and DSL $\mathcal{D}$
