@@ -156,7 +156,7 @@
 
 \begin{figure}
   \begin{tikzpicture}[line width=0.4mm]
-    \draw[fill=white] (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
+    \draw[fill=teal!5!white] (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
     \node at (5.5,1.25) {\textsc{\textbf{Wake}}};
 
     
@@ -204,9 +204,9 @@
 
 
     \node at (0.5,-4.75) {\textbf{\textsc{Sleep: Consolidation}}};
-    \draw (-2,-5) -- (3,-5) -- (3,-10) -- (5.5,-10) -- (5.5,-13) -- (-2,-13) -- (-2,-5);
+    \draw[fill=teal!5!white] (-2,-5) -- (3,-5) -- (3,-10) -- (5.5,-10) -- (5.5,-13) -- (-2,-13) -- (-2,-5);
     \node at (11.5,-4.75) {\textbf{\textsc{Sleep: Dreaming}}};
-    \draw (14,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (14,-13) -- (14,-5);
+    \draw[fill=teal!5!white] (14,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (14,-13) -- (14,-5);
 
     \begin{scope}[shift={(9,-4.5)}]
       \node(dreaming) at (2,-1) {\underline{Fantasies}};
@@ -399,6 +399,9 @@
       $f(\text{\code{s}}) = $\code{($f_6$ \codechar{(} \codechar{)} s)}
     };
 
+    \draw (-2,-2.5) -- (15,-2.5);
+    \node[align=left] at (-1.5,-2.3) {Tasks and\\\texttt{Programs}\\\\DSL};
+
     \node(substitution)[draw,rounded corners,align=center] at (1,-4) {
       \small $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\\
        \mcode{(map ($\lambda$ (x) (if}\\
@@ -437,6 +440,18 @@
     \node[anchor = north] at (delimited.south) {delimited substring};
     \draw[->] (delimited.west) -- (drop.east);
     \draw[->] (delimited.west) -- (suffix.east);
+
+    \node(appendSingle)[draw, rounded corners, align=center,text width=2.5cm] at ([yshift=-2cm]delimited.center) {
+      \code{$f_7($c$,$s$)\,=\,$}\\
+      \mcode{($f_1$ (cons c empty) s)}};
+    \node[anchor = north] at (appendSingle.south) {append character};
+    
+    \node(surround)[draw, rounded corners, align=center,text width=2.5cm] at ([yshift=-2cm]appendSingle.center) {
+      \code{$f_8($s$)\,=\,$}\\
+      \mcode{(cons \codechar{(} ($f_7$ \codechar{)} s))}};
+    \node[anchor = north] at (surround.south) {surround in parentheses};
+    \draw[->] (surround.west) to[in=200,out=160] ([yshift=-0.25cm]appendSingle.west);
+    \draw[->] (appendSingle.west) to[in=40,out=120] ([yshift=0.25cm]cat.east);
     
     \draw[->] (drop.west) -- (looping.east);
     \draw[->] (constant.west) -- (cat.east);
@@ -1610,11 +1625,13 @@ write as  $e\in \denotation{v}$.
 Important for our purposes, it is also efficient to refactor the
 members of a version space's extension in terms of a new DSL.
 We define $\textsc{refactor}(v|\mathcal{D})$ inductively as:
-\begin{align}
+\begin{align*}
   \textsc{refactor}(v|\mathcal{D}) &= \begin{cases}
     e\text{, if $e\in \mathcal{D}$ and $e\in \denotation{v}$. Exploits the fact that $\denotation{e}\in v$ can be efficiently computed.}\\
     \textsc{refactor}'(v|\mathcal{D})\text{, otherwise.}
-  \end{cases}\label{FACTORING}\\\nonumber    
+  \end{cases}
+\end{align*}\vspace{-\baselineskip}%
+\begin{align*}
   \textsc{refactor}'(e|\mathcal{D})& = e\text{, if $e$ is a leaf}&%\\\nonumber
   \textsc{refactor}'(\lambda b|\mathcal{D}) &= \lambda \textsc{refactor}(b|\mathcal{D})\\\nonumber
   \textsc{refactor}'(f\;x|\mathcal{D}) &= \textsc{refactor}(f|\mathcal{D})\;\textsc{refactor}(x|\mathcal{D})&%\\\nonumber
