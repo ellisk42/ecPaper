@@ -376,80 +376,93 @@
 
 \begin{figure}
   \begin{tikzpicture}
+    \renewcommand{\baselinestretch}{0.5}
+    
 %    \draw (0,0) rectangle (10,5);
     \node(t1)[align=left] at (1,-1) {
-      \small +106 769-43$\to $106.769.43\\
-      \small +83 973-831$\to $83.973.831\\
-      \small $f(\text{\code{s}}) = $\code{(}\subnode{f01}{$f_0$}\code{  \codechar{.} \codechar{-}}\\
-      \small \hspace{1.25cm}\code{($f_0$ \codechar{.} \codechar{ }}\\
-      \small \hspace{1.4cm}\code{(cdr s)))}
+      \footnotesize +106 769-43$\to $106.769.43\\
+      \footnotesize +83 973-831$\to $83.973.831\\
+      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(}\subnode{f01}{${\color{orange}f_0}$}\mcode{  \codechar{.} \codechar{-}}\\
+      \footnotesize \hspace{1.25cm}\mcode{(${\color{orange}f_0}$ \codechar{.} \codechar{ }}\\
+      \footnotesize \hspace{1.4cm}\mcode{(cdr s)))}
     };
     \node(t2)[align=left] at ([xshift=2cm]t1.east) {
-      \small Dream Coder$\to$Dr. Dream\\
-      \small Andy Cencici$\to$Dr. Andy\\
-      \small Jan Kotas$\to$Dr. Jan\\
-      \small Nancy Jones$\to$Dr. Nancy\\
-      $f(\text{\code{s}}) = $\code{($f_3$ ($f_4$ \codechar{ } s))}
+      \footnotesize Dream Coder$\to$Dr. Dream\\
+      \footnotesize Andy Cencici$\to$Dr. Andy\\
+      \footnotesize Jan Kotas$\to$Dr. Jan\\
+      \footnotesize Nancy Jones$\to$Dr. Nancy\\
+      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{orange}f_3}$ (${\color{orange}f_4}$ \codechar{ } s))}
     };
     \node(t3)[align=left] at ([xshift=2cm]t2.east) {
-      \small Dream (Coder)$\to$Coder\\
-      \small 1 (2) 3 4$\to$2\\
-      \small the (dog) ran$\to$ran\\
-      \small +817(33)99$\to$33\\
-      $f(\text{\code{s}}) = $\code{($f_6$ \codechar{(} \codechar{)} s)}
+      \footnotesize Dream (Coder)$\to$Coder\\
+      \footnotesize 1 (2) 3 4$\to$2\\
+      \footnotesize the (dog) ran$\to$ran\\
+      \footnotesize +817(33)99$\to$33\\
+      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{orange}f_6}$ \codechar{(} \codechar{)} s)}
     };
 
     \draw (-2,-2.5) -- (15,-2.5);
-    \node[align=left] at (-1.5,-2.3) {Tasks and\\\texttt{Programs}\\\\DSL};
+    \node[align=left,rotate=90] at (-1.5,-1.3) {Tasks and\\\\\texttt{Programs}};
 
-    \node(substitution)[draw,rounded corners,align=center] at (1,-4) {
-      \small $f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\\
-       \mcode{(map ($\lambda$ (x) (if}\\
-      \mcode{(= x a) b x)) s)}
-    };
-    \node[anchor = north] at (substitution.south) {substitute characters};
-    \node(cat)[draw,rounded corners,align=center] at (1,-6) {
-      \small $f_1($\code{a}$,$\code{b}$) \,=\, $\\
-       \mcode{(fold ($\lambda$ (x y)}\\\mcode{ (cons x y)) a b))}
-    };
-    \node[anchor = north] at (cat.south) {concat strings};
-    \node(looping)[draw,rounded corners,align=center] at (1,-8) {
-      \small $f_2($\code{c}$,$\code{p}$,$\code{s}$) \,=\, $\\
-       \mcode{(unfold l ($\lambda$ (x)}\\\mcode{(= c (car x)))}\\\mcode{ p ($\lambda$ (z) (cdr z)))}
-    };
-    \node[anchor = north] at (looping.south) {loop until char};
+    \node[align=left,rotate=90] at (-1.5,-6.3) {Domain Specific Language (DSL)};
 
-    \node(constant)[draw,rounded corners,align=center] at (4.5,-4) {
-      \small $f_3($\code{s}$) \,=\, $\\
-       \mcode{($f_0$ s string)}
-    };
-    \node[anchor = north] at (constant.south) {prepend constant};
-    \node(drop)[draw,rounded corners,align=center] at (4.5,-6) {
-      \small $f_4($\code{c}$) \,=\, $\\
-      \mcode{($f_2$ c ($\lambda$ }\\\mcode{(z) (car z)))}
-    };
-    \node[anchor = north] at (drop.south) {prefix};
-    \node(suffix)[draw,rounded corners,align=center] at ([yshift=-2cm]drop.center) {
-      \small $f_5($\code{s}$,$\code{c}$) \,=\, $\\
+    \renewcommand{\horizontalSpacing}{3.5cm}
+    \renewcommand{\verticalSpacing}{2cm}
+
+    \newcommand{\invention}[4]{
+      \node(#1)[inner sep=1,anchor=center,text width=2cm,draw,rounded corners,align=center] at (#2) {
+        \footnotesize #3
+      };
+      \node[anchor=north] at ([yshift=3.5pt]#1.south) {#4};
+    }
+    \newcommand{\vinvention}[4]{
+      \invention{#1}{[yshift=-\verticalSpacing]#2.center}{#3}{#4}
+    }
+    \newcommand{\hinvention}[4]{
+      \invention{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
+    }
+
+
+    \invention{substitution}{1,-4}{
+      ${\color{orange}f_0}($\mcode{s}$,$\mcode{a}$,$\mcode{b}$) \,=\, $\\
+       \mcode{(map ($\lambda$ (x) (if (= x a)\\ b x)) s)}
+    }{substitute chars}
+    \vinvention{cat}{substitution}{
+      ${\color{orange}f_1}($\mcode{a}$,$\mcode{b}$) \,=\, $\\
+      \mcode{(fold ($\lambda$ (x y)\\ (cons x y))\\ a b))}
+    }{concat strings}
+    \vinvention{looping}{cat}{
+       ${\color{orange}f_2}($\mcode{c}$,$\mcode{p}$,$\mcode{s}$) \,=\, $\\
+      \mcode{(unfold l ($\lambda$ (x) (= c (car x))) p ($\lambda$ (z) (cdr z)))}
+    }{loop until char}
+
+    \hinvention{constant}{substitution}{
+      ${\color{orange}f_3}($\mcode{s}$) \,=\, $\\
+      \mcode{(${\color{orange}f_1}$ s string)}
+    }{prepend constant}
+    \vinvention{drop}{constant}{
+      ${\color{orange}f_4}($\mcode{c}$) \,=\, $\\
+      \mcode{(${\color{orange}f_2}$ c ($\lambda$ }\\\mcode{(z) (car z)))}
+    }{prefix}
+    \vinvention{suffix}{drop}{
+      ${\color{orange}f_5}($\mcode{s}$,$\mcode{c}$) \,=\, $\\
       \mcode{(fold ($\lambda$ (x y) }\\\mcode{(cdr (if (= x c)}\\\mcode{ s y))) s s)}
-    };
-    \node[anchor = north] at (suffix.south) {suffix};
-    \node(delimited)[draw, rounded corners, align=center,text width=2.5cm] at ([xshift=3.5cm]constant.center) {
-      \code{$f_6($x$,$y$,$s$)\,=\,$}\\
-      \mcode{($f_4$ x ($f_5$ y c))}};
-    \node[anchor = north] at (delimited.south) {delimited substring};
+    }{suffix}
+
+    \hinvention{delimited}{constant}{
+      \mcode{${\color{orange}f_6}($x$,$y$,$s$)\,=\,$}\\
+      \mcode{(${\color{orange}f_4}$ x (${\color{orange}f_5}$ y c))}
+    }{delimited substring}
     \draw[->] (delimited.west) -- (drop.east);
     \draw[->] (delimited.west) -- (suffix.east);
 
-    \node(appendSingle)[draw, rounded corners, align=center,text width=2.5cm] at ([yshift=-2cm]delimited.center) {
-      \code{$f_7($c$,$s$)\,=\,$}\\
-      \mcode{($f_1$ (cons c empty) s)}};
-    \node[anchor = north] at (appendSingle.south) {append character};
+    \vinvention{appendSingle}{delimited}{
+      \mcode{${\color{orange}f_7}($c$,$s$)\,=\,$}\\
+      \mcode{(${\color{orange}f_1}$ (cons c nil) s)}}{append character}
     
-    \node(surround)[draw, rounded corners, align=center,text width=2.5cm] at ([yshift=-2cm]appendSingle.center) {
-      \code{$f_8($s$)\,=\,$}\\
-      \mcode{(cons \codechar{(} ($f_7$ \codechar{)} s))}};
-    \node[anchor = north] at (surround.south) {surround in parentheses};
+\vinvention{surround}{appendSingle}{
+      \mcode{${\color{orange}f_8}($s$)\,=\,$}\\
+      \mcode{(cons \codechar{(} (${\color{orange}f_7}$ \codechar{)} s))}}{surround in parens}
     \draw[->] (surround.west) to[in=200,out=160] ([yshift=-0.25cm]appendSingle.west);
     \draw[->] (appendSingle.west) to[in=40,out=120] ([yshift=0.25cm]cat.east);
     
@@ -459,11 +472,63 @@
     \draw[->] ([xshift=-0.5cm]t2.south) -- (constant.north);
     \draw[->] ([xshift=0.3cm]t2.south) to[in=30,out=-30] ([xshift=1cm]drop.north);
 
-    \draw[->] ([yshift=0.5cm,xshift=-0.4cm]t1.south) to[in=100,out=200] (substitution.north);
-    \draw[->] ([yshift=0.8cm,xshift=-0.5cm]t1.south) to[in=120,out=200] ([xshift=-0.5cm]substitution.north);
+    \draw[->] ([yshift=0.2cm,xshift=-0.2cm]t1.south) to[in=100,out=200] (substitution.north);
+    \draw[->] ([yshift=0.5cm,xshift=-0.5cm]t1.south) to[in=120,out=200] ([xshift=-0.5cm]substitution.north);
     \draw[->] ([xshift=-0.5cm]t3.south) -- (delimited.north);
-    
+          
+    \begin{scope}[shift={(0,-15)}]
+      \invention{filter}{0,0}{
+        ${\color{orange}f_0} = $\mcode{($\lambda$ (p l)\\ (fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil l))} 
+        }{higher-order `filter'}
 
+      \invention{three}{[yshift=-\verticalSpacing]filter.center}{\footnotesize ${\color{orange}f_1} = $\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
+      \invention{prefix}{[yshift=-\verticalSpacing]three.center}{\footnotesize ${\color{orange}f_2} = $\mcode{($\lambda$ (n l) (map ($\lambda$ (i) (index i l)) (range (+ 1 n))))}}{First $n$ elements}
+      \invention{single}{[xshift=\horizontalSpacing]filter.center}{\footnotesize ${\color{orange}f_3} = $\mcode{($\lambda$ (z l) (fold ($\lambda$ (x y) (cons x y)) z l))}}{Append element}
+      \invention{for}{[yshift=-\verticalSpacing]single.center}{\footnotesize ${\color{orange}f_4} = $\mcode{(+ 1 ${\color{orange}f_1}$)}}{The number `4'}
+      \invention{Max}{[yshift=-\verticalSpacing]for.center}{\footnotesize ${\color{orange}f_5} = $\mcode{($\lambda$ (l) %
+          (car (${\color{orange}f_0}$ ($\lambda$ (x) (nil? (${\color{orange}f_0}$ l ($\lambda$ (z) (> z x))))) l)))}}{Max of list}
+      \invention{largest}{[xshift=\horizontalSpacing]single.center}{\footnotesize ${\color{orange}f_6} = $\mcode{($\lambda$ (l n) %
+          (${\color{orange}f_5}$ (${\color{orange}f_0}$ ($\lambda$ (x) (> n (length (${\color{orange}f_0}$ ($\lambda$ (y) (> x y)) l)))) l)))}}{$n^{\text{th}}$ largest element}
+      \vinvention{count}{largest}{\footnotesize ${\color{orange}f_7} = $\mcode{($\lambda$ (x l) %
+          (length (${\color{orange}f_0}$ ($\lambda$ (y) (= x y)) l)))}}{count}
+      \vinvention{weird}{count}{\footnotesize ${\color{orange}f_8} = $\mcode{($\lambda$ (p l) %
+          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0))))}}
+                 {Higher-order incrementer}
+
+      \draw[->] (for.west) -- (three.east);
+      \draw[->] ([yshift=-0.5cm]largest.west) -- (Max.east);
+      \draw[->] ([yshift=-0.5cm]largest.west) to[out=240,in=340] ([yshift=-0.8cm]filter.east);
+      \draw[->] (Max.west) -- (filter.east);
+      \draw[->] ([yshift=0.1cm]count.west) to[out=90,in=300] ([yshift=-0.3cm]filter.east);
+
+      \node(t1)[align=left] at (0,3) {
+        \mcode{[1 4 5 8]$\to$[5 8]}\\
+        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
+        \mcode{[3 4 5 6]$\to$[5 6]}\\
+        \mcode{[6 5 4 3]$\to$[6 5]}\\
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{orange}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{orange}f_4}$)) z)}
+      };
+      \node(t2)[align=left] at ([xshift=3.75cm]t1.center) {
+        \mcode{[9 2 4]$\to$[4 2 9]}\\
+        \mcode{[4 3]$\to$[3 4]}\\
+        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
+        \mcode{[]$\to$[]}\\
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{orange}f_3}$ x a)) nil z)}
+      };
+      \node(t3)[align=left] at ([xshift=3.75cm]t2.center) {
+        \mcode{[9 2 3]$\to$[2 3 9]}\\
+        \mcode{[2 1]$\to$[1 2]}\\
+        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{ (${\color{orange}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range (length z)))}
+      };
+
+      \draw[->] ([yshift=0.5cm,xshift=-0.2cm]t1.south) to[out=250] (filter.north);
+      \draw[->] ([yshift=0.0cm,xshift=0.3cm]t1.south) to[out=350,in=100] (for.west);
+      \draw[->] ([xshift=-0.7cm]t2.south) -- (single.north);
+      \draw[->] ([xshift=-1.25cm,yshift=0.5cm]t3.south) to[out=240] (largest.north);
+
+    \end{scope}
+    
     
 
     
