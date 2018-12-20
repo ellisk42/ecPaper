@@ -156,7 +156,7 @@
 
 \begin{figure}
   \begin{tikzpicture}[line width=0.4mm]
-    \draw[fill=teal!5!white] (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
+    \draw[fill=white!5!white] (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
     \node at (5.5,1.25) {\textsc{\textbf{Wake}}};
 
     
@@ -204,9 +204,9 @@
 
 
     \node at (0.5,-4.75) {\textbf{\textsc{Sleep: Consolidation}}};
-    \draw[fill=teal!5!white] (-2,-5) -- (3,-5) -- (3,-10) -- (5.5,-10) -- (5.5,-13) -- (-2,-13) -- (-2,-5);
+    \draw[fill=white!5!white] (-2,-5) -- (3,-5) -- (3,-10) -- (5.5,-10) -- (5.5,-13) -- (-2,-13) -- (-2,-5);
     \node at (11.5,-4.75) {\textbf{\textsc{Sleep: Dreaming}}};
-    \draw[fill=teal!5!white] (14,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (14,-13) -- (14,-5);
+    \draw[fill=white!5!white] (14,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (14,-13) -- (14,-5);
 
     \begin{scope}[shift={(9,-4.5)}]
       \node(dreaming) at (2,-1) {\underline{Fantasies}};
@@ -255,11 +255,12 @@
       \end{scope}
 
     %%}b memory consolidation
-    \begin{scope}[shift={(-2,-4.5)}]
-      \node[align=center] at (0.8,-1.2) (f1){progs. for\\task$_1$:\\\mcode{(+ (car z) 1)}};
-      \node[align=center] at ([xshift = 1cm]f1.east) (f2){progs. for\\task$_2$:\\\mcode{(cons (+ 1 1))}};
-      \node[align=center] at ([yshift = 0cm,xshift=0.4cm]f2.east) (f3){\textbf{DSL}\\\mcode{cons}, \mcode{+}, \\...};
-      \node(c)[rectangle, rounded corners, dashed, draw, minimum width = 3.75cm, minimum height = 3cm, anchor = north] at ([yshift=-0.8cm,xshift=-0.3cm]f2.south) {};
+    \begin{scope}[shift={(-1.9,-4.5)}]
+      \node[align=center] at (0.8,-1.2) (f1){progs. for\\task$_1$:\\%
+        \mcode{(+ (car z)}\vspace{-5pt}\\\mcode{1)  }};
+      \node[align=center] at ([xshift = 0.7cm]f1.east) (f2){progs. for\\task$_2$:\\\mcode{(cons }\vspace{-5pt}\\\mcode{(+ 1 1))}};
+      \node[align=center] at ([xshift=0.7cm]f2.east) (f3){\textbf{DSL}\\\mcode{cons}, \mcode{+}, \\...};
+      \node(c)[rectangle, rounded corners, dashed, draw, minimum width = 3.75cm, minimum height = 3cm, anchor = north] at ([yshift=-0.8cm,xshift=-0.0cm]f2.south) {};
       \draw [-> ] (f1.south) -- (f1.south|-c.north);
       \draw [-> ] (f2.south) -- (f2.south|-c.north);
       \draw [-> ] (f3.south) -- (f3.south|-c.north);
@@ -267,11 +268,11 @@
       
       \node(d) at ([yshift = -1.8cm]c.south) {
         \begin{tikzpicture}[scale=0.9,line width=0.5mm]
-          \node[align=center] at (0,0) {DSL w/ \code{(+ x 1)}:};
+          \node[align=center] at (0,0) {\textbf{new DSL} w/ \texttt{(+ x 1)}:};
           \begin{scope}[shift={(0.6,-0.5)}]
-            \node[pop3](p1) at (-1,-1) {\code{+}};
-            \node[pop3](n1) at (0.6,-0.9) {\code{1}};
-            \node[pop3](a) at (0,-1) {\code{ }};
+            \node[pop3](p1) at (-1,-1) {\texttt{+}};
+            \node[pop3](n1) at (0.6,-0.9) {\texttt{1}};
+            \node[pop3](a) at (0,-1) {\texttt{ }};
             \draw[pop3] (0,0) -- (p1.north);
             \draw[pop3] (0,0) -- (n1.north);
             \draw[pop3] (-0.3,-0.3) -- (a.north);
@@ -285,30 +286,30 @@
         \begin{tikzpicture}[scale=0.9,line width=0.35mm]
           
           \node(l1) at (0,0) {};
-          \node[color=pop3](p1) at (-1,-1) {\code{+}};
-          \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
-          \node(x1) at (0,-1) {\code{1}};
+          \node[color=pop3](p1) at (-1,-1) {\texttt{+}};
+          \node[color=pop3](n1) at (0.7,-0.9) {\texttt{1}};
+          \node(x1) at (0,-1) {\texttt{1}};
           \draw[color=pop3] (l1.south) -- (p1.north);
           \draw[color=pop3] (l1.south) -- (n1.north);
           \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
 
           \node(t) at (-0.5,0.5) {};
           \draw (l1.south) -- (t.south);
-          \node(c) at (-1.5,-0.2) {\code{cons}};
+          \node(c) at (-1.5,-0.2) {\texttt{cons}};
           \draw (t.south) -- (c.north);
           
           \begin{scope}[shift={(1,2)}]
             \node(l1) at (0,0) {};
-            \node[color=pop3](p1) at (-1,-1) {\code{+}};
-            \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+            \node[color=pop3](p1) at (-1,-1) {\texttt{+}};
+            \node[color=pop3](n1) at (0.7,-0.9) {\texttt{1}};
             %\node(x1) at (0,-1) {};
             \draw[color=pop3] (l1.south) -- (p1.north);
             \draw[color=pop3] (l1.south) -- (n1.north);
             \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
 
 
-            \node(c) at (-0.5,-1.5) {\code{car}};
-            \node(z) at (0.5,-1.5) {\code{z}};
+            \node(c) at (-0.5,-1.5) {\texttt{car}};
+            \node(z) at (0.5,-1.5) {\texttt{z}};
 
             \draw (0,-1) -- (c.north);
             \draw (0,-1) -- (z.north);
@@ -378,6 +379,17 @@
   \begin{tikzpicture}
     \renewcommand{\baselinestretch}{0.5}
     \renewcommand{\inventionColor}{orange}
+    \newcommand{\name}[2]{
+      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
+    }
+    \newcommand{\noArguments}[1]{
+      \mcode{{\color{\inventionColor}$f_{#1}\,=\,$}}
+    }
+
+    
+    \renewcommand{\horizontalSpacing}{3.8cm}
+    \renewcommand{\verticalSpacing}{2cm}
+
     
 %    \draw (0,0) rectangle (10,5);
     \node(t1)[align=left] at (1,-1) {
@@ -387,7 +399,7 @@
       \footnotesize \hspace{1.25cm}\mcode{(${\color{\inventionColor}f_0}$ \codechar{.} \codechar{ }}\\
       \footnotesize \hspace{1.4cm}\mcode{(cdr s)))}
     };
-    \node(t2)[align=left] at ([xshift=2cm]t1.east) {
+    \node(t2)[align=left,anchor=center] at ([xshift=\horizontalSpacing]t1.center) {
       \footnotesize Dream Coder$\to$Dr. Dream\\
       \footnotesize Andy Cencici$\to$Dr. Andy\\
       \footnotesize Jan Kotas$\to$Dr. Jan\\
@@ -407,9 +419,7 @@
 
     \node[align=left,rotate=90] at (-1.5,-6.3) {Domain Specific Language (DSL)\\\\System discovers subroutines in {\color{\inventionColor}orange}};
 
-    \renewcommand{\horizontalSpacing}{3.5cm}
-    \renewcommand{\verticalSpacing}{2cm}
-
+    
     \newcommand{\invention}[4]{
       \node(#1)[inner sep=1,anchor=center,text width=2cm,draw,rounded corners,align=center] at (#2) {
         \footnotesize #3
@@ -461,7 +471,7 @@
       \mcode{${\color{\inventionColor}f_7}($c$,$s$)\,=\,$}\\
       \mcode{(${\color{\inventionColor}f_1}$ (cons c nil) s)}}{append character}
     
-\vinvention{surround}{appendSingle}{
+    \vinvention{surround}{appendSingle}{
       \mcode{${\color{\inventionColor}f_8}($s$)\,=\,$}\\
       \mcode{(cons \codechar{(} (${\color{\inventionColor}f_7}$ \codechar{)} s))}}{surround in parens}
     \draw[->] (surround.west) to[in=200,out=160] ([yshift=-0.25cm]appendSingle.west);
@@ -479,20 +489,18 @@
           
     \begin{scope}[shift={(0,-15)}]
       \invention{filter}{0,0}{
-        ${\color{\inventionColor}f_0} = $\mcode{($\lambda$ (p l)\\ (fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil l))} 
+        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
         }{higher-order `filter'}
 
-      \invention{three}{[yshift=-\verticalSpacing]filter.center}{\footnotesize ${\color{\inventionColor}f_1} = $\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
-      \invention{prefix}{[yshift=-\verticalSpacing]three.center}{\footnotesize ${\color{\inventionColor}f_2} = $\mcode{($\lambda$ (n l) (map ($\lambda$ (i) (index i l)) (range (+ 1 n))))}}{First $n$ elements}
-      \invention{single}{[xshift=\horizontalSpacing]filter.center}{\footnotesize ${\color{\inventionColor}f_3} = $\mcode{($\lambda$ (z l) (fold ($\lambda$ (x y) (cons x y)) z l))}}{Append element}
-      \invention{for}{[yshift=-\verticalSpacing]single.center}{\footnotesize ${\color{\inventionColor}f_4} = $\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
-      \invention{Max}{[yshift=-\verticalSpacing]for.center}{\footnotesize ${\color{\inventionColor}f_5} = $\mcode{($\lambda$ (l) %
-          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l)))}}{Max of list}
-      \invention{largest}{[xshift=\horizontalSpacing]single.center}{\footnotesize ${\color{\inventionColor}f_6} = $\mcode{($\lambda$ (l n) %
-          (${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l)))}}{$n^{\text{th}}$ largest element}
-      \vinvention{count}{largest}{\footnotesize ${\color{\inventionColor}f_7} = $\mcode{($\lambda$ (x l) %
-          (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l)))}}{count}
-      \vinvention{weird}{count}{\footnotesize ${\color{\inventionColor}f_8} = $\mcode{($\lambda$ (p l) %
+      \vinvention{three}{filter}{\footnotesize ${\color{\inventionColor}f_1} = $\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
+      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
+      \hinvention{single}{filter}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
+      \vinvention{for}{single}{\footnotesize ${\color{\inventionColor}f_4} = $\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
+      \vinvention{Max}{for}{\name{5}{l}\\\mcode{%
+          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
+      \hinvention{largest}{single}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
+      \vinvention{count}{largest}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
+      \vinvention{weird}{count}{\name{8}{p$,$l}\mcode{
           (map ($\lambda$ (x) (if (p x) (+ 1 x) 0))))}}
                  {Higher-order incrementer}
 
@@ -502,31 +510,31 @@
       \draw[->] (Max.west) -- (filter.east);
       \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
 
-      \node(t1)[align=left] at (0,3) {
+      \node(t1)[align=left,anchor=center] at (0,3) {
         \mcode{[1 4 5 8]$\to$[5 8]}\\
         \mcode{[9 8 3 8]$\to$[9 8 8]}\\
         \mcode{[3 4 5 6]$\to$[5 6]}\\
         \mcode{[6 5 4 3]$\to$[6 5]}\\
         \footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}
       };
-      \node(t2)[align=left] at ([xshift=3.75cm]t1.center) {
+      \node(t2)[align=left] at ([xshift=\horizontalSpacing]t1.center) {
         \mcode{[9 2 4]$\to$[4 2 9]}\\
         \mcode{[4 3]$\to$[3 4]}\\
         \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
         \mcode{[]$\to$[]}\\
         \footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}
       };
-      \node(t3)[align=left] at ([xshift=3.75cm]t2.center) {
+      \node(t3)[align=left] at ([xshift=\horizontalSpacing]t2.center) {
         \mcode{[9 2 3]$\to$[2 3 9]}\\
         \mcode{[2 1]$\to$[1 2]}\\
         \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
-        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{ (${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range (length z)))}
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}
       };
 
-      \draw[->] ([yshift=0.5cm,xshift=-0.2cm]t1.south) to[out=250] (filter.north);
+      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]t1.south) to[out=250] (filter.north);
       \draw[->] ([yshift=0.0cm,xshift=0.3cm]t1.south) to[out=350,in=100] (for.west);
       \draw[->] ([xshift=-0.7cm]t2.south) -- (single.north);
-      \draw[->] ([xshift=-1.25cm,yshift=0.5cm]t3.south) to[out=240] (largest.north);
+      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]t3.south) to[out=240] (largest.north);
 
     \end{scope}
     
@@ -535,6 +543,90 @@
     
 
     \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+  \begin{tikzpicture}
+    \renewcommand{\baselinestretch}{0.5}
+    \renewcommand{\inventionColor}{orange}
+
+    \newcommand{\name}[2]{
+      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
+    }
+    \newcommand{\noArguments}[1]{
+      \mcode{{\color{\inventionColor}$f_{#1}\,=\,$}}
+    }
+    \newcommand{\use}[1]{{\color{\inventionColor}$f_{#1}$}}
+    \renewcommand{\horizontalSpacing}{3.9cm}
+    \renewcommand{\verticalSpacing}{2cm}
+    
+    \newcommand{\invention}[4]{
+      \node(#1)[inner sep=1,anchor=south,text width=2cm,draw,rounded corners,align=center] at (#2) {
+        \footnotesize #3
+      };
+      \node[anchor=north,align=center] at ([yshift=3.5pt]#1.south) {#4};
+    }
+    \newcommand{\vinvention}[4]{
+      \invention{#1}{[yshift=-\verticalSpacing]#2.south}{#3}{#4}
+    }
+    \newcommand{\hinvention}[4]{
+      \invention{#1}{[xshift=\horizontalSpacing]#2.south}{#3}{#4}
+    }
+    \newcommand{\exampleFunction}[2]{
+      \includegraphics[width = 0.5cm]{#1}, \includegraphics[width = 0.5cm]{#2}
+    }
+    \node[anchor=center,align=center](t1) at (2,0) {
+      \includegraphics[width = 2cm]{figures/logoTasks/logo144.png}\\
+    \mcode{(for (i 4) (\use{3} i))}};
+    \node[anchor=center,align=center](t2) at ([xshift=\horizontalSpacing]t1.center) {
+      \includegraphics[width = 2cm]{figures/logoTasks/logo121.png}\\
+    \mcode{(\use{7} 6 (\use{1} \use{0}))}};
+    \node[anchor=center,align=center](t3) at ([xshift=\horizontalSpacing]t2.center) {
+      \includegraphics[width = 2cm]{figures/logoTasks/logo133.png}\\
+      \mcode{(\use{7} 7 (\use{8} \use{6}))}};
+    \invention{circle}{2,-3}{
+      \name{0}{r}\mcode{(for (i $\infty$) (move r $\epsilon$) (move $\epsilon$ $\epsilon$))}
+    }{circle\\\exampleFunction{figures/logoTasks/logo51}{figures/logoTasks/logo63_dilated}}
+    \vinvention{pu}{circle}{
+      \noArguments{1}\mcode{(pen-up (move 1 0))}
+    }{pick up pen\\and move}
+    \vinvention{repeated}{pu}{
+      \name{2}{n$,$d$,$a}\mcode{(for (i n) (move d a))}
+    }{repeated segment\\\exampleFunction{figures/logoTasks/logoDemo1_dilated}{figures/logoTasks/logoDemo0_dilated.png}}
+    \hinvention{square}{circle}{
+      \name{3}{d}\mcode{(\use{2} 4 d (/ $2\pi$ 4))}
+    }{square\\\exampleFunction{figures/logoTasks/logo139_dilated}{figures/logoTasks/logo142_dilated}}
+    \vinvention{smooth}{square}{
+      \name{4}{d$,$a}\mcode{(\use{2} $\infty$ d a)}
+    }{Smooth curve\\\exampleFunction{figures/logoTasks/logoDemo2_dilated}{figures/logoTasks/logoDemo3_dilated}}
+    \vinvention{angle}{smooth}{
+      \name{5}{n}\mcode{(/ $2\pi$ n)}
+    }{$\frac{2\pi}{n}$}
+    \hinvention{semi}{square}{
+      \noArguments{6}\mcode{(\use{4} $\epsilon$ $\epsilon$)}
+    }{semicircle\\\exampleFunction{figures/logoTasks/logo55_dilated}{figures/logoTasks/logo62_dilated}}
+    \vinvention{snow}{semi}{
+      \name{7}{n$,$f}\mcode{(for (i n) (move 0 (\use{5} n)) (get/set f))}
+    }{rotational symmetry\\\exampleFunction{figures/logoTasks/logo119_dilated}{figures/logoTasks/logo68_dilated}}
+    \vinvention{line}{snow}{
+      \noArguments{8}\mcode{(move 1 0)}
+    }{line segment}
+
+    \draw[->] (t1.south) -- (square.north);
+    \draw[->] (t2.south) -- (circle.north);
+    \draw[->] (t3.south) -- (semi.north);
+    \draw[->] (t2.south) -- (snow.west);
+    \draw[->] (t2.south) -- (pu.east);
+    \draw[->] (t3.south) to[out=320,in=45] (line.east);
+    \draw[->] (t3.south) to[out=200,in=120] (snow.west);
+
+    \draw[->] (snow.west) -- (angle.east);
+    \draw[->] (smooth.west) -- (repeated.east);
+    \draw[->] (semi.west) -- (smooth.east);
+    \draw[->] (square.west) -- (repeated.east);
+  \end{tikzpicture}
+
+  
   \end{figure}
 
 %% \section{Introduction: Expertise}
