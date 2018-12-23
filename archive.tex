@@ -161,7 +161,7 @@
 
     
     \begin{scope}[shift={(0.5,0.5)}]
-      \node[align=right] at (0,0) (d){\textbf{DSL}\\
+      \node[align=right] at (0,-0.5) (d){\textbf{DSL}\\
         $f_1$, $f_2$, ...};
       \node[align=center] at ([yshift = -2cm]d) (t){\textbf{Task}\\
         \footnotesize            \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
@@ -203,12 +203,12 @@
     \end{scope}
 
 
-    \node at (0.5,-4.75) {\textbf{\textsc{Sleep: Consolidation}}};
-    \draw[fill=white!5!white] (-2,-5) -- (3,-5) -- (3,-10) -- (5.5,-10) -- (5.5,-13) -- (-2,-13) -- (-2,-5);
-    \node at (11.5,-4.75) {\textbf{\textsc{Sleep: Dreaming}}};
-    \draw[fill=white!5!white] (14,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (14,-13) -- (14,-5);
+    \node at (0,-4.75) {\textbf{\textsc{Sleep: Consolidation}}};
+    \draw[fill=white!5!white] (-3,-5) -- (3,-5) -- (3,-10) -- (5.5,-10) -- (5.5,-13) -- (-3,-13) -- (-3,-5);
+    \node at (12,-4.75) {\textbf{\textsc{Sleep: Dreaming}}};
+    \draw[fill=white!5!white] (15,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (15,-13) -- (15,-5);
 
-    \begin{scope}[shift={(9,-4.5)}]
+    \begin{scope}[shift={(9.5,-4.5)}]
       \node(dreaming) at (2,-1) {\underline{Fantasies}};
       \node at ([yshift=-0.75cm,xshift=-1.5cm]dreaming.south) (d){DSL};
       \node at ([xshift=1.5cm]d.east) (p1){prog.};
@@ -232,7 +232,7 @@
       \draw [->,red] (t1.south) to[out = -90,in = 0]  ([xshift=0.4cm]n.east);
       \draw [dashed] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
 
-      \begin{scope}[shift={(-3.3,-8)},scale=0.6,line width=0.05mm]
+      \begin{scope}[shift={(-3.8,-8)},scale=0.6,line width=0.05mm]
         \node[obs,scale=0.7] at (3.5,3) (dx){DSL};
         \node[obs,scale=0.7] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
         \node[obs,scale=0.7] at ([yshift=-1.45cm]zp) (xp) {task};
@@ -254,16 +254,48 @@
 
       \end{scope}
 
-    %%}b memory consolidation
-    \begin{scope}[shift={(-1.9,-4.5)}]
-      \node[align=center] at (0.8,-1.2) (f1){progs. for\\task$_1$:\\%
-        \mcode{(+ (car z)}\vspace{-5pt}\\\mcode{1)  }};
-      \node[align=center] at ([xshift = 0.7cm]f1.east) (f2){progs. for\\task$_2$:\\\mcode{(cons }\vspace{-5pt}\\\mcode{(+ 1 1))}};
-      \node[align=center] at ([xshift=0.7cm]f2.east) (f3){\textbf{DSL}\\\mcode{cons}, \mcode{+}, \\...};
-      \node(c)[rectangle, rounded corners, dashed, draw, minimum width = 3.75cm, minimum height = 3cm, anchor = north] at ([yshift=-0.8cm,xshift=-0.0cm]f2.south) {};
-      \draw [-> ] (f1.south) -- (f1.south|-c.north);
-      \draw [-> ] (f2.south) -- (f2.south|-c.north);
-      \draw [-> ] (f3.south) -- (f3.south|-c.north);
+    % memory consolidation
+    \begin{scope}[shift={(-2,-4.5)}]
+
+      %% defined routines for creating fragmented syntax trees
+      \renewcommand{\syntaxOne}[1]{
+        \begin{tikzpicture}[scale=#1,line width=0.35mm]          
+          \node(l1) at (0,0) {};
+          \node[color=pop3](p1) at (-1,-1) {\texttt{+}};
+          \node[color=pop3](n1) at (0.7,-0.9) {\texttt{1}};
+          \node(x1) at (0,-1) {\texttt{1}};
+          \draw[color=pop3] (l1.south) -- (p1.north);
+          \draw[color=pop3] (l1.south) -- (n1.north);
+          \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
+
+          \node(t) at (-0.5,0.5) {};
+          \draw (l1.south) -- (t.south);
+          \node(c) at (-1.5,-0.2) {\texttt{cons}};
+          \draw (t.south) -- (c.north);
+        \end{tikzpicture}
+      }
+      \renewcommand{\syntaxTo}[1]{
+        \begin{tikzpicture}[scale=#1,line width=0.35mm]          
+            \node(l1) at (0,0) {};
+            \node[color=pop3](p1) at (-1,-1) {\texttt{+}};
+            \node[color=pop3](n1) at (0.7,-0.9) {\texttt{1}};
+            \draw[color=pop3] (l1.south) -- (p1.north);
+            \draw[color=pop3] (l1.south) -- (n1.north);
+            \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
+            \node(c) at (-0.5,-1.5) {\texttt{car}};
+            \node(z) at (0.5,-1.5) {\texttt{z}};
+            \draw (0,-1) -- (c.north);
+            \draw (0,-1) -- (z.north);
+        \end{tikzpicture}
+      }
+
+      \node[align=center,anchor=center] at (0.4,-1.2) (f1){\textbf{Progs. for Task 1}:\\\code{(+ (car z) 1)}};
+      \node[align=center] at ([xshift = 1.75cm]f1.east) (f2){\textbf{Progs. for Task 2}:\\\code{(cons (+ 1 1))}};
+      \node(s1) at ([yshift=-0.5cm]f1.south) {\syntaxOne{0.8}};
+      \node(s2) at ([yshift=-0.5cm]f2.south) {\syntaxTo{0.8}};
+      \node(c)[align=center,rectangle, rounded corners, draw, minimum width = 4cm, minimum height = 1.5cm, anchor = north] at ($(s1.south)!0.5!(s2.south) + (0,-1)$) {Refactoring Algorithm};
+      \draw [-> ] (s1.south) -- (s1.south|-c.north);
+      \draw [-> ] (s2.south) -- (s2.south|-c.north);
 
       
       \node(d) at ([yshift = -1.8cm]c.south) {
@@ -281,47 +313,6 @@
       \draw [-> ] (c.south) -- (d.north);
 
 
-
-      \node at (c.center) {
-        \begin{tikzpicture}[scale=0.9,line width=0.35mm]
-          
-          \node(l1) at (0,0) {};
-          \node[color=pop3](p1) at (-1,-1) {\texttt{+}};
-          \node[color=pop3](n1) at (0.7,-0.9) {\texttt{1}};
-          \node(x1) at (0,-1) {\texttt{1}};
-          \draw[color=pop3] (l1.south) -- (p1.north);
-          \draw[color=pop3] (l1.south) -- (n1.north);
-          \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
-
-          \node(t) at (-0.5,0.5) {};
-          \draw (l1.south) -- (t.south);
-          \node(c) at (-1.5,-0.2) {\texttt{cons}};
-          \draw (t.south) -- (c.north);
-          
-          \begin{scope}[shift={(1,2)}]
-            \node(l1) at (0,0) {};
-            \node[color=pop3](p1) at (-1,-1) {\texttt{+}};
-            \node[color=pop3](n1) at (0.7,-0.9) {\texttt{1}};
-            %\node(x1) at (0,-1) {};
-            \draw[color=pop3] (l1.south) -- (p1.north);
-            \draw[color=pop3] (l1.south) -- (n1.north);
-            \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
-
-
-            \node(c) at (-0.5,-1.5) {\texttt{car}};
-            \node(z) at (0.5,-1.5) {\texttt{z}};
-
-            \draw (0,-1) -- (c.north);
-            \draw (0,-1) -- (z.north);
-
-            %  \node [rotate=90] at (-2.3,-0.7) {\small program};
-            
-          \end{scope}
-
-
-
-        \end{tikzpicture}
-      };
 
       \begin{scope}[shift={(4,-8)},scale=0.6,line width=0.05mm]
         \node[latent,scale=0.7] at (3.5,3) (dx){DSL};
@@ -545,7 +536,7 @@
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}\centering
   \begin{tikzpicture}
     \renewcommand{\baselinestretch}{0.5}
     \renewcommand{\inventionColor}{orange}
@@ -557,11 +548,11 @@
       \mcode{{\color{\inventionColor}$f_{#1}\,=\,$}}
     }
     \newcommand{\use}[1]{{\color{\inventionColor}$f_{#1}$}}
-    \renewcommand{\horizontalSpacing}{3.9cm}
+    \renewcommand{\horizontalSpacing}{4.2cm}
     \renewcommand{\verticalSpacing}{2cm}
     
     \newcommand{\invention}[4]{
-      \node(#1)[inner sep=1,anchor=south,text width=2cm,draw,rounded corners,align=center] at (#2) {
+      \node(#1)[inner sep=1,anchor=south,text width=2.2cm,draw,rounded corners,align=center] at (#2) {
         \footnotesize #3
       };
       \node[anchor=north,align=center] at ([yshift=3.5pt]#1.south) {#4};
@@ -575,16 +566,87 @@
     \newcommand{\exampleFunction}[2]{
       \includegraphics[width = 0.5cm]{#1}, \includegraphics[width = 0.5cm]{#2}
     }
-    \node[anchor=center,align=center](t1) at (2,0) {
-      \includegraphics[width = 2cm]{figures/logoTasks/logo144.png}\\
-    \mcode{(for (i 4) (\use{3} i))}};
-    \node[anchor=center,align=center](t2) at ([xshift=\horizontalSpacing]t1.center) {
-      \includegraphics[width = 2cm]{figures/logoTasks/logo121.png}\\
-    \mcode{(\use{7} 6 (\use{1} \use{0}))}};
-    \node[anchor=center,align=center](t3) at ([xshift=\horizontalSpacing]t2.center) {
-      \includegraphics[width = 2cm]{figures/logoTasks/logo133.png}\\
-      \mcode{(\use{7} 7 (\use{8} \use{6}))}};
-    \invention{circle}{2,-3}{
+    \renewcommand{\task}[4]{
+      \node[align=left,anchor=center](t#1) at (#2) {#3};
+      \node[align=left](p#1) at ([yshift=-0.75cm]t#1.south) {#4};
+    }
+    \renewcommand{\nextTask}[4]{
+      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
+    }
+
+    \begin{scope}[shift={(0,8)}]
+      \task{1}{2,3}{
+        \textsc{Take if $\geq 5$}\\
+        \mcode{[1 4 5 8]$\to$[5 8]}\\
+        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
+        \mcode{[3 4 5 6]$\to$[5 6]}\\
+        \mcode{[6 5 4 3]$\to$[6 5]}
+      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}}
+      \nextTask{2}{t1}{
+        \textsc{Reverse}\\
+        \mcode{[9 2 4]$\to$[4 2 9]}\\
+        \mcode{[4 3]$\to$[3 4]}\\
+        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
+        \mcode{[]$\to$[]}
+      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}}
+      
+      \nextTask{3}{t2}{
+        \textsc{Sort}\\
+        \mcode{[9 2 3]$\to$[2 3 9]}\\
+        \mcode{[2 1]$\to$[1 2]}\\
+        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
+        \mcode{[9 8 9]$\to$[8 9 9]}
+      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}}
+
+      \vinvention{filter}{p1}{
+        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
+      }{higher-order `filter'}
+
+      \vinvention{three}{filter}{\footnotesize \noArguments{1}\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
+      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
+      \hinvention{single}{filter}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
+      \vinvention{for}{single}{\noArguments{4}\\\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
+      \vinvention{Max}{for}{\name{5}{l}\\\mcode{%
+          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
+      \hinvention{largest}{single}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
+      \vinvention{count}{largest}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
+      \vinvention{weird}{count}{\name{8}{p$,$l}\mcode{
+          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0)))}}{Higher-order incrementer}                 
+
+      \node[rotate=90,align=center] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
+      \node[rotate=90,align=center] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
+      \node[rotate=90,align=center] at ([xshift=-2cm]three.center) {\textbf{\textsc{Domain Specific Language}}\\
+        \small Learned routines in {\color{orange}orange}};
+
+      \draw[->] (for.west) -- (three.east);
+      \draw[->] ([yshift=-0.0cm]largest.west) -- (Max.east);
+      \draw[->] ([yshift=-0.cm]largest.west) to[out=240,in=330] ([yshift=-0.1cm]filter.east);
+      \draw[->] (Max.west) -- (filter.east);
+      \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
+
+
+      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]p1.south) to[out=250] (filter.north);
+      \draw[->] ([yshift=0.0cm,xshift=0.3cm]p1.south) to[out=350,in=100] (for.west);
+      \draw[->] ([xshift=-0.7cm]p2.south) -- (single.north);
+      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]p3.south) to[out=240] (largest.north);
+
+      
+    \end{scope}
+    
+    \renewcommand{\task}[4]{
+      \node(t#1) at (#2) {\includegraphics[width = 2cm]{#3}};
+      \node(p#1) at ([yshift=-0.75cm]t#1.south) {#4};
+    }
+    \newcommand{\nextTask}[4]{
+      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
+    }
+    
+    
+    \task{1}{2,0}{figures/logoTasks/logo144.png}{\mcode{(for (i 4) (\use{3} i))}}
+    \nextTask{2}{t1}{figures/logoTasks/logo121.png}{\mcode{(\use{7} 6 (\use{1}; (\use{0} 1)))}}
+    \nextTask{3}{t2}{figures/logoTasks/logo133.png}{\mcode{(\use{7} 7 (\use{8}; \use{6}))}}
+    
+    \vinvention{circle}{p1}{
       \name{0}{r}\mcode{(for (i $\infty$) (move r $\epsilon$) (move $\epsilon$ $\epsilon$))}
     }{circle\\\exampleFunction{figures/logoTasks/logo51}{figures/logoTasks/logo63_dilated}}
     \vinvention{pu}{circle}{
@@ -606,28 +668,35 @@
       \noArguments{6}\mcode{(\use{4} $\epsilon$ $\epsilon$)}
     }{semicircle\\\exampleFunction{figures/logoTasks/logo55_dilated}{figures/logoTasks/logo62_dilated}}
     \vinvention{snow}{semi}{
-      \name{7}{n$,$f}\mcode{(for (i n) (move 0 (\use{5} n)) (get/set f))}
+      \name{7}{n$,$f}\mcode{(for (i n) \\(move 0 (\use{5} n))\\ (get/set f))}
     }{rotational symmetry\\\exampleFunction{figures/logoTasks/logo119_dilated}{figures/logoTasks/logo68_dilated}}
     \vinvention{line}{snow}{
       \noArguments{8}\mcode{(move 1 0)}
     }{line segment}
 
-    \draw[->] (t1.south) -- (square.north);
-    \draw[->] (t2.south) -- (circle.north);
-    \draw[->] (t3.south) -- (semi.north);
-    \draw[->] (t2.south) -- (snow.west);
-    \draw[->] (t2.south) -- (pu.east);
-    \draw[->] (t3.south) to[out=320,in=45] (line.east);
-    \draw[->] (t3.south) to[out=200,in=120] (snow.west);
+    \draw[->] (p1.south) -- (square.north);
+    \draw[->] (p2.south) -- (circle.north);
+    \draw[->] (p3.south) -- (semi.north);
+    \draw[->] (p2.south) -- (snow.west);
+    \draw[->] (p2.south) -- (pu.east);
+    \draw[->] (p3.south) to[out=320,in=45] (line.east);
+    \draw[->] (p3.south) to[out=200,in=120] (snow.west);
 
-    \draw[->] (snow.west) -- (angle.east);
-    \draw[->] (smooth.west) -- (repeated.east);
-    \draw[->] (semi.west) -- (smooth.east);
-    \draw[->] (square.west) -- (repeated.east);
+    \draw[->,orange] (snow.west) -- (angle.east);
+    \draw[->,orange] (smooth.west) -- (repeated.east);
+    \draw[->,orange] (semi.west) -- (smooth.east);
+    \draw[->,orange] (square.west) -- (repeated.east);
+
+    \node[align=center,rotate=90] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
+    \node(programLabel)[align=center,rotate=90] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
+    \node[rotate=90,align=center] at ([xshift=-2cm]pu.center) {\textbf{\textsc{Domain Specific Language}}\\
+      \small Learned routines in {\color{orange}orange}};
+
+    \draw [dashed] ([xshift=0.5cm,yshift=-0.25\verticalSpacing]programLabel.east) -- ([xshift=15cm,yshift=-0.25\verticalSpacing]programLabel.east);
+    \node[align=left,anchor=center] at ([xshift=14cm,yshift=-0.3\verticalSpacing]programLabel.east) {\large $\uparrow$\;system inputs\\\\\\\large $\downarrow$\;system outputs};
   \end{tikzpicture}
-
-  
-  \end{figure}
+  \caption{Two of the six domains we apply \system to. Agent observes tasks (top rows) which it solves by writing programs (middle rows) while jointly growing a library (DSL; bottom rows). Learned DSLs rediscover multiple higher-order functions (\code{filter} for list functions and rotational symmetry for generative graphics). Learned DSL components call each other (arrows).}  
+\end{figure}
 
 %% \section{Introduction: Expertise}
 
