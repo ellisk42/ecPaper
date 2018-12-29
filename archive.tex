@@ -151,9 +151,617 @@
   \end{tikzpicture}
   }
 
-
+\tikzstyle{vecArrow} = [thick, decoration={markings,mark=at position                                
+   1 with {\arrow[semithick]{open triangle 60}}},                                                   
+   double distance=1.4pt, shorten >= 5.5pt,                                                         
+   preaction = {decorate},                                                                          
+   postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]                                    
+\tikzstyle{innerWhite} = [semithick, white,line width=1.4pt, shorten >= 4.5pt]                      
+         
 \begin{document}
 
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/DeepLogo.pdf} 
+  \end{figure}
+
+\begin{figure}
+  \begin{tikzpicture}
+    \renewcommand{\baselinestretch}{0.5}
+    \renewcommand{\inventionColor}{orange}
+    \newcommand{\name}[2]{
+      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
+    }
+    \newcommand{\noArguments}[1]{
+      \mcode{{\color{\inventionColor}$f_{#1}\,=\,$}}
+    }
+
+    
+    \renewcommand{\horizontalSpacing}{3.8cm}
+    \renewcommand{\verticalSpacing}{2cm}
+
+    
+%    \draw (0,0) rectangle (10,5);
+    \node(t1)[align=left] at (1,-1) {
+      \footnotesize +106 769-43$\to $106.769.43\\
+      \footnotesize +83 973-831$\to $83.973.831\\
+      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(}\subnode{f01}{${\color{\inventionColor}f_0}$}\mcode{  \codechar{.} \codechar{-}}\\
+      \footnotesize \hspace{1.25cm}\mcode{(${\color{\inventionColor}f_0}$ \codechar{.} \codechar{ }}\\
+      \footnotesize \hspace{1.4cm}\mcode{(cdr s)))}
+    };
+    \node(t2)[align=left,anchor=center] at ([xshift=\horizontalSpacing]t1.center) {
+      \footnotesize Dream Coder$\to$Dr. Dream\\
+      \footnotesize Andy Cencici$\to$Dr. Andy\\
+      \footnotesize Jan Kotas$\to$Dr. Jan\\
+      \footnotesize Nancy Jones$\to$Dr. Nancy\\
+      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{\inventionColor}f_3}$ (${\color{\inventionColor}f_4}$ \codechar{ } s))}
+    };
+    \node(t3)[align=left] at ([xshift=2cm]t2.east) {
+      \footnotesize Dream (Coder)$\to$Coder\\
+      \footnotesize 1 (2) 3 4$\to$2\\
+      \footnotesize the (dog) ran$\to$ran\\
+      \footnotesize +817(33)99$\to$33\\
+      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{\inventionColor}f_6}$ \codechar{(} \codechar{)} s)}
+    };
+
+    \draw (-2,-2.5) -- (15,-2.5);
+    \node[align=left,rotate=90] at (-1.5,-1.3) {Tasks and\\\\\texttt{Programs}};
+
+    \node[align=left,rotate=90] at (-1.5,-6.3) {Domain Specific Language (DSL)\\\\System discovers subroutines in {\color{\inventionColor}orange}};
+
+    
+    \newcommand{\invention}[4]{
+      \node(#1)[inner sep=1,anchor=center,text width=2cm,draw,rounded corners,align=center] at (#2) {
+        \footnotesize #3
+      };
+      \node[anchor=north] at ([yshift=3.5pt]#1.south) {#4};
+    }
+    \newcommand{\vinvention}[4]{
+      \invention{#1}{[yshift=-\verticalSpacing]#2.center}{#3}{#4}
+    }
+    \newcommand{\hinvention}[4]{
+      \invention{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
+    }
+
+
+    \invention{substitution}{1,-4}{
+      ${\color{\inventionColor}f_0}($\mcode{s}$,$\mcode{a}$,$\mcode{b}$) \,=\, $\\
+       \mcode{(map ($\lambda$ (x) (if (= x a)\\ b x)) s)}
+    }{substitute chars}
+    \vinvention{cat}{substitution}{
+      ${\color{\inventionColor}f_1}($\mcode{a}$,$\mcode{b}$) \,=\, $\\
+      \mcode{(fold ($\lambda$ (x y)\\ (cons x y))\\ a b))}
+    }{concat strings}
+    \vinvention{looping}{cat}{
+       ${\color{\inventionColor}f_2}($\mcode{c}$,$\mcode{p}$,$\mcode{s}$) \,=\, $\\
+      \mcode{(unfold l ($\lambda$ (x) (= c (car x))) p ($\lambda$ (z) (cdr z)))}
+    }{loop until char}
+
+    \hinvention{constant}{substitution}{
+      ${\color{\inventionColor}f_3}($\mcode{s}$) \,=\, $\\
+      \mcode{(${\color{\inventionColor}f_1}$ s string)}
+    }{prepend constant}
+    \vinvention{drop}{constant}{
+      ${\color{\inventionColor}f_4}($\mcode{c}$) \,=\, $\\
+      \mcode{(${\color{\inventionColor}f_2}$ c ($\lambda$ }\\\mcode{(z) (car z)))}
+    }{prefix}
+    \vinvention{suffix}{drop}{
+      ${\color{\inventionColor}f_5}($\mcode{s}$,$\mcode{c}$) \,=\, $\\
+      \mcode{(fold ($\lambda$ (x y) }\\\mcode{(cdr (if (= x c)}\\\mcode{ s y))) s s)}
+    }{suffix}
+
+    \hinvention{delimited}{constant}{
+      \mcode{${\color{\inventionColor}f_6}($x$,$y$,$s$)\,=\,$}\\
+      \mcode{(${\color{\inventionColor}f_4}$ x (${\color{\inventionColor}f_5}$ y c))}
+    }{delimited substring}
+    \draw[->] (delimited.west) -- (drop.east);
+    \draw[->] (delimited.west) -- (suffix.east);
+
+    \vinvention{appendSingle}{delimited}{
+      \mcode{${\color{\inventionColor}f_7}($c$,$s$)\,=\,$}\\
+      \mcode{(${\color{\inventionColor}f_1}$ (cons c nil) s)}}{append character}
+    
+    \vinvention{surround}{appendSingle}{
+      \mcode{${\color{\inventionColor}f_8}($s$)\,=\,$}\\
+      \mcode{(cons \codechar{(} (${\color{\inventionColor}f_7}$ \codechar{)} s))}}{surround in parens}
+    \draw[->] (surround.west) to[in=200,out=160] ([yshift=-0.25cm]appendSingle.west);
+    \draw[->] (appendSingle.west) to[in=40,out=120] ([yshift=0.25cm]cat.east);
+    
+    \draw[->] (drop.west) -- (looping.east);
+    \draw[->] (constant.west) -- (cat.east);
+
+    \draw[->] ([xshift=-0.5cm]t2.south) -- (constant.north);
+    \draw[->] ([xshift=0.3cm]t2.south) to[in=30,out=-30] ([xshift=1cm]drop.north);
+
+    \draw[->] ([yshift=0.2cm,xshift=-0.2cm]t1.south) to[in=100,out=200] (substitution.north);
+    \draw[->] ([yshift=0.5cm,xshift=-0.5cm]t1.south) to[in=120,out=200] ([xshift=-0.5cm]substitution.north);
+    \draw[->] ([xshift=-0.5cm]t3.south) -- (delimited.north);
+          
+    \begin{scope}[shift={(0,-15)}]
+      \invention{filter}{0,0}{
+        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
+        }{higher-order `filter'}
+
+      \vinvention{three}{filter}{\footnotesize ${\color{\inventionColor}f_1} = $\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
+      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
+      \hinvention{single}{filter}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
+      \vinvention{for}{single}{\footnotesize ${\color{\inventionColor}f_4} = $\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
+      \vinvention{Max}{for}{\name{5}{l}\\\mcode{%
+          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
+      \hinvention{largest}{single}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
+      \vinvention{count}{largest}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
+      \vinvention{weird}{count}{\name{8}{p$,$l}\mcode{
+          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0))))}}
+                 {Higher-order incrementer}
+
+      \draw[->] (for.west) -- (three.east);
+      \draw[->] ([yshift=-0.0cm]largest.west) -- (Max.east);
+      \draw[->] ([yshift=-0.cm]largest.west) to[out=240,in=330] ([yshift=-0.1cm]filter.east);
+      \draw[->] (Max.west) -- (filter.east);
+      \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
+
+      \node(t1)[align=left,anchor=center] at (0,3) {
+        \mcode{[1 4 5 8]$\to$[5 8]}\\
+        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
+        \mcode{[3 4 5 6]$\to$[5 6]}\\
+        \mcode{[6 5 4 3]$\to$[6 5]}\\
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}
+      };
+      \node(t2)[align=left] at ([xshift=\horizontalSpacing]t1.center) {
+        \mcode{[9 2 4]$\to$[4 2 9]}\\
+        \mcode{[4 3]$\to$[3 4]}\\
+        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
+        \mcode{[]$\to$[]}\\
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}
+      };
+      \node(t3)[align=left] at ([xshift=\horizontalSpacing]t2.center) {
+        \mcode{[9 2 3]$\to$[2 3 9]}\\
+        \mcode{[2 1]$\to$[1 2]}\\
+        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}
+      };
+
+      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]t1.south) to[out=250] (filter.north);
+      \draw[->] ([yshift=0.0cm,xshift=0.3cm]t1.south) to[out=350,in=100] (for.west);
+      \draw[->] ([xshift=-0.7cm]t2.south) -- (single.north);
+      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]t3.south) to[out=240] (largest.north);
+
+    \end{scope}
+    
+    
+
+    
+
+    \end{tikzpicture}
+\end{figure}
+
+
+
+%% \section{Introduction: Expertise}
+
+%% Human learners acquire expertise in a wide range of domains: some of
+%% us become experts in calculus, or cooking, or biology, music, tennis,
+%% or software engineering, to name just a few, and every child develops
+%% expertise in natural language, intuitive physics~\cite{Pete?},
+%% intuitive psychology (theory-of-mind), and motor control.  This
+%% picture contrasts sharply with the current state of machine
+%% intelligence, where a machine is built to be an expert in a single
+%% domain, like boardgames~\cite{alphaGo}, medical
+%% diagnosis~\cite{mycin,CNNsForDiseaseDetection}, theorem
+%% proving~\cite{eurisko}, or visual object recognition~\cite{alexNet}.
+%% Thus an outstanding challenge in the long-term program of building
+%% more humanlike machines is to develop an algorithm that, like people,
+%% autonomously acquires expertise across many different kinds of
+%% domains.
+
+%% We contribute a model of the development of expertise that combines
+%% two key ingredients.  First, an expert needs a sufficiently expressive
+%% knowledge representation.  Following a long tradition in cognitive
+%% science and AI, we represent knowledge as programs, which prior work
+%% has used to represent expertise in recognition and generation of
+%% handwriting and speech~\cite{lake2015human}, intuitive theories (of
+%% kinship, taxonomy, etc.)~\cite{Ullman2012}, and natural language
+%% grammar and
+%% semantics~\cite{DBLP:journals/cogsr/SchmidK11,piantadosi2011learning}.
+%% Second, atop this program representation, experts possess two kinds of
+%% domain expertise.  They have at their disposal a powerful, yet
+%% specialized, repertoire of concepts and abstractions: e.g., in
+%% architecture, these are concepts like `arch' or `foundation'; in
+%% software engineering these are libraries of code and domain-specific
+%% languages (DSLs).  Here our model represents knowledge as programs,
+%% and so we identify this kind of expertise with a DSL.  Experts also
+%% have knowledge of when and how to deploy these domain-specific
+%% concepts efficiently when solving new problems: e.g., mathematicians
+%% efficiently search the space of proofs, intuiting which lemmas are
+%% appropriate when; expert chefs intuit which compositions of
+%% ingredients are likely tasty, before they actually start cooking.  For
+%% our model, this aspect of expertise corresponds to the ability to
+%% quickly assemble new, useful programs out of its DSL.
+
+%% We integrate these ideas into a model called DreamCoder which acquires
+%% expertise through a novel kind of wake/sleep or `dream' learning. The
+%% model iterates through wake cycles -- where it solves problems by
+%% writing programs -- and a pair of sleep cycles: a sleep cycle that
+%% grows its DSL by replaying experiences from waking and consolidating
+%% them into new abstractions, and a sleep cycle that improves its
+%% knowledge of how to write programs by training a neural network on
+%% replayed experiences as well as `dreams', or samples, from its DSL.
+
+%% DreamCoder builds on multiple generations of AI research, going back
+%% to the 1960's~\cite{solomonoff1964formal} when program-learning was
+%% proposed as a paradigm for general AI.  Broadly speaking recent work
+%% has either developed neural approaches for learning to efficiently
+%% deploy a fixed
+%% DSL~\cite{devlin2017robustfill,balog2016deepcoder,NGDS,spiral}, or
+%% developed symbolic approaches for representing and searching through
+%% spaces of
+%% programs~\cite{gulwani2011automating,solar2008program,DBLP:books/daglib/0070933}.
+%% We were motivated by approaches that learn or grow the
+%% DSL~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning}.
+%% Our goal with DreamCoder is to show that the combination of
+%% neurally-guided search and DSL learning is a uniquely powerful way of
+%% building systems that, like human learners, autonomously acquire the
+%% expertise needed to navigate a new domain of problems.
+
+
+
+
+
+\section{Introduction}
+
+
+An age-old dream within AI is a machine that learns and reasons by
+writing its own programs.  This vision stretches back to the
+1960's~\cite{solomonoff1964formal} and and is central to much of
+what it would take to build machines that learn and think like humans.
+Computational models of cognition often explain the flexibility and
+richness of human thinking in terms of program learning: from everyday
+thinking and problem solving (motor program induction as an account of
+recognition and generation of handwriting and
+speech~\cite{lake2015human}; functional programs as a model of natural
+language semantics~\cite{SOMETHING}) to learning problems that unfold
+over longer developmental time scales: the child's acquisition of
+intuitive theories (of kinship, taxonomy, etc.)~\cite{Ullman2012} and
+natural language grammar~\cite{DBLP:journals/cogsr/SchmidK11}, to name
+just a few.  An outstanding challenge, however, is to engineer
+program-learners that display the same level of domain-generality as
+the humans they are meant to model.
+
+Recent program-learning systems developed within the AI and machine
+learning community are impressive along many dimensions, authoring
+programs for problem domains like drawing
+pictures~\cite{spiral,ellis2017learning}, transforming
+text~\cite{gulwani2011automating} and numerical
+sequences~\cite{balog2016deepcoder}, and reasoning over common sense
+knowledge bases~\cite{muggleton2015meta}.  These systems work in
+different ways, but typically hinge upon a carefully hand-engineered
+Domain Specific Language (DSL).  The DSL restricts the space of
+programs to contain the kinds of concepts needed for one specific
+domain.  For example, a picture-drawing DSL could include concepts
+like circles and spirals, and a DSL for numerical sequences could
+include sorting and reversing lists of numbers.  Modern systems also
+learn how to efficiently deploy the DSL on new
+problems~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}, but --
+unlike human learners -- do not discover the underlying system of
+concepts needed to navigate the domain.
+
+We contribute a program-induction system that learns the
+domain-specific concepts (DSL) while jointly learning how to use those
+concepts.  This joint learning problem models two complementary
+notions of domain expertise: (1) domain experts have at their disposal
+a powerful, yet specialized repertoire of concepts and abstractions
+(analogous to the DSL) while also (2) having accurate intuitions about
+when and how to use those concepts to solve new problems.
+Representative domains,
+along with DSLs we learn for them,
+are shown in Figure~\ref{exampleDSL}.
+
+We call our system `DreamCoder' because it acquires these two kinds of
+expertise through a novel kind of wake/sleep or `dream'
+learning~\cite{hinton1995wake}, iterating through a wake cycle --
+where it solves problems by writing programs -- and a pair of sleep
+cycles, both of which are loosely biologically inspired by actual
+human sleep.  The first sleep cycle, which we refer to as
+\textbf{consolidation}, grows the DSL by replying experiences from
+waking and consolidating them into new code abstractions.  This cycle
+is inspired by the formation of abstractions during sleep memory
+consolidation~\cite{DUDAI201520}.  The second sleep cycle, which we
+refer to as \textbf{dreaming}, improves the agents knowledge of how to
+write programs by training a neural network to help search for
+programs. The neural net is trained on replayed experiences as well as
+`fantasies', or samples, from the DSL.  These two kinds of dreams are
+inspired by the distinct episodic replay and hallucination components
+of dream sleep~\cite{fosse2003dreaming}.
+
+This dream-learning architecture brings together two lines of prior work,
+both of which have been separately influential within
+artificial intelligence.
+One line of work
+considers the problem of learning new concepts, abstractions, or
+`options' from
+experience~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning},
+while the other line of work considers the problem of learning how to
+deploy those concepts
+efficiently~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}.  Our
+goal with DreamCoder is to show that the combination of these ideas is
+uniquely powerful, and pushes us toward program-writing systems that,
+like human learners, autonomously acquire the expertise needed to
+navigate a new domain of problems.
+
+Because any learning problem can in principle be cast as program
+induction, it is important to delimit our focus.  In contrast to
+computer assisted programming~\cite{solar2008program} or genetic
+programming~\cite{DBLP:books/daglib/0070933}, our goal is not to
+automate software engineering, or to synthesize large bodies of code
+starting from scratch.  Ours is a basic AI goal: capturing the human
+ability to learn to think flexibly and efficiently in new domains ---
+to learn what you need to know about a domain so you don't have to
+solve new problems starting from scratch.  We are focused on problems
+that people solve relatively quickly, once they acquire the relevant
+domain expertise.  These correspond to tasks solved by short programs
+--- if you have an expressive DSL.
+
+
+
+\begin{figure}\centering
+  \begin{tikzpicture}
+    \renewcommand{\baselinestretch}{0.5}
+    \renewcommand{\inventionColor}{orange}
+
+    \newcommand{\name}[2]{
+      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
+    }
+    \newcommand{\noArguments}[1]{
+      \mcode{{\color{\inventionColor}$f_{#1}$}$\,=\,$}
+    }
+    \newcommand{\use}[1]{{\color{\inventionColor}$f_{#1}$}}
+    \renewcommand{\horizontalSpacing}{4.2cm}
+    \renewcommand{\verticalSpacing}{2cm}
+    
+    \newcommand{\invention}[4]{
+      \node(#1)[inner sep=1,anchor=south,text width=2.2cm,draw,rounded corners,align=center] at (#2) {
+        \footnotesize #3
+      };
+      \node[anchor=north,align=center] at ([yshift=3.5pt]#1.south) {#4};
+    }
+    \newcommand{\vinvention}[4]{
+      \invention{#1}{[yshift=-\verticalSpacing]#2.south}{#3}{#4}
+    }
+    \newcommand{\hinvention}[4]{
+      \invention{#1}{[xshift=\horizontalSpacing]#2.south}{#3}{#4}
+    }
+    \newcommand{\exampleFunction}[2]{
+      \includegraphics[width = 0.5cm]{#1}, \includegraphics[width = 0.5cm]{#2}
+    }
+    \renewcommand{\task}[4]{
+      \node[align=left,anchor=center](t#1) at (#2) {#3};
+      \node[align=left](p#1) at ([yshift=-0.75cm]t#1.south) {#4};
+    }
+    \renewcommand{\nextTask}[4]{
+      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
+    }
+
+    \begin{scope}[shift={(0,8)}]
+      \task{1}{2,3}{
+        \textsc{Reverse}\\
+        \mcode{[9 2 4]$\to$[4 2 9]}\\
+        \mcode{[4 3]$\to$[3 4]}\\
+        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
+        \mcode{[]$\to$[]}
+      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}}
+      \nextTask{2}{t1}{
+        \textsc{Take if $\geq 5$}\\
+        \mcode{[1 4 5 8]$\to$[5 8]}\\
+        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
+        \mcode{[3 4 5 6]$\to$[5 6]}\\
+        \mcode{[6 5 4 3]$\to$[6 5]}
+      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}}
+      
+      \nextTask{3}{t2}{
+        \textsc{Sort}\\
+        \mcode{[9 2 3]$\to$[2 3 9]}\\
+        \mcode{[2 1]$\to$[1 2]}\\
+        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
+        \mcode{[9 8 9]$\to$[8 9 9]}
+      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}}
+
+      %% \vinvention{filter}{p1}{
+      %%   \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
+      %% }{higher-order `filter'}
+      \vinvention{single}{p1}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
+
+      \vinvention{three}{single}{\footnotesize \noArguments{1}\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
+      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
+      \hinvention{filter}{single}{
+        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
+      }{higher-order `filter'}
+      \vinvention{for}{filter}{\noArguments{4}\\\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
+      \vinvention{weird}{for}{\name{8}{p$,$l}\mcode{
+          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0)))}}{Higher-order incrementer}                 
+      \hinvention{largest}{filter}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
+      \vinvention{Max}{largest}{\name{5}{l}\\\mcode{%
+          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
+      \vinvention{count}{Max}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
+
+      \node[rotate=90,align=center] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
+      \node(programLabel)[rotate=90,align=center] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
+      \node[rotate=90,align=center] at ([xshift=-2cm]three.center) {\textbf{\textsc{Domain Specific Language}}\\
+        \small Learned routines in {\color{orange}orange}};
+      \node at ([yshift=0.5cm]t2.north) {\textbf{\Large \textsc{Domain: List Processing}}};
+
+      \draw [dashed] ([xshift=0.5cm,yshift=-0.25\verticalSpacing]programLabel.east) -- ([xshift=15cm,yshift=-0.25\verticalSpacing]programLabel.east);
+    \node[align=left,anchor=center] at ([xshift=14cm,yshift=-0.3\verticalSpacing]programLabel.east) {\large $\uparrow$\;system inputs\\\\\\\large $\downarrow$\;system outputs};
+
+
+      \draw[->] (for.west) -- (three.east);
+      \draw[->] (largest.east) to[out=0,in=0] (Max.east);
+      \draw[->] ([yshift=-0.cm]largest.west) -- ([yshift=0.2cm]filter.east);
+      \draw[->] (Max.west) -- (filter.east);
+      \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
+
+
+      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]p2.south) to[out=250] (filter.north);
+      \draw[->] ([yshift=0.0cm,xshift=0.3cm]p2.south) to[out=350,in=0] (for.east);
+      \draw[->] ([xshift=-0.7cm]p1.south) -- (single.north);
+      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]p3.south) to[out=240] (largest.north);
+
+      
+    \end{scope}
+    
+    \renewcommand{\task}[4]{
+      \node(t#1) at (#2) {\includegraphics[width = 2cm]{#3}};
+      \node(p#1) at ([yshift=-0.75cm]t#1.south) {#4};
+    }
+    \newcommand{\nextTask}[4]{
+      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
+    }
+    
+    
+    \task{1}{2,0}{figures/logoTasks/logo144.png}{\mcode{(for (i 4) (\use{3} i))}}
+    \nextTask{2}{t1}{figures/logoTasks/logo121.png}{\mcode{(\use{7} 6 (\use{1}; (\use{0} 1)))}}
+    \nextTask{3}{t2}{figures/logoTasks/logo133.png}{\mcode{(\use{7} 7 (\use{8}; \use{6}))}}
+    
+    \vinvention{circle}{p1}{
+      \name{0}{r}\mcode{(for (i $\infty$) (move r $\epsilon$) (move $\epsilon$ $\epsilon$))}
+    }{circle\\\exampleFunction{figures/logoTasks/logo51}{figures/logoTasks/logo63_dilated}}
+    \vinvention{pu}{circle}{
+      \noArguments{1}\mcode{(pen-up (move 1 0))}
+    }{pick up pen\\and move}
+    \vinvention{repeated}{pu}{
+      \name{2}{n$,$d$,$a}\mcode{(for (i n) (move d a))}
+    }{repeated segment\\\exampleFunction{figures/logoTasks/logoDemo1_dilated}{figures/logoTasks/logoDemo0_dilated.png}}
+    \hinvention{square}{circle}{
+      \name{3}{d}\mcode{(\use{2} 4 d (/ $2\pi$ 4))}
+    }{square\\\exampleFunction{figures/logoTasks/logo139_dilated}{figures/logoTasks/logo142_dilated}}
+    \vinvention{smooth}{square}{
+      \name{4}{d$,$a}\mcode{(\use{2} $\infty$ d a)}
+    }{Smooth curve\\\exampleFunction{figures/logoTasks/logoDemo2_dilated}{figures/logoTasks/logoDemo3_dilated}}
+    \vinvention{angle}{smooth}{
+      \name{5}{n}\mcode{(/ $2\pi$ n)}
+    }{$\frac{2\pi}{n}$}
+    \hinvention{semi}{square}{
+      \noArguments{6}\mcode{(\use{4} $\epsilon$ $\epsilon$)}
+    }{semicircle\\\exampleFunction{figures/logoTasks/logo55_dilated}{figures/logoTasks/logo62_dilated}}
+    \vinvention{snow}{semi}{
+      \name{7}{n$,$f}\mcode{(for (i n) \\(move 0 (\use{5} n))\\ (get/set f))}
+    }{rotational symmetry\\\exampleFunction{figures/logoTasks/logo119_dilated}{figures/logoTasks/logo68_dilated}}
+    \vinvention{line}{snow}{
+      \noArguments{8}\mcode{(move 1 0)}
+    }{line segment}
+
+    \draw[->] (p1.south) -- (square.north);
+    \draw[->] (p2.south) -- (circle.north);
+    \draw[->] (p3.south) -- (semi.north);
+    \draw[->] (p2.south) -- (snow.west);
+    \draw[->] (p2.south) -- (pu.east);
+    \draw[->] (p3.south) to[out=320,in=45] (line.east);
+    \draw[->] (p3.south) to[out=200,in=120] (snow.west);
+
+    \draw[->,orange] (snow.west) -- (angle.east);
+    \draw[->,orange] (smooth.west) -- (repeated.east);
+    \draw[->,orange] (semi.west) -- (smooth.east);
+    \draw[->,orange] (square.west) -- (repeated.east);
+
+    \node[align=center,rotate=90] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
+    \node(programLabel)[align=center,rotate=90] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
+    \node[rotate=90,align=center] at ([xshift=-2cm]pu.center) {\textbf{\textsc{Domain Specific Language}}\\
+      \small Learned routines in {\color{orange}orange}};
+          \node at ([yshift=0.5cm]t2.north) {\textbf{\Large \textsc{Domain: Graphics Programming}}};
+
+    \draw [dashed] ([xshift=0.5cm,yshift=-0.25\verticalSpacing]programLabel.east) -- ([xshift=15cm,yshift=-0.25\verticalSpacing]programLabel.east);
+    \node[align=left,anchor=center] at ([xshift=14cm,yshift=-0.3\verticalSpacing]programLabel.east) {\large $\uparrow$\;system inputs\\\\\\\large $\downarrow$\;system outputs};
+  \end{tikzpicture}
+  \caption{Two of the six domains we apply our system to. Agent observes tasks (top rows) which it solves by writing programs (middle rows) while jointly growing a library (DSL; bottom rows). Learned DSLs rediscover multiple higher-order functions (\code{filter} for list functions and rotational symmetry for generative graphics). Learned DSL components call each other (arrows).}  \label{exampleDSL}
+\end{figure}
+
+\section{Wake/Sleep Program Induction}\label{overviewSection}
+
+\system~takes as its goal to acquire domain-specific expertise, which
+it learns by solving a collection of programming \textbf{tasks}.  It
+alternatingly finds programs that solve tasks (Wake --
+Figure~\ref{threeCycles} top); improves its DSL by discovering and
+reusing domain-specific subroutines (Consolidation --
+Figure~\ref{threeCycles} left); and trains a neural network that
+efficiently guides search for programs in the DSL (Dreaming --
+Figure~\ref{threeCycles} right).  The learned DSL acts as a a prior on
+programs likely to solve tasks in the domain, while the neural net
+looks at a specific task and produces a ``posterior'' for programs
+likely to solve that specific task (Figure~\ref{threeCycles} middle).
+The neural network thus functions as a \textbf{recognition model}
+supporting a form of approximate Bayesian program induction, jointly
+trained with a \textbf{generative model} for programs encoded in the
+DSL, in the spirit of the Helmholtz machine~\cite{hinton1995wake}. The
+recognition model ensures that searching for programs remains
+tractable even as the DSL (and hence the search space for programs)
+expands.  The generative model, or DSL, distills out common
+abstractions across programs discovered during waking, growing a
+network of increasingly deep and specialized domain-specific concepts
+(Figure~\ref{exampleDSL}, bottom rows).
+
+Viewed as an inference problem, our goal is to start with a collection
+of tasks, written $X$, and infer both a program for each task, as well
+as a distribution over programs encoded by a DSL, written
+$\mathcal{D}$.  We equip $\mathcal{D}$ with a learned weight vector
+$\theta$, and together $(\mathcal{D},\theta)$ define a generative
+model over programs (see Appendix~\ref{sampleProgram}).  We perform
+maximum a posteriori (MAP) inference of $(\mathcal{D},\theta)$ given
+$X$.  Writing $J$ for the joint probability of $(\mathcal{D},\theta)$
+and $X$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
+\begin{align}\label{intractableObjectives}
+\nonumber  J(\mathcal{D},\theta)\triangleq \probability[\mathcal{D},\theta]&\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
+  \mathcal{D}^* = \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta &\qquad
+  \theta^* =\argmax_\theta J(\mathcal{D}^*,\theta)
+\end{align}
+where $\probability[x|p]$ scores the likelihood of a task
+$x\in X$ given a program $p$.\footnote{For example, for list
+  processing, the likelihood is 1 if the program predicts the observed
+  outputs on the observed inputs, and 0 otherwise; when learning a
+  generative model or probabilistic program, the likelihood is the
+  probability of the program sampling the observation.}
+The above equations summarize the problem from the point of view of an ideal Bayesian learner.
+However, Eq.~\ref{intractableObjectives}
+is wildly intractable because evaluating $J(\mathcal{D},\theta)$ involves
+summing over the  infinite set of all programs.
+In practice we will only ever be able to sum over a finite set of programs.
+So, for each task, we define a finite set of programs, called a \emph{frontier}, and only marginalize over the frontiers:
+
+\begin{definition}
+A \textbf{frontier of task $x$}, written $\mathcal{F}_x$,
+is a finite set of programs s.t. $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
+\end{definition}
+\noindent Using the frontiers we  define the following intuitive lower bound on the joint probability, called $\lowerBound$:
+\begin{align}
+ J\geq \lowerBound\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
+\end{align}
+Our wake and sleep cycles correspond to alternate maximization of $\lowerBound$ w.r.t. $\left\{\mathcal{F}_x \right\}_{x\in X}$  (\textbf{Wake})
+and $(\mathcal{D},\theta)$ (\textbf{Consolidation}):
+\\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
+want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
+$\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]\propto\probability[p|x,\mathcal{D},\theta]$ 
+is large (i.e., programs with high posterior probability).
+%Here we use a simple and generic enumerative program synthesis algorithm.
+%% which we can accomplish by adding new programs to the frontiers means searching for new programs $p$ for task $x$
+%% where  is large.
+\\\noindent \textbf{Sleep (Consolidation): Maxing $ \lowerBound$ w.r.t.\ the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound \;\mathrm{d}\theta$,
+and then updating $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\})$.
+
+Searching for programs is hard because
+of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $Q(\cdot |\cdot )$,
+during the \textbf{Dreaming} phase: $Q$ is trained to approximate the
+posterior over programs, $Q(p|x)\approx \probability[p|x,\mathcal{D}]\propto\probability[x|p]\probability[p|\mathcal{D}]$.
+  Thus training the neural network amortizes the cost of finding programs with high posterior probability.
+
+\noindent\textbf{Sleep (Dreaming): tractably maxing $\lowerBound$ w.r.t. the
+  frontiers.}  Here we train %% a neural network, $q$, to predict a
+%% distribution over programs conditioned on a task. The objective of $q$
+%% is
+$Q(p|x)$ to assign high probability to programs $p$ where
+$\probability[x|p]\probability[p|\mathcal{D},\theta]$ is large, because incorporating those programs
+into the frontiers will most increase $\lowerBound$.
+
+Intuitively, this 3-phase inference procedure can work in practice because each of the 3 phases bootstraps off of the others. As the DSL grows and as the recognition model becomes more accurate, waking becomes more effective, allowing the agent to solve more tasks; when we solve more tasks during waking,
+the Consolidation cycle has more data from which to learn the DSL; and, because the recognition model is trained on both
+samples from the DSL and programs found during waking,
+the recognition model gets both more data, and higher-quality data, whenever the DSL improves and whenever we discover more successful programs.
 \begin{figure}
   \begin{tikzpicture}[line width=0.4mm]
     \draw[fill=white!5!white] (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
@@ -363,981 +971,46 @@
     \end{scope}
     
   \end{tikzpicture}
-  \caption{}\label{threeCycles}
-  \end{figure}
-
-\begin{figure}
-  \begin{tikzpicture}
-    \renewcommand{\baselinestretch}{0.5}
-    \renewcommand{\inventionColor}{orange}
-    \newcommand{\name}[2]{
-      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
-    }
-    \newcommand{\noArguments}[1]{
-      \mcode{{\color{\inventionColor}$f_{#1}\,=\,$}}
-    }
-
-    
-    \renewcommand{\horizontalSpacing}{3.8cm}
-    \renewcommand{\verticalSpacing}{2cm}
-
-    
-%    \draw (0,0) rectangle (10,5);
-    \node(t1)[align=left] at (1,-1) {
-      \footnotesize +106 769-43$\to $106.769.43\\
-      \footnotesize +83 973-831$\to $83.973.831\\
-      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(}\subnode{f01}{${\color{\inventionColor}f_0}$}\mcode{  \codechar{.} \codechar{-}}\\
-      \footnotesize \hspace{1.25cm}\mcode{(${\color{\inventionColor}f_0}$ \codechar{.} \codechar{ }}\\
-      \footnotesize \hspace{1.4cm}\mcode{(cdr s)))}
-    };
-    \node(t2)[align=left,anchor=center] at ([xshift=\horizontalSpacing]t1.center) {
-      \footnotesize Dream Coder$\to$Dr. Dream\\
-      \footnotesize Andy Cencici$\to$Dr. Andy\\
-      \footnotesize Jan Kotas$\to$Dr. Jan\\
-      \footnotesize Nancy Jones$\to$Dr. Nancy\\
-      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{\inventionColor}f_3}$ (${\color{\inventionColor}f_4}$ \codechar{ } s))}
-    };
-    \node(t3)[align=left] at ([xshift=2cm]t2.east) {
-      \footnotesize Dream (Coder)$\to$Coder\\
-      \footnotesize 1 (2) 3 4$\to$2\\
-      \footnotesize the (dog) ran$\to$ran\\
-      \footnotesize +817(33)99$\to$33\\
-      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{\inventionColor}f_6}$ \codechar{(} \codechar{)} s)}
-    };
-
-    \draw (-2,-2.5) -- (15,-2.5);
-    \node[align=left,rotate=90] at (-1.5,-1.3) {Tasks and\\\\\texttt{Programs}};
-
-    \node[align=left,rotate=90] at (-1.5,-6.3) {Domain Specific Language (DSL)\\\\System discovers subroutines in {\color{\inventionColor}orange}};
-
-    
-    \newcommand{\invention}[4]{
-      \node(#1)[inner sep=1,anchor=center,text width=2cm,draw,rounded corners,align=center] at (#2) {
-        \footnotesize #3
-      };
-      \node[anchor=north] at ([yshift=3.5pt]#1.south) {#4};
-    }
-    \newcommand{\vinvention}[4]{
-      \invention{#1}{[yshift=-\verticalSpacing]#2.center}{#3}{#4}
-    }
-    \newcommand{\hinvention}[4]{
-      \invention{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
-    }
-
-
-    \invention{substitution}{1,-4}{
-      ${\color{\inventionColor}f_0}($\mcode{s}$,$\mcode{a}$,$\mcode{b}$) \,=\, $\\
-       \mcode{(map ($\lambda$ (x) (if (= x a)\\ b x)) s)}
-    }{substitute chars}
-    \vinvention{cat}{substitution}{
-      ${\color{\inventionColor}f_1}($\mcode{a}$,$\mcode{b}$) \,=\, $\\
-      \mcode{(fold ($\lambda$ (x y)\\ (cons x y))\\ a b))}
-    }{concat strings}
-    \vinvention{looping}{cat}{
-       ${\color{\inventionColor}f_2}($\mcode{c}$,$\mcode{p}$,$\mcode{s}$) \,=\, $\\
-      \mcode{(unfold l ($\lambda$ (x) (= c (car x))) p ($\lambda$ (z) (cdr z)))}
-    }{loop until char}
-
-    \hinvention{constant}{substitution}{
-      ${\color{\inventionColor}f_3}($\mcode{s}$) \,=\, $\\
-      \mcode{(${\color{\inventionColor}f_1}$ s string)}
-    }{prepend constant}
-    \vinvention{drop}{constant}{
-      ${\color{\inventionColor}f_4}($\mcode{c}$) \,=\, $\\
-      \mcode{(${\color{\inventionColor}f_2}$ c ($\lambda$ }\\\mcode{(z) (car z)))}
-    }{prefix}
-    \vinvention{suffix}{drop}{
-      ${\color{\inventionColor}f_5}($\mcode{s}$,$\mcode{c}$) \,=\, $\\
-      \mcode{(fold ($\lambda$ (x y) }\\\mcode{(cdr (if (= x c)}\\\mcode{ s y))) s s)}
-    }{suffix}
-
-    \hinvention{delimited}{constant}{
-      \mcode{${\color{\inventionColor}f_6}($x$,$y$,$s$)\,=\,$}\\
-      \mcode{(${\color{\inventionColor}f_4}$ x (${\color{\inventionColor}f_5}$ y c))}
-    }{delimited substring}
-    \draw[->] (delimited.west) -- (drop.east);
-    \draw[->] (delimited.west) -- (suffix.east);
-
-    \vinvention{appendSingle}{delimited}{
-      \mcode{${\color{\inventionColor}f_7}($c$,$s$)\,=\,$}\\
-      \mcode{(${\color{\inventionColor}f_1}$ (cons c nil) s)}}{append character}
-    
-    \vinvention{surround}{appendSingle}{
-      \mcode{${\color{\inventionColor}f_8}($s$)\,=\,$}\\
-      \mcode{(cons \codechar{(} (${\color{\inventionColor}f_7}$ \codechar{)} s))}}{surround in parens}
-    \draw[->] (surround.west) to[in=200,out=160] ([yshift=-0.25cm]appendSingle.west);
-    \draw[->] (appendSingle.west) to[in=40,out=120] ([yshift=0.25cm]cat.east);
-    
-    \draw[->] (drop.west) -- (looping.east);
-    \draw[->] (constant.west) -- (cat.east);
-
-    \draw[->] ([xshift=-0.5cm]t2.south) -- (constant.north);
-    \draw[->] ([xshift=0.3cm]t2.south) to[in=30,out=-30] ([xshift=1cm]drop.north);
-
-    \draw[->] ([yshift=0.2cm,xshift=-0.2cm]t1.south) to[in=100,out=200] (substitution.north);
-    \draw[->] ([yshift=0.5cm,xshift=-0.5cm]t1.south) to[in=120,out=200] ([xshift=-0.5cm]substitution.north);
-    \draw[->] ([xshift=-0.5cm]t3.south) -- (delimited.north);
-          
-    \begin{scope}[shift={(0,-15)}]
-      \invention{filter}{0,0}{
-        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
-        }{higher-order `filter'}
-
-      \vinvention{three}{filter}{\footnotesize ${\color{\inventionColor}f_1} = $\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
-      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
-      \hinvention{single}{filter}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
-      \vinvention{for}{single}{\footnotesize ${\color{\inventionColor}f_4} = $\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
-      \vinvention{Max}{for}{\name{5}{l}\\\mcode{%
-          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
-      \hinvention{largest}{single}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
-      \vinvention{count}{largest}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
-      \vinvention{weird}{count}{\name{8}{p$,$l}\mcode{
-          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0))))}}
-                 {Higher-order incrementer}
-
-      \draw[->] (for.west) -- (three.east);
-      \draw[->] ([yshift=-0.0cm]largest.west) -- (Max.east);
-      \draw[->] ([yshift=-0.cm]largest.west) to[out=240,in=330] ([yshift=-0.1cm]filter.east);
-      \draw[->] (Max.west) -- (filter.east);
-      \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
-
-      \node(t1)[align=left,anchor=center] at (0,3) {
-        \mcode{[1 4 5 8]$\to$[5 8]}\\
-        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
-        \mcode{[3 4 5 6]$\to$[5 6]}\\
-        \mcode{[6 5 4 3]$\to$[6 5]}\\
-        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}
-      };
-      \node(t2)[align=left] at ([xshift=\horizontalSpacing]t1.center) {
-        \mcode{[9 2 4]$\to$[4 2 9]}\\
-        \mcode{[4 3]$\to$[3 4]}\\
-        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
-        \mcode{[]$\to$[]}\\
-        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}
-      };
-      \node(t3)[align=left] at ([xshift=\horizontalSpacing]t2.center) {
-        \mcode{[9 2 3]$\to$[2 3 9]}\\
-        \mcode{[2 1]$\to$[1 2]}\\
-        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
-        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}
-      };
-
-      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]t1.south) to[out=250] (filter.north);
-      \draw[->] ([yshift=0.0cm,xshift=0.3cm]t1.south) to[out=350,in=100] (for.west);
-      \draw[->] ([xshift=-0.7cm]t2.south) -- (single.north);
-      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]t3.south) to[out=240] (largest.north);
-
-    \end{scope}
-    
-    
-
-    
-
-    \end{tikzpicture}
-\end{figure}
-
-\begin{figure}\centering
-  \begin{tikzpicture}
-    \renewcommand{\baselinestretch}{0.5}
-    \renewcommand{\inventionColor}{orange}
-
-    \newcommand{\name}[2]{
-      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
-    }
-    \newcommand{\noArguments}[1]{
-      \mcode{{\color{\inventionColor}$f_{#1}\,=\,$}}
-    }
-    \newcommand{\use}[1]{{\color{\inventionColor}$f_{#1}$}}
-    \renewcommand{\horizontalSpacing}{4.2cm}
-    \renewcommand{\verticalSpacing}{2cm}
-    
-    \newcommand{\invention}[4]{
-      \node(#1)[inner sep=1,anchor=south,text width=2.2cm,draw,rounded corners,align=center] at (#2) {
-        \footnotesize #3
-      };
-      \node[anchor=north,align=center] at ([yshift=3.5pt]#1.south) {#4};
-    }
-    \newcommand{\vinvention}[4]{
-      \invention{#1}{[yshift=-\verticalSpacing]#2.south}{#3}{#4}
-    }
-    \newcommand{\hinvention}[4]{
-      \invention{#1}{[xshift=\horizontalSpacing]#2.south}{#3}{#4}
-    }
-    \newcommand{\exampleFunction}[2]{
-      \includegraphics[width = 0.5cm]{#1}, \includegraphics[width = 0.5cm]{#2}
-    }
-    \renewcommand{\task}[4]{
-      \node[align=left,anchor=center](t#1) at (#2) {#3};
-      \node[align=left](p#1) at ([yshift=-0.75cm]t#1.south) {#4};
-    }
-    \renewcommand{\nextTask}[4]{
-      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
-    }
-
-    \begin{scope}[shift={(0,8)}]
-      \task{1}{2,3}{
-        \textsc{Take if $\geq 5$}\\
-        \mcode{[1 4 5 8]$\to$[5 8]}\\
-        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
-        \mcode{[3 4 5 6]$\to$[5 6]}\\
-        \mcode{[6 5 4 3]$\to$[6 5]}
-      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}}
-      \nextTask{2}{t1}{
-        \textsc{Reverse}\\
-        \mcode{[9 2 4]$\to$[4 2 9]}\\
-        \mcode{[4 3]$\to$[3 4]}\\
-        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
-        \mcode{[]$\to$[]}
-      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}}
-      
-      \nextTask{3}{t2}{
-        \textsc{Sort}\\
-        \mcode{[9 2 3]$\to$[2 3 9]}\\
-        \mcode{[2 1]$\to$[1 2]}\\
-        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
-        \mcode{[9 8 9]$\to$[8 9 9]}
-      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}}
-
-      \vinvention{filter}{p1}{
-        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
-      }{higher-order `filter'}
-
-      \vinvention{three}{filter}{\footnotesize \noArguments{1}\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
-      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
-      \hinvention{single}{filter}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
-      \vinvention{for}{single}{\noArguments{4}\\\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
-      \vinvention{Max}{for}{\name{5}{l}\\\mcode{%
-          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
-      \hinvention{largest}{single}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
-      \vinvention{count}{largest}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
-      \vinvention{weird}{count}{\name{8}{p$,$l}\mcode{
-          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0)))}}{Higher-order incrementer}                 
-
-      \node[rotate=90,align=center] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
-      \node[rotate=90,align=center] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
-      \node[rotate=90,align=center] at ([xshift=-2cm]three.center) {\textbf{\textsc{Domain Specific Language}}\\
-        \small Learned routines in {\color{orange}orange}};
-
-      \draw[->] (for.west) -- (three.east);
-      \draw[->] ([yshift=-0.0cm]largest.west) -- (Max.east);
-      \draw[->] ([yshift=-0.cm]largest.west) to[out=240,in=330] ([yshift=-0.1cm]filter.east);
-      \draw[->] (Max.west) -- (filter.east);
-      \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
-
-
-      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]p1.south) to[out=250] (filter.north);
-      \draw[->] ([yshift=0.0cm,xshift=0.3cm]p1.south) to[out=350,in=100] (for.west);
-      \draw[->] ([xshift=-0.7cm]p2.south) -- (single.north);
-      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]p3.south) to[out=240] (largest.north);
-
-      
-    \end{scope}
-    
-    \renewcommand{\task}[4]{
-      \node(t#1) at (#2) {\includegraphics[width = 2cm]{#3}};
-      \node(p#1) at ([yshift=-0.75cm]t#1.south) {#4};
-    }
-    \newcommand{\nextTask}[4]{
-      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
-    }
-    
-    
-    \task{1}{2,0}{figures/logoTasks/logo144.png}{\mcode{(for (i 4) (\use{3} i))}}
-    \nextTask{2}{t1}{figures/logoTasks/logo121.png}{\mcode{(\use{7} 6 (\use{1}; (\use{0} 1)))}}
-    \nextTask{3}{t2}{figures/logoTasks/logo133.png}{\mcode{(\use{7} 7 (\use{8}; \use{6}))}}
-    
-    \vinvention{circle}{p1}{
-      \name{0}{r}\mcode{(for (i $\infty$) (move r $\epsilon$) (move $\epsilon$ $\epsilon$))}
-    }{circle\\\exampleFunction{figures/logoTasks/logo51}{figures/logoTasks/logo63_dilated}}
-    \vinvention{pu}{circle}{
-      \noArguments{1}\mcode{(pen-up (move 1 0))}
-    }{pick up pen\\and move}
-    \vinvention{repeated}{pu}{
-      \name{2}{n$,$d$,$a}\mcode{(for (i n) (move d a))}
-    }{repeated segment\\\exampleFunction{figures/logoTasks/logoDemo1_dilated}{figures/logoTasks/logoDemo0_dilated.png}}
-    \hinvention{square}{circle}{
-      \name{3}{d}\mcode{(\use{2} 4 d (/ $2\pi$ 4))}
-    }{square\\\exampleFunction{figures/logoTasks/logo139_dilated}{figures/logoTasks/logo142_dilated}}
-    \vinvention{smooth}{square}{
-      \name{4}{d$,$a}\mcode{(\use{2} $\infty$ d a)}
-    }{Smooth curve\\\exampleFunction{figures/logoTasks/logoDemo2_dilated}{figures/logoTasks/logoDemo3_dilated}}
-    \vinvention{angle}{smooth}{
-      \name{5}{n}\mcode{(/ $2\pi$ n)}
-    }{$\frac{2\pi}{n}$}
-    \hinvention{semi}{square}{
-      \noArguments{6}\mcode{(\use{4} $\epsilon$ $\epsilon$)}
-    }{semicircle\\\exampleFunction{figures/logoTasks/logo55_dilated}{figures/logoTasks/logo62_dilated}}
-    \vinvention{snow}{semi}{
-      \name{7}{n$,$f}\mcode{(for (i n) \\(move 0 (\use{5} n))\\ (get/set f))}
-    }{rotational symmetry\\\exampleFunction{figures/logoTasks/logo119_dilated}{figures/logoTasks/logo68_dilated}}
-    \vinvention{line}{snow}{
-      \noArguments{8}\mcode{(move 1 0)}
-    }{line segment}
-
-    \draw[->] (p1.south) -- (square.north);
-    \draw[->] (p2.south) -- (circle.north);
-    \draw[->] (p3.south) -- (semi.north);
-    \draw[->] (p2.south) -- (snow.west);
-    \draw[->] (p2.south) -- (pu.east);
-    \draw[->] (p3.south) to[out=320,in=45] (line.east);
-    \draw[->] (p3.south) to[out=200,in=120] (snow.west);
-
-    \draw[->,orange] (snow.west) -- (angle.east);
-    \draw[->,orange] (smooth.west) -- (repeated.east);
-    \draw[->,orange] (semi.west) -- (smooth.east);
-    \draw[->,orange] (square.west) -- (repeated.east);
-
-    \node[align=center,rotate=90] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
-    \node(programLabel)[align=center,rotate=90] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
-    \node[rotate=90,align=center] at ([xshift=-2cm]pu.center) {\textbf{\textsc{Domain Specific Language}}\\
-      \small Learned routines in {\color{orange}orange}};
-
-    \draw [dashed] ([xshift=0.5cm,yshift=-0.25\verticalSpacing]programLabel.east) -- ([xshift=15cm,yshift=-0.25\verticalSpacing]programLabel.east);
-    \node[align=left,anchor=center] at ([xshift=14cm,yshift=-0.3\verticalSpacing]programLabel.east) {\large $\uparrow$\;system inputs\\\\\\\large $\downarrow$\;system outputs};
-  \end{tikzpicture}
-  \caption{Two of the six domains we apply \system to. Agent observes tasks (top rows) which it solves by writing programs (middle rows) while jointly growing a library (DSL; bottom rows). Learned DSLs rediscover multiple higher-order functions (\code{filter} for list functions and rotational symmetry for generative graphics). Learned DSL components call each other (arrows).}  
-\end{figure}
-
-%% \section{Introduction: Expertise}
-
-%% Human learners acquire expertise in a wide range of domains: some of
-%% us become experts in calculus, or cooking, or biology, music, tennis,
-%% or software engineering, to name just a few, and every child develops
-%% expertise in natural language, intuitive physics~\cite{Pete?},
-%% intuitive psychology (theory-of-mind), and motor control.  This
-%% picture contrasts sharply with the current state of machine
-%% intelligence, where a machine is built to be an expert in a single
-%% domain, like boardgames~\cite{alphaGo}, medical
-%% diagnosis~\cite{mycin,CNNsForDiseaseDetection}, theorem
-%% proving~\cite{eurisko}, or visual object recognition~\cite{alexNet}.
-%% Thus an outstanding challenge in the long-term program of building
-%% more humanlike machines is to develop an algorithm that, like people,
-%% autonomously acquires expertise across many different kinds of
-%% domains.
-
-%% We contribute a model of the development of expertise that combines
-%% two key ingredients.  First, an expert needs a sufficiently expressive
-%% knowledge representation.  Following a long tradition in cognitive
-%% science and AI, we represent knowledge as programs, which prior work
-%% has used to represent expertise in recognition and generation of
-%% handwriting and speech~\cite{lake2015human}, intuitive theories (of
-%% kinship, taxonomy, etc.)~\cite{Ullman2012}, and natural language
-%% grammar and
-%% semantics~\cite{DBLP:journals/cogsr/SchmidK11,piantadosi2011learning}.
-%% Second, atop this program representation, experts possess two kinds of
-%% domain expertise.  They have at their disposal a powerful, yet
-%% specialized, repertoire of concepts and abstractions: e.g., in
-%% architecture, these are concepts like `arch' or `foundation'; in
-%% software engineering these are libraries of code and domain-specific
-%% languages (DSLs).  Here our model represents knowledge as programs,
-%% and so we identify this kind of expertise with a DSL.  Experts also
-%% have knowledge of when and how to deploy these domain-specific
-%% concepts efficiently when solving new problems: e.g., mathematicians
-%% efficiently search the space of proofs, intuiting which lemmas are
-%% appropriate when; expert chefs intuit which compositions of
-%% ingredients are likely tasty, before they actually start cooking.  For
-%% our model, this aspect of expertise corresponds to the ability to
-%% quickly assemble new, useful programs out of its DSL.
-
-%% We integrate these ideas into a model called DreamCoder which acquires
-%% expertise through a novel kind of wake/sleep or `dream' learning. The
-%% model iterates through wake cycles -- where it solves problems by
-%% writing programs -- and a pair of sleep cycles: a sleep cycle that
-%% grows its DSL by replaying experiences from waking and consolidating
-%% them into new abstractions, and a sleep cycle that improves its
-%% knowledge of how to write programs by training a neural network on
-%% replayed experiences as well as `dreams', or samples, from its DSL.
-
-%% DreamCoder builds on multiple generations of AI research, going back
-%% to the 1960's~\cite{solomonoff1964formal} when program-learning was
-%% proposed as a paradigm for general AI.  Broadly speaking recent work
-%% has either developed neural approaches for learning to efficiently
-%% deploy a fixed
-%% DSL~\cite{devlin2017robustfill,balog2016deepcoder,NGDS,spiral}, or
-%% developed symbolic approaches for representing and searching through
-%% spaces of
-%% programs~\cite{gulwani2011automating,solar2008program,DBLP:books/daglib/0070933}.
-%% We were motivated by approaches that learn or grow the
-%% DSL~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning}.
-%% Our goal with DreamCoder is to show that the combination of
-%% neurally-guided search and DSL learning is a uniquely powerful way of
-%% building systems that, like human learners, autonomously acquire the
-%% expertise needed to navigate a new domain of problems.
-
-
-
-
-
-\section{Introduction}
-
-
-An age-old dream within AI is a machine that learns and reasons by
-writing its own programs.  This vision stretches back to the
-1960's~\cite{solomonoff1964formal} and cuts to the core of much of
-what it would take to build machines that learn and think like humans.
-Computational models of cognition often explain the flexibility and
-richness of human thinking in terms of program learning: from everyday
-thinking and problem solving (motor program induction as an account of
-recognition and generation of handwriting and
-speech~\cite{lake2015human}; functional programs as a model of natural
-language semantics~\cite{SOMETHING}) to learning problems that unfold
-over longer developmental time scales: the child's acquisition of
-intuitive theories (of kinship, taxonomy, etc.)~\cite{Ullman2012} and
-natural language grammar~\cite{DBLP:journals/cogsr/SchmidK11}, to name
-just a few.  An outstanding challenge, however, is to engineer
-program-learners that display the same level of domain-generality as
-the humans they are meant to model.
-
-Recent program-learning systems developed within the AI and machine
-learning community are impressive along many dimensions, authoring
-programs for problem domains like drawing
-pictures~\cite{spiral,ellis2017learning}, transforming
-text~\cite{gulwani2011automating} and numerical
-sequences~\cite{balog2016deepcoder}, and reasoning over common sense
-knowledge bases~\cite{muggleton2015meta}.  These systems work in
-different ways, but typically hinge upon a carefully hand-engineered
-Domain Specific Language (DSL).  The DSL restricts the space of
-programs to contain the kinds of concepts needed for one specific
-domain.  For example, a picture-drawing DSL could include concepts
-like circles and spirals, and a DSL for numerical sequences could
-include sorting and reversing lists of numbers.  Modern systems also
-learn how to efficiently deploy the DSL on new
-problems~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}, but --
-unlike human learners -- do not discover the underlying system of
-concepts needed to navigate the domain.
-
-We contribute a program-induction system that learns the
-domain-specific concepts (DSL) while jointly learning how to use those
-concepts.  This joint learning problem models two complementary
-notions of domain expertise: (1) domain experts have at their disposal
-a powerful, yet specialized repertoire of concepts and abstractions
-(analogous to the DSL) while also (2) having accurate intuitions about
-when and how to use those concepts to solve new problems.
-
-We call our system `DreamCoder' because it acquires these two kinds of
-expertise through a novel kind of wake/sleep or `dream'
-learning~\cite{hinton1995wake}, iterating through a wake cycle --
-where it solves problems by writing programs -- and a pair of sleep
-cycles, both of which are loosely biologically inspired by actual
-human sleep.  The first sleep cycle, which we refer to as
-\textbf{memory consolidation}, grows the DSL by replying experiences
-from waking and consolidating them into new code abstractions.  This
-cycle is inspired by the formation of abstractions during sleep memory
-consolidation~\cite{DUDAI201520}.  The second sleep cycle, which we
-refer to as \textbf{dreaming}, improves the agents knowledge of how to
-write programs by training a neural network on replayed experiences as
-well as `fantasies', or samples, from the DSL.  These two kinds of
-dreams are inspired by the distinct episodic replay and hallucination
-components of dream sleep~\cite{fosse2003dreaming}.
-
-This dream-learning architecture brings together two lines of prior work.
-One line of work
-considers the problem of learning new concepts, abstractions, or
-`options' from
-experience~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning},
-while the other line of work considers the problem of learning how to
-deploy those concepts
-efficiently~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}.  Our
-goal with DreamCoder is to show that the combination of these ideas is
-uniquely powerful, and pushes us toward program-writing systems that,
-like human learners, autonomously acquire the expertise needed to
-navigate a new domain of problems.
-
-\section{Deep Wake/Sleep Program Induction}
-
-\system~takes as its goal to acquire domain-specific expertise, which
-it learns by solving a collection of programming \textbf{tasks} --
-typically about a hundred.  It alternatingly finds programs that solve
-tasks (Wake -- Figure~\ref{threeCycles} top); improving its DSL by
-discovering and reusing domain-specific subroutines (Memory
-Consolidation -- Figure~\ref{threeCycles} left); and training a neural
-network that efficiently guides search for programs in the DSL
-(Dreaming -- Figure~\ref{threeCycles} right).  The learned DSL
-effectively encodes a prior on programs likely to solve tasks in the
-domain, while the neural net looks at the example input-output pairs
-for a specific task and produces a ``posterior'' for programs likely
-to solve that specific task (Figure~\ref{threeCycles} middle).  The
-neural network thus functions as a \textbf{recognition model}
-supporting a form of approximate Bayesian program induction, jointly
-trained with a \textbf{generative model} for programs encoded in the
-DSL, in the spirit of the Helmholtz machine~\cite{hinton1995wake}. The
-recognition model ensures that searching for programs remains
-tractable even as the DSL (and hence the search space for programs)
-expands.
-
-
-
-
-
-
-%% \section{Introduction: NIPS}
-
-
-%% Much of everyday human thinking and learning can be understood in
-%% terms of program induction: constructing a procedure that maps inputs
-%% to desired outputs, based on observing example input-output pairs.
-%% People can induce programs flexibly across many different domains,
-%% often from just one or a few examples.  For instance, if shown that a
-%% text-editing program should map ``Jane Morris Goodall'' to
-%% ``J. M. Goodall'', we can guess it maps ``Richard Erskine Leakey'' to
-%% ``R. E. Leakey''; if instead the first input mapped to ``Dr. Jane'' or
-%% ``Goodall, Jane'', we might guess the latter should map to
-%% ``Dr. Richard'' or ``Leakey, Richard'', respectively.
-
-%% The FlashFill system~\cite{gulwani2011automating} embedded in
-%% Microsoft Excel solves problems such as these and is probably the best
-%% known practical program-induction algorithm, but researchers in
-%% programming languages and AI have had successes in many domains, such as handwriting recognition and
-%% generation~\cite{lake2015human}, procedural
-%% graphics~\cite{ellis2017learning,DBLP:journals/corr/abs-1804-01118}, question
-%% answering~\cite{johnson2017clevr} and robot motion
-%% planning~\cite{devlin2017neural}.  These systems
-%% work in different ways, but most hinge upon a carefully engineered
-%% \textbf{Domain Specific Language (DSL)}.  This is especially true for
-%% systems like FlashFill that induce a wide range of programs
-%% very quickly, in a few seconds or less.  DSLs constrain the search
-%% over programs with strong prior knowledge in the form of a restricted
-%% inventory of programming primitives finely tuned to the domain: for
-%% text editing, these are operations like appending and
-%% splitting on characters.
-
-%% In this work, we consider the problem of building agents that learn to solve
-%% program induction tasks, and also the problem of acquiring the prior knowledge
-%% necessary to quickly solve these tasks in a new domain.  Representative problems
-%% in three domains are shown in Table~\ref{initialExampleDSL}.  Our solution is an
-%% algorithm that grows or boostraps a DSL while jointly training a neural network
-%% to help write programs in the increasingly rich DSL.
-
-\begin{table*}%[t!]
-  \makebox[\textwidth][c]{ \scriptsize \tabcolsep=4pt
-    \renewcommand\code\texttt \renewcommand\codechar[1]{\texttt{"#1"}}
-    \newcommand{\helpSize}{0.25cm}
-  \begin{tabular}{>{\hspace{-0em}}c<{\hspace{-1em}}>{\hspace{-1em}}c<{\hspace{-1em}}>{\hspace{-2.5em}}c<{\hspace{-0.8em}}>{\hspace{-1em}}c<{\hspace{-1em}}}
-    \toprule
-    &{\normalsize List Processing}&{\normalsize Text Editing}&{\normalsize Symbolic Regression}\\\midrule
-    \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&{\tabcolsep=7pt
-      \begin{tabular}{cc}
-        \begin{tabular}{c}
-          \code{[7\, 2\, 3]}$\to $\code{[7\, 3]}         \\
-          \code{[1\, 2\, 3\, 4]}$\to $\code{[3\, 4]} \\
-          \code{[4\, 3\, 2\, 1]}$\to $\code{[4\, 3]} \\
-          \pop{\code{$f(\ell) = $}\code{($f_1$ $\ell$ ($\lambda$ (x)}}\\
-          \hspace{1.15cm}\pop{\code{(> x 2)))}}       \\
-          \\
-          \code{[2\, 7\, 8\, 1]}$\to $\code{8}               \\
-          \hspace{0.15cm}\code{[3\, 19\, 14]}$\to $\code{19}                \\
-          \pop{\code{$f(\ell) = $}\code{($f_2$ $\ell$)}}
-        \end{tabular}
-        &
-        \hspace{-0.3cm}\begin{tabular}{c}
-          \code{[7\, 3]}$\to $\code{False}                              \\
-          \hspace{0.3cm}\code{[3]}$\to $\code{False}                    \\
-          \hspace{-0.3cm}\code{[9\, 0\, 0]}$\to $\code{True\phantom{e}} \\
-          \hspace{0.3cm}\code{[0]}$\to $\code{True\phantom{e}}                        \\
-          \hspace{-0.3cm}\code{[0\, 7\, 3]}$\to $\code{True\phantom{e}}                \\
-          \pop{\code{$f(\ell) = $}\code{($f_3$ $\ell$ 0)}}
-        \end{tabular}
-      \end{tabular}
-    }
-    &
-    \hspace{-0.5cm}\begin{tabular}{c}
-      +106 769-438$\to $106.769.438\\%&Nancy FreeHafer $\longrightarrow$ Dr. Nancy\\
-      +83 973-831$\to $83.973.831\\
-      \pop{$f(\text{\code{s}}) = $\code{(}$f_0$\code{  \codechar{.} \codechar{-}
-      }}\\
-      \hspace{1.25cm}\pop{\code{($f_0$ \codechar{.} \codechar{ }}}\\
-      \hspace{1.4cm}\pop{\code{(cdr s)))}}\\
-      ~\\
-      Temple Anna H $\to $TAH\\
-      Lara Gregori$\to $LG\\
-      \pop{$f(\text{\code{s}}) = $\code{(}$f_2$\code{ s)}}\\
-    \end{tabular}
-    &
-    \begin{tabular}{cc}
-      \includegraphics[width = 3em]{figures/functions/4.png}&
-      \includegraphics[width = 3em]{figures/functions/146}\\
-      \pop{\code{$f($x$) = $($f_1$ x)}}&    \pop{\code{$f($x$) = $($f_6$ x)}}\\
-      ~\\
-      \includegraphics[width = 3em]{figures/functions/112.png}&
-        \includegraphics[width = 3em]{figures/functions/92.png}
-      \\
-      \pop{\code{$f($x$) = $($f_4$ x)}}&    \pop{\code{$f($x$) = $($f_3$ x)}}\\
-
-    \end{tabular}
-    ~\\
-    \midrule
-    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
-    \hspace{0cm}\begin{tabular}{l}
-      % $f_0($\code{r}$,\ell) \,=\, $\code{(foldr $\ell$ r ($\lambda$ (x a)}\\
-      % \phantom{$f_0($\code{r}$,\ell) \,=\, $\code{(foldr}}\code{(cons (index (length a) $\ell$) a)))}\\
-      % \hspace{\helpSize}($f_1$: \emph{Get the largest number})\\
-      % $f_0(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}\\\hspace{0.8cm}\code{ (if (> a x) a x)))}\\
-      % \hspace{\helpSize}($f_1$: \emph{Get the largest number in $\ell$})\\
-      %NOTE: this is the actual invention, but I removed a redundant lambda
-      % below: $f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ ($\lambda$ (x a) (cons x a)))}\\
-      %% \popp{$f_0(\ell,$\code{r}$) \,=\, $\code{(foldr r $\ell$ cons)}}\\
-      %% \hspace{\helpSize}($f_0$: \emph{Append lists }\code{r}\emph{ and  $\ell$})\\
-      \popp{$f_1(\ell,$\code{p}$) \,=\, $\code{(foldr $\ell$ nil ($\lambda$ (x a)}}\\
-      \hspace{0.5cm}\popp{\code{(if (p x) (cons x a) a)))}}\\
-      \hspace{\helpSize}($f_1$: \emph{Higher-order filter function})\\
-      %(lambda (fold $0 0 (lambda (lambda (if (gt? $0 $1) $0 $1)))))
-      \popp{$f_2(\ell) \,=\, $\code{(foldr $\ell$ 0 ($\lambda$ (x a)}}\\
-      \popp{\phantom{$f_2(\ell) \,=\, $}\code{(if (> a x) a x)))}}\\
-      \hspace{\helpSize}($f_2$: \emph{Maximum element in list $\ell$})\\
-      \popp{$f_3(\ell,$\code{k}$) \,=\, $\code{(foldr $\ell$ (is-nil $\ell$)}}\\
-      \phantom{$f_1(\ell,$}
-      \popp{\code{($\lambda$ (x a) (if a a (= k x))))}}\\
-      \hspace{\helpSize}($f_3$: \emph{Whether $\ell$ contains }\code{k})\\
-    \end{tabular}&
-
-
-  \hspace{0.5cm}\begin{tabular}{l}
-    \popp{$f_0($\code{s}$,$\code{a}$,$\code{b}$) \,=\, $\code{(map ($\lambda$
-    (x)}}\\
-    \popp{\hspace{1cm}\code{ (if (= x a) b x)) s)}}\\
-      \hspace{\helpSize}($f_0$: \emph{Performs character substitution)}\\
-      \popp{$f_1($\code{s}$,$\code{c}$) \,=\, $\code{(foldr s s ($\lambda$ (x
-      a)}\\\hspace{1.1cm}\popp{\code{ (cdr (if (= c x) s a))))}}}\\
-        \hspace{\helpSize}($f_1$: \emph{Drop characters from }\code{s}\emph{ until  }\code{c}\emph{ reached})\\
-      \popp{$f_2($\code{s}$) \,=\, $\code{(unfold s is-nil car
-      }}\\
-      \popp{\hspace{1cm}\code{($\lambda$ (z) (}$f_1$\code{ z \codechar{ })))}}\\
-        \hspace{\helpSize}($f_2$: \emph{Abbreviates a sequence of words})\\
-      %%   \popp{$f_3($\code{a}$,$\code{b}$) \,=\, $\code{(foldr a b cons)}}\\
-      %% \hspace{\helpSize}($f_3$: \emph{Concatenate strings }\code{a}\emph{ and }\code{b})
-  \end{tabular}&
-
-  \begin{tabular}{l}
-    \popp{$f_0($\code{x}$)\,=\,$\code{(+ x real)}}\\
-    \popp{$f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} }\\
-    \popp{$f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}}\\
-    \popp{$f_3($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_2$\code{ x)))}}\\
-    \popp{$f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}}\\
-    \hspace{\helpSize}\emph{($f_4$: 4th order polynomial)}\\
-    \popp{$f_5($\code{x}$)\,=\,$\code{(/ real x)}}\\
-    \popp{$f_6($\code{x}$)\,=\,$\code{($f_5$ ($f_0$ x))}}\\
-    \hspace{\helpSize}\emph{($f_6$: rational function)}\\
-
-  \end{tabular}
-  \\\bottomrule\\
-\end{tabular}}\vspace{-0.5cm} 
-\caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}%\vspace{-0.5cm}
-\end{table*}
-
-Because any learning problem can in principle be cast as
-program induction, it is important to delimit our focus.  In contrast
-to computer assisted programming~\cite{solar2008program} or genetic
-programming~\cite{DBLP:books/daglib/0070933}, our goal is not to automate software
-engineering, or to synthesize large bodies of code starting from scratch.  Ours is a basic AI goal:
-capturing the human ability to learn to think flexibly and efficiently
-in new domains --- to learn what you need to know about a domain so you
-don't have to solve new problems starting from scratch.  We are
-focused on problems that people solve relatively
-quickly, once they acquire the relevant domain expertise.  These
-correspond to tasks solved by short programs --- if you have an
-expressive DSL.  %% Even with a good DSL, program search may be
-%% intractable;
-%
-% , and adding new library routines to the DSL only broadens the
-% search space;
-%
-%% so we train a
-%% neural network to guide the search procedure.
-
-%\section{Overview of \system}
-
-Our algorithm takes inspiration from several ways that skilled human
-programmers have learned to code: Skilled coders build libraries of
-reusable subroutines that are shared across related programming tasks,
-and can be composed to generate increasingly complex and powerful
-subroutines.  In text editing, a good library should support routines
-for splitting on characters, but also specialize these routines to
-split on particular characters such as spaces or commas that are
-frequently used to delimit substrings across tasks.  Skilled coders
-also learn to recognize what kinds of programming idioms and library
-routines would be useful for solving the task at hand, even if they
-cannot instantly work out the details.  In text editing, one might
-learn that if outputs are consistently shorter than inputs, removing
-characters is likely to be part of the solution; if every output
-contains a constant substring (e.g., ``Dr.''), inserting or appending
-that constant string is likely to be a subroutine.
-
-Our algorithm is called \system because it is based on a
-novel kind of ``wake-sleep'' learning (c.f. \cite{hinton1995wake}), iterating
-between ``wake'' and ``sleep'' phases to achieve three goals: finding
-programs that solve tasks; creating a DSL by discovering
-and reusing domain-specific subroutines; and training a neural network
-that efficiently guides search for programs in the DSL.
-The learned DSL effectively encodes a prior on programs likely to
-solve tasks in the domain, while the neural net looks at the example
-input-output pairs for a specific task and produces a ``posterior''
-for programs likely to solve that specific task.  The neural network
-thus functions as a \textbf{recognition model} supporting a form of
-approximate Bayesian program induction, jointly trained with a
-\textbf{generative model} for programs encoded in the DSL, in the
-spirit of the Helmholtz machine~\cite{hinton1995wake}. The
-recognition model ensures that searching for programs remains
-tractable even as the DSL (and hence the search space for programs)
-expands.
-
-
-%% Our \system
-%% algorithm incorporates these insights by iterating
-Concretely, our algorithm iterates through three phases. 
-The \textbf{Wake} phase takes a given set of \textbf{tasks}, typically
-several hundred, and searches for compact programs that solve these tasks,
-guided by the current DSL and neural network.
-The \textbf{Sleep-G} phase grows the DSL (or \textbf{G}enerative model),
-which allows the agent to more compactly
-write programs in the domain. We modify the structure of the DSL by
-discovering regularities across programs, compressing
-them to distill out common abstractions across  programs discovered during waking.\footnote{This is loosely biologically
-    inspired by the formation of abstractions during sleep memory
-    consolidation~\cite{DUDAI201520}}
-The \textbf{Sleep-R} phase improves the search procedure by training a neural network (the \textbf{R}ecognition model) to
-write programs in the current DSL, in the spirit of ``amortized'' or
-``compiled'' inference~\cite{le2016inference}.
-We train the recognition model on  two data sources: samples
-from the DSL (as in the Helmholtz Machine's ``sleep'' phase), and
-programs found during waking.%%  As the DSL
-%% improves and as search finds more programs, the recognition model gets
-%% both more data to train on, and better data.
-\footnote{These two sources are also
-    loosely biologically inspired by the distinct episodic replay and
-    hallucination components of dream sleep~\cite{fosse2003dreaming}}
-    
-
-\textbf{Brisk overview of related work.} Prior work on program learning has largely assumed a fixed, hand-engineered DSL,
-both in classic symbolic program learning approaches (e.g., Metagol:~\cite{muggleton2015meta},
-FlashFill:~\cite{gulwani2011automating}),
-neural approaches  (e.g., RobustFill:~\cite{devlin2017robustfill}), and hybrids of neural and
-symbolic methods (e.g., Neural-guided deductive search:~\cite{ngds}, DeepCoder:~\cite{balog2016deepcoder}).
-A notable exception is the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316},
-which also learns a library of subroutines.
-We find EC motivating, and go beyond it and other prior work through the following contributions: %% \begin{itemize}
-%%   \setlength\itemsep{0}
-%%   \item We show how to learn-to-learn programs in an expressive Lisp-like programming language;
-%%   \item We give an algorithm for learning DSLs, built on a formalism known
-%%     as Fragment Grammars~\cite{tim}; and 
-%%   \item We give a hierarchical Bayesian framing of the problem that allows a
-%%     joint inference of the DSL and recognition model.
-%% \end{itemize}
-\\\textbf{Contributions.} (1) We show how to learn-to-learn programs in an expressive Lisp-like programming language, including conditionals, variables, and higher-order recursive functions;
-(2) We give an algorithm for learning DSLs,
-built on a formalism known as Fragment Grammars~\cite{tim};
-and (3) We give a hierarchical Bayesian framing enabling joint inference of the DSL and recognition model.
-up
-
-\section{The \system Algorithm}
-
- We first mathematically describe our 3-step algorithm as
- an inference procedure for a hierarchical Bayesian model (Section~\ref{mathematicalFraming}),
-  and then describe each step algorithmically in detail (Section~\ref{explorationSection}-\ref{grammarInductionSection}).
-
- \subsection{Hierarchical Bayesian Framing}\label{mathematicalFraming}
-
-\system takes as input a set of \textbf{tasks}, written $X$, each of which is a program synthesis problem.
-It has at its disposal a domain-specific \emph{likelihood model}, written $\probability[x|p]$, which scores the likelihood of a task $x\in X$ given a program $p$.\footnote{For example, for string editing,
-  the likelihood is 1 if the program predicts the observed outputs on the observed inputs,
-  and 0 otherwise; when learning a generative model or probabilistic program, the likelihood is
-the probability of the program sampling the observation.}
-Its goal is to solve each of the tasks by writing a program,
-and also to infer a DSL, written $\mathcal{D}$.
-We equip $\mathcal{D}$ with a real-valued weight vector $\theta$, and together
-$(\mathcal{D},\theta)$ define a generative model over programs.
-We frame our goal as maximum a posteriori (MAP) inference of $(\mathcal{D},\theta)$ given $X$.
-Writing $J$ for the joint probability of $(\mathcal{D},\theta)$ and $X$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
-\begin{align}\label{intractableObjectives}
-\nonumber  J(\mathcal{D},\theta)\triangleq \probability[\mathcal{D},\theta]&\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
-  \mathcal{D}^* = \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta &\qquad
-  \theta^* =\argmax_\theta J(\mathcal{D}^*,\theta)
-\end{align}
-
-%% Inference in this model is
-%% difficult because the programs are unobserved,
-%% and so we must solve a hard search problem to recover them. To make
-%% search tractable we learn a bottom-up \emph{recognition
-%%   model} (written $q(\cdot )$, Fig.~\ref{graphicalModel}(b)).
-%% The recognition model $q(\cdot )$ is a neural
-%% network that regresses from input/output pairs to a distribution over
-%% programs likely to explain the input/outputs. We can also view $q(\cdot )$ as implementing an amortized
-%% inference
-%% scheme~\cite{le2016inference}.
-%%  The neural recognition model and the
-%% generative model embodied in the DSL jointly train each other, as they
-%% iteratively learn to solve more programming tasks.
-
-
-
-The above equations summarize the problem from the point of view of an ideal Bayesian learner.
-However, Eq.~\ref{intractableObjectives}
-is wildly intractable because evaluating $J(\mathcal{D},\theta)$ involves
-summing over the  infinite set of all programs.
-In practice we will only ever be able to sum over a finite set of programs.
-So, for each task, we define a finite set of programs, called a \emph{frontier}, and only marginalize over the frontiers:
-\begin{definition}
-   A \emph{frontier of task $x$}, written $\mathcal{F}_x$,
-is a finite set of programs s.t. $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
-  \end{definition}
-Using the frontiers we  define the following intuitive lower bound on the joint probability, called $\lowerBound$:
-\begin{align}
- J\geq \lowerBound\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
-\end{align}
-We alternate maximization of $\lowerBound$ w.r.t. $\left\{\mathcal{F}_x \right\}_{x\in X}$  (\textbf{Wake})
-and $(\mathcal{D},\theta)$ (\textbf{Sleep-G}):
-\\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
-want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
-$\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]\propto\probability[p|x,\mathcal{D},\theta]$ 
-is large (i.e., programs with high posterior probability).
-%Here we use a simple and generic enumerative program synthesis algorithm.
-%% which we can accomplish by adding new programs to the frontiers means searching for new programs $p$ for task $x$
-%% where  is large.
-\\\noindent \textbf{Sleep-G: Maxing $ \lowerBound$ w.r.t.\ the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound \;\mathrm{d}\theta$,
-and then updating $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\})$.
-%To represent DSLs and search the space of DSLs, we use Fragment Grammars~\cite{tim}.
-
-Searching for programs is hard because
-of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $Q(\cdot |\cdot )$,
-during the \textbf{Sleep-R} phase: $Q$ is trained to approximate the
-posterior over programs, $Q(p|x)\approx \probability[p|x,\mathcal{D}]\propto\probability[x|p]\probability[p|\mathcal{D}]$.
-  Thus training the neural network amortizes the cost of finding programs with high posterior probability.
-
-\noindent\textbf{Sleep-R: tractably maxing $\lowerBound$ w.r.t. the
-  frontiers.}  Here we train %% a neural network, $q$, to predict a
-%% distribution over programs conditioned on a task. The objective of $q$
-%% is
-$Q(p|x)$ to assign high probability to programs $p$ where
-$\probability[x|p]\probability[p|\mathcal{D},\theta]$ is large, because incorporating those programs
-into the frontiers will most increase $\lowerBound$.
-This neural net is trained on two sources of data: samples, or `dreams',
-drawn from the DSL,
-as well as
-replays of (program, task) pairs discovered during waking.
-
-Intuitively, this 3-phase inference procedure can work in practice because each of the 3 phases bootstraps off of the others (Figures~\ref{feeding}~and~\ref{bayesianSummary}). As the DSL grows and as the recognition model becomes more accurate, waking becomes more effective, allowing the agent to solve more tasks; when we solve more tasks during waking,
-the Sleep-G phase has more data from which to learn the DSL; and, because Sleep-R is trained on both
-samples from the DSL and programs found during waking,
-the recognition model gets both more data, and higher-quality data, whenever the DSL improves and whenever we discover more successful programs.
-\begin{figure}\centering
-  \begin{tikzpicture}
-    \begin{scope}[shift = {(1,-1)}]
-    \node[align = center](synthesis) at (6,4) {Search for \\programs: $p$};
-    \node[align = center](DSL) at (3,1) {DSL: $\mathcal{D}$};
-    \node[align = center](recognitionModel) at (9,1) {Recognition \\model: $Q$};
-
-    \draw [->,thick] (synthesis.-120) to[out = -150,in = 60] node[below,rotate = 45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-G)}} (DSL.30);
-    \draw [->,thick] (synthesis.-60) to[out = -30,in = 120] node[below,rotate=-45,align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.150);
-    \draw [->,thick] (DSL.east) to[out = -30,in = 210] node[above, align = center]{{\footnotesize Trains}\\{\footnotesize (Sleep-R)}} (recognitionModel.west);
-
-    \draw [->,thick,dashed] (DSL.north) to[out = 90,in = 180] node[fill=white,align = center]{  \footnotesize{Inductive bias}\\\footnotesize{(Wake)}} (synthesis.west);
-    \draw [->,thick,dashed] (recognitionModel.north) to[out = 90,in = 0] node[fill=white,align = center]{{\footnotesize Makes tractable}\\{\footnotesize (Wake)}} (synthesis.east);
-  \end{scope}
-    \end{tikzpicture}
-  \caption{\system solves for programs, the DSL, and a recognition model. Each of these steps bootstrap off of the others in a Helmholtz-machine inspired wake/sleep inference algorithm.}  \label{feeding}
+  \caption{\textbf{Middle:} \system as a graphical model. Agent observes programming tasks (e.g., input/outputs for list processing or images for graphics programs), which it explains with latent programs, while jointly inferring a latent Domain Specific Language (DSL) capturing cross-program regularities. A neural network, called the \emph{recognition model} (red arrows) is trained to quickly infer programs with high posterior probability. \textbf{Top}: Wake phase infers programs while holding the DSL and recognition model fixed. \textbf{Left}: Sleep (Consolidation) phase infers DSL while holding the programs fixed by refactoring programs found during waking and extracting common components. \textbf{Right}: Sleep (Dreaming) phase trains recognition model to predict approximate posterior over programs conditioned on task. Trained on `Fantasies' (programs sampled from DSL) \& `Replays' (programs found during waking).}\label{threeCycles}
 \end{figure}
 
 
+\subsection{Wake: Solving tasks}\label{explorationSection}
 
+During waking we enumerate programs from the DSL in decreasing order
+of their probability according to the recognition model, and then
+check if a program $p$ assigns positive probability to a task
+($\probability[x|p] > 0$); if so, we incorporate $p$ into the frontier
+$\mathcal{F}_x$.  We represent programs as polymorphicly-typed
+$\lambda$-calculus expressions, a representation closely resembling
+Lisp and functional languages like Haskell and OCaml, including
+variables, conditionals, higher-order recursive functions, and the
+ability to create new functions.
 
+%% Our programs are all
+%% strongly typed.  We use the Hindley-Milner polymorphic typing
+%% system~\cite{pierce} which is used in functional programming languages
+%% like OCaml and Haskell.  We now define DSLs:
+%% \begin{definition}
+%% A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
+%% A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| + 1$ real numbers:
+%% one number for each DSL element $e\in \mathcal{D}$, written $\theta_e$ and controlling the probability of  $e$ occurring in a program,
+%% and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
+%% \end{definition}
+%% \noindent Together with its weight vector, a DSL defines a distribution over
+%% programs, $\probability[p|\mathcal{D},\theta]$.  We define this
+%% distribution by specifying a procedure for drawing samples from
+%% $\probability[p|\mathcal{D},\theta]$ (Appendix~\ref{generativeAppendix}).
+%% Care must be taken to ensure that variable scoping rules are obeyed
+%% and that programs are well-typed.  We ensure well-typed programs by
+%% performing Hindley-Milner type inference~\cite{pierce} during
+%% sampling, and assume that each task is annotated with the type of the
+%% program that will solve it.
+%% Appendix~\ref{enumerationAppendix}
+%% explains how we enumerate,
+%% rather than sample,
+%% programs generated by Algorithm~\ref{sampleProgram}.
 
-\subsection{Wake: Searching for Programs}\label{explorationSection}
-
-During waking, the agent's goal is to search for programs solving the tasks.  We use the simple approach of enumerating programs from
-the DSL  in decreasing order of their probability according to the recognition model,
-and then checking if a program $p$ assigns positive
-probability to a task ($\probability[x|p] > 0$); if so, we incorporate $p$ 
-into the frontier $\mathcal{F}_x$.
-
-To make this concrete we need to define what programs actually are and
-what form $\probability[p |\mathcal{D},\theta]$ takes.
-We represent programs as $\lambda$-calculus expressions.
-$\lambda$-calculus is a formalism for expressing functional programs
-that closely resembles Lisp,
-including variables, function application, and the ability to create new functions.
-Throughout this paper we will write $\lambda$-calculus expressions in Lisp syntax.
-Our programs are all strongly typed.
-We use the Hindley-Milner polymorphic typing system~\cite{pierce} which is
-used in functional programming languages like OCaml and Haskell.
-%% Type variables are always written using lowercase Greek letters
-%% and we write $\alpha\to \beta$ to mean a function that takes an input of type $\alpha$
-%% and returns something of type $\beta$.
-%% We use the notation $p:\tau$ to mean that the $\lambda$-calculus expression $p$
-%% has the type $\tau$.
-%% For example, to describe the type of the identity function
-%% we would say \code{(lambda (x) x)}$:\alpha\to \alpha$.
-%% We say a type $\alpha$ \emph{unifies} with $\tau$ if every expression
-%% $p:\alpha$ also satisfies $p:\tau$. Furthermore, the act of \emph{unifying}
-%% a type $\alpha$ with $\tau$ is to introduce constraints on the type
-%% variables of $\alpha$ to ensure that $\alpha$ unifies with $\tau$.
-%% See Supplement for more detail on program representation.
-We now define DSLs:
-
-\begin{definition}
-A DSL $\mathcal{D}$ is a set of typed $\lambda$-calculus expressions.
-A weight vector $\theta$ for a DSL $\mathcal{D}$ is a vector of $|\mathcal{D}| + 1$ real numbers:
-one number for each DSL element $e\in \mathcal{D}$, written $\theta_e$ and controlling the probability of  $e$ occurring in a program,
-and a weight controlling the probability of a variable occurring in a program, $\theta_{\text{var}}$.
-\end{definition}
-
-Together with its weight vector, a DSL defines a distribution over
-programs, $\probability[p|\mathcal{D},\theta]$.  We define this
-distribution by specifying a procedure for drawing samples from
-$\probability[p|\mathcal{D},\theta]$ (Algorithm~\ref{sampleProgram}).
-Care must be taken to ensure that variable scoping rules are obeyed
-and that programs are well-typed.  We ensure well-typed programs by
-performing Hindley-Milner type inference~\cite{pierce} during
-sampling, and assume that each task is annotated with the type of the
-program that will solve it.
-Appendix~\ref{enumerationAppendix}
-explains how we enumerate,
-rather than sample,
-programs generated by Algorithm~\ref{sampleProgram}.
- \begin{algorithm}
-   \caption{Generative model over programs}
-   \label{sampleProgram}
-   \begin{algorithmic}[1]
-     \State \textbf{function} sample$(\mathcal{D}, \theta, \tau)$:
-     \State {\bfseries Input:} DSL $(\mathcal{D},\theta)$, type $\tau$
-     \State \textbf{Output:} a program whose type unifies with $\tau$
-     \State  \textbf{return }sample$'(\mathcal{D}, \theta, \varnothing, \tau)$
-
-     \Statex
-     \State \textbf{function} sample$'(\mathcal{D}, \theta, \mathcal{E}, \tau)$:
-     \State {\bfseries Input:} DSL $(\mathcal{D},\theta)$, environment $\mathcal{E}$, type $\tau$\Comment{Environment $\mathcal{E}$ starts out as $\varnothing$}
-     \State \textbf{Output:} a program whose type unifies with $\tau$
-     \If{$\tau = \alpha\to\beta$}\Comment{Function type --- start with a lambda}
-     \State var $\gets$ an unused variable name
-     \State body $\sim$ sample$'(\mathcal{D},\theta,\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$\Comment{Recursively sample function body}
-     \State \textbf{return} \code{(lambda (}var\code{) }body\code{)}
-     %\Endif
-     \Else\Comment{Build an application to give something w/ type $\tau$}
-     \State $\text{primitives} \gets \{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
-     $\text{if }\tau\text{ can unify with yield}(\tau') \}$\Comment{Everything in scope w/ type $\tau$}
-     \State $\text{variables}\gets\left\{p\;|\;p\in \text{primitives}\text{ and }p\text{ a variable} \right\}$
-     \State Draw $e\sim \text{primitives}$, w.p. $\propto\begin{cases}
-       \theta_e&\text{ if }e\in \mathcal{D}\\
-\theta_{var}/|\text{variables}|&\text{ if }e\in \mathcal{E}
-       \end{cases}$
-     \State Unify $\tau$ with yield$(\tau')$.\Comment{Ensure well-typed program}
-     \State $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{args}(\tau')$ 
-     %   \State unify$(\tau,\beta)$
-     \For{$k=1$ {\bfseries to} $K$}\Comment{Recursively sample arguments}
-     \State $a_k\sim\text{sample}'(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
-     \EndFor
-     \State \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
-     \EndIf
-     \Statex
-     \Statex\textbf{where:}
-     \State yield$(\tau) = \begin{cases}
-       \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-       \tau   &\text{ otherwise.}
-     \end{cases}$ \Comment{Final return type of $\tau$}
-     \State  args$(\tau) = \begin{cases}
-       [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-       []   &\text{ otherwise.}
-     \end{cases}$\Comment{Types of arguments needed to get something w/ type $\tau$}
-   \end{algorithmic}
- \end{algorithm}
 
 Why enumerate, when the program synthesis community has invented many
 sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
@@ -1346,11 +1019,11 @@ We have two reasons:
 (2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
   the space of  programs.
 
-  However, a drawback of   enumerative search  is that we have no
-efficient means of solving for arbitrary constants that might occur in a
-program. In Sec.~\ref{regressionSection},
-we will show how to find programs with real-valued constants
-by automatically differentiating through the program and setting the constants using gradient descent.
+%%   However, a drawback of   enumerative search  is that we have no
+%% efficient means of solving for arbitrary constants that might occur in a
+%% program. In Sec.~\ref{regressionSection},
+%% we will show how to find programs with real-valued constants
+%% by automatically differentiating through the program and setting the constants using gradient descent.
 %% In Sec.~\ref{textSection}
 %% we will show that the bottom-up neural recognition model can learn
 %% which discrete constants should be included in a program.
@@ -1358,10 +1031,316 @@ by automatically differentiating through the program and setting the constants u
 
 
 
+\subsection{Consolidation-Sleep: Growing a Domain Specific Language}
+
+The DSL offers a set of abstractions that allow an agent to concisely
+express solutions to the tasks at hand. We automatically discover
+these new abstractions by combining two ideas. First, we build on
+techniques from the programming languages community to develop a new
+algorithm for automatically refractoring programs, where this
+refactoring exposes common reused subexpressions found across the
+programs found during waking.  Second, we use this automatic refactoring
+process to search for DSLs that maximally compress these programs by
+incorporating reused subexpressions into the DSL.
+
+Mathematically this compression takes the form of
+finding the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{overviewSection}).
+We replace this marginal with an AIC approximation
+and minimize the following expression,
+which can be interpreted as a kind of compression:
+\begin{equation}
+\underbrace{-\log \probability[\mathcal{D}] + \min_{\theta}\Bigg(-\log
+\probability[\theta|\mathcal{D}] + \|\theta\|_0}_{\text{Description length of }(\mathcal{D},\theta)} +\sum_{x\in
+  X}\underbrace{-\log \sum_{p\in
+  \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
+\label{AIC}
+  \end{equation}
+At a high level, our approach is to search locally through the space 
+of DSLs, proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC}
+fails to decrease.  These small changes consist of introducing new
+candidate $\lambda$-expressions into the DSL.
+
+However, there is a snag with this simple approach:
+whenever we add a new expression $e$ to the DSL,
+the programs found during waking ($\left\{\mathcal{F}_x \right\}$)
+are not written in terms of $e$.
+Concretely, imagine we wanted to discover a new DSL procedure for doubling numbers,
+after having found the programs
+\code{(cons (+ 9 9) nil)} and \code{($\lambda$ (x) (+ (car x) (car x)))}.
+As human programmers,
+we can look at these pieces of code and recognize that,
+if we define a new procedure called \code{double},
+defined as \code{($\lambda$ (x) (+ x x))},
+then we can rewrite the original programs as
+\code{(cons (double 9) nil)} and \code{($\lambda$ (x) (double (car x)))}.
+This process is a kind of refactoring
+where a new subroutine is defined (\code{double})
+and the old programs rewritten
+in terms of the new subroutine.
+Figure~\ref{mapFactor}A
+diagrams this refactoring
+process for a more complicated
+setting,
+where the agent must rediscover the higher-order function \code{map}
+starting from the basics of Lisp and the Y-combinator.
+
+We refine our objective to compress
+\emph{refactorings} of the programs found during waking, minimizing
+\begin{equation}
+        -\log \probability[\mathcal{D}] + 
+\min_{\theta}\Bigg(-\log \probability[\theta|\mathcal{D}] + \|\theta\|_0 +\sum_{x\in X} - \log \underbrace{\sum_{\substack{p:\\\exists p'\in \mathcal{F}_x: p\manyReduce p'}}}_{\text{Refactors }\mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\Bigg)
+\label{factorObjective}
+\end{equation}
+where $p\manyReduce p'$ is the standard notation for ``expression $p$
+evaluates to $p'$ by the rules of $\lambda$-calculus''~\cite{pierce}.
+Equation~\ref{factorObjective} captures the idea that we want to add
+new components to the DSL while jointly refactoring our old programs
+in terms of these new components.  But this joint optimization is
+intractable, because there are infinitely many ways of refactoring a
+program.  To make refactoring tractable we first limit the degree to
+which a piece of code can be refactored: rather than consider every
+refactoring, we bound the number of $\lambda$-calculus evaluation
+steps separating a refactoring from its original program.  Now the
+number of refactoring this is finite but astronomically large: for the
+example in Figure~\ref{mapFactor} there are approximately $10^{14}$
+possible refactorings -- a quantity that grows exponentially both as a
+function of program size and a function of the bound on evaluation
+steps. How can we tame this combinatorial explosion?
+
+A structure called a \textbf{version space
+  algebra}~\cite{lau2001programming,mitchell1977version,polozov2015flashmeta}
+neatly resolves this exponential growth.  A version space is a
+tree-shaped data structure that compactly represents a large set of
+programs and supports efficient set operations like union,
+intersection, and membership checking.  In
+Appendix~\ref{appendixVersion}, we give a dynamic program that takes
+as input a program $p$ and then outputs a version space containing the
+refactorings of $p$.  Our technique is astronomically more efficient
+than explicitly representing the space of possible refactorings: for
+the example in Figure~\ref{mapFactor}A, we represent the space of
+refactorings using a version space with $10^6$ nodes, which encodes
+$10^{14}$ refactorings.
 
 
 
-\subsection{Sleep-R: Training a Neural Recognition Model}\label{recognitionSection}
+
+
+
+
+
+
+
+%% \textbf{Idea 1:} Limit the degree to which
+%% a piece of code can be refactored.
+%% Instead of considering every refactoring,
+%% bound the number of $\lambda$-calculus evaluation steps
+%% separating a refactoring from its original program.
+%% Formally,
+%% we define the set of $n$-step refactorings as:
+%% \begin{equation}
+%%   R_n(p) = \left\{p'\;:\;p'\underbrace{\reduce p''\reduce\cdots\reduce}_{\text{$\leq n$ times}} p \right\}
+%% \end{equation}
+%% where $p_1\reduce p_2$ is the standard notation for ``$p_1$ rewrites to $p_2$
+%% in one step according to the rules of $\lambda$-calculus''~\cite{pierce}.
+%% For example,
+%% \begin{align*}
+%%   \code{((lambda (x) (x x)) (lambda (y) y))}\reduce&\\
+%%   \code{((lambda (y) y) (lambda (y) y))}\reduce&\\
+%%   \code{(lambda (y) y)}&
+%% \end{align*}
+%% Returning to Equation~\ref{factorObjective},
+%% this approximation gives the following objective:
+%% \begin{equation}
+%%         \log \probability[\mathcal{D}] + \argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 +\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\in R_n(p)}\probability[p'|\mathcal{D},\theta]\Bigg)
+%% \label{limitedObjective}
+%%   \end{equation}
+%% In practice, setting the number of refactoring steps $n$ to 3 suffices
+%% to give a competent DSL learning algorithm.  Although the number of
+%% refactorings is now finite, it is still prohibitively large, and in
+%% fact grows exponentially quickly both as a function of $n$ and as a
+%% function of the size of the program being refactored.  For example,
+%% for the programs in Figure~\ref{mapFactor}, there are approximately
+%% $10^{14}$ possible refactorings.  Next, we show how to tame this
+%% exponential explosion.
+
+
+
+%% In Appendix~\ref{appendixVersion}, we describe a dynamic program for
+%% efficiently constructing a version space containing every $n$-step
+%% refactoring.
+%% This dynamic program, which we call $I\beta_n(p)$,
+%% satisfies $\denotation{I\beta_n(p)} =  R_n(p)$.
+%% In other words,
+%% this dynamic program
+%% builds a data structure
+%% that represents the entire set of
+%% refactorings -- but without having to explicitly enumerate all of the refactorings.
+
+With this machinery in hand, we now have all the pieces needed to
+learn a DSL (Algorithm~\ref{grammarInductionAlgorithm}).
+The functions $I\beta(\cdot )$ and \textsc{refactor} construct
+a version space from a program and extract the shortest program from a version space, respectively (Algorithm~\ref{grammarInductionAlgorithm}, lines 5-6, 14; see Appendix~\ref{appendixVersion}).
+To define the prior distribution over $(\mathcal{D},\theta})$ (Algorithm~\ref{grammarInductionAlgorithm}, lines 7-8), we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
+  and $\lambda$ controls how strongly we regularize the size of the DSL.
+  We place a symmetric Dirichlet prior over the weight vector $\theta$.
+
+To appropriately score each proposed $\mathcal{D}$ we must reestimate
+ the weight vector $\theta$ (Algorithm~\ref{grammarInductionAlgorithm}, line 7).
+Although this  may seem 
+very similar to estimating the parameters of a probabilistic context free grammar,
+for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
+our DSLs are context-sensitive due to the presence of variables
+in the programs and also due to the polymorphic typing system.
+Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
+
+
+
+\begin{algorithm}%[H]
+  %\setcounter{algorithm}{2} % there are two algorithms in the main paper.
+  \caption{DSL Induction Algorithm}
+  \label{grammarInductionAlgorithm}
+  \begin{algorithmic}[1]
+    \State {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
+    %         \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
+    \State \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+    \State $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
+    \While{true}         
+    \State $\forall p\in \bigcup_{x}\mathcal{F}_x: $ $v_p\gets I\beta(p)$ \Comment{Construct a version space for each program}
+    \State Define $L(\mathcal{D}',\theta) =  \prod_x \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[\text{\textsc{refactor}}(p|\mathcal{D}')|\mathcal{D}',\theta]$ \Comment{Likelihood if $(\mathcal{D}',\theta)$ were the DSL}
+    \State Define $\theta^*(\mathcal{D}') = \argmax_\theta \probability[\theta|\mathcal{D}'] L(\mathcal{D}',\theta)$ \Comment{MAP estimate of $\theta$}
+    \State Define $\text{score}(\mathcal{D}') = \log \probability[\mathcal{D}'] + L(\mathcal{D}',\theta^*) - \|\theta\|_0$ \Comment{objective function}
+    \State components $\gets$ $\left\{\textsc{refactor}(v|\mathcal{D})\;:\;\forall x, \forall p\in \mathcal{F}_x, \forall v\in \text{children}(v_p) \right\}$ \Comment{Propose many new DSL components}
+    \State proposals $\gets$ $\left\{\mathcal{D}\cup\left\{c \right\}\;:\;\forall c\in \text{components} \right\}$ \Comment{Propose many new DSLs}
+    \State $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new DSL}
+    \State \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to DSL led to a better score}
+    \State $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better DSL. Update DSL.}
+    \State $\forall x\;:\;\mathcal{F}_x\gets\left\{\text{\textsc{refactor}}(p|\mathcal{D})\;:\; p\in \mathcal{F}_x\right\}$\Comment{Refactor frontiers in terms of new DSL}
+    \EndWhile
+  \end{algorithmic}
+\end{algorithm}
+
+
+
+
+\begin{figure*}
+  \centering\begin{tikzpicture}[every node/.style={inner sep=1,outer sep=0,rounded corners,thick}]
+  \node(p1)[draw,rounded corners,thick] at (-1,0) {
+    \begin{tabular}{l}
+      \texttt{(Y ($\lambda$ (r l) (if (nil? l) nil}\\
+      \texttt{ (cons (+ (car l) (car l))}\\
+      \phantom{\texttt{(cons }}\texttt{ (r (cdr l))))))}
+    \end{tabular}
+  };
+  \node(r1)[draw,inner sep=0,outer sep=0] at ([yshift=-2.5cm]p1.south) {
+    \begin{tabular}{l}
+      \texttt{(}\orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l)}}\\
+      \phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{nil}}\\
+      \phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{(cons (f (car l))}}\\
+      \phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{ (r (cdr l)))))))}}\\
+      \texttt{ ($\lambda$ (z) (+ z z)))}
+    \end{tabular}
+  };
+
+  \node(p2)[draw] at ([xshift=4.5cm]p1.east) {
+    \begin{tabular}{l}
+      \texttt{(Y ($\lambda$ (r l) (if (nil? l) nil}\\
+      \texttt{ (cons (- (car l) 1)}\\
+      \phantom{\texttt{(cons }}\texttt{ (r (cdr l))))))}
+    \end{tabular}
+    
+  };
+  \node(r2)[draw] at ([yshift=-2.5cm]p2.south) {
+    \begin{tabular}{l}
+      \texttt{(}\orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l)}}\\
+      \phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{nil}}\\
+      \phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{(cons (f (car l))}}\\
+      \phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{ (r (cdr l)))))))}}\\
+      \texttt{ ($\lambda$ (z) (- z 1)))}
+    \end{tabular}
+
+  };
+
+  \draw [->] (p1.south)  --(r1.north) node[fill=white,midway] {refactor};
+  \draw [->] (p2.south)  --(r2.north) node[fill=white,midway] {refactor};
+
+  \node[draw](m) at (3,-6.5) {
+    \begin{tabular}{l}
+      \fbox{\textsc{map}} = \orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l) nil}}\\
+      \phantom{\texttt{\emph{map}} = \texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if }}\orange{\texttt{(cons (f (car l))}}\\
+      \phantom{\texttt{\emph{map}} = \texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if }}\orange{\texttt{(r (cdr l))))))}}\\
+      \code{(}\fbox{\textsc{map}}\code{ ($\lambda$ (z) (+ z z)))}\quad(program rewritten w/ new \fbox{\textsc{map}} primitive)\\
+      \code{(}\fbox{\textsc{map}}\code{ ($\lambda$ (z) (- z 1)))}\quad(program rewritten w/ new \fbox{\textsc{map}} primitive)\\
+    \end{tabular}      
+  };
+  \draw [->](r1.south)--(m.north);
+  \draw [->](r2.south)--(m.north);
+  \node[fill=white] at ([yshift=0.5cm]m.north) {\textbf{Compress (MDL/Bayes objective)}};
+
+  \node(t1)[draw] at ([yshift=1.5cm]p1.north) {\begin{tabular}{ll}
+      \textbf{Task}:&\texttt{(1 2 3)$\to$(2 4 6)}\\
+      &\texttt{(4 3 4)$\to$(8 6 8)}
+  \end{tabular}};
+  \draw [->] (t1.south)  --(p1.north) node[fill=white,midway] {Wake: program search};
+  \node(t2)[draw] at ([yshift=1.5cm]p2.north) {\begin{tabular}{ll}
+      \textbf{Task}:&\texttt{(1 2 3)$\to$(0 1 2)}\\
+      &\texttt{(4 3 4)$\to$(3 2 3)}
+  \end{tabular}};
+  \draw [->] (t2.south)  --(p2.north) node[fill=white,midway] {Wake: program search};
+
+  \node(panelA)[ultra thick, rounded corners=0, inner sep=10,outer sep=10, draw, fit=(t1) (t2) (m) (r1) (r2)] {}; \node at ($(0.5,0) + (panelA.west |- panelA.north)$) {\textbf{A}};
+
+  \footnotesize
+  \begin{scope}[shift={(2,-11)}]  
+    \node[draw, rounded corners](u1) at (0,0) {union};
+    \node[draw, rounded corners](u2) at ($(0,-1) + (u1.south)$) {\code{(}union\code{ 1)}}; \draw (u1.south) -- (u2.north);
+    \node[draw, rounded corners](u21) at ($(-1.3,-1) + (u2.south)$) {\code{(($\lambda$ (x) (x 1)) +)}}; \draw ([xshift=-0.2cm]u2.south) -- (u21.north);
+    \node[draw, rounded corners](u22) at ($(2.3,-1) + (u2.south)$) {\code{(($\lambda$ (x) (+ x)) 1)}};  \draw ([xshift=-0.2cm]u2.south) -- (u22.north);
+
+    \node[draw, rounded corners](u11) at ($(-1.75,-1) + (u1.south)$) {\code{(+ 1 1)}}; \draw (u1.south) -- (u11.north);
+    \node[draw, rounded corners](u12) at ($(2.75,-1) + (u1.south)$) {\code{(($\lambda$ (x) (x 1 1)) +)}}; \draw (u1.south) -- (u12.north);
+
+    \node(vs) at ($(u21.west)!0.5!(u12.east) + (0,-1.25)$) {$\underbrace{\hspace{8cm}}_{\text{\normalsize Subset of version space}}$};
+
+    \node[anchor=north](p) at ($(-6,0) + (u2)$) {\normalsize $\underbrace{\texttt{(+ 1 1)}}_{\text{\normalsize  Program}}$};
+    \draw[ultra thick,->] ($(0.5,0) + (p.east)$) -- ($(1.5,0) + (p.east)$);
+    \node at ($(1,0.25) + (p.east)$) {Refactors};
+    \node(g)[anchor=left] at ($(7,0) + (u12.east)$) {\includegraphics[width = 6cm]{figures/vs.eps}};
+    \node(panelB)[ultra thick, rounded corners=0, inner sep=10,outer sep=10, draw, fit=(p) (u1) (vs) (g)] {}; \node at ($(0.5,0) + (panelB.west |- panelB.north)$) {\normalsize\textbf{B}}; 
+
+
+    %% \node(panelC)[ultra thick, rounded corners=0, inner sep=8,outer sep=8, draw, fit=(g)] {}; \node at ($(0.5,0) + (panelC.west |- panelC.north)$) {\normalsize\textbf{C}}; 
+  \end{scope}
+  
+  \end{tikzpicture}
+  \caption{DSL learning as code refactoring. \textbf{Panel A:} For each task we discover programs during waking, then refactor the code from those programs to expose common subprograms (highlighted in \orange{orange}). Common subprograms are incorporated into the DSL when they increase a Bayesian objective. Intuitively, these new DSL components best compress the programs found during waking. \textbf{Panel B:} \# of possible refactorings grows exponentially with program size. We represent refactorings using version spaces, which augment syntax trees with a \emph{union} operator whose children are themselves version spaces. Right graph: version spaces are exponentially more efficient than explicitly constructing set of refactorings.}\label{mapFactor}
+\end{figure*}
+
+
+\subsection{Dream Sleep: Training a Neural Recognition Model}\label{recognitionSection}
+
+During ``dreaming'' the system learns a recognition model that guides
+program search.  It learns from (program, task) pairs drawn from two
+sources of self-supervised data: \emph{replays} of programs discovered
+during waking, and \emph{fantasies}, or programs drawn from the DSL.
+Replays ensure that the recognition model is trained on the tasks
+solved so far, and does not forget how to solve them.  Fantasies
+ensure that the recognition model has a large and highly varied corpus
+of (program, task) pairs to learn from.
+
+Formally, $Q(p|x)$ should approximate the posterior
+$\probability[p|\mathcal{D},\theta,x]$
+
+training a neural recognition model, $Q$, to regress from
+a task to a distribution over programs
+that are likely to both
+solve the task and
+be likely under the prior.
+To train $Q$ we need (program, task)
+pairs.
+
+To get the data to train $Q$,
+we take inspiration from
+the 
 
 The purpose of training the recognition model is to amortize the cost
 of searching for programs.  It does this by learning to predict, for
@@ -1370,27 +1349,8 @@ $\probability[x|p]$ while also being probable under the prior
 $(\mathcal{D},\theta)$,
 thereby approximating the posterior $\probability[\cdot |x,\mathcal{D},\theta]$.
 
-\subsubsection{Training $Q$}\label{recognitionTraining}
-How should we get the data to train $Q$?
-This is non-obvious  because we are considering a weakly supervised setting (i.e., learning only from tasks and not from task/program pairs).
-One approach is to draw programs from the DSL,
-run them to get their input/outputs,
-and then train $Q$ to predict the program from the input/outputs.
-This is like how the wake-sleep algorithm for the Helmholtz machine
-trains its recognition model during its sleep phase~\cite{dayan1995helmholtz}.
-The advantage of training on samples, or ``dreams,'' is that
-we can draw unlimited samples from the DSL,
-training on a large amount of data.
-Another approach is
-to train $Q$ on the (program, task)
-pairs discovered by the Wake phase.
-The advantage here
-is that the training data is much higher quality,
-because we are training on real tasks.
-Due to these complementary advantages,
-we train on both these sources of data.
 
-Formally, $Q$ should approximate the true posteriors over programs.
+
 We can either train $Q$ to perform full posterior inference by minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|Q(p|x) \right) \right]$,
 or we can train $Q$ to perform MAP inference
 by maximizing $\expect\left[\max_{p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]} \log Q(p|x) \right]$,
@@ -1710,474 +1670,15 @@ and we use with this combination throughout the rest of the paper.
 
 
 
-\subsection{Sleep-G: Learning a Generative Model (a DSL)}\label{grammarInductionSection}
-
-The purpose of the DSL is to
-offer a set of abstractions
-that allow an agent to easily express solutions to the tasks at hand.
-Intuitively, we want the algorithm to look at the programs found
-during waking and generalize beyond them, both so the DSL can better
-express the current solutions, and also so that the DSL might expose
-new abstractions which will later be used to discover more programs.
-Formally, we want the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{mathematicalFraming}).
-We replace this marginal with an AIC approximation, giving the following objective for DSL induction:
-\begin{equation}
-        \log \probability[\mathcal{D}] + 
-\argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 +\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\Bigg)
-\label{AIC}
-  \end{equation}
-At a high level, our approach is to search locally through the space 
-of DSLs, proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC}
-fails to increase.  These small changes consist of introducing new
-candidate $\lambda$-expressions into the DSL.
-
-However, there is a snag with this simple approach:
-whenever we add a new expression $e$ to the DSL,
-the programs found during waking ($\left\{\mathcal{F}_x \right\}$)
-are not written in terms of $e$.
-Concretely, imagine we wanted to discover a new DSL procedure for doubling numbers,
-after having found the programs
-\code{(cons (+ 9 9) nil)} and \code{($\lambda$ (x) (+ (car x) (car x)))}.
-As human programmers,
-we can look at these pieces of code and recognize that,
-if we define a new procedure called \code{double},
-defined as \code{($\lambda$ (x) (+ x x))},
-then we can rewrite the original programs as
-\code{(cons (double 9) nil)} and \code{($\lambda$ (x) (double (car x)))}.
-This process is a kind of refactoring
-where a new subroutine is defined (\code{double})
-and the old programs rewritten
-in terms of the new subroutine.
-Figure~\ref{mapFactor}
-diagrams this refactoring
-process for a more complicated
-setting,
-where the agent must rediscover the higher-order function \code{map}
-starting from the basics of Lisp and the Y-combinator.
-
-Formally, we want a DSL
-which puts high probability on
-any refactoring of the programs found during waking, maximizing:
-\begin{equation}
-        \log \probability[\mathcal{D}] + 
-\argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 +\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\manyReduce p}\probability[p'|\mathcal{D},\theta]\Bigg)
-\label{factorObjective}
-  \end{equation}
-where $p'\manyReduce p$
-is the standard notation for ``expression $p'$ evaluates to $p$ by the rules of $\lambda$-calculus''~\cite{pierce}.
-
-Equation~\ref{factorObjective} captures the idea that we want
-to add new components to the DSL while jointly refactoring our old
-programs in terms of these new components.  But
-this joint inference problem is intractable, because there are
-infinitely many ways of refactoring a program.
-We combine two ideas to make this refactoring process tractable:
-
-\textbf{Idea 1:} Limit the degree to which
-a piece of code can be refactored.
-Instead of considering every refactoring,
-bound the number of $\lambda$-calculus evaluation steps
-separating a refactoring from its original program.
-Formally,
-we define the set of $n$-step refactorings as:
-\begin{equation}
-  R_n(p) = \left\{p'\;:\;p'\underbrace{\reduce p''\reduce\cdots\reduce}_{\text{$\leq n$ times}} p \right\}
-\end{equation}
-where $p_1\reduce p_2$ is the standard notation for ``$p_1$ rewrites to $p_2$
-in one step according to the rules of $\lambda$-calculus''~\cite{pierce}.
-For example,
-\begin{align*}
-  \code{((lambda (x) (x x)) (lambda (y) y))}\reduce&\\
-  \code{((lambda (y) y) (lambda (y) y))}\reduce&\\
-  \code{(lambda (y) y)}&
-\end{align*}
-Returning to Equation~\ref{factorObjective},
-this approximation gives the following objective:
-\begin{equation}
-        \log \probability[\mathcal{D}] + \argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 +\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\in R_n(p)}\probability[p'|\mathcal{D},\theta]\Bigg)
-\label{limitedObjective}
-  \end{equation}
-In practice, setting the number of refactoring steps $n$ to 3 suffices
-to give a competent DSL learning algorithm.  Although the number of
-refactorings is now finite, it is still prohibitively large, and in
-fact grows exponentially quickly both as a function of $n$ and as a
-function of the size of the program being refactored.  For example,
-for the programs in Figure~\ref{mapFactor}, there are approximately
-$10^{14}$ possible refactorings.  Next, we show how to tame this
-exponential explosion.
-
-\textbf{Idea 2:} Rather than explicitly enumerate every refactoring,
-we developed a technique for compactly representing and efficiently
-calculating the set of all refactorings.  The key idea is to represent
-the set of refactorings using a \emph{version
-  space}~\cite{lau2001programming,mitchell1977version,polozov2015flashmeta}.
-A version space is a tree-shaped data structure
-that compactly represents a large set of programs.
-We first define version spaces over $\lambda$-calculus expressions,
-and then give a dynamic program for constructing a version space
-that represents the set of possible refactorings (i.e., $R_n(p)$).
-This technique is astronomically more efficient than
-explicitly representing
-the space of possible refactorings:
-for the example in Figure~\ref{mapFactor},
-we represent
-the space of refactorings using a version space with
-$10^6$ nodes,
-which encodes $10^{14}$ refactorings.
-Formally, a version space is either:
-\begin{itemize}
-\item A deBuijn\footnote{deBuijn indices are an alternative way of naming variables in $\lambda$-calculus. When using deBuijn indices, $\lambda$-abstractions are written \emph{without} a variable name, and variables are written as the count of the number of $\lambda$-abstractions up in the syntax tree the variable is bound to. For example, $\lambda x.\lambda y. (x\;y)$ is written $\lambda\lambda (\$1\;\$0)$ using deBuijn indices. See~\cite{pierce} for more details.} index: written $\$i$, where $i$ is a natural number
-\item An abstraction: written $\lambda v$, where $v$ is a version space
-\item An  application: written $(f \;x)$, where both  $f$ and $x$ are version spaces
-\item A  union: $\uplus V$, where $V$ is a set of version spaces
-\item The empty set, $\varnothing$
-\item The set of all $\lambda$-calculus expressions, $\Lambda$
-\end{itemize}
-The purpose of a version space to compactly represent a set of programs.
-We refer to this set as the \textbf{extension} of the version space:
-\begin{definition}
-  The \textbf{extension} of a version space $v$ is written $\denotation{v}$
-  and is defined recursively as:
-  \begin{align*}
-    \denotation{\$i}& = \left\{\$i \right\}&
-    \denotation{\lambda v}& = \left\{\lambda e : e\in \denotation{v} \right\}&
-    \denotation{(v_1\; v_2)}& = \left\{(e_1\;e_2) : e_1\in \denotation{v_1},\;e_2\in \denotation{v_2} \right\}\\
-    \denotation{\uplus V}& = \left\{e : v\in V,\;e\in \denotation{v} \right\}&
-    \denotation{\varnothing}& = \varnothing&
-    \denotation{\Lambda}& = \Lambda
-    \end{align*}
-\end{definition}
-Version spaces also support efficient membership checking, which we
-write as  $e\in \denotation{v}$.
-Important for our purposes, it is also efficient to refactor the
-members of a version space's extension in terms of a new DSL.
-We define $\textsc{refactor}(v|\mathcal{D})$ inductively as:
-\begin{align*}
-  \textsc{refactor}(v|\mathcal{D}) &= \begin{cases}
-    e\text{, if $e\in \mathcal{D}$ and $e\in \denotation{v}$. Exploits the fact that $\denotation{e}\in v$ can be efficiently computed.}\\
-    \textsc{refactor}'(v|\mathcal{D})\text{, otherwise.}
-  \end{cases}
-\end{align*}\vspace{-\baselineskip}%
-\begin{align*}
-  \textsc{refactor}'(e|\mathcal{D})& = e\text{, if $e$ is a leaf}&%\\\nonumber
-  \textsc{refactor}'(\lambda b|\mathcal{D}) &= \lambda \textsc{refactor}(b|\mathcal{D})\\\nonumber
-  \textsc{refactor}'(f\;x|\mathcal{D}) &= \textsc{refactor}(f|\mathcal{D})\;\textsc{refactor}(x|\mathcal{D})&%\\\nonumber
-  \textsc{refactor}'(\uplus V|\mathcal{D}) &= \argmin_{e\in \left\{\textsc{refactor}(v|\mathcal{D})\;:\;v\in V \right\}}\text{size}(e|\mathcal{D})\nonumber
-  \end{align*}
-where $\text{size}(e|\mathcal{D})$ for program $e$ and DSL $\mathcal{D}$
-is the size of the syntax tree of $e$,
-when members of $\mathcal{D}$ are counted as having size 1.
-Concretely, $  \textsc{refactor}(v|\mathcal{D})$ calculates $\argmin_{p\in \denotation{v}}\text{size}(p|\mathcal{D})$.
-
-In Appendix~\ref{appendixVersion}, we describe a dynamic program for
-efficiently constructing a version space containing every $n$-step
-refactoring.
-This dynamic program, which we call $I\beta_n(p)$,
-satisfies $\denotation{I\beta_n(p)} =  R_n(p)$.
-In other words,
-this dynamic program
-builds a data structure
-that represents the entire set of
-refactorings -- but without having to explicitly enumerate all of the refactorings.
-
-With this machinery in hand, we now have all the pieces needed to
-learn a DSL (Algorithm~\ref{grammarInductionAlgorithm}).
-To define the prior distribution over $(\mathcal{D},\theta})$ (Algorithm~\ref{grammarInductionAlgorithm}, lines 7-8), we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
-  and $\lambda$ controls how strongly we regularize the size of the DSL.
-  We place a symmetric Dirichlet prior over the weight vector $\theta$.
-
-To appropriately score each proposed $\mathcal{D}$ we must reestimate
- the weight vector $\theta$ (Algorithm~\ref{grammarInductionAlgorithm}, line 7).
-Although this  may seem 
-very similar to estimating the parameters of a probabilistic context free grammar,
-for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
-our DSLs are context-sensitive due to the presence of variables
-in the programs and also due to the polymorphic typing system.
-Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
-
-
-
-\begin{algorithm}%[H]
-  %\setcounter{algorithm}{2} % there are two algorithms in the main paper.
-  \caption{DSL Induction Algorithm}
-  \label{grammarInductionAlgorithm}
-  \begin{algorithmic}[1]
-    \State {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
-    %         \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
-    \State \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
-    \State $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
-    \While{true}         
-    \State $\forall p\in \bigcup_{x}\mathcal{F}_x: $ $v_p\gets I\beta_n(p)$ \Comment{Construct a version space for each program}
-    \State Define $L(\mathcal{D}',\theta) =  \prod_x \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[\text{\textsc{refactor}}(p|\mathcal{D}')|\mathcal{D}',\theta]$ \Comment{Likelihood if $(\mathcal{D}',\theta)$ were the DSL}
-    \State Define $\theta^*(\mathcal{D}') = \argmax_\theta \probability[\theta|\mathcal{D}'] L(\mathcal{D}',\theta)$ \Comment{MAP estimate of $\theta$}
-    \State Define $\text{score}(\mathcal{D}') = \log \probability[\mathcal{D}'] + L(\mathcal{D}',\theta^*) - \|\theta\|_0$ \Comment{objective function}
-    \State components $\gets$ $\left\{\textsc{refactor}(v|\mathcal{D})\;:\;\forall x, \forall p\in \mathcal{F}_x, \forall v\in \text{children}(v_p) \right\}$ \Comment{Propose many new DSL components}
-    \State proposals $\gets$ $\left\{\mathcal{D}\cup\left\{c \right\}\;:\;\forall c\in \text{components} \right\}$ \Comment{Propose many new DSLs}
-    \State $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new DSL}
-    \State \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to DSL led to a better score}
-    \State $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better DSL. Update DSL.}
-    \State $\forall x\;:\;\mathcal{F}_x\gets\left\{\text{\textsc{refactor}}(p|\mathcal{D})\;:\; p\in \mathcal{F}_x\right\}$\Comment{Refactor frontiers in terms of new DSL}
-    \EndWhile
-  \end{algorithmic}
-\end{algorithm}
-
-
-
-
-\begin{figure*}
-  \centering\begin{tikzpicture}[every node/.style={inner sep=1,outer sep=0,rounded corners,thick}]
-    \node(p1)[draw,rounded corners,thick] at (-1,0) {
-      \begin{tabular}{l}
-      \texttt{(Y ($\lambda$ (r l) (if (nil? l) nil}\\
-      \texttt{ (cons (+ (car l) (car l))}\\
-      \phantom{\texttt{(cons }}\texttt{ (r (cdr l))))))}
-    \end{tabular}
-    };
-    \node(r1)[draw,inner sep=0,outer sep=0] at ([yshift=-2.5cm]p1.south) {
-      \begin{tabular}{l}
-  \texttt{(}\orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l)}}\\
-\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{nil}}\\
-\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{(cons (f (car l))}}\\
-\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{ (r (cdr l)))))))}}\\
-\texttt{ ($\lambda$ (z) (+ z z)))}
-      \end{tabular}
-    };
-
-        \node(p2)[draw] at ([xshift=4.5cm]p1.east) {
-    \begin{tabular}{l}
-      \texttt{(Y ($\lambda$ (r l) (if (nil? l) nil}\\
-      \texttt{ (cons (- (car l) 1)}\\
-      \phantom{\texttt{(cons }}\texttt{ (r (cdr l))))))}
-    \end{tabular}
-    
-    };
-    \node(r2)[draw] at ([yshift=-2.5cm]p2.south) {
-\begin{tabular}{l}
-  \texttt{(}\orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l)}}\\
-\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{nil}}\\
-\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{(cons (f (car l))}}\\
-\phantom{(($\lambda$ (f) (Y ($\lambda$ (r l)}\orange{\texttt{ (r (cdr l)))))))}}\\
-\texttt{ ($\lambda$ (z) (- z 1)))}
-      \end{tabular}
-
-    };
-
-    \draw [->] (p1.south)  --(r1.north) node[fill=white,midway] {refactor};
-    \draw [->] (p2.south)  --(r2.north) node[fill=white,midway] {refactor};
-
-    \node[draw](m) at (3,-6.5) {
-\begin{tabular}{l}
-          \fbox{\textsc{map}} = \orange{\texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if (nil? l) nil}}\\
-  \phantom{\texttt{\emph{map}} = \texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if }}\orange{\texttt{(cons (f (car l))}}\\
-  \phantom{\texttt{\emph{map}} = \texttt{($\lambda$ (f) (Y ($\lambda$ (r l) (if }}\orange{\texttt{(r (cdr l))))))}}\\
-  \code{(}\fbox{\textsc{map}}\code{ ($\lambda$ (z) (+ z z)))}\quad(program rewritten w/ new \fbox{\textsc{map}} primitive)\\
-  \code{(}\fbox{\textsc{map}}\code{ ($\lambda$ (z) (- z 1)))}\quad(program rewritten w/ new \fbox{\textsc{map}} primitive)\\
-      \end{tabular}      
-    };
-    \draw [->](r1.south)--(m.north);
-    \draw [->](r2.south)--(m.north);
-    \node[fill=white] at ([yshift=0.5cm]m.north) {\textbf{Compress (MDL/Bayes objective)}};
-    %% \visible<2-3>{
-    %%   \node[fill=orange!50!white,align=center] at (r1) {\Huge $10^{14}$\\\Huge  refactorings };
-    %%   \node[fill=orange!50!white,align=center] at (r2) {\Huge $10^{13}$\\\Huge  refactorings };
-    %% }
-    %% \visible<3>{
-    %%   \node[fill=orange!50!white,align=center] at ([yshift=7cm]m.north) {\Huge version space: set of programs\\
-    %%   \huge Lau 2003; Gulwani 2012};
-    %%   }
-    %% \visible<4>{
-    %%   \node[fill=orange!50!white,align=center] at (r1) {\Huge $\leq 10^6$\\\Huge version spaces };
-    %%   \node[fill=orange!50!white,align=center] at (r2) {\Huge $\leq 10^6$\\\Huge version spaces };
-    %% }
-
-       \node(t1)[draw] at ([yshift=1.5cm]p1.north) {\begin{tabular}{ll}
-           \textbf{Task}:&\texttt{(1 2 3)$\to$(2 4 6)}\\
-           &\texttt{(4 3 4)$\to$(8 6 8)}
-       \end{tabular}};
-       \draw [->] (t1.south)  --(p1.north) node[fill=white,midway] {program search};
-       \node(t2)[draw] at ([yshift=1.5cm]p2.north) {\begin{tabular}{ll}
-           \textbf{Task}:&\texttt{(1 2 3)$\to$(0 1 2)}\\
-           &\texttt{(4 3 4)$\to$(3 2 3)}
-       \end{tabular}};
-       \draw [->] (t2.south)  --(p2.north) node[fill=white,midway] {program search};
-       
-  \end{tikzpicture}
-  \caption{DSL learning as code refactoring. For each task we discover programs during waking, then refactor the code from those programs to expose common subprograms (highlighted in \orange{orange}). Common subprograms are incorporated into the DSL when they increase a Bayesian objective. Intuitively, these new DSL components best compress the programs found during waking.}\label{mapFactor}
-  \end{figure*}
-
-\begin{comment}
-
-We propose these new expressions
-by extracting fragments of programs already in the frontiers
-(Tbl.~\ref{fragmentExample}).  An important point here is that we are
-\emph{not} simply adding subexpressions of programs to $\mathcal{D}$,
-as done in the EC algorithm~\cite{Dechter:2013:BLV:2540128.2540316}
-and other prior work~\cite{DBLP:conf/ecai/LinDETM14}.  Instead, we are
-extracting fragments that unify with programs in the frontiers.  This
-idea of storing and reusing fragments of expressions comes from
-Fragment Grammars~\cite{tim} and Tree-Substitution
-Grammars~\cite{cohn2010inducing}, and is closely related to the idea
-of antiunification~\cite{henderson2013cumulative}.
-
-%\vfill\null
-
-%\columnbreak
-
-
-
-To define the prior distribution over $(\mathcal{D},\theta})$, we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
-  and $\lambda$ controls how strongly we regularize the size of the DSL.
-  We place a symmetric Dirichlet prior over the weight vector $\theta$,
-  defining 
-$  \probability[\theta|\mathcal{D}] = \text{Dir}(\theta|\alpha)$, where
- $\alpha$ is a concentration parameter controlling the smoothness of the prior over $\theta$.
-%Alg.~\ref{grammarInductionAlgorithm} specifies the DSL induction algorithm.
-
-To appropriately score each proposed $\mathcal{D}$ we must reestimate
- the weight vector $\theta$.
-Although this  may seem 
-very similar to estimating the parameters of a probabilistic context free grammar,
-for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
-our DSLs are context-sensitive due to the presence of variables
-in the programs and also due to the polymorphic typing system.
-In the Supplement we derive a tractable MAP estimator for $\theta$.
-%% Putting all these ingredients together, Alg.~\ref{mainAlgorithm} describes how we combine program search,
-%% recognition model training, and DSL induction.
-
-\begin{figure*}[!htb]\tabcolsep=2pt
-\centering  \begin{minipage}[c]{0.2\textwidth}
-  \begin{tikzpicture}[scale=0.7]
-    %% \node[rotate=30] at (-2,0) {\begin{tabular}{c}
-    %%     \footnotesize Program:\\
-    %%     \code{($\lambda$ (x) (+ (- x) 1))}
-    %% \end{tabular}};
-    %\node at (,0.5) {\code{cons}};
-    \node [rotate=90] at (-2.3,-0.5) {\small program};
-    
-          \node(l1) at (0,0) {};
-  \node[color=pop3](p1) at (-1,-1) {\code{+}};
-  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
-  \node(x1) at (0,-1) {\code{1}};
-  \draw[color=pop3] (l1.south) -- (p1.north);
-  \draw[color=pop3] (l1.south) -- (n1.north);
-  \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
-
-  \node(t) at (-0.5,0.5) {};
-  \draw (l1.south) -- (t.south);
-  \node(c) at (-1.5,-0.2) {\code{cons}};
-  \draw (t.south) -- (c.north);
-  
-%    \draw  (l1.south) -- (-0.5,0.5);
-
-  %% \node(c) at (-0.5,-1.5) {\code{-}};
-  %% \node(z) at (0.5,-1.5) {\code{x}};
-
-  %% \draw (0,-1) -- (c.north);
-  %% \draw (0,-1) -- (z.north);
-  
-  \begin{scope}[shift={(0,-2.5)}]
-      \node(l1) at (0,0) {};
-  \node[color=pop3](p1) at (-1,-1) {\code{+}};
-  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
-  %\node(x1) at (0,-1) {};
-  \draw[color=pop3] (l1.south) -- (p1.north);
-  \draw[color=pop3] (l1.south) -- (n1.north);
-  \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
-
-
-  \node(c) at (-0.5,-1.5) {\code{car}};
-  \node(z) at (0.5,-1.5) {\code{z}};
-
-  \draw (0,-1) -- (c.north);
-  \draw (0,-1) -- (z.north);
-
-  \node [rotate=90] at (-2.3,-0.7) {\small program};
-  
-  \end{scope}
-
-\begin{scope}[shift={(0,-5)}]
-  \node[pop3](p1) at (-1,-1) {\code{+}};
-  \node[pop3](n1) at (0.8,-0.7) {\code{1}};
-  \node[pop3](a) at (0,-1) {\code{ }};
-  %\node(x1) at (0,-1) {};
-  \draw[pop3] (0,0) -- (p1.north);
-  \draw[pop3] (0,0) -- (n1.north);
-  \draw[pop3] (-0.55,-0.4) -- (a.north);
-  \node [rotate=90] at (-2.3,-0.7) {\small fragment};
-
-  \end{scope}
-
-\end{tikzpicture}
-  \end{minipage}
-\hspace{0.1cm}\begin{tabular}{ll}
-    \toprule
-    Example programs in frontiers&Proposed $\lambda$-expression\\\midrule
-    \begin{tabular}{l}
-      \code{($\lambda$ ($\ell$) (map ($\lambda$ (x) (index x $\ell$))}\\
-      \phantom{\code{($\lambda$ ($\ell$) (map }}\code{(range (- (length $\ell$) 1))))}\\
-      \code{($\lambda$ ($\ell$) (map ($\lambda$ (x) (index x $\ell$))}\\
-      \phantom{\code{($\lambda$ ($\ell$) (map }}\code{(range (+ 1 1))))}\\
-    \end{tabular}&
-    \begin{tabular}{l}
-      \code{(map ($\lambda$ (x) (index x $\ell$))}\\
-      \phantom{\code{(map)}}\code{(range $\alpha$))}\\
-    \end{tabular}\\\midrule
-    \begin{tabular}{l}
-      \code{($\lambda$ (s) (map ($\lambda$ (x)}\\
-      \hspace{0.4cm}\code{ (if (= x '.') '-' x))) s)}\\
-      \code{($\lambda$ (s) (map ($\lambda$ (x) }\\
-      \hspace{0.4cm}\code{ (if (= x '-') ',' x))) s)}\\
-      \end{tabular}&
-    \begin{tabular}{l}      \code{($\lambda$ (s) (map ($\lambda$ (x)}\\\hspace{0.2cm}\code{   (if (= x $\alpha$) $\beta$ x))) s)}
-      \end{tabular}
-\\\bottomrule\\
-\end{tabular}
-\caption{\textbf{Left:} syntax trees of two programs sharing common structure,
-highlighted in {\orange{orange}},
-  from which we extract a fragment and add it to the DSL (bottom). \textbf{Right:} actual programs,
-  from which we extract fragments that  (top) slice from the beginning of a list or (bottom) perform character substitutions.}\label{fragmentExample}
-\end{figure*}
-
-  \end{comment}
-\begin{comment}
-  \begin{wrapfigure}{R}{0.6\textwidth}
-  \begin{minipage}{0.6\textwidth}    
-    \begin{algorithm}[H]
-      \caption{The \system Algorithm}
-      \label{mainAlgorithm}
-      \begin{algorithmic}
-        \STATE {\bfseries Input:} Initial DSL $\mathcal{D}$, set of tasks $X$, iterations $I$
-        \STATE \textbf{Hyperparameters:} Enumeration timeout $T$
-        %     \STATE \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$, recognition model $q(\cdot)$
-        \STATE Initialize $\theta\gets \text{uniform}$ %, $q_0(\cdot ) = \theta_0$
-        \FOR{$i=1$ {\bfseries to} $I$}
-        %     \FOR{$x:\tau\in X$}
-        \STATE  $\mathcal{F}^{\theta}_x\gets \{p| p\in
-        \text{enum}(\mathcal{D},\theta,T)\text{ if }\probability[x|p] > 0\}$
-        \footnotesize{\hspace{0.1cm}(\textbf{Search})}
-        \STATE $q\gets \text{train recognition model, maximizing }\mathcal{L}_{\text{RM}}$ \hspace{0.2cm}(\footnotesize{\textbf{Compile}})
-        \STATE  $\mathcal{F}^{q}_x\gets\{p|p\in
-        \text{enum}(\mathcal{D},q(x),T)\text{ if }\probability[x|p] > 0\}$
-        \footnotesize{\hspace{0.15cm}\textbf{(Search)}}
-        
-        \STATE $\mathcal{D},\theta\gets $induceDSL$(\{\mathcal{F}^{\theta}_x\cup\mathcal{F}^{q}_x\}_{x\in X})$  \hspace{1.1cm} \footnotesize{\textbf{(Compress)}}
-        %% \STATE Define $Q_x(z) \propto \begin{cases}
-        %%   \probability[x|z]\probability[z|\mathcal{D}_i,\theta_i]&x\in \mathcal{F}_x\\
-        %%   0&x\not \in \mathcal{F}_x
-        %% \end{cases}
-        \ENDFOR
-        \STATE \textbf{return} $\mathcal{D},\theta,q$
-      \end{algorithmic}
-    \end{algorithm}
-  \end{minipage}
-\end{wrapfigure}
-  \end{comment}
-
 \section{Experiments}
 
 \subsection{Programs that manipulate sequences}\label{sequences}
-We apply \system to list processing %% (Section~\ref{listSection})
-and text editing, %% (Section~\ref{textSection})
+We first apply \system to two classic benchmark domains: list
+processing and text editing. We find that we can start with generic
+Lisp-style primitives and recover a domain-specific vocabulary for
+solving each of these classes of problems.
+
+
 using a GRU~\cite{cho2014learning} for
 the recognition model, and initially providing the system with generic sequence manipulation primitives:
 \code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
@@ -2188,8 +1689,8 @@ the recognition model, and initially providing the system with generic sequence 
 
 %\subsubsection{List Processing}\label{listSection}
 \textbf{List Processing:} Synthesizing programs that manipulate data structures is a widely studied
-problem in the programming languages community~\cite{feser2015synthesizing}.
-%with applications to computer aided programming~\cite{solar2008program}.
+problem in the programming languages community~\cite{feser2015synthesizing},
+and progress here can translate to better computer-aided programming~\cite{solar2008program}.
 We consider this problem within the context of learning functions that
 manipulate lists, and also perform arithmetic operations upon lists (Table~\ref{listExamples}).
 We created 236 human-interpretable list manipulation tasks, each with 15
@@ -2302,7 +1803,8 @@ one sees that
 the system has learned to recombine
 the building blocks and motifs in the training data.
 \begin{figure}
-  \includegraphics[width = \textwidth]{figures/logo90.png}
+  \includegraphics[width = 0.3\textwidth]{figures/logo16.png}
+  \includegraphics[width = 0.3\textwidth]{figures/tower9.png}
   \caption{LOGO graphics tasks. The agent must learn to write programs that draw these 90 pictures.}\label{everyLogo}
 \end{figure}
 \begin{figure}
@@ -2364,13 +1866,9 @@ we assemble a DSL containing
 parametric option-like subroutines (Figure~\ref{towerPrimitives}),
 allowing the agent to solve 90\% of the tasks.
 \begin{figure}
-  \includegraphics[width = \textwidth]{figures/every_tower.png}
-  \caption{}\label{towerTasks}
-\end{figure}
-\begin{figure}
   \caption{Learned subroutines for building towers out of Lego-style blocks when trained on tasks in Figure~\ref{towerTasks}. These subroutines act like parametric options~\cite{options},
-  giving higher-level building blocks that the agent can use to plan.}
-  \end{figure}
+    giving higher-level building blocks that the agent can use to plan.}
+\end{figure}
 
 
 
@@ -2624,7 +2122,12 @@ more closely matching the domain.
 %% taking more iterations to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
 %% This supports a view of the recognition model as a way of amortizing the cost of search.
 
-
+\begin{figure}
+  \includegraphics[width = 5cm]{figures/logoLearningCurve.png}
+  \includegraphics[width = 5cm]{figures/textLearningCurve_batch.png}
+  \includegraphics[width = 5cm]{figures/listLearningCurve_batch.png}
+  \includegraphics[width = 5cm]{figures/towerLearningCurve_batch.png}
+  \end{figure}
 
 \begin{figure*}\centering
   \includegraphics[width = 4.5cm]{figures/listLearningCurve.eps} \qquad
@@ -2662,6 +2165,63 @@ new domains, including the domains considered here,  but also many others?
 \appendix
 
 \section{Appendix}
+
+\subsection{Generative model over programs}\label{generativeAppendix}
+Algorithm~\ref{sampleProgram} gives a stochastic procedure for drawing samples from $\probability[\cdot |\mathcal{D},\theta]$.
+It takes as input the desired type of the unknown program,
+and performs type inference during
+sampling to ensure that
+the program has the desired type.
+It also maintains a \emph{environment}
+mapping variables to types,
+which ensures
+that lexical scoping rules are obeyed.
+\begin{algorithm}
+  \caption{Generative model over programs}
+  \label{sampleProgram}
+  \begin{algorithmic}[1]
+    \State \textbf{function} sample$(\mathcal{D}, \theta, \tau)$:
+    \State {\bfseries Input:} DSL $(\mathcal{D},\theta)$, type $\tau$
+    \State \textbf{Output:} a program whose type unifies with $\tau$
+    \State  \textbf{return }sample$'(\mathcal{D}, \theta, \varnothing, \tau)$
+
+    \Statex
+    \State \textbf{function} sample$'(\mathcal{D}, \theta, \mathcal{E}, \tau)$:
+    \State {\bfseries Input:} DSL $(\mathcal{D},\theta)$, environment $\mathcal{E}$, type $\tau$\Comment{Environment $\mathcal{E}$ starts out as $\varnothing$}
+    \State \textbf{Output:} a program whose type unifies with $\tau$
+    \If{$\tau = \alpha\to\beta$}\Comment{Function type --- start with a lambda}
+    \State var $\gets$ an unused variable name
+    \State body $\sim$ sample$'(\mathcal{D},\theta,\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$\Comment{Recursively sample function body}
+    \State \textbf{return} \code{(lambda (}var\code{) }body\code{)}
+    %\Endif
+    \Else\Comment{Build an application to give something w/ type $\tau$}
+    \State $\text{primitives} \gets \{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
+    $\text{if }\tau\text{ can unify with yield}(\tau') \}$\Comment{Everything in scope w/ type $\tau$}
+    \State $\text{variables}\gets\left\{p\;|\;p\in \text{primitives}\text{ and }p\text{ a variable} \right\}$
+    \State Draw $e\sim \text{primitives}$, w.p. $\propto\begin{cases}
+    \theta_e&\text{ if }e\in \mathcal{D}\\
+    \theta_{var}/|\text{variables}|&\text{ if }e\in \mathcal{E}
+    \end{cases}$
+    \State Unify $\tau$ with yield$(\tau')$.\Comment{Ensure well-typed program}
+    \State $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{args}(\tau')$ 
+    %   \State unify$(\tau,\beta)$
+    \For{$k=1$ {\bfseries to} $K$}\Comment{Recursively sample arguments}
+    \State $a_k\sim\text{sample}'(\mathcal{D},\theta,\mathcal{E},\alpha_k)$
+    \EndFor
+    \State \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
+    \EndIf
+    \Statex
+    \Statex\textbf{where:}
+    \State yield$(\tau) = \begin{cases}
+      \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+      \tau   &\text{ otherwise.}
+    \end{cases}$ \Comment{Final return type of $\tau$}
+    \State  args$(\tau) = \begin{cases}
+      [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+      []   &\text{ otherwise.}
+    \end{cases}$\Comment{Types of arguments needed to get something w/ type $\tau$}
+  \end{algorithmic}
+\end{algorithm}
 
 \subsection{Enumerative program search}\label{enumerationAppendix}
 
@@ -2757,10 +2317,56 @@ This is similar in spirit to iterative deepening depth first search~\cite{Russel
    \end{algorithmic}
  \end{algorithm}
 
-\subsection{Refactoring code with version spaces}\label{appendixVersion}
+ \subsection{Refactoring code with version spaces}\label{appendixVersion}
+ Formally, a version space is either:
+\begin{itemize}
+\item A deBuijn\footnote{deBuijn indices are an alternative way of naming variables in $\lambda$-calculus. When using deBuijn indices, $\lambda$-abstractions are written \emph{without} a variable name, and variables are written as the count of the number of $\lambda$-abstractions up in the syntax tree the variable is bound to. For example, $\lambda x.\lambda y. (x\;y)$ is written $\lambda\lambda (\$1\;\$0)$ using deBuijn indices. See~\cite{pierce} for more details.} index: written $\$i$, where $i$ is a natural number
+\item An abstraction: written $\lambda v$, where $v$ is a version space
+\item An  application: written $(f \;x)$, where both  $f$ and $x$ are version spaces
+\item A  union: $\uplus V$, where $V$ is a set of version spaces
+\item The empty set, $\varnothing$
+\item The set of all $\lambda$-calculus expressions, $\Lambda$
+\end{itemize}
+The purpose of a version space to compactly represent a set of programs.
+We refer to this set as the \textbf{extension} of the version space:
+\begin{definition}
+  The \textbf{extension} of a version space $v$ is written $\denotation{v}$
+  and is defined recursively as:
+  \begin{align*}
+    \denotation{\$i}& = \left\{\$i \right\}&
+    \denotation{\lambda v}& = \left\{\lambda e : e\in \denotation{v} \right\}&
+    \denotation{(v_1\; v_2)}& = \left\{(e_1\;e_2) : e_1\in \denotation{v_1},\;e_2\in \denotation{v_2} \right\}\\
+    \denotation{\uplus V}& = \left\{e : v\in V,\;e\in \denotation{v} \right\}&
+    \denotation{\varnothing}& = \varnothing&
+    \denotation{\Lambda}& = \Lambda
+    \end{align*}
+\end{definition}
+Version spaces also support efficient membership checking, which we
+write as  $e\in \denotation{v}$.
+Important for our purposes, it is also efficient to refactor the
+members of a version space's extension in terms of a new DSL.
+We define $\textsc{refactor}(v|\mathcal{D})$ inductively as:
+\begin{align*}
+  \textsc{refactor}(v|\mathcal{D}) &= \begin{cases}
+    e\text{, if $e\in \mathcal{D}$ and $e\in \denotation{v}$. Exploits the fact that $\denotation{e}\in v$ can be efficiently computed.}\\
+    \textsc{refactor}'(v|\mathcal{D})\text{, otherwise.}
+  \end{cases}
+\end{align*}\vspace{-\baselineskip}%
+\begin{align*}
+  \textsc{refactor}'(e|\mathcal{D})& = e\text{, if $e$ is a leaf}&%\\\nonumber
+  \textsc{refactor}'(\lambda b|\mathcal{D}) &= \lambda \textsc{refactor}(b|\mathcal{D})\\\nonumber
+  \textsc{refactor}'(f\;x|\mathcal{D}) &= \textsc{refactor}(f|\mathcal{D})\;\textsc{refactor}(x|\mathcal{D})&%\\\nonumber
+  \textsc{refactor}'(\uplus V|\mathcal{D}) &= \argmin_{e\in \left\{\textsc{refactor}(v|\mathcal{D})\;:\;v\in V \right\}}\text{size}(e|\mathcal{D})\nonumber
+  \end{align*}
+where $\text{size}(e|\mathcal{D})$ for program $e$ and DSL $\mathcal{D}$
+is the size of the syntax tree of $e$,
+when members of $\mathcal{D}$ are counted as having size 1.
+Concretely, $  \textsc{refactor}(v|\mathcal{D})$ calculates $\argmin_{p\in \denotation{v}}\text{size}(p|\mathcal{D})$.
+
+
 Recall that our goal is to define an operator over version spaces, $I\beta_n$,
 which calculates the set of $n$-step refactorings.
-We define this operator recursively in terms of another operator, $I\beta'$, which performs a single step of refactoring:
+We define this operator in terms of another operator, $I\beta'$, which performs a single step of refactoring:
 \begin{align*}
   I\beta_n(v)& = \uplus \left\{ \underbrace{I\beta'(I\beta'(I\beta'(\cdots}_{i \text{ times}} v))) \;:\; 0\leq i \leq n \right\}
 \end{align*}
@@ -2810,9 +2416,9 @@ but implement them using a dynamic program:
 we hash cons each version space,
 and only calculate the operators $I\beta_n$,
 $I\beta'$, and $S_k$ once per each version space.
-Refactoring is similarly done more quickly with dynamic programming (see Equation~\ref{FACTORING} for the recursive definition of \textsc{refactor}).
+%Refactoring is similarly done more quickly with dynamic programming (see Equation~\ref{FACTORING} for the recursive definition of \textsc{refactor}).
 
-We now formally proved that $I\beta$ exhaustively enumerates the space of possible refactorings.
+We now formally prove that $I\beta$ exhaustively enumerates the space of possible refactorings.
 Our approach is to first prove that $S_k$ exhaustively enumerates
 the space of possible substitutions that
 could give rise to a program.
@@ -3217,262 +2823,277 @@ and exactly maximizing the likelihood with respect to $\theta$
 becomes intractable,
 so for domains with polymorphic types we use this estimator.
 
+\subsection{Full set of LOGO  tasks}
+
 \begin{figure}
-  \begin{tikzpicture}
-    \node at (0,0) (d){DSL};
-    \node at ([yshift = -2cm]d) (t){$\text{Task}$};
-
-    \node at ([xshift = 2cm]t) (nn){
-      \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
-        \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
-        \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
-        \node[rectangle] at (1,1) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (I-\name) at (0,-\y) {};
-        \foreach \name / \y in {1,...,3}
-            \node[neuron] (H-\name) at (1,-\y-0.5) {};
-        \foreach \name / \y in {1,...,4}
-            \node[neuron] (O-\name) at (2,-\y) {};
-        \foreach \source in {1,...,4}
-            \foreach \dest in {1,...,3}
-                \draw [-latex] (I-\source) -- (H-\dest);
-        \foreach \source in {1,...,3}
-            \foreach \dest in {1,...,4}
-                \draw [-latex] (H-\source) -- (O-\dest);
-      \end{tikzpicture}
-    };
-    \node[align = center, text width = 1cm] at ([yshift = 0.6cm]nn.north) {\baselineskip=0pt \small Recognition model\par};
-    \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
-
-    \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
-    \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
-
-    \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
-    \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
-
-    \node[align=left] at (7,-1) (f) {Frontier\\{\small (set of programs)}};
-    \draw [->  ] (s.east) -- (f.west);
-
-    \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
-    \node at ([xshift = 0.5cm,yshift = -0.75cm]s.south) {Spec};
-
-    \node at (4,-3.5) {\textbf{\textsc{Wake: Problem Solving}}};
-    
-    
-  \end{tikzpicture}
-
-  \vspace{1cm}
-  
-  
-
-  \begin{tikzpicture}
-    \node at (0,0) (f1){Frontier$_1$};
-    \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
-    \node at ([yshift = -1cm]f2.south) (f3){Frontier$_3$};
-
-    \node at ([xshift = 2cm]f1.east) (p1){program$_1$};
-    \node at ([xshift = 2cm]f2.east) (p2){program$_2$};
-    \node at ([xshift = 2cm]f3.east) (p3){program$_3$};
-
-
-    \draw [->,squiggle ] (f1.east) -- node[above]{\small sample} (p1.west);
-    \draw [->,squiggle ] (f2.east) -- node[above]{\small sample} (p2.west);
-    \draw [->,squiggle ] (f3.east) -- node[above]{\small sample} (p3.west);
-    
-    \node at ([xshift = 1.5cm]p1.east) (t1){task$_1$};
-    \node at ([xshift = 1.5cm]p2.east) (t2){task$_2$};
-    \node at ([xshift = 1.5cm]p3.east) (t3){task$_3$};
-
-    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Experience Replay}}};
-  \end{tikzpicture}
-
-  \begin{tikzpicture}
-    \node[align=center] at (0,0) (d){DSL\\$(\mathcal{D},\theta)$};
-    \node at ([xshift = 3cm]d.east) (p2){program};
-    \node at ([yshift = 1.5cm]p2) (p1){program};
-    \node at ([yshift = -1.5cm]p2) (p3){program};
-
-
-    \draw[squiggle,-> ] (d.east) -- node[above]{\small sample} (p2.west);
-    \draw[squiggle,-> ] (d.east) -- (p1.west);
-    \draw[squiggle,-> ] (d.east) -- (p3.west);
-
-    \node at ([xshift = 2cm]p1.east) (t1){task};
-    \node at ([xshift = 2cm]p2.east) (t2){task};
-    \node at ([xshift = 2cm]p3.east) (t3){task};
-    \draw [-> ] (p1.east) -- node[above]{\small execute} (t1.west);
-    \draw [-> ] (p3.east) -- node[above]{\small execute} (t3.west);
-    \draw [-> ] (p2.east) -- node[above]{\small execute} (t2.west);
-
-    \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Dreaming}}};
-  \end{tikzpicture}
-  
-  \vspace{2cm}
-  
-  \begin{tikzpicture}
-    \node at (0,0) (f1){Frontier$_1$};
-    \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
-    \node at ([yshift = -0.7cm]f2.south) (ff){\textbf{$\vdots$}};
-    \node at ([yshift = -1.2cm]f2.south) (ff){\textbf{$\vdots$}};
-    \node at ([yshift = -1cm]ff.south) (f3){Frontier$_N$};
-
-    \node(c)[rectangle, rounded corners, draw, minimum width = 3cm, minimum height = 6cm, anchor = north west] at (2,1) {};
-    \node[anchor=north] at (c.north) {Compression};
-
-    \draw [-> ] (f1.east) -- (c.west|-f1.east);
-    \draw [-> ] (f2.east) -- (c.west|-f2.east);
-    \draw [-> ] (f3.east) -- (c.west|-f3.east);
-
-    \node[right](d) at ([xshift = 1.2cm,yshift = 0.7cm]c.east) {DSL $\mathcal{D}$};
-    \node[right](t) at ([xshift = 1.2cm,yshift = -0.7cm]c.east) {Weights $\theta$};
-    \draw [-> ] (c.east) -- (d.west);
-    \draw [-> ] (c.east) -- (t.west);
-
-    \node at (c.center) {
-\begin{tikzpicture}[scale=0.7]
-    %% \node[rotate=30] at (-2,0) {\begin{tabular}{c}
-    %%     \footnotesize Program:\\
-    %%     \code{($\lambda$ (x) (+ (- x) 1))}
-    %% \end{tabular}};
-    %\node at (,0.5) {\code{cons}};
-%    \node [rotate=90] at (-2.3,-0.5) {\small program};
-    
-          \node(l1) at (0,0) {};
-  \node[color=pop3](p1) at (-1,-1) {\code{+}};
-  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
-  \node(x1) at (0,-1) {\code{1}};
-  \draw[color=pop3] (l1.south) -- (p1.north);
-  \draw[color=pop3] (l1.south) -- (n1.north);
-  \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
-
-  \node(t) at (-0.5,0.5) {};
-  \draw (l1.south) -- (t.south);
-  \node(c) at (-1.5,-0.2) {\code{cons}};
-  \draw (t.south) -- (c.north);
-  
-%    \draw  (l1.south) -- (-0.5,0.5);
-
-  %% \node(c) at (-0.5,-1.5) {\code{-}};
-  %% \node(z) at (0.5,-1.5) {\code{x}};
-
-  %% \draw (0,-1) -- (c.north);
-  %% \draw (0,-1) -- (z.north);
-  
-  \begin{scope}[shift={(-1,-2.5)}]
-      \node(l1) at (0,0) {};
-  \node[color=pop3](p1) at (-1,-1) {\code{+}};
-  \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
-  %\node(x1) at (0,-1) {};
-  \draw[color=pop3] (l1.south) -- (p1.north);
-  \draw[color=pop3] (l1.south) -- (n1.north);
-  \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
-
-
-  \node(c) at (-0.5,-1.5) {\code{car}};
-  \node(z) at (0.5,-1.5) {\code{z}};
-
-  \draw (0,-1) -- (c.north);
-  \draw (0,-1) -- (z.north);
-
-%  \node [rotate=90] at (-2.3,-0.7) {\small program};
-  
-  \end{scope}
-
-\begin{scope}[shift={(0,-5)}]
-  \node[pop3](p1) at (-1,-1) {\code{+}};
-  \node[pop3](n1) at (0.8,-0.7) {\code{1}};
-  \node[pop3](a) at (0,-1) {\code{ }};
-  %\node(x1) at (0,-1) {};
-  \draw[pop3] (0,0) -- (p1.north);
-  \draw[pop3] (0,0) -- (n1.north);
-  \draw[pop3] (-0.55,-0.4) -- (a.north);
-%  \node [rotate=90] at (-2.3,-0.7) {\small fragment};
-
-  \end{scope}
-
-\end{tikzpicture}
-    };
-
-    \node at ([yshift=-2.5cm,xshift = 4cm]c.south) {\textsc{\textbf{Sleep-G: Memory Consolidation}}};
-
-    \end{tikzpicture}
+  \includegraphics[width = \textwidth]{figures/fullLogo.png}
+  \caption{Full set of LOGO graphics tasks that we apply our system to}
 \end{figure}
 
-\begin{table*}%[t!]
-  \makebox[\textwidth][c]{
-    \scriptsize
-  \tabcolsep=4pt
-  \renewcommand\code\texttt
-  \renewcommand\codechar[1]{\texttt{"#1"}}
-  \newcommand{\helpSize}{0.25cm}
-  \begin{tabular}{cccc}
-    \toprule
-    &{\normalsize Symbolic regression}&{\normalsize Laws of motion}&\\\midrule
-    \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&{\tabcolsep=7pt
-    \begin{tabular}{cc}
-      \includegraphics[width = 3em]{figures/functions/4.png}&
-      \includegraphics[width = 3em]{figures/functions/146}\\
-      \pop{\code{$f($x$) = $($f_1$ x)}}&    \pop{\code{$f($x$) = $($f_6$ x)}}\\
-      ~\\
-      \includegraphics[width = 3em]{figures/functions/112.png}&
-        \includegraphics[width = 3em]{figures/functions/92.png}
-      \\
-      \pop{\code{$f($x$) = $($f_4$ x)}}&    \pop{\code{$f($x$) = $($f_3$ x)}}\\
+\subsection{Full set of tower tasks}
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/fullTower.png}
+  \caption{Full set of tower building tasks that we apply our system to}
+\end{figure}
 
-    \end{tabular}
-    }
-    &
-    \begin{tabular}{cc}
-      \includegraphics[width = 15em]{figures/massOnSpring.png} &
-            \includegraphics[width = 15em]{figures/planets.png}
-      \\
-      \begin{tabular}{l}
-              \blueCode{$f($o,$\Delta) = $($f_3$ o $\Delta$}\\
-      \hspace{1cm}\blueCode{(- (* $k$ (pos o))}\\
-      \hspace{1cm}\phantom{\code{(- }}\blueCode{(* $-9.8$ $\hat{x}$)))}\\
-      \end{tabular}&
-      \begin{tabular}{l}
-              \blueCode{$f($a,b,$\Delta) = $($f_3$ a $\Delta$}\\
-      \hspace{1cm}\blueCode{(/ (* $G$ (mass a) (mass b))}\\
-      \hspace{1cm}\phantom{\code{(- }}\blueCode{(square (- (pos a) (pos b)))))}\\
-        \end{tabular}
-      \end{tabular}
-    &
+%% \begin{figure}
+%%   \begin{tikzpicture}
+%%     \node at (0,0) (d){DSL};
+%%     \node at ([yshift = -2cm]d) (t){$\text{Task}$};
 
-    ~\\
-    \midrule
-    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
-      \begin{tabular}{l}
-    \popp{$f_0($\code{x}$)\,=\,$\code{(+ x real)}}\\
-    \popp{$f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} }\\
-    \popp{$f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}}\\
-    \popp{$f_3($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_2$\code{ x)))}}\\
-    \popp{$f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}}\\
-    \hspace{\helpSize}\emph{($f_4$: 4th order polynomial)}\\
-    \popp{$f_5($\code{x}$)\,=\,$\code{(/ real x)}}\\
-    \popp{$f_6($\code{x}$)\,=\,$\code{($f_5$ ($f_0$ x))}}\\
-    \hspace{\helpSize}\emph{($f_6$: rational function)}\\
+%%     \node at ([xshift = 2cm]t) (nn){
+%%       \begin{tikzpicture}[x=2.5cm,y=1.25cm,transform canvas={scale=0.2,shift={+(-1,2.5)}}]
+%%         \tikzstyle{neuron}=[circle,fill=blue!50,minimum size=20pt]
+%%         \fill[fill=white] (-0.25,-0.5) rectangle (2.25,-4.5);
+%%         \node[rectangle] at (1,1) {};
+%%         \foreach \name / \y in {1,...,4}
+%%             \node[neuron] (I-\name) at (0,-\y) {};
+%%         \foreach \name / \y in {1,...,3}
+%%             \node[neuron] (H-\name) at (1,-\y-0.5) {};
+%%         \foreach \name / \y in {1,...,4}
+%%             \node[neuron] (O-\name) at (2,-\y) {};
+%%         \foreach \source in {1,...,4}
+%%             \foreach \dest in {1,...,3}
+%%                 \draw [-latex] (I-\source) -- (H-\dest);
+%%         \foreach \source in {1,...,3}
+%%             \foreach \dest in {1,...,4}
+%%                 \draw [-latex] (H-\source) -- (O-\dest);
+%%       \end{tikzpicture}
+%%     };
+%%     \node[align = center, text width = 1cm] at ([yshift = 0.6cm]nn.north) {\baselineskip=0pt \small Recognition model\par};
+%%     \draw [->] (t.east) -- ([xshift = -0.5cm]nn.west);
 
-  \end{tabular}
-      &
-      \begin{tabular}{l}
-        \greenCode{$f_0($\code{o},$\Delta)\, = \,$(set-pos o (+ (pos o) (* $\Delta$ (vel o))))}\\
-        \hspace{\helpSize}\emph{($f_0$: integrates position)}\\
-        \greenCode{$f_1($\code{o},\code{a},$\Delta)\, = \,$(set-vel o (+ (vel o) (* $\Delta$ a)))}\\
-        \hspace{\helpSize}\emph{($f_1$: integrates velocity)}\\
-        \greenCode{$f_2($\code{o},\code{F}$)\, = \,$(/ F (mass o))}\\
-        \hspace{\helpSize}\emph{($f_2$: Newton's second law)}\\
-        \greenCode{$f_3($\code{o},$\Delta$,\code{F}$)\, = \,$($f_0$ o $\Delta$ ($f_1$ o ($f_2$ o F) $\Delta$))}\\
-        \hspace{\helpSize}\emph{($f_3$: applies Newton's second law and integrates)}
+%%     \node[draw,rounded corners, inner sep = 10] at ([xshift = 4.2cm,yshift = -1cm]) (s){Search};
+%%     \node at ([xshift=-7pt,yshift=5pt]s.north west) {$\mathcal{D}$};
+
+%%     \draw [->] ([xshift = 0.5cm]nn.east) -- ([yshift = -0.25cm]s.west);
+%%     \draw [->,rounded corners] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
+
+%%     \node[align=left] at (7,-1) (f) {Frontier\\{\small (set of programs)}};
+%%     \draw [->  ] (s.east) -- (f.west);
+
+%%     \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
+%%     \node at ([xshift = 0.5cm,yshift = -0.75cm]s.south) {Spec};
+
+%%     \node at (4,-3.5) {\textbf{\textsc{Wake: Problem Solving}}};
+    
+    
+%%   \end{tikzpicture}
+
+%%   \vspace{1cm}
+  
+  
+
+%%   \begin{tikzpicture}
+%%     \node at (0,0) (f1){Frontier$_1$};
+%%     \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
+%%     \node at ([yshift = -1cm]f2.south) (f3){Frontier$_3$};
+
+%%     \node at ([xshift = 2cm]f1.east) (p1){program$_1$};
+%%     \node at ([xshift = 2cm]f2.east) (p2){program$_2$};
+%%     \node at ([xshift = 2cm]f3.east) (p3){program$_3$};
+
+
+%%     \draw [->,squiggle ] (f1.east) -- node[above]{\small sample} (p1.west);
+%%     \draw [->,squiggle ] (f2.east) -- node[above]{\small sample} (p2.west);
+%%     \draw [->,squiggle ] (f3.east) -- node[above]{\small sample} (p3.west);
+    
+%%     \node at ([xshift = 1.5cm]p1.east) (t1){task$_1$};
+%%     \node at ([xshift = 1.5cm]p2.east) (t2){task$_2$};
+%%     \node at ([xshift = 1.5cm]p3.east) (t3){task$_3$};
+
+%%     \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Experience Replay}}};
+%%   \end{tikzpicture}
+
+%%   \begin{tikzpicture}
+%%     \node[align=center] at (0,0) (d){DSL\\$(\mathcal{D},\theta)$};
+%%     \node at ([xshift = 3cm]d.east) (p2){program};
+%%     \node at ([yshift = 1.5cm]p2) (p1){program};
+%%     \node at ([yshift = -1.5cm]p2) (p3){program};
+
+
+%%     \draw[squiggle,-> ] (d.east) -- node[above]{\small sample} (p2.west);
+%%     \draw[squiggle,-> ] (d.east) -- (p1.west);
+%%     \draw[squiggle,-> ] (d.east) -- (p3.west);
+
+%%     \node at ([xshift = 2cm]p1.east) (t1){task};
+%%     \node at ([xshift = 2cm]p2.east) (t2){task};
+%%     \node at ([xshift = 2cm]p3.east) (t3){task};
+%%     \draw [-> ] (p1.east) -- node[above]{\small execute} (t1.west);
+%%     \draw [-> ] (p3.east) -- node[above]{\small execute} (t3.west);
+%%     \draw [-> ] (p2.east) -- node[above]{\small execute} (t2.west);
+
+%%     \node at ([yshift = -0.5cm]p3.south) {\textsc{\textbf{Sleep-R: Dreaming}}};
+%%   \end{tikzpicture}
+  
+%%   \vspace{2cm}
+  
+%%   \begin{tikzpicture}
+%%     \node at (0,0) (f1){Frontier$_1$};
+%%     \node at ([yshift = -1cm]f1.south) (f2){Frontier$_2$};
+%%     \node at ([yshift = -0.7cm]f2.south) (ff){\textbf{$\vdots$}};
+%%     \node at ([yshift = -1.2cm]f2.south) (ff){\textbf{$\vdots$}};
+%%     \node at ([yshift = -1cm]ff.south) (f3){Frontier$_N$};
+
+%%     \node(c)[rectangle, rounded corners, draw, minimum width = 3cm, minimum height = 6cm, anchor = north west] at (2,1) {};
+%%     \node[anchor=north] at (c.north) {Compression};
+
+%%     \draw [-> ] (f1.east) -- (c.west|-f1.east);
+%%     \draw [-> ] (f2.east) -- (c.west|-f2.east);
+%%     \draw [-> ] (f3.east) -- (c.west|-f3.east);
+
+%%     \node[right](d) at ([xshift = 1.2cm,yshift = 0.7cm]c.east) {DSL $\mathcal{D}$};
+%%     \node[right](t) at ([xshift = 1.2cm,yshift = -0.7cm]c.east) {Weights $\theta$};
+%%     \draw [-> ] (c.east) -- (d.west);
+%%     \draw [-> ] (c.east) -- (t.west);
+
+%%     \node at (c.center) {
+%% \begin{tikzpicture}[scale=0.7]
+%%     %% \node[rotate=30] at (-2,0) {\begin{tabular}{c}
+%%     %%     \footnotesize Program:\\
+%%     %%     \code{($\lambda$ (x) (+ (- x) 1))}
+%%     %% \end{tabular}};
+%%     %\node at (,0.5) {\code{cons}};
+%% %    \node [rotate=90] at (-2.3,-0.5) {\small program};
+    
+%%           \node(l1) at (0,0) {};
+%%   \node[color=pop3](p1) at (-1,-1) {\code{+}};
+%%   \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+%%   \node(x1) at (0,-1) {\code{1}};
+%%   \draw[color=pop3] (l1.south) -- (p1.north);
+%%   \draw[color=pop3] (l1.south) -- (n1.north);
+%%   \draw[color=pop3] (-0.5,-0.45) -- (x1.north);
+
+%%   \node(t) at (-0.5,0.5) {};
+%%   \draw (l1.south) -- (t.south);
+%%   \node(c) at (-1.5,-0.2) {\code{cons}};
+%%   \draw (t.south) -- (c.north);
+  
+%% %    \draw  (l1.south) -- (-0.5,0.5);
+
+%%   %% \node(c) at (-0.5,-1.5) {\code{-}};
+%%   %% \node(z) at (0.5,-1.5) {\code{x}};
+
+%%   %% \draw (0,-1) -- (c.north);
+%%   %% \draw (0,-1) -- (z.north);
+  
+%%   \begin{scope}[shift={(-1,-2.5)}]
+%%       \node(l1) at (0,0) {};
+%%   \node[color=pop3](p1) at (-1,-1) {\code{+}};
+%%   \node[color=pop3](n1) at (0.7,-0.9) {\code{1}};
+%%   %\node(x1) at (0,-1) {};
+%%   \draw[color=pop3] (l1.south) -- (p1.north);
+%%   \draw[color=pop3] (l1.south) -- (n1.north);
+%%   \draw[color=pop3] (-0.5,-0.45) -- (0,-1);
+
+
+%%   \node(c) at (-0.5,-1.5) {\code{car}};
+%%   \node(z) at (0.5,-1.5) {\code{z}};
+
+%%   \draw (0,-1) -- (c.north);
+%%   \draw (0,-1) -- (z.north);
+
+%% %  \node [rotate=90] at (-2.3,-0.7) {\small program};
+  
+%%   \end{scope}
+
+%% \begin{scope}[shift={(0,-5)}]
+%%   \node[pop3](p1) at (-1,-1) {\code{+}};
+%%   \node[pop3](n1) at (0.8,-0.7) {\code{1}};
+%%   \node[pop3](a) at (0,-1) {\code{ }};
+%%   %\node(x1) at (0,-1) {};
+%%   \draw[pop3] (0,0) -- (p1.north);
+%%   \draw[pop3] (0,0) -- (n1.north);
+%%   \draw[pop3] (-0.55,-0.4) -- (a.north);
+%% %  \node [rotate=90] at (-2.3,-0.7) {\small fragment};
+
+%%   \end{scope}
+
+%% \end{tikzpicture}
+%%     };
+
+%%     \node at ([yshift=-2.5cm,xshift = 4cm]c.south) {\textsc{\textbf{Sleep-G: Memory Consolidation}}};
+
+%%     \end{tikzpicture}
+%% \end{figure}
+
+%% \begin{table*}%[t!]
+%%   \makebox[\textwidth][c]{
+%%     \scriptsize
+%%   \tabcolsep=4pt
+%%   \renewcommand\code\texttt
+%%   \renewcommand\codechar[1]{\texttt{"#1"}}
+%%   \newcommand{\helpSize}{0.25cm}
+%%   \begin{tabular}{cccc}
+%%     \toprule
+%%     &{\normalsize Symbolic regression}&{\normalsize Laws of motion}&\\\midrule
+%%     \rotatebox[origin=c]{90}{\normalsize \pop{Programs} \& Tasks}&{\tabcolsep=7pt
+%%     \begin{tabular}{cc}
+%%       \includegraphics[width = 3em]{figures/functions/4.png}&
+%%       \includegraphics[width = 3em]{figures/functions/146}\\
+%%       \pop{\code{$f($x$) = $($f_1$ x)}}&    \pop{\code{$f($x$) = $($f_6$ x)}}\\
+%%       ~\\
+%%       \includegraphics[width = 3em]{figures/functions/112.png}&
+%%         \includegraphics[width = 3em]{figures/functions/92.png}
+%%       \\
+%%       \pop{\code{$f($x$) = $($f_4$ x)}}&    \pop{\code{$f($x$) = $($f_3$ x)}}\\
+
+%%     \end{tabular}
+%%     }
+%%     &
+%%     \begin{tabular}{cc}
+%%       \includegraphics[width = 15em]{figures/massOnSpring.png} &
+%%             \includegraphics[width = 15em]{figures/planets.png}
+%%       \\
+%%       \begin{tabular}{l}
+%%               \blueCode{$f($o,$\Delta) = $($f_3$ o $\Delta$}\\
+%%       \hspace{1cm}\blueCode{(- (* $k$ (pos o))}\\
+%%       \hspace{1cm}\phantom{\code{(- }}\blueCode{(* $-9.8$ $\hat{x}$)))}\\
+%%       \end{tabular}&
+%%       \begin{tabular}{l}
+%%               \blueCode{$f($a,b,$\Delta) = $($f_3$ a $\Delta$}\\
+%%       \hspace{1cm}\blueCode{(/ (* $G$ (mass a) (mass b))}\\
+%%       \hspace{1cm}\phantom{\code{(- }}\blueCode{(square (- (pos a) (pos b)))))}\\
+%%         \end{tabular}
+%%       \end{tabular}
+%%     &
+
+%%     ~\\
+%%     \midrule
+%%     \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
+%%       \begin{tabular}{l}
+%%     \popp{$f_0($\code{x}$)\,=\,$\code{(+ x real)}}\\
+%%     \popp{$f_1($\code{x}$)\,=\,$\code{($f_0$ (* real x))} }\\
+%%     \popp{$f_2($\code{x}$)\,=\,$\code{($f_1$ (* x (}$f_0$\code{ x)))}}\\
+%%     \popp{$f_3($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_2$\code{ x)))}}\\
+%%     \popp{$f_4($\code{x}$)\,=\,$\code{($f_0$ (* x (}$f_3$\code{ x)))}}\\
+%%     \hspace{\helpSize}\emph{($f_4$: 4th order polynomial)}\\
+%%     \popp{$f_5($\code{x}$)\,=\,$\code{(/ real x)}}\\
+%%     \popp{$f_6($\code{x}$)\,=\,$\code{($f_5$ ($f_0$ x))}}\\
+%%     \hspace{\helpSize}\emph{($f_6$: rational function)}\\
+
+%%   \end{tabular}
+%%       &
+%%       \begin{tabular}{l}
+%%         \greenCode{$f_0($\code{o},$\Delta)\, = \,$(set-pos o (+ (pos o) (* $\Delta$ (vel o))))}\\
+%%         \hspace{\helpSize}\emph{($f_0$: integrates position)}\\
+%%         \greenCode{$f_1($\code{o},\code{a},$\Delta)\, = \,$(set-vel o (+ (vel o) (* $\Delta$ a)))}\\
+%%         \hspace{\helpSize}\emph{($f_1$: integrates velocity)}\\
+%%         \greenCode{$f_2($\code{o},\code{F}$)\, = \,$(/ F (mass o))}\\
+%%         \hspace{\helpSize}\emph{($f_2$: Newton's second law)}\\
+%%         \greenCode{$f_3($\code{o},$\Delta$,\code{F}$)\, = \,$($f_0$ o $\Delta$ ($f_1$ o ($f_2$ o F) $\Delta$))}\\
+%%         \hspace{\helpSize}\emph{($f_3$: applies Newton's second law and integrates)}
         
-        \end{tabular}
+%%         \end{tabular}
 
 
-&
+%% &
 
 
-  \\\bottomrule\\
-\end{tabular}}\vspace{-0.5cm} 
-\caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}%\vspace{-0.5cm}
-\end{table*}
+%%   \\\bottomrule\\
+%% \end{tabular}}\vspace{-0.5cm} 
+%% \caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}%\vspace{-0.5cm}
+%% \end{table*}
+
+
 \end{document}
