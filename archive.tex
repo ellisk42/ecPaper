@@ -1560,7 +1560,7 @@ maximum element of a list, then uses that routine to learn a new
 component for extracting the $n^{\text{th}}$ largest element of a
 list, which it finally uses to learn how to sort a list of numbers
 (Figure~\ref{initialExampleDSL}).  This incremental, modular learning
-of deep hierarchies of DSL components is characteristic of \system
+of deep hierarchies of DSL components occurs
 because of the alternation between code writing and code refactoring.
 
 %% \begin{figure}[b]\centering
@@ -1621,7 +1621,10 @@ all of the tasks,
 and perform comparably to the best
 prior work.
 
-\subsection{Programs that make plans and take actions}
+\subsection{Programs from visual input}
+We consider three domains where the agent must infer a program from an
+image (Figure~\ref{visualSpecs}).
+\subsubsection{Programs that make plans and take actions}
 
 We apply \system to two domains where the agent plans a series of actions
 in order to draw a picture (Sec.~\ref{logoSection}) or build a tower out of blocks (Sec.~\ref{towerSection}).
@@ -1675,10 +1678,11 @@ neural net gets richer and more highly varied training data.
 %% arithmetic operations on angles and distances,
 %% and constants ($2\pi$, 0 through 9, and $\infty$\footnote{To ensure that programs terminate, we set $\infty = 20$}).
 
-\begin{figure}
+\begin{figure}\centering
   \includegraphics[width = 0.3\textwidth]{figures/logo16.png}
   \includegraphics[width = 0.3\textwidth]{figures/tower9.png}
-  \caption{LOGO graphics tasks. The agent must learn to write programs that draw these 90 pictures.}\label{everyLogo}
+  \includegraphics[width = 0.3\textwidth]{figures/sr16.png}
+  \caption{Three domains where the agent infers a program from visual input. \textbf{Left}: 16 (out of 145) LOGO graphics tasks. Agent writes a program controlling a `pen' that draws the target picture. \textbf{Middle}: 9 (out of 112) tower building tasks. Agent writes a program controlling a `hand' that builds the target tower. \textbf{Right}: 16 (out of 200) symbolic regression tasks. Agent writes a program containing continuous real numbers that fits the points along the curve.}\label{visualSpecs}
 \end{figure}
 \begin{figure}
 \centering  \begin{tabular}{cc}
@@ -1696,8 +1700,8 @@ neural net gets richer and more highly varied training data.
     \end{tabular}
     &
     \begin{tabular}{c}
-      Repeat and rotate subprogram:\\
-          \includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_18.png}
+      Rotational Symmetry:\\
+          \includegraphics[width = 0.35\textwidth]{figures/rotationalmontage.png}
       \end{tabular}
     
     \\\bottomrule 
@@ -1721,8 +1725,9 @@ tower~\cite{towerCopy} --- we give \system 112 tower `copy tasks'
 tower and the locations of each of its blocks, and must write a
 program that plans how a simulated hand would build the tower.
 These towers are built from Lego-style blocks
-that snap together on a discrete grid (e.g., we do not model gravity
-and discretize the coordinates of the blocks).
+that snap together on a discrete grid.%%  (e.g., we do not model gravity
+%% and discretize the coordinates of the 
+%% blocks).
 
 The system starts out with four domain-specific primitives:
 \code{left} and \code{right}, which take an integer $n$ as input and
@@ -1734,219 +1739,62 @@ include our two standard planning primitives (\code{for} and
 Starting with this basis
 the system can only solve
 12.5\% of the copy tasks.
-With successive wake/sleep cycles
-we assemble a DSL containing
-parametric option-like subroutines (Figure~\ref{towerPrimitives}),
-allowing the agent to solve 90\% of the tasks.
 \begin{figure}
-  \caption{Learned subroutines for building towers out of Lego-style blocks when trained on tasks in Figure~\ref{towerTasks}. These subroutines act like parametric options~\cite{options},
+  \begin{tabular}{cc}
+    \toprule Example learned DSL components&Samples from DSL\\\midrule
+    \begin{tabular}{rl}
+      Brickwall&\begin{tabular}{l}
+        \includegraphics[width = 5cm]{figures/tower/tower_dsl_bricks.png}
+      \end{tabular}\\
+      Bridge&\begin{tabular}{l}
+        \includegraphics[width = 5cm]{figures/tower/tower_dsl_bridge.png}
+      \end{tabular}\\
+      Staircase&\begin{tabular}{l}
+        \includegraphics[width = 5cm]{figures/tower/tower_dsl_staircase.png}
+        \end{tabular}
+    \end{tabular}&
+    \begin{tabular}{l}
+      \includegraphics[width = 5cm]{figures/tower/dreams.png}
+      \end{tabular}
+    \\\bottomrule 
+    \end{tabular}
+  \caption{Learned subroutines for building towers out of Lego-style blocks. These subroutines act like parametric options~\cite{options},
     giving higher-level building blocks that the agent can use to plan.}
 \end{figure}
 
 
 
-\subsection{Symbolic Regression: Programs from visual input}\label{regressionSection}
-We apply \system
-to symbolic regression problems.  Here, the
-agent observes points along the curve of a function, and must write a
-program that fits those points.  We initially equip our learner with
-addition, multiplication, and division, and task it with solving
-100 %% symbolic regression
-problems, each either a polynomial or rational function.  The recognition model is a
-convnet that observes an image of the target function's
-graph (Fig.~\ref{functions}) --- visually, different kinds of
-polynomials and rational functions produce different kinds of graphs,
-and so the convnet can  look at a graph and predict
-what kind of function best explains it.
-A key difficulty, however, is
-that these problems are best solved with programs containing real
-numbers.  Our solution to this difficulty is to enumerate
- programs with real-valued parameters, and then fit those
+\subsubsection{Symbolic Regression: Programs from visual input}\label{regressionSection}
+Here, the agent observes points along the curve of a function, and
+must write a program that fits those points.  We initially equip our
+learner with addition, multiplication, and division, and task it with
+solving 200 symbolic regression problems, each either a polynomial or
+rational function.  The recognition model is a convnet that observes
+an image of the target function's graph (Fig.~\ref{visualSpecs},
+rightmost) --- visually, different kinds of polynomials and rational
+functions produce different kinds of graphs, and so the convnet can
+look at a graph and predict what kind of function best explains it.  A
+key difficulty, however, is that these problems are best solved with
+programs containing real numbers.  Our solution to this difficulty is
+to enumerate programs with real-valued parameters, and then fit those
 parameters by automatically differentiating through the programs the
-system writes and use gradient descent to fit the parameters.
-We define the likelihood model, $\probability[x|p]$, by assuming a Gaussian noise model for the input/output examples,
-and penalize the use of real-valued parameters using the BIC~\cite{Bishop:2006:PRM:1162264}.
-\begin{figure}\vspace{-0.0cm} \newcommand{\functionSize}{1.1cm}\centering
-  \begin{minipage}[c]{0.3\columnwidth}%\vspace{-0.3cm}
-  \includegraphics[width = \functionSize]{figures/functions/6.png}
-  \includegraphics[width = \functionSize]{figures/functions/48.png}\\
-  \includegraphics[width = \functionSize]{figures/functions/102.png}
-  \includegraphics[width = \functionSize]{figures/functions/116.png}\\
-  \vspace{1pt}%\includegraphics[width = \functionSize]{figures/functions/181.png}
-  %\includegraphics[width = \functionSize]{figures/functions/160.png}
-  \includegraphics[width = \functionSize]{figures/functions/160.png}
-    \includegraphics[width = \functionSize]{figures/functions/149.png}
-  \end{minipage}
-  \begin{minipage}[c]{0.69\columnwidth}    
-    \caption{Recognition model input for symbolic regression. DSL learns subroutines for polynomials (top rows) and rational functions (bottom) while the recognition  model jointly learns to look at a graph of the function (left) and predict which learned subroutines best explain the observation.}\label{functions}\vspace{-1cm}
-        \end{minipage}
-\end{figure}
-We learn a DSL containing 13 new functions,
-mainly templates for polynomials of different orders or ratios of polynomials.
-The model also learns to find programs minimizing the number of continuous parameters ---
-learning to represent linear functions with 
-\code{(* real (+ x real))}, which has two continuous parameters, and represents quartic functions using $f_4$ in the rightmost column of Fig.~\ref{initialExampleDSL}
-which has five continuous parameters.
-This phenomenon arises from our Bayesian framing:
-both the generative model's bias toward shorter programs,
-and the likelihood model's BIC penalty.
+system writes and use gradient descent to fit the parameters.  We
+define the likelihood model, $\probability[x|p]$, by assuming a
+Gaussian noise model for the input/output examples, and penalize the
+use of real-valued parameters using the
+BIC~\cite{Bishop:2006:PRM:1162264}.
 
-\subsection{Learning from Scratch}
-A long-standing dream within the program induction community
-is ``learning from scratch'': starting with a \emph{minimal} Turing-complete programming language,
-and then learning to solve a wide swath of
-induction problems~\cite{solomonoff1964formal,schmidhuber2004optimal,hutter2004universal,solomonoff1989system}.
-All existing systems,
-including ours,
-fall far short of this dream,
-and it is unclear (and we believe unlikely)
-that this dream could ever be fully realized.
-How far can we push in this direction?
-``Learning from scratch'' is subjective, but a reasonable
-starting point is the set of primitives provided in 1959
-Lisp~\cite{mccarthy1960recursive}: these include
-conditionals, recursion, arithmetic, and the 
-list operators \code{cons}, \code{car}, \code{cdr}, and \code{nil}.
-A  basic first goal is to start with
-these primitives,
-and then recover a DSL that
-more closely resembles modern functional languages like Haskell and OCaml.
-Recall (Sec.~\ref{sequences})
-that we initially provided our system with functional programming routines like
-\code{map} and \code{fold}.
-
-We ran the following experiment: \system was given a subset of
-the 1959 Lisp primitives, and tasked with solving 22
-programming exercises. A key difference between
-this setup and our previous experiments is that,
-for this experiment,
-the system is
-given primitive recursion,
-whereas previously we had sequestered recursion within
-higher-order functions like \code{map}, \code{fold}, and \code{unfold}.
-
-After running for 93 hours on 64 CPUs, our
-algorithm solves these 22 exercises, along the way assembling a DSL
-with a modern repertoire of
-functional programming idioms and subroutines, including \code{map},
-\code{fold}, \code{zip}, \code{unfold}, \code{index}, \code{length},
-and  arithmetic operations like 
-building lists of natural numbers between an interval (see Figure~\ref{learningFromScratch}).
-We did not use the recognition model for this experiment:
-a bottom-up pattern recognizer is of little use
-for acquiring this abstract knowledge
-from less than two dozen problems.
-
-\begin{figure*}  \newcommand{\helpSize}{0.25cm}
-  \begin{tabular}{cc}\toprule
-    \normalsize \pop{Programs} \& Tasks&\normalsize \popp{DSL}\\\midrule 
-    
-    \begin{tabular}{l}
-      \code{[1\, 9]}$\to $\code{2}\\
-      \code{[5\, 3\, 8]$\to$3}\\
-    \blueCode{$f(\ell) = $($f_4$ $\ell$)}\\\\
-      \code{[true\, false]}$\to $\code{2}\\
-      \code{[false\, false\, false]$\to$3}\\
-    \blueCode{$f(\ell) = $($f_4$ $\ell$)}\\\\
-
-\code{[2\, 1\, 4]$\to$[2\, 1\, 4\, 0]}\\
-%\code{[9\, 4\, 8]$\to$[9\, 4\, 8\, 0]}\\
-\code{[9\, 8]$\to$[9\, 8\, 0]}\\
-\blueCode{$f(\ell) = $($f_2$ cons $\ell$ (cons 0 nil))}\\\\
-
-\code{[2\, 1\, 4]$\to$[2\, 1]}\\
-%\code{[9\, 4\, 8]$\to$[9\, 4\, 8\, 0]}\\
-\code{[9\, 8]$\to$[9]}\\
-\blueCode{$f(\ell) = $($f_0$ ($\lambda$ (z) (empty? (cdr z))) car cdr $\ell$)}\\\\
-
-\code{[2\, 5\, 6\, 0\, 6]$\to$19}\\
-\code{[9\, 2\, 7\, 6\, 3]$\to$27}\\
-\blueCode{$f(\ell) = $($f_2$ + $\ell$ 0)}\\\\
-
-\code{[4\, 2\, 6\, 4]$\to$[8\, 4\, 12\, 8]}\\
-%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
-\code{[2\, 3\, 0\, 7]$\to$[4\, 6\, 0\, 14]}\\
-\blueCode{$f(\ell) = $($f_3$ ($\lambda$ (x) (+ x x)) $\ell$)}\\\\
-\code{[4\, 2\, 6\, 4]$\to$[-4\, -2\, -6\, -4]}\\
-%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
-\code{[2\, 3\, 0\, 7]$\to$[-2\, -3\, -0\, -7]}\\
-\blueCode{$f(\ell) = $($f_3$ (- 0) $\ell$)}\\\\
-\code{[4\, 2\, 6\, 4]$\to$[5\, 3\, 7\, 5]}\\
-%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
-\code{[2\, 3\, 0\, 7]$\to$[3\, 4\, 1\, 8]}\\
-\blueCode{$f(\ell) = $($f_3$ (+ 1) $\ell$)}\\\\
+We learn a DSL containing 13 new functions, mainly templates for
+different pieces of polynomials or ratios of polynomials.  The model
+also learns to find programs minimizing the number of continuous
+parameters --- for example, learning to represent linear functions
+with \code{(* real (+ x real))}.  This phenomenon arises from our
+Bayesian framing: both the generative model's bias toward shorter
+programs, and the likelihood model's BIC penalty.
 
 
-
-      \code{[1\, 5\, 2\, 9]}$\to$\code{[1\, 2]}\\
-      \code{[3\, 8\, 1\, 3\, 1\, 2]}$\to$\code{[3\, 1\, 1]}\\
-      \blueCode{$f(\ell) = $($f_0$ empty? car}\\
-      \phantom{\blueCode{$f(\ell) = $($f_0$}}\blueCode{($\lambda$ (l) (cdr (cdr l))) $\ell$)}
-      \\\\
-
-      \code{3$\to $[0\, 1\, 2]}\\
-      \code{2$\to $[0\, 1]}\\
-      \blueCode{$f(n) = $($f_5$ ($\lambda$ (x) x) 0 $n$)}\\\\
-
-      \code{3$\to $[0\, 1\, 2\, 3]}\\
-      \code{2$\to $[0\, 1\, 2]}\\
-      \blueCode{$f(n) = $($f_5$ ($\lambda$ (x) x) 0 (+ 1 $n$))}\\\\
-
-      
-
-
-      
-      \end{tabular}&
-
-%    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
-    \begin{tabular}{l}
-        \popp{\code{$f_0($p$,$f$,$n$,$x$)\,=\,$(if (p x) nil}}\\
-      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(cons (f x) ($f_0$ (n x))))}}\\
-        \hspace{\helpSize}($f_0$: \emph{unfold})\\
-        \popp{\code{$f_1($i$,$l$)\,=\,$(if (= i 0) (car l)}}\\
-      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if}}}\popp{\code{($f_1$ (- i 1) (cdr l))))}}\\
-        \hspace{\helpSize}($f_1$: \emph{index})\\
-        \popp{\code{$f_2($f$,$l$,$x$)\,=\,$(if (empty? l) x}}\\
-      \phantom{\code{$f_2($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(f (car l) ($f_2$ (cdr l))))}}\\
-        \hspace{\helpSize}($f_2$: \emph{fold})\\
-        \greenCode{$f_3($f$,$l$)\,=\,$($f_2$ nil l ($\lambda$ (x a) (cons (f x) a)))}\\
-        \hspace{\helpSize}($f_3$: \emph{map})\\
-        \greenCode{$f_4(\ell)$\,=\,(if (empty? $\ell$) 0 (+ 1 ($f_4$ (cdr $\ell$)))))}\\
-        \hspace{\helpSize}($f_4$: \emph{length})\\
-        \greenCode{$f_5(\code{f},\code{m},\code{n})$\,=\,($f_0$ (= m) f (+ 1) n)}\\
-        \hspace{\helpSize}($f_5$: \emph{generalization of range})
-
-%        -0.222777	int -> int -> list(int)	#(lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (map (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
-
-      \end{tabular}
-    %% : (lambda (#(#(lambda (lambda (lambda (lambda (fix1 $0 (lambda (lambda (if (empty? $0) $3 ($4 ($5 $0) ($1 (cdr $0))))))))))) (lambda (car $0))) (lambda (lambda (+ $0 $1))) 0 $0))
-    %% (lambda (lambda (lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) ($1 ($3 $0)) ($4 $0) ($5 $0)))))))))
-    %% (lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (#(lambda (lambda (fix1 $0 (lambda (lambda (if (empty? $0) empty (cons ($3 (car $0)) ($1 (cdr $0))))))))) (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
-    \\\bottomrule 
-    \end{tabular}
-  \caption{Bootstrapping a standard library of functional programming routines, starting from recursion along with primitive operations found in 1959 Lisp.}\label{learningFromScratch}
-  \end{figure*} 
-
-We believe that program learners should \emph{not}
-start from scratch,
-but instead should start from
-a rich, domain-agnostic
-basis like those embodied in the standard libraries of modern  languages.
-What this experiment shows is that \system doesn't \emph{need} to start from a rich basis,
-and can in principle recover many of the amenities of modern programming systems,
-provided it is given enough computational power and a suitable
-spectrum of tasks.% programming exercises.
-
-\subsection{Learning Generative Models}
-
-We apply \system to learning generative models for images and text (Fig.~\ref{geomCompiled}-\ref{regularExpressions}).
-For images, we learn programs controlling a simulated ``pen,''
-and the task is to look at an image and explain it in terms of a graphics program.
-For text, we learn probabilistic regular expressions -- a simple probabilistic program for which inference is always tractable -- and the task is to
-infer a regex from a collection of strings.
-
-
-
+ 
+h
 \subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
 We evaluate  on held-out testing tasks,
 measuring how many
@@ -1996,41 +1844,83 @@ more closely matching the domain.
 %% This supports a view of the recognition model as a way of amortizing the cost of search.
 
 \begin{figure}
-  \includegraphics[width = 5cm]{figures/logoLearningCurve.png}
-  \includegraphics[width = 5cm]{figures/textLearningCurve_batch.png}
-  \includegraphics[width = 5cm]{figures/listLearningCurve_batch.png}
-  \includegraphics[width = 5cm]{figures/towerLearningCurve_batch.png}
-  \end{figure}
+  \begin{tabular}{ccc}
+    \includegraphics[width = 5cm]{figures/logoLearningCurve.png}&
+    \includegraphics[width = 5cm]{figures/textLearningCurve_batch.png}&
+    \includegraphics[width = 5cm]{figures/listLearningCurve_batch.png}\\
+    \includegraphics[width = 5cm]{figures/towerLearningCurve_batch.png}&
+    \includegraphics[width = 5cm]{figures/rationalLearningCurve_batched.png}&
+  \end{tabular}
+  \caption{}\label{learningCurves}
+\end{figure}
 
-\begin{figure*}\centering
-  \includegraphics[width = 4.5cm]{figures/listLearningCurve.eps} \qquad
-  \includegraphics[width = 4.5cm]{figures/textLearningCurve.eps}\qquad
-  \includegraphics[width = 4.5cm]{figures/rationalCurve.eps}
-\vspace{-0.4cm}  \caption{Learning curves for \system both with (\orange{in orange}) and without
-    (\teal{in teal}) the recognition model. Solid lines: \% holdout testing tasks solved w/ 10m timeout. Dashed lines: Average solve time, averaged only over tasks that are solved.}\label{learningCurves}\vspace{-0.5cm}
-\end{figure*}
+
 
 \section{Discussion}
 
+\subsection{Learning from Scratch}
+A long-standing dream within the program induction community
+is ``learning from scratch'': starting with a \emph{minimal} Turing-complete programming language,
+and then learning to solve a wide swath of
+induction problems~\cite{solomonoff1964formal,schmidhuber2004optimal,hutter2004universal,solomonoff1989system}.
+All existing systems,
+including ours,
+fall far short of this dream,
+and it is unclear (and we believe unlikely)
+that this dream could ever be fully realized.
+How far can we push in this direction?
+``Learning from scratch'' is subjective, but a reasonable
+starting point is the set of primitives provided in 1959
+Lisp~\cite{mccarthy1960recursive}: these include
+conditionals, recursion, arithmetic, and the 
+list operators \code{cons}, \code{car}, \code{cdr}, and \code{nil}.
+A  basic first goal is to start with
+these primitives,
+and then recover a DSL that
+more closely resembles modern functional languages like Haskell and OCaml.
+Recall (Sec.~\ref{sequences})
+that we initially provided our system with functional programming routines like
+\code{map} and \code{fold}.
+
+We ran the following experiment: \system was given a subset of the
+1959 Lisp primitives, and tasked with solving 22 programming
+exercises. A key difference between this setup and our previous
+experiments is that, for this experiment, the system is given
+primitive recursion, whereas previously we had sequestered recursion
+within higher-order functions like \code{map}, \code{fold}, and
+\code{unfold}.
+
+After running for 93 hours on 64 CPUs, our
+algorithm solves these 22 exercises, along the way assembling a DSL
+with a modern repertoire of
+functional programming idioms and subroutines, including \code{map},
+\code{fold}, \code{zip}, \code{unfold}, \code{index}, \code{length},
+and  arithmetic operations like 
+building lists of natural numbers between an interval (see  Appendix~\ref{appendixMcCarthy}).
+
+We believe that program learners should \emph{not}
+start from scratch,
+but instead should start from
+a rich, domain-agnostic
+basis like those embodied in the standard libraries of modern  languages.
+What this experiment shows is that \system doesn't \emph{need} to start from a rich basis,
+and can in principle recover many of the amenities of modern programming systems,
+provided it is given enough computational power and a suitable
+spectrum of tasks.
+
+\subsection{Program Induction as part of the generic AI toolkit}
+
+Our aim with \system is both to show how learning can enable better
+program synthesis, and to show how better program synthesis can be
+more broadly useful for AI. How could a program induction approach to
+AI become broadly useful across a diverse spectrum of AI problems ---
+planning, natural language understanding, machine vision, causal
+inference, and more?
 
 
-%\paragraph{Outlook.}
-We contribute an algorithm, \systemEnding, that learns to program by
-bootstrapping a DSL with new domain-specific primitives that the algorithm
-itself discovers, together with a neural recognition model that learns to
-efficiently deploy the DSL on new tasks. %% We believe this integration of top-down
-%% symbolic representations and bottom-up neural nets --- both of them learned
-%% --- can help make program induction systems more generally useful for AI. 
-%Many
-%directions remain open.
-%\paragraph{Future.}
-Two immediate future goals are to integrate more sophisticated neural recognition
-models~\cite{devlin2017robustfill} and program
-synthesizers~\cite{solar2008program}, which may improve performance in some
-domains over the generic methods used here.
-Another direction is DSL meta-learning: can we find a
-\emph{single} universal primitive set that could bootstrap DSLs for
-new domains, including the domains considered here,  but also many others?
+
+
+
 
 \bibliography{main}
 \bibliographystyle{plain}
@@ -2783,22 +2673,24 @@ Q_{\text{parent},\text{var},\text{argumentIndex}}(x)/|\text{variables}|&\text{ i
      \EndFor
      \State \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
      \EndIf
-     %% \Statex
-     %% \Statex\textbf{where:}
-     %% \State yield$(\tau) = \begin{cases}
-     %%   \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-     %%   \tau   &\text{ otherwise.}
-     %% \end{cases}$ \Comment{Final return type of $\tau$}
-     %% \State  args$(\tau) = \begin{cases}
-     %%   [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-     %%   []   &\text{ otherwise.}
-     %% \end{cases}$\Comment{Types of arguments needed to get something w/ type $\tau$}
    \end{algorithmic}
  \end{algorithm}
 
- \textbf{Symmetry breaking analysis.}
+ \noindent \textbf{Symmetry breaking.}  Why does the combination of
+ $\mathcal{L}^{\text{MAP}}$ and the bigram parameterization lead to
+ symmetry breaking?  The reason is twofold: (1) the objective
+ $\mathcal{L}^{\text{MAP}}$ prefers symmetry breaking recognition
+ models; and (2) the bigram parameterization permits certain kinds of
+ symmetry breaking.
+ To sharpen these intuitions,
+ we prove (Theorem~\ref{symmetricproof})
+ that any global optimizer of $\mathcal{L}^{\text{MAP}}$
+ breaks symmetries,
+ and then give a concrete worked out example
+ contrasting the behavior of $\mathcal{L}^{\text{MAP}}$ and $\mathcal{L}^{\text{posterior}}$.
+ 
 
- \begin{theorem}
+ \pagebreak\begin{theorem}\label{symmetricproof}
    Let $\mu(\cdot )$ be a distribution over tasks and let $Q^*(\cdot |\cdot )$ be a task-conditional distribution over programs satisfying
    $$
    Q^* = \argmax_Q\;\expect_\mu\left[\max_{\substack{p\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}}\log  Q(p|x) \right]
@@ -2887,22 +2779,30 @@ Then
 
  Because the equivalence classes $\left\{\mathcal{E}_i^x \right\}$
  form a partition of $\Lambda$
- we know that $p^*$ is a member of exactly one equivalence class; call it $\mathcal{E}_*^x$.
- This accomplishes one of our goals:
- we have already shown that $Q^*(p^*|x) = 1$.
- 
- Let $q\in \mathcal{E}_i^x\not=\mathcal{E}_*^x$.
+ we know that $p^*$ is a member of exactly one equivalence class; call it $\mathcal{E}_i^x$.
+ Let $q\in \mathcal{E}_j^x\not=\mathcal{E}_i^x$.
  Then because the equivalence classes form a partition we know that
  $q\not= p^*$
  and so $Q^*(q|x) = 0$,
- which is what was to be shown:
+ which was our first goal:
  \emph{any}
- program not in $\mathcal{E}_*^x$
+ program not in $\mathcal{E}_i^x$
  gets no probability mass.
 
+ Our second goal --- that there is a member of $\mathcal{E}_i^x$ which gets all the probability mass assigned by $Q^*(\cdot |x)$ --- is immediate from $Q^*(p^*|x) = 1$.
+
+ Our final goal --- that $p^*$ maximizes $\probability[\cdot |x,\mathcal{D},\theta]$
+ --- follows from the fact that $p^*\in \mathcal{B}_x$.
  \end{proof}
+
+ Notice that Theorem~\ref{symmetricproof} makes no guarantees as to the
+ cross-task systematicity of the symmetry breaking; for example, an
+ optimal recognition model could associate addition to the right for
+ one task and associate addition to the left on another task. \emph{Systematic} breaking of symmetries
+ must arise only as a consequence as
+ the network architecture (i.e., it is more parsimonious to break symmetries the same way for every task than it is to break them differently for each task).
  
- Consider an agent tasked with writing programs built from addition and the constants zero and one.
+As a concrete example of symmetry breaking, consider an agent tasked with writing programs built from addition and the constants zero and one.
 A bigram parameterization of $Q$ allows
 it to represent the fact that it should never add zero ($Q_{\code{+},\code{0},0} = Q_{\code{+},\code{0},1} = 0$)
 %or never multiply by  1 ($Q_{\code{*},\code{1},0} = Q_{\code{*},\code{1},1} = 0$), or
@@ -2933,6 +2833,13 @@ So $\mathcal{L}^{\text{MAP}}$ prefers $Q_2$ (the symmetry breaking
 recognition model), while $\mathcal{L}^{\text{posterior}}$ reverses
 this preference.
 
+How would this example work out if we did not have a bigram
+parameterization of $Q$?  With a unigram parameterization, $Q_2$ would
+be impossible to express, because it depends on local context within
+the syntax tree of a program. So even though the objective function would prefer symmetry breaking,
+a simple unigram model lacks the expressive power to
+encode it.
+
 To be clear,
 our recognition model does not learn to break \emph{every} possible symmetry in every possible DSL.
 But in practice we found that a bigrams combined with $\mathcal{L}^{\text{MAP}}$
@@ -2952,6 +2859,114 @@ and we use with this combination throughout the paper.
   \includegraphics[width = \textwidth]{figures/fullTower.png}
   \caption{Full set of tower building tasks that we apply our system to}
 \end{figure}
+
+\subsection{Learning from Scratch: Tasks and DSL}\label{appendixMcCarthy}
+
+We gave our system the following primitives: \code{if}, \code{=},
+\code{>}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
+\code{car}, \code{cdr}, \code{nil}, and \code{is-nil}, all of which
+are present in some form in McCarthy's 1959
+Lisp~\cite{mccarthy1960recursive}.\footnote{McCarthy's first version
+  of Lisp used \code{cond} instead of \code{if}. Because we are using
+  a typed language, we instead used \code{if}, because Lisp-style
+  \code{cond} is unwieldy to express as a function in typed
+  languages.}  We furthermore allowed functions to call themselves,
+which we modeled using the Y combinator.  We did not use the
+recognition model for this experiment: a bottom-up pattern recognizer
+is of little use for acquiring this abstract knowledge from less than
+two dozen problems.
+
+Figure~\ref{learningFromScratch} shows the full set of tasks and the learned DSL.
+\begin{figure*}  \newcommand{\helpSize}{0.25cm}
+  \begin{tabular}{cc}\toprule
+    \normalsize \pop{Programs} \& Tasks&\normalsize \popp{DSL}\\\midrule 
+    
+    \begin{tabular}{l}
+      \code{[1\, 9]}$\to $\code{2}\\
+      \code{[5\, 3\, 8]$\to$3}\\
+    \blueCode{$f(\ell) = $($f_4$ $\ell$)}\\\\
+      \code{[true\, false]}$\to $\code{2}\\
+      \code{[false\, false\, false]$\to$3}\\
+    \blueCode{$f(\ell) = $($f_4$ $\ell$)}\\\\
+
+\code{[2\, 1\, 4]$\to$[2\, 1\, 4\, 0]}\\
+%\code{[9\, 4\, 8]$\to$[9\, 4\, 8\, 0]}\\
+\code{[9\, 8]$\to$[9\, 8\, 0]}\\
+\blueCode{$f(\ell) = $($f_2$ cons $\ell$ (cons 0 nil))}\\\\
+
+\code{[2\, 1\, 4]$\to$[2\, 1]}\\
+%\code{[9\, 4\, 8]$\to$[9\, 4\, 8\, 0]}\\
+\code{[9\, 8]$\to$[9]}\\
+\blueCode{$f(\ell) = $($f_0$ ($\lambda$ (z) (empty? (cdr z))) car cdr $\ell$)}\\\\
+
+\code{[2\, 5\, 6\, 0\, 6]$\to$19}\\
+\code{[9\, 2\, 7\, 6\, 3]$\to$27}\\
+\blueCode{$f(\ell) = $($f_2$ + $\ell$ 0)}\\\\
+
+\code{[4\, 2\, 6\, 4]$\to$[8\, 4\, 12\, 8]}\\
+%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
+\code{[2\, 3\, 0\, 7]$\to$[4\, 6\, 0\, 14]}\\
+\blueCode{$f(\ell) = $($f_3$ ($\lambda$ (x) (+ x x)) $\ell$)}\\\\
+\code{[4\, 2\, 6\, 4]$\to$[-4\, -2\, -6\, -4]}\\
+%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
+\code{[2\, 3\, 0\, 7]$\to$[-2\, -3\, -0\, -7]}\\
+\blueCode{$f(\ell) = $($f_3$ (- 0) $\ell$)}\\\\
+\code{[4\, 2\, 6\, 4]$\to$[5\, 3\, 7\, 5]}\\
+%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
+\code{[2\, 3\, 0\, 7]$\to$[3\, 4\, 1\, 8]}\\
+\blueCode{$f(\ell) = $($f_3$ (+ 1) $\ell$)}\\\\
+
+
+
+      \code{[1\, 5\, 2\, 9]}$\to$\code{[1\, 2]}\\
+      \code{[3\, 8\, 1\, 3\, 1\, 2]}$\to$\code{[3\, 1\, 1]}\\
+      \blueCode{$f(\ell) = $($f_0$ empty? car}\\
+      \phantom{\blueCode{$f(\ell) = $($f_0$}}\blueCode{($\lambda$ (l) (cdr (cdr l))) $\ell$)}
+      \\\\
+
+      \code{3$\to $[0\, 1\, 2]}\\
+      \code{2$\to $[0\, 1]}\\
+      \blueCode{$f(n) = $($f_5$ ($\lambda$ (x) x) 0 $n$)}\\\\
+
+      \code{3$\to $[0\, 1\, 2\, 3]}\\
+      \code{2$\to $[0\, 1\, 2]}\\
+      \blueCode{$f(n) = $($f_5$ ($\lambda$ (x) x) 0 (+ 1 $n$))}\\\\
+
+      
+
+
+      
+      \end{tabular}&
+
+%    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
+    \begin{tabular}{l}
+        \popp{\code{$f_0($p$,$f$,$n$,$x$)\,=\,$(if (p x) nil}}\\
+      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(cons (f x) ($f_0$ (n x))))}}\\
+        \hspace{\helpSize}($f_0$: \emph{unfold})\\
+        \popp{\code{$f_1($i$,$l$)\,=\,$(if (= i 0) (car l)}}\\
+      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if}}}\popp{\code{($f_1$ (- i 1) (cdr l))))}}\\
+        \hspace{\helpSize}($f_1$: \emph{index})\\
+        \popp{\code{$f_2($f$,$l$,$x$)\,=\,$(if (empty? l) x}}\\
+      \phantom{\code{$f_2($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(f (car l) ($f_2$ (cdr l))))}}\\
+        \hspace{\helpSize}($f_2$: \emph{fold})\\
+        \greenCode{$f_3($f$,$l$)\,=\,$($f_2$ nil l ($\lambda$ (x a) (cons (f x) a)))}\\
+        \hspace{\helpSize}($f_3$: \emph{map})\\
+        \greenCode{$f_4(\ell)$\,=\,(if (empty? $\ell$) 0 (+ 1 ($f_4$ (cdr $\ell$)))))}\\
+        \hspace{\helpSize}($f_4$: \emph{length})\\
+        \greenCode{$f_5(\code{f},\code{m},\code{n})$\,=\,($f_0$ (= m) f (+ 1) n)}\\
+        \hspace{\helpSize}($f_5$: \emph{generalization of range})
+
+%        -0.222777	int -> int -> list(int)	#(lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (map (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
+
+      \end{tabular}
+    %% : (lambda (#(#(lambda (lambda (lambda (lambda (fix1 $0 (lambda (lambda (if (empty? $0) $3 ($4 ($5 $0) ($1 (cdr $0))))))))))) (lambda (car $0))) (lambda (lambda (+ $0 $1))) 0 $0))
+    %% (lambda (lambda (lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) ($1 ($3 $0)) ($4 $0) ($5 $0)))))))))
+    %% (lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (#(lambda (lambda (fix1 $0 (lambda (lambda (if (empty? $0) empty (cons ($3 (car $0)) ($1 (cdr $0))))))))) (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
+    \\\bottomrule 
+    \end{tabular}
+  \caption{Bootstrapping a standard library of functional programming routines, starting from recursion along with primitive operations found in 1959 Lisp.}\label{learningFromScratch}
+  \end{figure*}
+
 
 %% \begin{figure}
 %%   \begin{tikzpicture}
