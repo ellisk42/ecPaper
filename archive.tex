@@ -981,11 +981,11 @@ During waking we enumerate programs from the DSL in decreasing order
 of their probability according to the recognition model, and then
 check if a program $p$ assigns positive probability to a task
 ($\probability[x|p] > 0$); if so, we incorporate $p$ into the frontier
-$\mathcal{F}_x$.  We represent programs as polymorphicly-typed
-$\lambda$-calculus expressions, a representation closely resembling
-Lisp and functional languages like Haskell and OCaml, including
-variables, conditionals, higher-order recursive functions, and the
-ability to create new functions.
+$\mathcal{F}_x$ (Figure~\ref{neuralPipeline}).  We represent programs
+as polymorphicly-typed $\lambda$-calculus expressions, a
+representation closely resembling Lisp and functional languages like
+Haskell and OCaml, including variables, conditionals, higher-order
+recursive functions, and the ability to create new functions.
 
 %% Our programs are all
 %% strongly typed.  We use the Hindley-Milner polymorphic typing
@@ -1017,7 +1017,27 @@ sophisticated algorithms that search for programs?~\cite{solar2008program,schkuf
 We have two reasons:
 (1) A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the search algorithm is very simple.
 (2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
-  the space of  programs.
+the space of  programs.
+\begin{figure}
+  \begin{tikzpicture}[every node/.style={rounded corners,thick}]
+    \node(x)[draw,align=center] at (0,0) {Task $x$\\e.g., input/outputs};
+    \node(e)[draw, align=center] at ([xshift=3cm]x.east) {Domain-specific encoder\\
+      e.g., RNN or CNN};
+%    \node(m)[draw,align = center] at ([xshift=1.1cm]e.east) {MLP};%\\Output: $(|\mathcal{D}| + 2)\times(|\mathcal{D}| + 1)\times A$};
+    \node[draw,align = center](s) at ([xshift=2cm]e.east) {Enumerate\\(Algorithm~\ref{recognitionSample})};
+    \node(f)[draw,align = center] at ([xshift=2cm]s.east) {Frontier\\$\mathcal{F}_x$};
+
+    \draw[->] (x.east) -- (e.west);
+    \draw[->] (e.east) -- (s.west);
+%    \draw[->] (m.east) -- node(p)[fill=white,align=center,midway,inner sep=0,outer sep=0,rotate=90]{\small $Q_{ijk}(x)$}(s.west);
+    \draw[->] (s.east) -- (f.west);
+    \draw[->] (x.north) -- ([yshift=15]x.north) -- node[above = 0pt,midway]{\small likelihood $\probability[x|p]$}([yshift=15,xshift=40]s.north) -- ($(s.east)!0.5!(f.west)$);
+    \node[align=center] at ($(0,-1) + (e.center)$) {$\underbrace{\hspace{4cm}}_{\normalsize\text{\normalsize Recognition model $Q(p|x)$}}$};
+    \node[align=center] at ($(s.west)!0.5!(f.east) + (0,-1)$) {$\underbrace{\hspace{5cm}}_{\text{\normalsize Search}}$};
+  \end{tikzpicture}
+  \caption{Neurally-guided program inference pipeline. Recognition model outputs distribution over program $Q(p|x)$. Program output by enumerative search incorporated into frontier if likelihood $\probability[x|p] > 0$}
+  \label{neuralPipeline}
+\end{figure}
 
 %%   However, a drawback of   enumerative search  is that we have no
 %% efficient means of solving for arbitrary constants that might occur in a
@@ -1115,11 +1135,13 @@ programs and supports efficient set operations like union,
 intersection, and membership checking.  In
 Appendix~\ref{appendixVersion}, we give a dynamic program that takes
 as input a program $p$ and then outputs a version space containing the
-refactorings of $p$.  Our technique is astronomically more efficient
-than explicitly representing the space of possible refactorings: for
-the example in Figure~\ref{mapFactor}A, we represent the space of
-refactorings using a version space with $10^6$ nodes, which encodes
-$10^{14}$ refactorings.
+refactorings of $p$. Figure~\ref{mapFactor}B diagrams a subtree of a
+version space containing refactorings of a small program. Our
+technique is substantially more efficient than explicitly representing
+the space of possible refactorings: for the example in
+Figure~\ref{mapFactor}A, we represent the space of refactorings using
+a version space with $10^6$ nodes, which encodes $10^{14}$
+refactorings.
 
 
 
@@ -1260,8 +1282,8 @@ Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
 
   };
 
-  \draw [->] (p1.south)  --(r1.north) node[fill=white,midway] {refactor};
-  \draw [->] (p2.south)  --(r2.north) node[fill=white,midway] {refactor};
+  \draw [->] (p1.south)  --(r1.north) node[fill=white,midway,align=center] {refactor\\($\approx 10^{14}$ refactorings)};
+  \draw [->] (p2.south)  --(r2.north) node[fill=white,midway,align=center] {refactor\\($\approx 10^{14}$ refactorings)};
 
   \node[draw](m) at (3,-6.5) {
     \begin{tabular}{l}
@@ -1312,7 +1334,7 @@ Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
   \end{scope}
   
   \end{tikzpicture}
-  \caption{DSL learning as code refactoring. \textbf{Panel A:} For each task we discover programs during waking, then refactor the code from those programs to expose common subprograms (highlighted in \orange{orange}). Common subprograms are incorporated into the DSL when they increase a Bayesian objective. Intuitively, these new DSL components best compress the programs found during waking. \textbf{Panel B:} \# of possible refactorings grows exponentially with program size. We represent refactorings using version spaces, which augment syntax trees with a \emph{union} operator whose children are themselves version spaces. Right graph: version spaces are exponentially more efficient than explicitly constructing set of refactorings.}\label{mapFactor}
+  \caption{DSL learning as code refactoring. \textbf{Panel A:} For each task we discover programs during waking, then refactor the code from those programs to expose common subprograms (highlighted in \orange{orange}). Common subprograms are incorporated into the DSL when they increase a Bayesian objective. Intuitively, these new DSL components best compress the programs found during waking. \textbf{Panel B:} \# of possible refactorings grows exponentially with program size, so we represent refactorings using version spaces, which augment syntax trees with a \emph{union} operator whose children are themselves version spaces. Right graph: version spaces are exponentially more efficient than explicitly constructing set of refactorings. In this graph, refactored programs are of the form $1+1+\cdots  + 1$.}\label{mapFactor}
 \end{figure*}
 
 
@@ -1322,100 +1344,61 @@ During ``dreaming'' the system learns a recognition model that guides
 program search.  It learns from (program, task) pairs drawn from two
 sources of self-supervised data: \emph{replays} of programs discovered
 during waking, and \emph{fantasies}, or programs drawn from the DSL.
-Replays ensure that the recognition model is trained on the tasks
-solved so far, and does not forget how to solve them.  Fantasies
-ensure that the recognition model has a large and highly varied corpus
-of (program, task) pairs to learn from.
+Replays ensure that the recognition model is trained on the actual
+tasks it needs to solve, and does not forget how to solve them.
+Fantasies ensure that the recognition model has a large and highly
+varied corpus of (program, task) pairs to learn from.
 
-Formally, $Q(p|x)$ should approximate the posterior
-$\probability[p|\mathcal{D},\theta,x]$
-
-training a neural recognition model, $Q$, to regress from
-a task to a distribution over programs
-that are likely to both
-solve the task and
-be likely under the prior.
-To train $Q$ we need (program, task)
-pairs.
-
-To get the data to train $Q$,
-we take inspiration from
-the 
-
-The purpose of training the recognition model is to amortize the cost
-of searching for programs.  It does this by learning to predict, for
-each task, programs with high likelihood according to
-$\probability[x|p]$ while also being probable under the prior
-$(\mathcal{D},\theta)$,
-thereby approximating the posterior $\probability[\cdot |x,\mathcal{D},\theta]$.
-
-
-
+Formally, the recognition model $Q(p|x)$ should approximate the posterior
+$\probability[p|\mathcal{D},\theta,x]$.
 We can either train $Q$ to perform full posterior inference by minimizing the expected KL-divergence, $  \expect\left[\text{KL}\left(\probability[p|x,\mathcal{D},\theta]\|Q(p|x) \right) \right]$,
 or we can train $Q$ to perform MAP inference
 by maximizing $\expect\left[\max_{p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]} \log Q(p|x) \right]$,
-where in both cases the expectation is taken over tasks. Taking this expectation over the empirical distribution of tasks trains $Q$ on the real data; taking it over samples from the generative model trains $Q$ on ``dreams.''
+where in both cases the expectation is taken over tasks. Taking this expectation over the empirical distribution of tasks trains $Q$ on replays; taking it over samples from the generative model trains $Q$ on fantasies.
 We define a pair of alternative objectives for the recognition model,
-$\mathcal{L}_{\text{RM}}^{\text{posterior}}$ and $\mathcal{L}_{\text{RM}}^{\text{MAP}}$,
+$\mathcal{L}^{\text{posterior}}$ and $\mathcal{L}^{\text{MAP}}$,
 which either train $Q$ to perform full posterior inference or MAP inference, respectively.
-These objectives combine real-data and dream data:
+These objectives combine replays and fantasies:
 \begin{align*}
-  \mathcal{L}_{\text{RM}}^{\text{posterior}} &= \mathcal{L}_{\text{Real}}^{\text{posterior}} + \mathcal{L}_{\text{Dream}}^{\text{posterior}}&
-  \mathcal{L}_{\text{RM}}^{\text{MAP}} &= \mathcal{L}_{\text{Real}}^{\text{MAP}} + \mathcal{L}_{\text{Dream}}^{\text{MAP}}\\
-  \mathcal{L}_{\text{Real}}^{\text{posterior}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
+  \mathcal{L}^{\text{posterior}} &= \mathcal{L}_{\text{Replay}}^{\text{posterior}} + \mathcal{L}_{\text{Fantasy}}^{\text{posterior}}&
+  \mathcal{L}^{\text{MAP}} &= \mathcal{L}_{\text{Replay}}^{\text{MAP}} + \mathcal{L}_{\text{Fantasy}}^{\text{MAP}}\\
+  \mathcal{L}_{\text{Replay}}^{\text{posterior}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
     \frac{\probability\left[x,p|\mathcal{D},\theta \right]\log Q(p|x)}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\right] &
-\mathcal{L}_{\text{Real}}^{\text{MAP}}& = \expect_{x\sim X}\left[\max_{\substack{p\in \mathcal{F}_x\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}} \log Q(p|x) \right]  \\
-  \mathcal{L}_{\text{Dream}}^{\text{posterior}} &= \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log Q(p|x)\right]&
-    \mathcal{L}_{\text{Dream}}^{\text{MAP}} &= \expect_{x\sim(\mathcal{D},\theta) }\left[\max_{\substack{p\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}}\log Q(p)\right]
+  \mathcal{L}_{\text{Replay}}^{\text{MAP}}& = \expect_{x\sim X}\left[\max_{\substack{p\in \mathcal{F}_x\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}} \log Q(p|x) \right]  \\
+  \mathcal{L}_{\text{Fantasy}}^{\text{posterior}} &= \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log Q(p|x)\right]&
+  \mathcal{L}_{\text{Fantasy}}^{\text{MAP}} &= \expect_{x\sim(\mathcal{D},\theta) }\left[\max_{\substack{p\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}}\log Q(p)\right]
 \end{align*}
-  The `dream' objectives are essential for data efficiency:
-all of our experiments train \system on only a few hundred tasks, which is too little for
-a high-capacity neural network.
-Once we bootstrap a $(\mathcal{D},\theta)$,
-we can draw unlimited samples from $(\mathcal{D},\theta)$
-and train $Q$ on those samples.
-But, evaluating $\mathcal{L}_{\text{Dream}}$ involves drawing programs from
-the current DSL, running them to get their outputs,
-and then training $Q$ to regress from the input/outputs to the program.
-Since these programs map inputs to outputs,
-we need to sample the inputs as well.
-Our solution is to sample the inputs
-from the empirical observed distribution of inputs in $X$.
-
-The $\mathcal{L}_{\text{Dream}}^{\text{MAP}}$ objective involves
-finding the MAP program solving a task drawn from the DSL.
-To make this tractable,
-rather than \emph{sample} programs as training data for $\mathcal{L}_{\text{Dream}}^{\text{MAP}}$,
-we \emph{enumerate} programs
-in decreasing order of their prior probability,
-tracking,
-for each dreamed task $x$,
-the set of enumerated programs maximizing
-$\probability[x,p|\mathcal{D},\theta]$.
-
+We maximize $\mathcal{L}^{\text{MAP}}$ rather than
+$\mathcal{L}^{\text{posterior}}$ for two reasons:
+$\mathcal{L}^{\text{MAP}}$ prioritizes the shortest program solving a
+task, thus more strongly accelerating enumerative search during waking;
+and, combined with our parameterization of $Q$, described next, we
+will show that $\mathcal{L}^{\text{MAP}}$ forces the recognition model
+to break symmetries in the space of programs
+(Sec.~\ref{symmetricSection}).
 
 \subsubsection{Parameterizing $Q$}\label{recognitionParameterization}
 
 Broadly the literature contains two different approaches to
 parameterizing conditional distributions over programs.  The first
-approach, seen in systems like RobustFill~\cite{devlin2017robustfill}
-and~\cite{zavershynskyi2018naps}, is to use a recurrent neural network
-to predict the program token-by-token as in Seq2Seq or Seq2Tree.  The
-advantage of this approach is that the neural net can predict the
-entire program, so if the network is sufficiently powerful, it can
-completely solve the synthesis problem.  There are two disadvantages
-to this approach.  First, these models can perform poorly at out-of-sample
+approach~\cite{devlin2017robustfill,zavershynskyi2018naps} is to use a
+recurrent network to predict the entire program token-by-token, which
+has the advantage that, if the network is sufficiently powerful, it
+can completely solve the synthesis problem.  The disadvantage is that
+these models can perform poorly at out-of-sample
 generalization~\cite{}, which is critical for our setting, as the
 agent may need to solve new tasks that are qualitatively different
-from the tasks it has solved so far.  Second, a powerful deep
-recurrent network may be costly to sample or enumerate from ---
-so if the network cannot easily solve a task, we cannot compensate
-with rapid sampling or enumeration.  In contrast, state-of-the-art
-enumerative program synthesizers evaluate millions of programs per
-second~\cite{feser2015synthesizing}.
+from the tasks it has solved so far.
+
+%% Second, a powerful deep
+%% recurrent network may be costly to sample or enumerate from --- so if
+%% the network cannot easily solve a task, we cannot compensate with
+%% rapid sampling or enumeration.  In contrast, state-of-the-art
+%% enumerative program synthesizers evaluate millions of programs per
+%% second~\cite{feser2015synthesizing}.
 
 The second approach is to have $Q$ predict a fixed-dimensional weight
-vector, which then biases a fast enumerator~\cite{balog2016deepcoder}
+vector, which then biases a fast enumerator~\cite{balog2016deepcoder,ec2}
 or sampler~\cite{menon2013machine}.  This approach can enjoy strong
 out-of-sample generalization, because it can fall back on enumeration
 or sampling when the target program is unlike the training programs.
@@ -1432,23 +1415,8 @@ which argument is being generated.
 This is a kind of `bigram' model over trees,
 where the bigrams
 take the form of (parent, child, argument index).
-
-Formally,
-$Q$ predicts a $(|\mathcal{D}|+2)\times (|\mathcal{D}|+1)\times A$-dimensional tensor,
-where $A$ is the maximum arity\footnote{The arity of a function is the number of arguments that it takes as input.} of any primitive in the DSL.
-Slightly abusing notation, we write this tensor as $Q_{ijk}(x)$,
-where $x$ is a task,
-$i\in \mathcal{D}\cup\left\{\text{start},\text{var}\right\}$,
-$j\in \mathcal{D}\cup\left\{\text{var} \right\}$,
-and $k\in \left\{1,2,\cdots,A \right\}$.
-The output $Q_{ijk}(x)$
-controls the probability of
-sampling primitive $j$ given that
-$i$ is the parent node in the syntax tree
-and we are sampling the $k^{\text{th}}$ argument.
-Figure~\ref{bg} diagrams this generative process, Algorithm~\ref{recognitionSample}
-specifies a sampling procedure for $Q(\cdot |x)$,
-and Figure~\ref{neuralPipeline} diagrams the neurally guided program inference procedure.
+Figure~\ref{bg} diagrams this generative process and Algorithm~\ref{recognitionSample}
+specifies a sampling procedure for $Q(\cdot |x)$.
 This parameterization
 has three main advantages:
 (1) it supports fast enumeration
@@ -1481,129 +1449,32 @@ described next.
   Here the program (syntax tree shown above) is \texttt{($\lambda$ (a) (+ 9 (* a a )))}.
 Each conditional distribution predicted by the recognition model is written $Q_{\text{parent},\text{child},\text{argument index}}(x)$, where $x$ is a task.}\label{bg}
 \end{figure}
- \begin{algorithm}
-   \caption{Drawing from distribution over programs predicted by recognition model. Compare w/ Algorithm~\ref{sampleProgram}}
-   \label{recognitionSample}
-   \begin{algorithmic}[1]
-     \State \textbf{function} recognitionSample$(Q, x, \mathcal{D}, \tau)$:
-     \State {\bfseries Input:} recognition model $Q$, task $x$, DSL $\mathcal{D}$, type $\tau$
-     \State \textbf{Output:} a program whose type unifies with $\tau$
-     \State \textbf{return } $\text{recognitionSample}'(Q,x,\text{start},1,\mathcal{D},\varnothing,\tau)$
-     \Statex
 
-     \State \textbf{function} recognitionSample$'(Q, x, \text{parent}, \text{argumentIndex}, \mathcal{D}, \mathcal{E}, \tau)$:
-     \State {\bfseries Input:} recognition model $Q$, task $x$, DSL $\mathcal{D}$, parent $\in \mathcal{D}\cup\left\{\text{start},\text{var} \right\}$, argumentIndex $\in \mathbb{N}$, environment $\mathcal{E}$, type $\tau$
-     \State \textbf{Output:} a program whose type unifies with $\tau$
-     \If{$\tau = \alpha\to\beta$}\Comment{Function type --- start with a lambda}
-     \State var $\gets$ an unused variable name
-     \State body $\sim$ recognitionSample$'(Q,x,\text{parent},\text{argumentIndex},\mathcal{D},\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$%\Comment{Recursively sample function body}
-     \State \textbf{return} \code{(lambda (}var\code{) }body\code{)}
-     %\Endif
-     \Else\Comment{Build an application to give something w/ type $\tau$}
-     \State $\text{primitives} \gets \{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
-     $\text{if }\tau\text{ can unify with yield}(\tau') \}$\Comment{Everything in scope w/ type $\tau$}
-     \State $\text{variables}\gets\left\{p\;|\;p\in \text{primitives}\text{ and }p\text{ a variable} \right\}$
-     \State Draw $e\sim \text{primitives}$, w.p. $\propto\begin{cases}
-       Q_{\text{parent},e,\text{argumentIndex}}(x)&\text{ if }e\in \mathcal{D}\\
-Q_{\text{parent},\text{var},\text{argumentIndex}}(x)/|\text{variables}|&\text{ if }e\in \mathcal{E}
-       \end{cases}$
-     \State Unify $\tau$ with yield$(\tau')$.\Comment{Ensure well-typed program}
-     \State newParent$\gets\begin{cases}
-     e &\text{ if }e\in \mathcal{D}\\
-     \text{var}&\text{ if }e\in \mathcal{E}\end{cases}$
-     \State $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{args}(\tau')$ 
-     %   \State unify$(\tau,\beta)$
-     \For{$k=1$ {\bfseries to} $K$}\Comment{Recursively sample arguments}
-     \State $a_k\sim\text{recognitionSample}'(Q,x,\text{newParent},k,\mathcal{D},\mathcal{E},\alpha_k)$
-     \EndFor
-     \State \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
-     \EndIf
-     %% \Statex
-     %% \Statex\textbf{where:}
-     %% \State yield$(\tau) = \begin{cases}
-     %%   \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-     %%   \tau   &\text{ otherwise.}
-     %% \end{cases}$ \Comment{Final return type of $\tau$}
-     %% \State  args$(\tau) = \begin{cases}
-     %%   [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
-     %%   []   &\text{ otherwise.}
-     %% \end{cases}$\Comment{Types of arguments needed to get something w/ type $\tau$}
-   \end{algorithmic}
- \end{algorithm}
- \begin{figure}
-   \begin{tikzpicture}[every node/.style={rounded corners,thick}]
-     \node(x)[draw,align=center] at (0,0) {Task $x$\\e.g., input/outputs};
-     \node(e)[draw, align=center] at ([xshift=3cm]x.east) {Domain-specific encoder\\
-       e.g., RNN or CNN};
-     \node(m)[draw,align = center] at ([xshift=1.1cm]e.east) {MLP};%\\Output: $(|\mathcal{D}| + 2)\times(|\mathcal{D}| + 1)\times A$};
-     \node[draw,align = center](s) at ([xshift=3cm]m.east) {Enumerate\\(Algorithm~\ref{recognitionSample})};
-     \node(f)[draw,align = center] at ([xshift=2cm]s.east) {Frontier\\$\mathcal{F}_x$};
+\subsubsection{Learning to break symmetries in program space}\label{symmetricSection}
 
-     \draw[->] (x.east) -- (e.west);
-     \draw[->] (e.east) -- (m.west);
-     \draw[->] (m.east) -- node(p)[fill=white,align=center,midway,inner sep=0,outer sep=0,rotate=90]{\small $Q_{ijk}(x)$}(s.west);
-     \draw[->] (s.east) -- (f.west);
-     \draw[->] (x.north) -- ([yshift=15]x.north) -- node[above = 0pt,midway]{\small likelihood $\probability[x|p]$}([yshift=15,xshift=40]s.north) -- ($(s.east)!0.5!(f.west)$);
-     \draw[decoration = {brace,mirror,raise = 5pt},decorate,thick]
-     ([xshift = -5,yshift = -25]e.west) -- node[below = 3pt] {{Recognition model $Q(p|x)$}} ([xshift = 155,yshift = -25]e.west);
-     \draw[decoration = {brace,mirror,raise = 5pt},decorate,thick]
-     ([xshift = -5,yshift = -25]s.west) -- node[below = 3pt] {{ Search}} ([xshift = 5,yshift = -25]f.east);
-     %% \draw[decoration = {brace,mirror,raise = 5pt},decorate,thick]
-     %% ([xshift = -5,yshift = -25]p.west) -- node[below = 3pt] {{\small Params}} ([xshift = 5,yshift = -25]p.east);
-   \end{tikzpicture}
-   \caption{Neurally-guided program inference pipeline. Recognition model outputs distribution over program $Q(p|x)$ parameterized by tensor $Q_{ijk}$. Program output by enumerative search incorporated into frontier if likelihood $\probability[x|p] > 0$}
-   \label{neuralPipeline}
-   \end{figure}
+A good DSL not only exposes high-level building blocks, but also
+carefully restricts the ways in which those building blocks are
+allowed to compose.  For example,
+%% a DSL for list manipulation should
+%% contain both the empty list and a routine for appending lists, but
+%% should not allow appending the empty list.  Similarly 
+a DSL for arithmetic should contain both addition and the number zero
+but disallow adding zero.  These restrictions break symmetries in the
+space of programs.  A bigram parameterization of the recognition
+model, combined with the $\mathcal{L}^{\text{MAP}}$ training
+objective, interact in a way that breaks symmetries in the program
+space, allowing the agent to more efficiently explore the space of
+programs.  This interaction occurs because the bigram parameterization
+can disallow DSL primitives depending on their local syntactic
+context, while the $\mathcal{L}^{\text{MAP}}$ objective forces all
+probability mass onto a single member of a set of syntactically
+distinct but semantically equivalent expressions
+(Appendix~\ref{recognitionAppendix}).
 
-\subsubsection{Learning to break symmetries in program space}
 
-A good DSL not only exposes high-level building blocks,
-but also carefully restricts the ways in which those building blocks are allowed to compose.
-For example,
-a DSL for list manipulation should contain both the empty list and
-a routine for appending lists,
-but should not allow
-appending the empty list.
-Similarly a DSL for arithmetic should contain both addition and
-the number zero but
-disallow adding zero.
-These restrictions break symmetries in the space of programs.
-Here we show that the
-combination of the $\mathcal{L}^{\text{MAP}}$ training objective (Section~\ref{recognitionTraining}) and bigram parameterization (Section~\ref{recognitionParameterization})
-interact in a way that spontaneously breaks symmetries in the program space,
-allowing the agent to more efficiently
-explore the space of programs.
 
-Consider an agent tasked with writing programs built from addition and the constants zero and one.
-A bigram parameterization of $Q$ allows
-it to represent the fact that it should never add zero ($Q_{\code{+},\code{0},0} = Q_{\code{+},\code{0},1} = 0$)
-%or never multiply by  1 ($Q_{\code{*},\code{1},0} = Q_{\code{*},\code{1},1} = 0$), or
-or that addition should always associate to the right
-($Q_{\code{+},\code{+},0} = 0$).
-The $\mathcal{L}^{\text{MAP}}$ training objective encourages
-learning these canonical forms.
-Consider two recognition models, $Q_1$ and $Q_2$,
-and two programs in frontier $\mathcal{F}_x$,
-$p_1=\code{(+ (+ 1 1) 1)}$ and $p_2=\code{(+ 1 (+ 1 1))}$,
-where
-\begin{align*}
-  Q_1(p_1|x) = \frac{\epsilon}{2}&\qquad Q_1(p_2|x) = \frac{\epsilon}{2}\\
-  Q_2(p_1|x) = 0&\qquad  Q_2(p_2|x) = \epsilon
-\end{align*}
-i.e., $Q_2$ breaks a symmetry by forcing right associative addition,
-but $Q_1$ does not, instead splitting its probability mass equally between $p_1$ and $p_2$.
-Now because $\probability[p_1|\mathcal{D},\theta] = \probability[p_2|\mathcal{D},\theta]$
-(Algorithm~\ref{sampleProgram}),
-we have
-\begin{align*}
-  \mathcal{L}^{\text{posterior}}_{\text{real}}(Q_1)& = \frac{\probability[p_1|\mathcal{D},\theta]\log \frac{\epsilon}{2} + \probability[p_2|\mathcal{D},\theta]\log \frac{\epsilon}{2}}{\probability[p_1|\mathcal{D},\theta] + \probability[p_2|\mathcal{D},\theta]} = \log \frac{\epsilon}{2}\\
-  \mathcal{L}^{\text{posterior}}_{\text{real}}(Q_2)& = \frac{\probability[p_1|\mathcal{D},\theta]\log 0 + \probability[p_2|\mathcal{D},\theta]\log \epsilon}{\probability[p_1|\mathcal{D},\theta] + \probability[p_2|\mathcal{D},\theta]} = +\infty\\
-  \mathcal{L}^{\text{MAP}}_{\text{real}}(Q_1)& = \log Q_1(p_1)           = \log Q_1(p_2)   = \log \frac{\epsilon}{2}\\
-  \mathcal{L}^{\text{MAP}}_{\text{real}}(Q_2)& = \log Q_2(p_2) \phantom{ = \log Q_1(p_2) } = \log \epsilon\\
-\end{align*}
-So $\mathcal{L}^{\text{MAP}}$ prefers $Q_2$ (the symmetry breaking
-recognition model), while $\mathcal{L}^{\text{posterior}}$ reverses
-this preference.  We experimentally confirm this symmetry-breaking
+
+We experimentally confirm this symmetry-breaking
 behavior by training recognition models that minimize either
 $\mathcal{L}^{\text{MAP}}$/$\mathcal{L}^\text{posterior}$ and which
 use either a bigram parameterization/unigram\footnote{In the unigram variant $Q$ predicts a $|\mathcal{D}| + 1$-dimensional vector: $Q(p|x) = \probability[p|\mathcal{D},\theta_i = Q_i(x)]$,
@@ -1617,11 +1488,6 @@ avoid adding zero and associate addition to the right ---
 different random initializations
 lead to either right or left association.
 
-To be clear,
-our recognition model does not learn to break \emph{every} possible symmetry in every possible DSL.
-But in practice we found that a bigrams combined with $\mathcal{L}^{\text{MAP}}$
-works well,
-and we use with this combination throughout the rest of the paper.
 \begin{figure}
 \centering  \begin{tabular}{ccc}
      \toprule
@@ -1674,62 +1540,54 @@ and we use with this combination throughout the rest of the paper.
 
 \subsection{Programs that manipulate sequences}\label{sequences}
 We first apply \system to two classic benchmark domains: list
-processing and text editing. We find that we can start with generic
-Lisp-style primitives and recover a domain-specific vocabulary for
-solving each of these classes of problems.
+processing and text editing. In both cases we solve tasks specified by
+a few input/output examples, using a recurrent neural network for the
+recognition model and starting with a generic functional programming
+basis: \code{foldr}, \code{unfold}, \code{if}, \code{map},
+\code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0},
+\code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and
+\code{is-nil}.
 
+\subsubsection{List Processing}\label{listSection}
+We took 218 list manipulation tasks from our previous work~\cite{ec2},
+each with 15 input/output examples.  In solving these tasks, the
+system composed 16 new DSL components, and discovered multiple
+higher-order functions, such as \code{filter} ($f_0$ in
+Figure~\ref{initialExampleDSL}).  Each round of memory consolidation
+built on components discovered in earlier sleep cycles --- for example
+the agent first learns \code{filter}, uses filter to learn to take the
+maximum element of a list, then uses that routine to learn a new
+component for extracting the $n^{\text{th}}$ largest element of a
+list, which it finally uses to learn how to sort a list of numbers
+(Figure~\ref{initialExampleDSL}).  This incremental, modular learning
+of deep hierarchies of DSL components is characteristic of \system
+because of the alternation between code writing and code refactoring.
 
-using a GRU~\cite{cho2014learning} for
-the recognition model, and initially providing the system with generic sequence manipulation primitives:
-\code{foldr}, \code{unfold}, \code{if}, \code{map}, \code{length},
-\code{index}, \code{=}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
-\code{car}, \code{cdr}, \code{nil}, and \code{is-nil}.
+%% \begin{figure}[b]\centering
+%% \vspace{-0.5cm}  \begin{tabular}{lll}
+%%     \toprule
+%%     Name & Input & Output \\\midrule
+%%     repeat-3 & [7\, 0] & [7\, 0\, 7\, 0\, 7\, 0] \\
+%%     drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
+%%     rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
+%%     count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
+%%     keep-div-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
+%%     product & [7\, 1\, 6\, 2] & 84 \\
+%%     \bottomrule
+%%   \end{tabular}
+%%   \captionof{table}{Some tasks in our list function domain.}\label{listExamples}\vspace{-0.5cm}
+%% \end{figure}
 
+\subsubsection{Text Editing}\label{textSection}
+Synthesizing programs that edit text is a classic problem in the
+programming languages and AI literatures~\cite{lau2001programming},
+and algorithms that synthesize text editing programs ship in Microsoft
+Excel~\cite{gulwani2011automatin}.  This prior work uses
+hand-engineered DSLs and hand-engineered search strategies.  Here, we
+will show that we can jointly learn both these ingredients and surpass
+the state-of-the-art domain-general program synthesizers on a standard
+text editing benchmark.
 
-
-%\subsubsection{List Processing}\label{listSection}
-\textbf{List Processing:} Synthesizing programs that manipulate data structures is a widely studied
-problem in the programming languages community~\cite{feser2015synthesizing},
-and progress here can translate to better computer-aided programming~\cite{solar2008program}.
-We consider this problem within the context of learning functions that
-manipulate lists, and also perform arithmetic operations upon lists (Table~\ref{listExamples}).
-We created 236 human-interpretable list manipulation tasks, each with 15
-input/output examples.
-%% Our data set is interesting in three major ways: many of the tasks
-%% require complex solutions; the tasks were not generated from some
-%% latent DSL, and the agent must learn to solve these complicated
-%% problems from only 236 tasks.
-%% Our data set assumes arithmetic operations as well as sequence operations,
-%% so we additionally provide our system with the following arithmetic
-%% primitives: \code{mod}, \code{*}, \code{>}, \code{is-square},
-%% \code{is-prime}.
-%% evaluating  on a 50/50 test/train split.
-In solving these tasks, the system
-composed 38 new subroutines, and rediscovered the higher-order
-function \code{filter} ($f_1$ in Table~\ref{initialExampleDSL}, left).%% , yielding a more expressive DSL more closely
-%% matching the domain (Tbl.~\ref{initialExampleDSL}, left).
-\begin{figure}[b]\centering
-\vspace{-0.5cm}  \begin{tabular}{lll}
-    \toprule
-    Name & Input & Output \\\midrule
-    repeat-3 & [7\, 0] & [7\, 0\, 7\, 0\, 7\, 0] \\
-    drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
-    rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
-    count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
-    keep-div-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
-    product & [7\, 1\, 6\, 2] & 84 \\
-    \bottomrule
-  \end{tabular}
-  \captionof{table}{Some tasks in our list function domain.}\label{listExamples}\vspace{-0.5cm}
-\end{figure}
-
-%\subsubsection{Text Editing}\label{textSection}
-\textbf{Text Editing:} Synthesizing programs that edit text is a classic problem in the
-programming languages and AI literatures~\cite{gulwani2011automating,lau2001programming}.
-This prior work uses hand-engineered DSLs.
-Here, we instead start out with generic sequence manipulation
-primitives and recover many of the higher-level building blocks that 
-have made these other systems successful.
 %% Because our enumerative search procedure cannot generate string %
 %% constants, we instead enumerate programs with string-valued
 %% parameters.  For example, to learn a program that prepends ``Dr.'', we
@@ -1741,18 +1599,21 @@ have made these other systems successful.
 %% synthesize programs containing real numbers, but using gradient
 %% descent instead of dynamic programming.
 
-We trained our system on 109 automatically-generated text editing tasks, with 4 input/output examples each.
-After three iterations, it assembles a DSL containing a dozen new functions (Fig.~\ref{initialExampleDSL}, center) solving
-all the training tasks.
-But, how well does the  learned DSL generalized to real text-editing scenarios?
+We trained our system on 128 automatically-generated text editing tasks, with 4 input/output examples each.
 We tested, but did not train, on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
-\system solves 3.7\% of the problems with an average search time of 235 seconds.
+\system solves 3.7\% of the problems within 10 minutes with an average search time of 235 seconds.
 After learning,
-it solves 74.1\%, and does so much faster,
-solving them in an average of 29 seconds.
+it solves 79.6\%, and does so much faster,
+solving them in an average of 40 seconds.
 As of the 2017 SyGuS competition,
-the best-performing algorithm solves 79.6\% of the problems.
-But, SyGuS comes with a
+the best-performing synthesizer (CVC4) solves 82.4\% of the problems ---
+but here, the competition conditions are 1 hour \& 8 CPUs per problem,
+and with this more generous compute budget we
+surpass
+this previous
+result and solve
+84.3\% of the problems.
+SyGuS additionally comes with a
 different hand-engineered DSL \emph{for each text editing problem}. %\footnote{SyGuS text editing problems also prespecify the set of allowed string constants for each task. For these experiments, our system did not use this assistance.}
 Here  we learned a single DSL
 that applied generically to
@@ -1780,28 +1641,40 @@ which saves and then restores the current state of the pen or hand.
 
 \subsubsection{Programs that draw pictures}\label{logoSection}
 
-We take inspiration from LOGO Turtle graphics~\cite{turtle},
-and task our agent with drawing 90 different pictures (Figure~\ref{everyLogo}).
-The agent has primitives for moving the pen forward and rotating it (\code{move}),
-picking the pen up and then putting it down (\code{pen-up}),
-arithmetic operations on angles and distances,
-and constants ($2\pi$, 0 through 9, and $\infty$\footnote{To ensure that programs terminate, we set $\infty = 20$}).
+Procedural visual concepts are studied across AI and cognitive science
+--- Bongard problems~\cite{Moscow}, Raven's progressive
+matrices~\cite{raven2003raven}, and Lake et al.'s BPL model of
+omniglot~\cite{lake2015human} are prominent examples.  Here we take
+inspiration from LOGO Turtle graphics~\cite{turtle}, and give our
+agent the ability to control a pen, along with arithmetic operations
+on angles and distances and simple control flow primitives.  We task
+it with drawing a small corpus of images starting from this basis.
 
-Over the course of 5 wake/sleep iterations,
-the system authors a DSL
-containing parametric and, sometimes, higher-order drawing routines,
-allowing it to write programs for objects like
-polygons, circles, spirals, and snowflakes.
-Figure~\ref{logoPrimitives}
-illustrates several learned DSL subroutines.
-Once it has synthesized these new subroutines,
-the agent generates a rich and highly varied
-data set of dreams on which to train the recognition model.
-Figure~\ref{logoDreams}
-illustrates  dreams before and after learning ---
-one sees that
-the system has learned to recombine
-the building blocks and motifs in the training data.
+Inside its learned DSL we find interpretable parametric drawing
+routines corresponding to the families of visual objects in its
+training data, like polygons, circles, and spirals
+(Figure~\ref{logoPrimitives}, left). It additionally learns more
+abstract visual relationships, like rotational symmetry, which it
+models by incorporating a higher-order function into its DSL
+(Figure~\ref{logoPrimitives}, right).  This abstraction comes from
+jointly compressing programs for all of the training images into its
+DSL.
+
+What does \system dream of?  Prior to learning samples from the DSL
+are simple and largely unstructured (Figure~\ref{logoDreams}, left).
+After training the samples become richly structured
+(Figure~\ref{logoDreams}, right), compositionally recombining latent
+building blocks and motifs acquired from the training data. This
+offers a window into how the generative model bootstraps recognition
+model training: as the DSL grows more finely tuned to the domain, the
+neural net gets richer and more highly varied training data.
+
+
+%% has primitives for moving the pen forward and rotating it (\code{move}),
+%% picking the pen up and then putting it down (\code{pen-up}),
+%% arithmetic operations on angles and distances,
+%% and constants ($2\pi$, 0 through 9, and $\infty$\footnote{To ensure that programs terminate, we set $\infty = 20$}).
+
 \begin{figure}
   \includegraphics[width = 0.3\textwidth]{figures/logo16.png}
   \includegraphics[width = 0.3\textwidth]{figures/tower9.png}
@@ -2822,6 +2695,250 @@ Polymorphism introduces context-sensitivity to the DSL,
 and exactly maximizing the likelihood with respect to $\theta$
 becomes intractable,
 so for domains with polymorphic types we use this estimator.
+
+\subsection{Recognition model training}\label{recognitionAppendix}
+
+Recall that our goal is to maximize either $\mathcal{L}^{posterior}$ or $\mathcal{L}^{MAP}$, defined as:
+\begin{align*}
+  \mathcal{L}^{\text{posterior}} &= \mathcal{L}_{\text{Replay}}^{\text{posterior}} + \mathcal{L}_{\text{Fantasy}}^{\text{posterior}}&
+  \mathcal{L}^{\text{MAP}} &= \mathcal{L}_{\text{Replay}}^{\text{MAP}} + \mathcal{L}_{\text{Fantasy}}^{\text{MAP}}\\
+  \mathcal{L}_{\text{Replay}}^{\text{posterior}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
+    \frac{\probability\left[x,p|\mathcal{D},\theta \right]\log Q(p|x)}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\right] &
+\mathcal{L}_{\text{Replay}}^{\text{MAP}}& = \expect_{x\sim X}\left[\max_{\substack{p\in \mathcal{F}_x\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}} \log Q(p|x) \right]  \\
+  \mathcal{L}_{\text{Fantasy}}^{\text{posterior}} &= \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log Q(p|x)\right]&
+    \mathcal{L}_{\text{Fantasy}}^{\text{MAP}} &= \expect_{x\sim(\mathcal{D},\theta) }\left[\max_{\substack{p\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}}\log Q(p)\right]
+\end{align*}
+The fantasy objectives are essential for data efficiency:
+all of our experiments train \system on only a few hundred tasks, which is too little for
+a high-capacity neural network.
+Once we bootstrap a $(\mathcal{D},\theta)$,
+we can draw unlimited samples from $(\mathcal{D},\theta)$
+and train $Q$ on those samples.
+But, evaluating $\mathcal{L}_{\text{Fantasy}}$ involves drawing programs from
+the current DSL, running them to get their outputs,
+and then training $Q$ to regress from the input/outputs to the program.
+Since these programs map inputs to outputs,
+we need to sample the inputs as well.
+Our solution is to sample the inputs
+from the empirical observed distribution of inputs in $X$.
+
+The $\mathcal{L}_{\text{Fantasy}}^{\text{MAP}}$ objective involves
+finding the MAP program solving a task drawn from the DSL.  To make
+this tractable, rather than \emph{sample} programs as training data
+for $\mathcal{L}_{\text{Fantasy}}^{\text{MAP}}$, we \emph{enumerate}
+programs in decreasing order of their prior probability, tracking, for
+each dreamed task $x$, the set of enumerated programs maximizing
+$\probability[x,p|\mathcal{D},\theta]$.
+
+We parameterize $Q$ using a bigram model over syntax trees.
+Formally,
+$Q$ predicts a $(|\mathcal{D}|+2)\times (|\mathcal{D}|+1)\times A$-dimensional tensor,
+where $A$ is the maximum arity\footnote{The arity of a function is the number of arguments that it takes as input.} of any primitive in the DSL.
+Slightly abusing notation, we write this tensor as $Q_{ijk}(x)$,
+where $x$ is a task,
+$i\in \mathcal{D}\cup\left\{\text{start},\text{var}\right\}$,
+$j\in \mathcal{D}\cup\left\{\text{var} \right\}$,
+and $k\in \left\{1,2,\cdots,A \right\}$.
+The output $Q_{ijk}(x)$
+controls the probability of
+sampling primitive $j$ given that
+$i$ is the parent node in the syntax tree
+and we are sampling the $k^{\text{th}}$ argument.
+Algorithm~\ref{recognitionSample}
+specifies a procedure for drawing samples from $Q(\cdot |X)$.
+ \begin{algorithm}
+   \caption{Drawing from distribution over programs predicted by recognition model. Compare w/ Algorithm~\ref{sampleProgram}}
+   \label{recognitionSample}
+   \begin{algorithmic}[1]
+     \State \textbf{function} recognitionSample$(Q, x, \mathcal{D}, \tau)$:
+     \State {\bfseries Input:} recognition model $Q$, task $x$, DSL $\mathcal{D}$, type $\tau$
+     \State \textbf{Output:} a program whose type unifies with $\tau$
+     \State \textbf{return } $\text{recognitionSample}'(Q,x,\text{start},1,\mathcal{D},\varnothing,\tau)$
+     \Statex
+
+     \State \textbf{function} recognitionSample$'(Q, x, \text{parent}, \text{argumentIndex}, \mathcal{D}, \mathcal{E}, \tau)$:
+     \State {\bfseries Input:} recognition model $Q$, task $x$, DSL $\mathcal{D}$, parent $\in \mathcal{D}\cup\left\{\text{start},\text{var} \right\}$, argumentIndex $\in \mathbb{N}$, environment $\mathcal{E}$, type $\tau$
+     \State \textbf{Output:} a program whose type unifies with $\tau$
+     \If{$\tau = \alpha\to\beta$}\Comment{Function type --- start with a lambda}
+     \State var $\gets$ an unused variable name
+     \State body $\sim$ recognitionSample$'(Q,x,\text{parent},\text{argumentIndex},\mathcal{D},\{\text{var}:\alpha\}\cup\mathcal{E},\beta)$%\Comment{Recursively sample function body}
+     \State \textbf{return} \code{(lambda (}var\code{) }body\code{)}
+     %\Endif
+     \Else\Comment{Build an application to give something w/ type $\tau$}
+     \State $\text{primitives} \gets \{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
+     $\text{if }\tau\text{ can unify with yield}(\tau') \}$\Comment{Everything in scope w/ type $\tau$}
+     \State $\text{variables}\gets\left\{p\;|\;p\in \text{primitives}\text{ and }p\text{ a variable} \right\}$
+     \State Draw $e\sim \text{primitives}$, w.p. $\propto\begin{cases}
+       Q_{\text{parent},e,\text{argumentIndex}}(x)&\text{ if }e\in \mathcal{D}\\
+Q_{\text{parent},\text{var},\text{argumentIndex}}(x)/|\text{variables}|&\text{ if }e\in \mathcal{E}
+       \end{cases}$
+     \State Unify $\tau$ with yield$(\tau')$.\Comment{Ensure well-typed program}
+     \State newParent$\gets\begin{cases}
+     e &\text{ if }e\in \mathcal{D}\\
+     \text{var}&\text{ if }e\in \mathcal{E}\end{cases}$
+     \State $\left\{\alpha_k \right\}_{k = 1}^K\gets\text{args}(\tau')$ 
+     %   \State unify$(\tau,\beta)$
+     \For{$k=1$ {\bfseries to} $K$}\Comment{Recursively sample arguments}
+     \State $a_k\sim\text{recognitionSample}'(Q,x,\text{newParent},k,\mathcal{D},\mathcal{E},\alpha_k)$
+     \EndFor
+     \State \textbf{return} \code{(}$e\;a_1\; a_2\; \cdots\; a_K$\code{)}
+     \EndIf
+     %% \Statex
+     %% \Statex\textbf{where:}
+     %% \State yield$(\tau) = \begin{cases}
+     %%   \text{yield}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+     %%   \tau   &\text{ otherwise.}
+     %% \end{cases}$ \Comment{Final return type of $\tau$}
+     %% \State  args$(\tau) = \begin{cases}
+     %%   [\alpha] + \text{args}(\beta)   &\text{ if }\tau = \alpha\to \beta\\
+     %%   []   &\text{ otherwise.}
+     %% \end{cases}$\Comment{Types of arguments needed to get something w/ type $\tau$}
+   \end{algorithmic}
+ \end{algorithm}
+
+ \textbf{Symmetry breaking analysis.}
+
+ \begin{theorem}
+   Let $\mu(\cdot )$ be a distribution over tasks and let $Q^*(\cdot |\cdot )$ be a task-conditional distribution over programs satisfying
+   $$
+   Q^* = \argmax_Q\;\expect_\mu\left[\max_{\substack{p\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}}\log  Q(p|x) \right]
+   $$
+   where $(\mathcal{D},\theta)$ is a generative model over programs. Pick a task $x$ where $\mu(x) > 0$.
+Partition $\Lambda$ into expressions that are observationally equivalent under $x$:
+   $$
+\Lambda = \bigcup_i \mathcal{E}^x_i\text{ where for any }p_1\in \mathcal{E}^x_i\text{ and }p_2\in \mathcal{E}^x_j\text{: }\probability[x|p_1] = \probability[x|p_2] \iff i = j
+$$
+Then there exists an equivalence class $\mathcal{E}^x_i$
+that gets all the probability mass of $Q^*$ -- e.g.,
+$Q^*(p|x) = 0$ whenever $p\not\in \mathcal{E}^x_i$ --
+and there exists a program in that equivalence class
+which gets all of the probability mass assigned by $Q^*(\cdot |x)$ -- e.g.,  there is a $p\in \mathcal{E}^x_i$
+such that $Q^*(p|x) = 1$ -- and that program maximizes $\probability[\cdot |x,\mathcal{D},\theta ]$.
+ \end{theorem}
+ \begin{proof}
+   We proceed by defining the set of ``best programs'' -- programs maximizing the posterior $\probability[\cdot |x,\mathcal{D},\theta]$ -- and then showing that a best program satisfies $Q^*(p|x) = 1$.
+   Define the set of best programs $\mathcal{B}_x$ for the task $x$ by
+   $$
+\mathcal{B}_x = \left\{p\;|\;\probability[p|x,\mathcal{D},\theta] = \max_{p'\in \Lambda}\probability[p'|x,\mathcal{D},\theta] \right\}
+$$
+For convenience define
+$$
+f(Q) = \expect_\mu\left[\max_{p\in \mathcal{B}_x}\log Q(p|x) \right]
+$$
+and observe that $Q^* = \argmax_Q f(Q)$.
+
+
+Suppose by way of contradiction that there is a $q\not\in \mathcal{B}_x $
+where $Q^*(q|x) = \epsilon > 0$.
+Let $p^*= \argmax_{p\in \mathcal{B}_x}\log Q^*(p|x)$.
+Define
+$$
+Q'(p|x) = \begin{cases}
+  0&\text{ if }p = q\\
+  Q^*(p|x) + \epsilon&\text{ if }p = p^*\\
+  Q^*(p|x)&\text{ otherwise.}
+\end{cases}
+$$
+Then
+\begin{align*}
+  f(Q') - f(Q^*) &= \mu(x) \left(\max_{\substack{p\in \mathcal{B}_x}}\log  Q'(p|x) - \max_{\substack{p\in \mathcal{B}_x}}\log  Q^*(p|x) \right) = \mu(x)\left(\log \left(Q^*(p^*|x) + \epsilon \right) - \log Q^*(p^*|x) \right) > 0
+\end{align*}
+which contradicts the assumption that $Q^*$ maximizes $f(\cdot )$.
+Therefore
+for any $p\not\in \mathcal{B}_x$ we have
+$Q^*(p|x) = 0$.
+
+Suppose by way of contradiction that there are two distinct programs, $q$ and $r$,
+both members of $\mathcal{B}_x$,
+where $Q^*(q|x) = \alpha > 0$
+and $Q^*(r|x) = \beta > 0$.
+Let $p^*= \argmax_{p\in \mathcal{B}_x}\log Q^*(p|x)$.
+If $p^*\not\in \left\{q,r \right\}$ then define
+$$
+Q'(p|x) = \begin{cases}
+  0&\text{ if }p\in \left\{q,r \right\}\\
+  Q^*(p|x) + \alpha + \beta&\text{ if }p = p^*\\
+  Q^*(p|x)&\text{ otherwise.}
+\end{cases}
+$$
+Then
+\begin{align*}
+  f(Q') - f(Q^*) &= \mu(x) \left(\max_{\substack{p\in \mathcal{B}_x}}\log  Q'(p|x) - \max_{\substack{p\in \mathcal{B}_x}}\log  Q^*(p|x) \right)\\ &= \mu(x)\left(\log \left(Q^*(p^*|x) + \alpha + \beta \right) - \log Q^*(p^*|x) \right) > 0  \end{align*}
+which contradicts the assumption that $Q^*$ maximizes $f(\cdot )$.
+Otherwise assume $p^*\in \left\{q,r \right\}$.
+Without loss of generality let $p^* = q$.
+Define
+$$
+Q'(p|x) = \begin{cases}
+  0&\text{ if }p = r\\
+  Q^*(p|x) + \beta&\text{ if }p = p^*\\
+  Q^*(p|x)&\text{ otherwise.}
+\end{cases}
+$$
+Then
+\begin{align*}
+  f(Q') - f(Q^*) &= \mu(x) \left(\max_{\substack{p\in \mathcal{B}_x}}\log  Q'(p|x) - \max_{\substack{p\in \mathcal{B}_x}}\log  Q^*(p|x) \right) = \mu(x)\left(\log \left(Q^*(p^*|x) + \beta \right) - \log Q^*(p^*|x) \right) > 0  \end{align*}
+ which contradicts the assumption that $Q^*$ maximizes $f(\cdot )$.
+ Therefore $Q^*(p|x) > 0$ for at most one $p\in \mathcal{B}_x$.
+ But we already know that $Q^*(p|x) = 0$ for any $p\not\in \mathcal{B}_x$,
+ so it must be the case that $Q^*(\cdot |x)$
+ places all of its probability mass on exactly one $p\in \mathcal{B}_x$.
+ Call that program $p^*$.
+
+ Because the equivalence classes $\left\{\mathcal{E}_i^x \right\}$
+ form a partition of $\Lambda$
+ we know that $p^*$ is a member of exactly one equivalence class; call it $\mathcal{E}_*^x$.
+ This accomplishes one of our goals:
+ we have already shown that $Q^*(p^*|x) = 1$.
+ 
+ Let $q\in \mathcal{E}_i^x\not=\mathcal{E}_*^x$.
+ Then because the equivalence classes form a partition we know that
+ $q\not= p^*$
+ and so $Q^*(q|x) = 0$,
+ which is what was to be shown:
+ \emph{any}
+ program not in $\mathcal{E}_*^x$
+ gets no probability mass.
+
+ \end{proof}
+ 
+ Consider an agent tasked with writing programs built from addition and the constants zero and one.
+A bigram parameterization of $Q$ allows
+it to represent the fact that it should never add zero ($Q_{\code{+},\code{0},0} = Q_{\code{+},\code{0},1} = 0$)
+%or never multiply by  1 ($Q_{\code{*},\code{1},0} = Q_{\code{*},\code{1},1} = 0$), or
+or that addition should always associate to the right
+($Q_{\code{+},\code{+},0} = 0$).
+The $\mathcal{L}^{\text{MAP}}$ training objective encourages
+learning these canonical forms.
+Consider two recognition models, $Q_1$ and $Q_2$,
+and two programs in frontier $\mathcal{F}_x$,
+$p_1=\code{(+ (+ 1 1) 1)}$ and $p_2=\code{(+ 1 (+ 1 1))}$,
+where
+\begin{align*}
+  Q_1(p_1|x) = \frac{\epsilon}{2}&\qquad Q_1(p_2|x) = \frac{\epsilon}{2}\\
+  Q_2(p_1|x) = 0&\qquad  Q_2(p_2|x) = \epsilon
+\end{align*}
+i.e., $Q_2$ breaks a symmetry by forcing right associative addition,
+but $Q_1$ does not, instead splitting its probability mass equally between $p_1$ and $p_2$.
+Now because $\probability[p_1|\mathcal{D},\theta] = \probability[p_2|\mathcal{D},\theta]$
+(Algorithm~\ref{sampleProgram}),
+we have
+\begin{align*}
+  \mathcal{L}^{\text{posterior}}_{\text{real}}(Q_1)& = \frac{\probability[p_1|\mathcal{D},\theta]\log \frac{\epsilon}{2} + \probability[p_2|\mathcal{D},\theta]\log \frac{\epsilon}{2}}{\probability[p_1|\mathcal{D},\theta] + \probability[p_2|\mathcal{D},\theta]} = \log \frac{\epsilon}{2}\\
+  \mathcal{L}^{\text{posterior}}_{\text{real}}(Q_2)& = \frac{\probability[p_1|\mathcal{D},\theta]\log 0 + \probability[p_2|\mathcal{D},\theta]\log \epsilon}{\probability[p_1|\mathcal{D},\theta] + \probability[p_2|\mathcal{D},\theta]} = +\infty\\
+  \mathcal{L}^{\text{MAP}}_{\text{real}}(Q_1)& = \log Q_1(p_1)           = \log Q_1(p_2)   = \log \frac{\epsilon}{2}\\
+  \mathcal{L}^{\text{MAP}}_{\text{real}}(Q_2)& = \log Q_2(p_2) \phantom{ = \log Q_1(p_2) } = \log \epsilon\\
+\end{align*}
+So $\mathcal{L}^{\text{MAP}}$ prefers $Q_2$ (the symmetry breaking
+recognition model), while $\mathcal{L}^{\text{posterior}}$ reverses
+this preference.
+
+To be clear,
+our recognition model does not learn to break \emph{every} possible symmetry in every possible DSL.
+But in practice we found that a bigrams combined with $\mathcal{L}^{\text{MAP}}$
+works well,
+and we use with this combination throughout the paper.
+
 
 \subsection{Full set of LOGO  tasks}
 
