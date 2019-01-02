@@ -831,7 +831,7 @@ the recognition model gets both more data, and higher-quality data, whenever the
       \node(p1) at (1.5,-6) {program};      
       \node at ([xshift = 2.0cm]p1.east) (t1){ task};
       \draw [-> ] (p1.east) -- node[above]{\small run} (t1.west);
-      \node(n) at ([yshift=-1.2cm,xshift=0.4cm]p1.south) {
+      \node(n) at ([yshift=-1.2cm,xshift=1.25cm]p1.south) {
         \NeuralNetwork{0.17}};
       \draw [->,red] (t1.south) to[out = -90,in = 0]  ([xshift=0.4cm]n.east);
       \draw [dashed] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
@@ -3288,5 +3288,124 @@ Figure~\ref{learningFromScratch} shows the full set of tasks and the learned DSL
 %% \caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}%\vspace{-0.5cm}
 %% \end{table*}
 
+\subsection{Learned DSLs}
+Here we present representative DSLs learned by our model. DSL primitives
+discovered by the algorithm are prefixed with \lstinline!#!.
+Variables are prefixed with \lstinline!$!, and we adopt De Bruijn indices to
+model bound variables~\cite{pierce}.
 
+
+\lstset{
+  basicstyle=\footnotesize,
+  escapechar=@,
+  breaklines=true,
+  breakatwhitespace=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}
+}
+
+
+\subsubsection{List processing}
+\begin{lstlisting}
+#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range ($0 (+ 1))))))
+#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0))))))
+#(+ 1 (+ 1 1))
+#(@$\lambda$@ (@$\lambda$@ (fold $1 (cons $0 empty) (@$\lambda$@ (@$\lambda$@ (cons $1 $0))))))
+#(+ 1 #(+ 1 (+ 1 1)))
+#(@$\lambda$@ (map (@$\lambda$@ (if ($1 $0) (+ $0 1) 0))))
+#(@$\lambda$@ (cdr (cdr $0)))
+#(@$\lambda$@ (@$\lambda$@ (fold (#(@$\lambda$@ (cdr (cdr $0))) (#(@$\lambda$@ (cdr (cdr $0))) $1)) $0 (@$\lambda$@ (@$\lambda$@ (cdr (#(@$\lambda$@ (@$\lambda$@ (fold $1 (cons $0 empty) (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $0 (car $0))))))))
+#(@$\lambda$@ (car (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $0 (@$\lambda$@ (empty? (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (gt? $0 $1))))))))
+#(@$\lambda$@ (@$\lambda$@ (length (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (eq? $0 $1))))))
+#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (is-prime (+ $1 (mod $0 #(+ 1 #(+ 1 (+ 1 1))))))))))
+#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0))))))
+#(@$\lambda$@ (map (@$\lambda$@ (mod $0 $1))))
+#(@$\lambda$@ (map (@$\lambda$@ (eq? (mod $0 $1) 0))))
+#(@$\lambda$@ (gt? (mod $0 #(+ 1 (+ 1 1))) 0))
+#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (car (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $0 (@$\lambda$@ (empty? (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (gt? $0 $1)))))))) (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (gt? $1 (length (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $2 (@$\lambda$@ (gt? $1 $0))))))))))
+\end{lstlisting}
+
+\subsubsection{Text editing}
+\begin{lstlisting}
+#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0))))))
+#(@$\lambda$@ (@$\lambda$@ (cons '.' (cons $0 $1))))
+#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0))))
+#(+ 1)
+#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0))))))))
+#(@$\lambda$@ (@$\lambda$@ (cons (car $0) (#(@$\lambda$@ (@$\lambda$@ (cons '.' (cons $0 $1)))) (cons '.' empty) (car $1)))))
+#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (if (char-eq? $2 $0) $1 $0)))))
+#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) (cons LPAREN $0) (cons RPAREN empty)))
+#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $0 (length (cdr (cdr $1))))))
+#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0)))))))
+#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $0 (length (cdr (cdr $1)))))) (cdr (cdr $0))))
+#(#(+ 1) 1)
+#(@$\lambda$@ (@$\lambda$@ (cons (car $1) (cons $0 empty))))
+#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) (#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0))))))) (#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) (cons LPAREN $0) (cons RPAREN empty))) $1) $0) $0)))
+#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $1 (cons $0 $2)))))
+#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $0 STRING))
+#(#(+ 1) #(#(+ 1) 1))
+#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) STRING $0) SPACE))
+#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $1 (cons $0 $2))))) (cons $0 $1))))
+#(#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) STRING)
+#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (cons (car $0) (#(@$\lambda$@ (@$\lambda$@ (cons '.' (cons $0 $1)))) (cons '.' empty) (car $1))))) (#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0))))))) $1 $0) $1)))
+#(#(+ 1) #(#(+ 1) #(#(+ 1) 1)))
+#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $1 (#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0))))))) (#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $0 STRING)) (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $2 #(#(+ 1) #(#(+ 1) #(#(+ 1) 1))))) $0)))))
+\end{lstlisting}
+
+\subsubsection{Graphics}
+\begin{lstlisting}
+  #(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0)))))))
+#(logo_DIVA logo_UA 4)
+#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY)
+#(logo_PT (@$\lambda$@ (logo_FWRT logo_UL logo_ZA $0)))
+#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $1 (@$\lambda$@ (@$\lambda$@ (logo_FWRT (logo_MULL $2 $1) $4 $0)))))))
+#(@$\lambda$@ (logo_forLoop 7 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) 7 logo_epsA $2 $0)))))
+#(@$\lambda$@ (#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) (logo_SUBA logo_UA logo_epsA) (logo_MULL logo_epsL $0)))
+#(@$\lambda$@ (logo_forLoop logo_IFTY (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 logo_epsA (logo_FWRT logo_epsL logo_epsA $0))))))
+#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) 4 #(logo_DIVA logo_UA 4))
+#(logo_DIVA logo_UA)
+#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $1 (@$\lambda$@ (@$\lambda$@ (logo_GETSET $2 (logo_FWRT logo_ZL $4 $0))))))))
+#(#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) (logo_DIVA logo_epsA 2) logo_epsL)
+#(#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) logo_epsA logo_epsL)
+#(logo_forLoop 3 (@$\lambda$@ (@$\lambda$@ (#(#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) (logo_DIVA logo_epsA 2) logo_epsL) (logo_FWRT logo_ZL #(logo_DIVA logo_UA 4) $0)))))
+#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $1 (@$\lambda$@ (@$\lambda$@ (logo_GETSET $2 (logo_FWRT logo_ZL $4 $0)))))))) (#(logo_DIVA logo_UA) $0) $0))
+#(@$\lambda$@ (#(logo_PT (@$\lambda$@ (logo_FWRT logo_UL logo_ZA $0))) (#(@$\lambda$@ (logo_forLoop logo_IFTY (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 logo_epsA (logo_FWRT logo_epsL logo_epsA $0)))))) logo_epsL $0)))
+#(@$\lambda$@ (#(logo_PT (@$\lambda$@ (logo_FWRT logo_UL logo_ZA $0))) (logo_FWRT logo_UL #(logo_DIVA logo_UA 4) $0)))
+#(@$\lambda$@ (#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) logo_epsA (logo_MULL logo_epsL $0)))
+#(logo_FWRT logo_UL logo_UA)
+#(@$\lambda$@ (#(@$\lambda$@ (logo_forLoop 7 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) 7 logo_epsA $2 $0))))) (logo_MULL logo_epsL $0)))
+\end{lstlisting}
+
+\subsubsection{Towers}
+\begin{lstlisting}
+  #(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0))))))
+#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0))))))
+#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 4 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0))))))
+#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 8 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (left 4 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))))))))
+#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0)))))))))))
+#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 8 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (left 2 (3x1 $0))))))))
+#(@$\lambda$@ (1x3 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (1x3 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) (right 4 $0))))))
+#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (1x3 $0)))))
+#(tower_loopM 4 (@$\lambda$@ (@$\lambda$@ (right 6 (3x1 $0)))))
+#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (1x3 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (1x3 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) (right 4 $0)))))) $0)))))
+#(@$\lambda$@ (right 4 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0))))
+#(@$\lambda$@ (right 2 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))
+#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (1x3 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (1x3 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) (right 4 $0)))))) $0))))) $0 (right 2 (#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 4 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))))) $0 $1)))))
+#(tower_loopM 5 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (right 2 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0))) $0))))
+#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (tower_embed (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0))))))))))) 3 6 3 $0)) $0)))))
+#(@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (tower_embed (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0))))))))))) 4 5 $4 $0)) $0))))))
+#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0))))))))))) 4 5)
+#(@$\lambda$@ (@$\lambda$@ (right 6 (tower_embed $0 $1))))
+#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (right 4 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))) $0)))))
+\end{lstlisting}
+\subsubsection{Symbolic regression}
+\begin{lstlisting}
+  #(@$\lambda$@ (+. $0 REAL))
+#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL)))
+#(/. REAL)
+#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0)))
+#(@$\lambda$@ (/. (#(/. REAL) $0) $0))
+#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. $0 (#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0))) $0))))
+#(@$\lambda$@ (#(/. REAL) (#(@$\lambda$@ (+. $0 REAL)) $0)))
+#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. (#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0))) $0) $0)))
+\end{lstlisting}
 \end{document}
