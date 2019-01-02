@@ -818,11 +818,18 @@ the recognition model gets both more data, and higher-quality data, whenever the
     \draw[fill=white!5!white] (15,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (15,-13) -- (15,-5);
 
     \begin{scope}[shift={(9.5,-4.5)}]
-      \node(dreaming) at (2,-1) {\underline{Fantasies}};
-      \node at ([yshift=-0.75cm,xshift=-1.5cm]dreaming.south) (d){DSL};
-      \node at ([xshift=1.5cm]d.east) (p1){prog.};
-      \draw[squiggle,-> ] (d.east) -- node[sloped,above]{\small sample} (p1.west);
-      \node at ([xshift = 1.5cm]p1.east) (t1){ task};
+      \node(dreaming) at (1,-1) {\underline{Fantasies}};
+      \node[anchor=center] at ([yshift=-0.5cm]dreaming.south) (d){\textbf{DSL}};
+      \node at ([yshift=-1.75cm]d.south) (p1){program};
+      \draw[squiggle,-> ] (d.south) -- node[sloped,above]{\small sample} (p1.north);
+
+      \node(replay) at ([xshift=2cm]dreaming.east) {\underline{Replays}};
+      \node[anchor=center,align=center] at ([yshift=-0.5cm]replay.south) (d){\textbf{progs. for task}};
+      \node at ([yshift=-1.75cm]d.south) (p1){program};
+      \draw[squiggle,-> ] (d.south) -- node[sloped,above]{\small sample} (p1.north);
+
+      \node(p1) at (1.5,-6) {program};      
+      \node at ([xshift = 2.0cm]p1.east) (t1){ task};
       \draw [-> ] (p1.east) -- node[above]{\small run} (t1.west);
       \node(n) at ([yshift=-1.2cm,xshift=0.4cm]p1.south) {
         \NeuralNetwork{0.17}};
@@ -830,16 +837,14 @@ the recognition model gets both more data, and higher-quality data, whenever the
       \draw [dashed] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
 
 
-      \node(replay) at (2,-5) {\underline{Replays}};
-      \node[align=center] at ([yshift=-0.75cm,xshift=-1.5cm]replay.south) (d){progs.\\for\\task};
-      \node at ([xshift=1.5cm]d.east) (p1){prog.};
-      \draw[squiggle,-> ] (d.east) -- node[sloped,above]{\small sample} (p1.west);
-      \node at ([xshift = 1.5cm]p1.east) (t1){ task};
-      \draw [-> ] (p1.east) -- node[above]{\small run} (t1.west);
-      \node(n) at ([yshift=-1.2cm,xshift=0.4cm]p1.south) {
-        \NeuralNetwork{0.17}};
-      \draw [->,red] (t1.south) to[out = -90,in = 0]  ([xshift=0.4cm]n.east);
-      \draw [dashed] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
+      \node at ($(-0.25,0.5) + (p1.north)!0.5!(t1.north)$) {\underline{Train recognition model}};
+
+      %% \node at ([xshift = 1.5cm]p1.east) (t1){ task};
+      %% \draw [-> ] (p1.east) -- node[above]{\small run} (t1.west);
+      %% \node(n) at ([yshift=-1.2cm,xshift=0.4cm]p1.south) {
+      %%   \NeuralNetwork{0.17}};
+      %% \draw [->,red] (t1.south) to[out = -90,in = 0]  ([xshift=0.4cm]n.east);
+      %% \draw [dashed] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
 
       \begin{scope}[shift={(-3.8,-8)},scale=0.6,line width=0.05mm]
         \node[obs,scale=0.7] at (3.5,3) (dx){DSL};
