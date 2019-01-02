@@ -1490,9 +1490,73 @@ different random initializations
 lead to either right or left association.
 
 \begin{figure}
-\centering  \begin{tabular}{ccc}
+  \begin{minipage}[c]{0.3\textwidth}
+    \begin{tikzpicture}%[every node/.style={inner sep=0,outer sep=0}]
+    \node(l)[draw] at (0,0) {\texttt{$\lambda$ (a)}};
+    \node(k)[draw] at ([yshift=-50]l.south) {\texttt{+}};
+    \node(o)[draw] at ([xshift=-50,yshift=-50]k.south) {\texttt{9}};
+    \node(m)[draw] at ([xshift=50,yshift=-50]k.south) {\texttt{*}};
+    \node(x1)[draw] at ([xshift=50,yshift=-50]m.south) {\texttt{a}};
+    \node(x2)[draw] at ([xshift=-50,yshift=-50]m.south) {\texttt{a}};
+
+    \draw[->] (l.south)-- node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\text{start},\texttt{+},1}(x)$}(k.north);
+    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{+},\texttt{9},1}(x)$}(o.north);
+    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{+},\texttt{*},2}(x)$}(m.north);
+    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{*},\text{var},2}(x)$}(x1.north);
+    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{*},\text{var},1}(x)$}(x2.north);
+\end{tikzpicture}
+    \end{minipage}\hfill%
+  \begin{tabular}{cll}
      \toprule
-&     Unigram&Bigram \\\midrule
+&     \multicolumn{1}{c}{Unigram}&\multicolumn{1}{c}{Bigram} \\\midrule
+     $\mathcal{L}^{\text{posterior}}$&
+     \begin{tabular}{l}
+       \emph{Three samples:}\\
+       \code{(+ 1 0)}\\
+\code{(+ (+ 0 0)}\\\code{\phantom{(+ }(+ 1 0))}\\
+\code{(+ 1 1)}
+\\
+63.0\% right-associative\\37.4\% \code{+0}'s
+       \end{tabular}
+     &
+     \begin{tabular}{l}
+       \emph{Three samples:}\\
+       \code{0}\\
+\code{(+ (+ (+ 0 0)}\\\code{\phantom{(+ (+} (+ 0 1)) 1)}\\
+\code{1}\\
+55.8\% right-associative\\31.9\% \code{+0}'s
+       \end{tabular}
+     \\\\
+     $\mathcal{L}^{\text{MAP}}$&
+     \begin{tabular}{l}
+       \emph{Three samples:}\\
+       \code{1}\\
+       \code{(+ 1 (+ 1 (+ (+ 1 }\\\code{\phantom{(+ }(+ 1 1)) 1)))}\\
+       \code{(+ (+ 1 1) 1)}
+\\48.6\% right-associative\\
+       0.5\% \code{+0}'s       
+       \end{tabular}
+     &
+     \begin{tabular}{l}
+       \emph{Three Samples:}\\
+\code{(+ 1 (+ 1 (+ 1}\\\code{\phantom{(+ 1} (+ 1 (+ 1 1)))))}\\
+\code{0}\\
+\code{(+ 1 (+ 1 (+ 1 1)))}
+       \\
+       \textbf{97.9\% right-associative}\\
+       2.5\% \code{+0}'s       
+       \end{tabular}
+\\    \bottomrule 
+  \end{tabular}
+  \caption{\textbf{Left:} Bigram parameterization of distribution over programs predicted by recognition model.
+  Here the program (syntax tree shown above) is \texttt{($\lambda$ (a) (+ 9 (* a a )))}.
+Each conditional distribution predicted by the recognition model is written $Q_{\text{parent},\text{child},\text{argument index}}(x)$, where $x$ is a task. \textbf{Right:} Agent learns to break symmetries in program space only when using both bigram parameterization and $\mathcal{L}^{\text{MAP}}$ objective, associating addition to the right and avoiding adding zero. \% right-associative calculated by drawing 500 samples from $Q$. $\mathcal{L}^{\text{MAP}}$/Unigram agent incorrectly learns to never generate programs with \code{0}'s, while $\mathcal{L}^{\text{MAP}}$/Bigram agent correctly learns that \code{0} should only be disallowed as an argument of addition. Tasked with building programs from \code{+}, \code{1}, and \code{0}. }\label{symmetry}
+\end{figure}
+
+\begin{figure}
+\centering  \begin{tabular}{cll}
+     \toprule
+&     \multicolumn{1}{c}{Unigram}&\multicolumn{1}{c}{Bigram} \\\midrule
      $\mathcal{L}^{\text{posterior}}$&
      \begin{tabular}{l}
        \emph{Three samples:}\\
@@ -1729,17 +1793,10 @@ These towers are built from Lego-style blocks
 that snap together on a discrete grid.%%  (e.g., we do not model gravity
 %% and discretize the coordinates of the 
 %% blocks).
-
-The system starts out with four domain-specific primitives:
-\code{left} and \code{right}, which take an integer $n$ as input and
-move the hand left/right $n$ Lego grid spaces; along with
-\code{horizontal} and \code{vertical}, which put down
-horizontal/vertical Lego blocks.  As with LOGO graphics we also
-include our two standard planning primitives (\code{for} and
-\code{get/set}).
-Starting with this basis
-the system can only solve
-12.5\% of the copy tasks.
+The system starts with the same control flow primitives as with
+LOGO graphics,
+and learns parametric `options' for building blocks towers (Figure~\ref{tower}),
+inferring concepts like arches, staircases, bridges and brick walls.
 \begin{figure}
   \begin{tabular}{cc}
     \toprule Example learned DSL components&Samples from DSL\\\midrule
@@ -1759,13 +1816,13 @@ the system can only solve
       \end{tabular}
     \\\bottomrule 
     \end{tabular}
-  \caption{Learned subroutines for building towers out of Lego-style blocks. These subroutines act like parametric options~\cite{options},
-    giving higher-level building blocks that the agent can use to plan.}
+  \caption{\textbf{Left}: Three (out of 19) learned DSL components for building towers out of Lego-style blocks. These components act like parametric options~\cite{options},
+    giving higher-level building blocks that the agent can use to plan. \textbf{Right}: 16 random samples, or `dreams', from learned DSL.}\label{tower}
 \end{figure}
 
 
 
-\subsubsection{Symbolic Regression: Programs from visual input}\label{regressionSection}
+\subsubsection{Symbolic Regression}\label{regressionSection}
 Here, the agent observes points along the curve of a function, and
 must write a program that fits those points.  We initially equip our
 learner with addition, multiplication, and division, and task it with
@@ -1794,8 +1851,6 @@ Bayesian framing: both the generative model's bias toward shorter
 programs, and the likelihood model's BIC penalty.
 
 
- 
-h
 \subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
 We evaluate  on held-out testing tasks,
 measuring how many
