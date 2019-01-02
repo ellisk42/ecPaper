@@ -992,6 +992,9 @@ as polymorphicly-typed $\lambda$-calculus expressions, a
 representation closely resembling Lisp and functional languages like
 Haskell and OCaml, including variables, conditionals, higher-order
 recursive functions, and the ability to create new functions.
+We `batch' the tasks by randomly shuffling the training set
+and playing small minibatches
+of tasks to the agent during each wake cycle.
 
 %% Our programs are all
 %% strongly typed.  We use the Hindley-Milner polymorphic typing
@@ -1989,6 +1992,35 @@ inference, and more?
 \appendix
 
 \section{Appendix}
+
+\subsection{\system pseudocode}\label{systemPseudocode}
+
+Algorithm~\ref{theWholeThing} specifies how we integrate wake and sleep cycles.
+\begin{algorithm}
+  \caption{Full \system algorithm}\label{theWholeThing}
+  \begin{algorithmic}[1]
+    \State \textbf{function} \systemEnding$(\mathcal{D}, X)$:
+    \State {\bfseries Input:} Initial DSL $\mathcal{D}$, tasks $X$
+    \State \textbf{Output:} Infinite stream of DSLs, recognition models, and frontiers
+    \State \textbf{Hyperparameters:} Batch size $B$, enumeration timeout $T$, maximum frontier size $F$
+    \State $\theta\gets $uniform distribution
+    \State $\mathcal{F}_x\gets\varnothing $, $\forall x\in X$\Comment{Initialize frontiers to be empty}
+    \While{true}\Comment{Loop over epochs}
+    \State shuffle $\gets$ random permutation of $X$\Comment{Randomize minibatches}
+    \While{shuffle is not empty}\Comment{Loop over minibatches}
+    \State batch $\gets$ first $B$ elements of shuffle\Comment{Next minibatch of tasks}
+    \State shuffle $\gets$ shuffle with first $B$ elements removed
+    \State $\forall x\in \text{batch}$: $\mathcal{F}_x\gets\mathcal{F}_x\cup \left\{p\;|\;p\in \text{enumerate}(\probability[\cdot |\mathcal{D},\theta],T)\text{ if }\probability[x|p] > 0 \right\}$\Comment{Wake}
+    \State Train $Q(\cdot |\cdot )$ to minimize $\mathcal{L}^{\text{MAP}}$ across all $\left\{\mathcal{F}_x \right\}_{x\in X}$\Comment{Dream Sleep}
+    \State $\forall x\in \text{batch}$: $\mathcal{F}_x\gets\mathcal{F}_x\cup \left\{p\;|\;p\in \text{enumerate}(Q(\cdot |x),T)\text{ if }\probability[x|p] > 0 \right\}$\Comment{Wake}
+    \State $\forall x\in \text{batch}$: $\mathcal{F}_x\gets\text{ top }F\text{ elements of }\mathcal{F}_x\text{ as measured by }\probability[\cdot |x,\mathcal{D},\theta]$\Comment{Keep top $F$ programs}
+    \State $\mathcal{D},\theta,\left\{\mathcal{F}_x \right\}_{x\in X}\gets $\textsc{Consolidate}$(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\}_{x\in X})$\Comment{Consolidation Sleep}
+    \State \textbf{yield} $(\mathcal{D},\theta)$, $Q$, $\left\{\mathcal{F}_x \right\}_{x\in X}$ \Comment{Yield the updated DSL, recognition model, and solutions found to tasks}
+    \EndWhile
+    \EndWhile
+
+  \end{algorithmic}
+\end{algorithm}
 
 \subsection{Generative model over programs}\label{generativeAppendix}
 Algorithm~\ref{sampleProgram} gives a stochastic procedure for drawing samples from $\probability[\cdot |\mathcal{D},\theta]$.
