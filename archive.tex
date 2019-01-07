@@ -168,7 +168,7 @@
 \begin{figure}
   \begin{tikzpicture}
     \renewcommand{\baselinestretch}{0.5}
-    \renewcommand{\inventionColor}{orange}
+    \newcommand{\inventionColor}{orange}
     \newcommand{\name}[2]{
       \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
     }
@@ -177,8 +177,8 @@
     }
 
     
-    \renewcommand{\horizontalSpacing}{3.8cm}
-    \renewcommand{\verticalSpacing}{2cm}
+    \newcommand{\horizontalSpacing}{3.8cm}
+    \newcommand{\verticalSpacing}{2cm}
 
     
 %    \draw (0,0) rectangle (10,5);
@@ -506,7 +506,7 @@ domain expertise.  These correspond to tasks solved by short programs
 \begin{figure}\centering
   \begin{tikzpicture}
     \renewcommand{\baselinestretch}{0.5}
-    \renewcommand{\inventionColor}{orange}
+    \newcommand{\inventionColor}{orange}
 
     \newcommand{\name}[2]{
       \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
@@ -515,8 +515,8 @@ domain expertise.  These correspond to tasks solved by short programs
       \mcode{{\color{\inventionColor}$f_{#1}$}$\,=\,$}
     }
     \newcommand{\use}[1]{{\color{\inventionColor}$f_{#1}$}}
-    \renewcommand{\horizontalSpacing}{4.2cm}
-    \renewcommand{\verticalSpacing}{2cm}
+    \newcommand{\horizontalSpacing}{4.2cm}
+    \newcommand{\verticalSpacing}{2cm}
     
     \newcommand{\invention}[4]{
       \node(#1)[inner sep=1,anchor=south,text width=2.2cm,draw,rounded corners,align=center] at (#2) {
@@ -533,11 +533,11 @@ domain expertise.  These correspond to tasks solved by short programs
     \newcommand{\exampleFunction}[2]{
       \includegraphics[width = 0.5cm]{#1}, \includegraphics[width = 0.5cm]{#2}
     }
-    \renewcommand{\task}[4]{
+    \newcommand{\task}[4]{
       \node[align=left,anchor=center](t#1) at (#2) {#3};
       \node[align=left](p#1) at ([yshift=-0.75cm]t#1.south) {#4};
     }
-    \renewcommand{\nextTask}[4]{
+    \newcommand{\nextTask}[4]{
       \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
     }
 
@@ -872,7 +872,7 @@ the recognition model gets both more data, and higher-quality data, whenever the
     \begin{scope}[shift={(-2,-4.5)}]
 
       %% defined routines for creating fragmented syntax trees
-      \renewcommand{\syntaxOne}[1]{
+      \newcommand{\syntaxOne}[1]{
         \begin{tikzpicture}[scale=#1,line width=0.35mm]          
           \node(l1) at (0,0) {};
           \node[color=pop3](p1) at (-1,-1) {\texttt{+}};
@@ -1060,7 +1060,7 @@ the space of  programs.
 
 
 
-\subsection{Consolidation-Sleep: Growing a Domain Specific Language}
+\subsection{Consolidation-Sleep: Growing a Domain Specific Language}\label{consolidationSection}
 
 The DSL offers a set of abstractions that allow an agent to concisely
 express solutions to the tasks at hand. We automatically discover
@@ -1407,7 +1407,7 @@ from the tasks it has solved so far.
 %% second~\cite{feser2015synthesizing}.
 
 The second approach is to have $Q$ predict a fixed-dimensional weight
-vector, which then biases a fast enumerator~\cite{balog2016deepcoder,ec2}
+vector, which then biases a fast enumerator~\cite{balog2016deepcoder,ecc}
 or sampler~\cite{menon2013machine}.  This approach can enjoy strong
 out-of-sample generalization, because it can fall back on enumeration
 or sampling when the target program is unlike the training programs.
@@ -1424,7 +1424,7 @@ which argument is being generated.
 This is a kind of `bigram' model over trees,
 where the bigrams
 take the form of (parent, child, argument index).
-Figure~\ref{bg} diagrams this generative process and Algorithm~\ref{recognitionSample}
+Figure~\ref{symmetry} (left) diagrams this generative process and Algorithm~\ref{recognitionSample}
 specifies a sampling procedure for $Q(\cdot |x)$.
 This parameterization
 has three main advantages:
@@ -1439,25 +1439,6 @@ and (3)
 training this recognition model
 causes it to learn to break symmetries in the space of programs,
 described next.
-\begin{figure}
-\centering  \begin{tikzpicture}%[every node/.style={inner sep=0,outer sep=0}]
-    \node(l)[draw] at (0,0) {\texttt{$\lambda$ (a)}};
-    \node(k)[draw] at ([yshift=-50]l.south) {\texttt{+}};
-    \node(o)[draw] at ([xshift=-50,yshift=-50]k.south) {\texttt{9}};
-    \node(m)[draw] at ([xshift=50,yshift=-50]k.south) {\texttt{*}};
-    \node(x1)[draw] at ([xshift=50,yshift=-50]m.south) {\texttt{a}};
-    \node(x2)[draw] at ([xshift=-50,yshift=-50]m.south) {\texttt{a}};
-
-    \draw[->] (l.south)-- node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\text{start},\texttt{+},1}(x)$}(k.north);
-    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{+},\texttt{9},1}(x)$}(o.north);
-    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{+},\texttt{*},2}(x)$}(m.north);
-    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{*},\text{var},2}(x)$}(x1.north);
-    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{*},\text{var},1}(x)$}(x2.north);
-\end{tikzpicture}
-\caption{Parameterization of distribution over programs predicted by recognition model.
-  Here the program (syntax tree shown above) is \texttt{($\lambda$ (a) (+ 9 (* a a )))}.
-Each conditional distribution predicted by the recognition model is written $Q_{\text{parent},\text{child},\text{argument index}}(x)$, where $x$ is a task.}\label{bg}
-\end{figure}
 
 \subsubsection{Learning to break symmetries in program space}\label{symmetricSection}
 
@@ -1499,7 +1480,7 @@ lead to either right or left association.
 
 \begin{figure}
   \begin{minipage}[c]{0.3\textwidth}
-    \begin{tikzpicture}%[every node/.style={inner sep=0,outer sep=0}]
+    \begin{tikzpicture}[scale=1]%[every node/.style={inner sep=0,outer sep=0}]
     \node(l)[draw] at (0,0) {\texttt{$\lambda$ (a)}};
     \node(k)[draw] at ([yshift=-50]l.south) {\texttt{+}};
     \node(o)[draw] at ([xshift=-50,yshift=-50]k.south) {\texttt{9}};
@@ -1508,16 +1489,16 @@ lead to either right or left association.
     \node(x2)[draw] at ([xshift=-50,yshift=-50]m.south) {\texttt{a}};
 
     \draw[->] (l.south)-- node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\text{start},\texttt{+},1}(x)$}(k.north);
-    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{+},\texttt{9},1}(x)$}(o.north);
-    \draw[->] (k.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{+},\texttt{*},2}(x)$}(m.north);
-    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{*},\text{var},2}(x)$}(x1.north);
-    \draw[->] (m.south)--node[fill=white,align=center,midway,inner sep=0,outer sep=0]{$Q_{\texttt{*},\text{var},1}(x)$}(x2.north);
+    \draw[->] (k.south)--node[sloped, above]{$Q_{\texttt{+},\texttt{9},1}(x)$}(o.north);
+    \draw[->] (k.south)--node[sloped, above]{$Q_{\texttt{+},\texttt{*},2}(x)$}(m.north);
+    \draw[->] (m.south)--node[sloped, above]{$Q_{\texttt{*},\text{var},2}(x)$}(x1.north);
+    \draw[->] (m.south)--node[sloped, above]{$Q_{\texttt{*},\text{var},1}(x)$}(x2.north);
 \end{tikzpicture}
     \end{minipage}\hfill%
   \begin{tabular}{cll}
      \toprule
 &     \multicolumn{1}{c}{Unigram}&\multicolumn{1}{c}{Bigram} \\\midrule
-     $\mathcal{L}^{\text{posterior}}$&
+     \rotatebox[origin=c]{90}{$\mathcal{L}^{\text{posterior}}$}&
      \begin{tabular}{l}
        \emph{Three samples:}\\
        \code{(+ 1 0)}\\
@@ -1535,7 +1516,7 @@ lead to either right or left association.
 55.8\% right-associative\\31.9\% \code{+0}'s
        \end{tabular}
      \\\\
-     $\mathcal{L}^{\text{MAP}}$&
+     \rotatebox[origin=c]{90}{$\mathcal{L}^{\text{MAP}}$}&
      \begin{tabular}{l}
        \emph{Three samples:}\\
        \code{1}\\
@@ -1622,7 +1603,7 @@ basis: \code{foldr}, \code{unfold}, \code{if}, \code{map},
 \code{is-nil}.
 
 \subsubsection{List Processing}\label{listSection}
-We took 218 list manipulation tasks from our previous work~\cite{ec2},
+We took 218 list manipulation tasks from our previous work~\cite{ecc},
 each with 15 input/output examples.  In solving these tasks, the
 system composed 16 new DSL components, and discovered multiple
 higher-order functions, such as \code{filter} ($f_0$ in
@@ -1824,7 +1805,7 @@ inferring concepts like arches, staircases, bridges and brick walls.
       \end{tabular}
     \\\bottomrule 
     \end{tabular}
-  \caption{\textbf{Left}: Three (out of 19) learned DSL components for building towers out of Lego-style blocks. These components act like parametric options~\cite{options},
+  \caption{\textbf{Left}: Three (out of 19) learned DSL components for building towers out of Lego-style blocks. These components act like parametric options~\cite{stolle2002learning},
     giving higher-level building blocks that the agent can use to plan. \textbf{Right}: 16 random samples, or `dreams', from learned DSL.}\label{tower}
 \end{figure}
 
@@ -1915,9 +1896,8 @@ more closely matching the domain.
     \includegraphics[width = 5cm]{figures/towerLearningCurve_batch.png}&
     \includegraphics[width = 5cm]{figures/rationalLearningCurve_batch.png}&
   \end{tabular}
-  \caption{}\label{learningCurves}
+  \caption{Test set performance across wake/sleep iterations. An Epoch is a full pass over the set of training tasks. Orange: \systemEnding. Teal: No recognition model. Purple: No DSL learning. Solid lines: \% tasks solved within 10 minute timeout. Dashed lines: average search time. Shaded region is $\pm 1$ stddev search time.}\label{learningCurves}
 \end{figure}
-
 
 
 \section{Discussion}
@@ -1976,7 +1956,10 @@ spectrum of tasks.
 
 Our aim with \system is both to show how learning can enable better
 program synthesis, and to show how better program synthesis can be
-more broadly useful for AI. How could a program induction approach to
+more broadly useful for AI.
+Many challenges remain.
+
+How could a program induction approach to
 AI become broadly useful across a diverse spectrum of AI problems ---
 planning, natural language understanding, machine vision, causal
 inference, and more?
@@ -2051,7 +2034,7 @@ that lexical scoping rules are obeyed.
     \State \textbf{return} \code{(lambda (}var\code{) }body\code{)}
     %\Endif
     \Else\Comment{Build an application to give something w/ type $\tau$}
-    \State $\text{primitives} \gets \{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
+    \State $\text{primitives} \gets \{p | p: \tau' \in \mathcal{D}\cup\mathcal{E}$
     $\text{if }\tau\text{ can unify with yield}(\tau') \}$\Comment{Everything in scope w/ type $\tau$}
     \State $\text{variables}\gets\left\{p\;|\;p\in \text{primitives}\text{ and }p\text{ a variable} \right\}$
     \State Draw $e\sim \text{primitives}$, w.p. $\propto\begin{cases}
@@ -2265,8 +2248,8 @@ We define $S$ as:
 \end{align*}
 where $\shift{k}$ is the shifting operator~\cite{pierce},
 which adds $k$ to all of the free variables in a $\lambda$-expression or version space,
-and we have defined a new operator, $\downshift$, whose purpose is to
-undo the action of $\shift$.
+and we have defined a new operator, $\downshift{}$, whose purpose is to
+undo the action of $\shift{}$.
 We have written definitions recursively,
 but implement them using a dynamic program:
 we hash cons each version space,
@@ -2748,7 +2731,7 @@ specifies a procedure for drawing samples from $Q(\cdot |X)$.
      \State \textbf{return} \code{(lambda (}var\code{) }body\code{)}
      %\Endif
      \Else\Comment{Build an application to give something w/ type $\tau$}
-     \State $\text{primitives} \gets \{p | &p: \tau' \in \mathcal{D}\cup\mathcal{E}$
+     \State $\text{primitives} \gets \{p | p: \tau' \in \mathcal{D}\cup\mathcal{E}$
      $\text{if }\tau\text{ can unify with yield}(\tau') \}$\Comment{Everything in scope w/ type $\tau$}
      \State $\text{variables}\gets\left\{p\;|\;p\in \text{primitives}\text{ and }p\text{ a variable} \right\}$
      \State Draw $e\sim \text{primitives}$, w.p. $\propto\begin{cases}
@@ -2970,95 +2953,188 @@ is of little use for acquiring this abstract knowledge from less than
 two dozen problems.
 
 Figure~\ref{learningFromScratch} shows the full set of tasks and the learned DSL.
-\begin{figure*}  \newcommand{\helpSize}{0.25cm}
-  \begin{tabular}{cc}\toprule
-    \normalsize \pop{Programs} \& Tasks&\normalsize \popp{DSL}\\\midrule 
-    
-    \begin{tabular}{l}
-      \code{[1\, 9]}$\to $\code{2}\\
-      \code{[5\, 3\, 8]$\to$3}\\
-    \blueCode{$f(\ell) = $($f_4$ $\ell$)}\\\\
-      \code{[true\, false]}$\to $\code{2}\\
-      \code{[false\, false\, false]$\to$3}\\
-    \blueCode{$f(\ell) = $($f_4$ $\ell$)}\\\\
+\begin{figure}  \newcommand{\helpSize}{0.25cm}
+  \begin{tabular}{ll}\toprule
+    \normalsize \rotatebox[origin=c]{90}{\pop{Programs} \& Tasks}&%&\normalsize \popp{DSL}\\\midrule
 
-\code{[2\, 1\, 4]$\to$[2\, 1\, 4\, 0]}\\
-%\code{[9\, 4\, 8]$\to$[9\, 4\, 8\, 0]}\\
-\code{[9\, 8]$\to$[9\, 8\, 0]}\\
-\blueCode{$f(\ell) = $($f_2$ cons $\ell$ (cons 0 nil))}\\\\
+    \begin{tabular}{ll}      
+      \begin{tabular}{l}
+        \code{[1\, 9]}$\to $\code{2}\\
+        \code{[5\, 3\, 8]$\to$3}\\
+        \blueCode{$f(\ell) = $($f_5$ $\ell$)}
+      \end{tabular}&
+      \begin{tabular}{l}
+        \code{[[2 1]\, []]}$\to $\code{[1 0]}\\
+        \code{[[] [] [9 8 9 9]]$\to$[0 0 4]}\\
+        \blueCode{$f(\ell) = $($f_2$ $f_4$ $\ell$)}
+      \end{tabular}\\\\
 
-\code{[2\, 1\, 4]$\to$[2\, 1]}\\
-%\code{[9\, 4\, 8]$\to$[9\, 4\, 8\, 0]}\\
-\code{[9\, 8]$\to$[9]}\\
-\blueCode{$f(\ell) = $($f_0$ ($\lambda$ (z) (empty? (cdr z))) car cdr $\ell$)}\\\\
+      \begin{tabular}{l}
+        \code{[0 1 1 0 0]$\to$[1 1]}\\
+        \code{[9 0 8]$\to$[9\, 8]}\\
+        \blueCode{$f(\ell) = $($f_3$ (eq? 0) $\ell$)}        
+      \end{tabular}&
+      \begin{tabular}{l}
+        \code{[1 -1 0 2]$\to$[1 2]}\\
+        \code{[9 -5 5 0 8]$\to$[9 5 8]}\\
+        \blueCode{$f(\ell) = $($f_3$ (gt? 1) $\ell$)}        
+      \end{tabular}\\\\
 
-\code{[2\, 5\, 6\, 0\, 6]$\to$19}\\
-\code{[9\, 2\, 7\, 6\, 3]$\to$27}\\
-\blueCode{$f(\ell) = $($f_2$ + $\ell$ 0)}\\\\
-
-\code{[4\, 2\, 6\, 4]$\to$[8\, 4\, 12\, 8]}\\
-%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
-\code{[2\, 3\, 0\, 7]$\to$[4\, 6\, 0\, 14]}\\
-\blueCode{$f(\ell) = $($f_3$ ($\lambda$ (x) (+ x x)) $\ell$)}\\\\
-\code{[4\, 2\, 6\, 4]$\to$[-4\, -2\, -6\, -4]}\\
-%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
-\code{[2\, 3\, 0\, 7]$\to$[-2\, -3\, -0\, -7]}\\
-\blueCode{$f(\ell) = $($f_3$ (- 0) $\ell$)}\\\\
-\code{[4\, 2\, 6\, 4]$\to$[5\, 3\, 7\, 5]}\\
-%\code{[0\, 3\, 5\, 0\, 3\, 2]$\to$[0\, 6\, 10\, 0\, 6\, 4]}\\
-\code{[2\, 3\, 0\, 7]$\to$[3\, 4\, 1\, 8]}\\
-\blueCode{$f(\ell) = $($f_3$ (+ 1) $\ell$)}\\\\
-
-
-
-      \code{[1\, 5\, 2\, 9]}$\to$\code{[1\, 2]}\\
-      \code{[3\, 8\, 1\, 3\, 1\, 2]}$\to$\code{[3\, 1\, 1]}\\
-      \blueCode{$f(\ell) = $($f_0$ empty? car}\\
-      \phantom{\blueCode{$f(\ell) = $($f_0$}}\blueCode{($\lambda$ (l) (cdr (cdr l))) $\ell$)}
-      \\\\
-
-      \code{3$\to $[0\, 1\, 2]}\\
-      \code{2$\to $[0\, 1]}\\
-      \blueCode{$f(n) = $($f_5$ ($\lambda$ (x) x) 0 $n$)}\\\\
-
-      \code{3$\to $[0\, 1\, 2\, 3]}\\
-      \code{2$\to $[0\, 1\, 2]}\\
-      \blueCode{$f(n) = $($f_5$ ($\lambda$ (x) x) 0 (+ 1 $n$))}\\\\
-
-      
-
-
-      
+      \begin{tabular}{l}
+        \code{[2\, 1\, 4]$\to$[2\, 1\, 4\, 0]}\\
+        \code{[9\, 8]$\to$[9\, 8\, 0]}\\
+        \blueCode{$f(\ell) = $($f_0$ cons $\ell$ (cons 0 nil))}
       \end{tabular}&
 
-%    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
-    \begin{tabular}{l}
-        \popp{\code{$f_0($p$,$f$,$n$,$x$)\,=\,$(if (p x) nil}}\\
-      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(cons (f x) ($f_0$ (n x))))}}\\
-        \hspace{\helpSize}($f_0$: \emph{unfold})\\
-        \popp{\code{$f_1($i$,$l$)\,=\,$(if (= i 0) (car l)}}\\
-      \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if}}}\popp{\code{($f_1$ (- i 1) (cdr l))))}}\\
-        \hspace{\helpSize}($f_1$: \emph{index})\\
-        \popp{\code{$f_2($f$,$l$,$x$)\,=\,$(if (empty? l) x}}\\
-      \phantom{\code{$f_2($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(f (car l) ($f_2$ (cdr l))))}}\\
-        \hspace{\helpSize}($f_2$: \emph{fold})\\
-        \greenCode{$f_3($f$,$l$)\,=\,$($f_2$ nil l ($\lambda$ (x a) (cons (f x) a)))}\\
-        \hspace{\helpSize}($f_3$: \emph{map})\\
-        \greenCode{$f_4(\ell)$\,=\,(if (empty? $\ell$) 0 (+ 1 ($f_4$ (cdr $\ell$)))))}\\
-        \hspace{\helpSize}($f_4$: \emph{length})\\
-        \greenCode{$f_5(\code{f},\code{m},\code{n})$\,=\,($f_0$ (= m) f (+ 1) n)}\\
-        \hspace{\helpSize}($f_5$: \emph{generalization of range})
 
-%        -0.222777	int -> int -> list(int)	#(lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (map (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
+      \begin{tabular}{l}
+        \code{[2\, 1\, 4]$\to$[2\, 1]}\\
+        \code{[9\, 8]$\to$[9]}\\
+        \blueCode{$f(\ell) = $($f_6$ cdr ($\lambda$ (z) (empty? (cdr z))) $\ell$)}
+      \end{tabular}\\\\
 
-      \end{tabular}
+      \begin{tabular}{l}
+        \code{[2\, 5\, 6\, 0\, 6]$\to$19}\\
+        \code{[9\, 2\, 7\, 6\, 3]$\to$27}\\
+        \blueCode{$f(\ell) = $($f_0$ + $\ell$ 0)}
+      \end{tabular}&
+
+      \begin{tabular}{l}
+        \code{[4\, 2\, 6\, 4]$\to$[8\, 4\, 12\, 8]}\\
+        \code{[2\, 3\, 0\, 7]$\to$[4\, 6\, 0\, 14]}\\
+        \blueCode{$f(\ell) = $($f_2$ ($\lambda$ (x) (+ x x)) $\ell$)}
+      \end{tabular}\\\\
+
+      \begin{tabular}{l}
+        \code{[4\, 2\, 6\, 4]$\to$[-4\, -2\, -6\, -4]}\\
+        \code{[2\, 3\, 0\, 7]$\to$[-2\, -3\, -0\, -7]}\\
+        \blueCode{$f(\ell) = $($f_2$ (- 0) $\ell$)}
+      \end{tabular}&
+      \begin{tabular}{l}
+        \code{[4\, 2\, 6\, 4]$\to$[5\, 3\, 7\, 5]}\\
+        \code{[2\, 3\, 0\, 7]$\to$[3\, 4\, 1\, 8]}\\
+        \blueCode{$f(\ell) = $($f_2$ (+ 1) $\ell$)}
+      \end{tabular}\\\\
+
+      \begin{tabular}{l}
+        \code{[1\, 5\, 2\, 9]}$\to$\code{[1\, 2]}\\
+        \code{[3\, 8\, 1\, 3\, 1\, 2]}$\to$\code{[3\, 1\, 1]}\\
+        \blueCode{$f(\ell) = $($f_6$ ($\lambda$ (l) (cdr (cdr l))) empty? $\ell$}
+      \end{tabular}&
+      
+      \begin{tabular}{l}
+        \code{3$\to $[0\, 1\, 2]}\\
+        \code{2$\to $[0\, 1]}\\
+        \blueCode{$f(n) = $($f_9$ $n$)}
+      \end{tabular}\\\\
+
+      
+      \begin{tabular}{l}
+        \code{3$\to $[0\, 1\, 2\, 3]}\\
+        \code{2$\to $[0\, 1\, 2]}\\
+        \blueCode{$f(n) = $($f_9$ (+ 1 $n$))}
+      \end{tabular}&
+      \begin{tabular}{l}
+        \code{[9 2]$\to $[9 9 2 2]}\\
+        \code{[1 2 3 4]$\to $[1 1 2 2 3 3 4 4]}\\
+        \blueCode{$f(l) = $($f_0$ ($\lambda$ (a x) (cons x (cons x a))) l nil)}
+      \end{tabular}\\\\
+
+
+      \begin{tabular}{l}
+        \code{0, [9 2 3]$\to $9}\\
+        \code{3, [0 2 8 4 5 6]$\to $4}\\
+        \blueCode{$f($n$,$l$) = $($f_{10}$ l n)}
+      \end{tabular}&
+      \begin{tabular}{l}
+        \code{1, [9 2 3]$\to $9}\\
+        \code{4, [0 2 8 1 5 6]$\to $1}\\
+        \blueCode{$f($n$,$l$) = $($f_{10}$ l (+ 1 n))}
+      \end{tabular}\\\\
+      \begin{tabular}{l}
+        \code{3$\to $[-3 -2 -1]}\\
+        \code{4$\to $[-4 -3 -2 -1]}\\
+        \blueCode{$f($n$) = $($f_{8}$ 0 n)}
+      \end{tabular}&
+      \begin{tabular}{l}
+        \code{2$\to $[2 1]}\\
+        \code{4$\to $[4 3 2 1]}\\
+        \blueCode{$f($n$) = $($f_{8}$ 0 (- 0 n))}
+      \end{tabular}      
+    \end{tabular}
+    \\\midrule 
+    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
+    \begin{tabular}{ll}
+      \begin{tabular}{l}
+        \popp{\code{$f_0($f$,$l$,$x$)\,=\,$(if (empty? l) x}}\\
+        \phantom{\code{$f_0($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(f (car l) ($f_0$ (cdr l))))}}\\
+          \hspace{\helpSize}($f_0$: \emph{fold})
+      \end{tabular}&
+      \begin{tabular}{l}
+        \popp{\code{$f_1($p$,$f$,$n$,$x$)\,=\,$(if (p x) nil}}\\
+        \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(cons (f x) ($f_1$ (n x))))}}\\
+          \hspace{\helpSize}($f_1$: \emph{unfold})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_2($f$,$l$)\,=\,$($f_0$ nil l ($\lambda$ (x a) (cons (f x) a)))}\\
+        \hspace{\helpSize}($f_2$: \emph{map})
+      \end{tabular}&
+      \begin{tabular}{l}
+                  \greenCode{$f_3($f$,$l$)\,=\,$($f_0$ nil l ($\lambda$ (x a) (if (f x) a (cons x a))))}\\
+          \hspace{\helpSize}($f_3$: \emph{filter})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_4($f$,$p$,$n$)\,=\,$($f_1$ p f (+ 1) n)}\\
+        \hspace{\helpSize}($f_4$: \emph{generalization of range})
+      \end{tabular}&
+      \begin{tabular}{l}
+        \greenCode{$f_5($l$)\,=\,$($f_0$ ($\lambda$ (a x) (+ 1 a)) l 0)}\\
+        \hspace{\helpSize}($f_5$: \emph{length})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_6($n$,$p$,$l$)\,=\,$($f_1$ p n car l)}\\
+        \hspace{\helpSize}($f_6$: \emph{specialization of unfold})
+      \end{tabular}&
+      \begin{tabular}{l}
+        \greenCode{$f_7($p$)\,=\,$($f_4$ ($\lambda$ (x) x) p 0)}\\
+        \hspace{\helpSize}($f_7$: \emph{another generalization of range})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_8($n$,$m$)\,=\,$($f_4$ ($\lambda$ (x) (- n x)) (eq? 0) m)}\\
+        \hspace{\helpSize}($f_7$: \emph{count downwards})
+      \end{tabular}&
+      \begin{tabular}{l}
+        \greenCode{$f_9($n$)\,=\,$($f_7$ (eq? n))}\\
+        \hspace{\helpSize}($f_9$: \emph{range})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_{10}($l$,$n$)\,=\,$(car ($f_0$ ($\lambda$ (a x) (cdr a)) ($f_9$ n) l))}\\
+        \hspace{\helpSize}($f_{10}$: \emph{index})
+      \end{tabular}&
+      
+      
+      
+    \end{tabular}
+%%     \begin{tabular}{l}
+%%         \popp{\code{$f_1($i$,$l$)\,=\,$(if (= i 0) (car l)}}\\
+%%       \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if}}}\popp{\code{($f_1$ (- i 1) (cdr l))))}}\\
+%%         \hspace{\helpSize}($f_1$: \emph{index})\\
+
+%%         \greenCode{$f_4(\ell)$\,=\,(if (empty? $\ell$) 0 (+ 1 ($f_4$ (cdr $\ell$)))))}\\
+%%         \hspace{\helpSize}($f_4$: \emph{length})\\
+%%         \greenCode{$f_5(\code{f},\code{m},\code{n})$\,=\,($f_0$ (= m) f (+ 1) n)}\\
+%%         \hspace{\helpSize}($f_5$: \emph{generalization of range})
+
+%% %        -0.222777	int -> int -> list(int)	#(lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (map (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
+
+%%       \end{tabular}
     %% : (lambda (#(#(lambda (lambda (lambda (lambda (fix1 $0 (lambda (lambda (if (empty? $0) $3 ($4 ($5 $0) ($1 (cdr $0))))))))))) (lambda (car $0))) (lambda (lambda (+ $0 $1))) 0 $0))
     %% (lambda (lambda (lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) ($1 ($3 $0)) ($4 $0) ($5 $0)))))))))
     %% (lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (#(lambda (lambda (fix1 $0 (lambda (lambda (if (empty? $0) empty (cons ($3 (car $0)) ($1 (cdr $0))))))))) (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
     \\\bottomrule 
     \end{tabular}
-  \caption{Bootstrapping a standard library of functional programming routines, starting from recursion along with primitive operations found in 1959 Lisp.}\label{learningFromScratch}
-  \end{figure*}
+  \caption{Bootstrapping a standard library of functional programming routines, starting from recursion along with primitive operations found in 1959 Lisp. Complete set of tasks and learned DSL shown. Learned DSL components are numbered in the order that they are learned.}\label{learningFromScratch}
+  \end{figure}
 
 
 %% \begin{figure}
@@ -3440,4 +3516,47 @@ model bound variables~\cite{pierce}.
 #(@$\lambda$@ (#(/. REAL) (#(@$\lambda$@ (+. $0 REAL)) $0)))
 #(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. (#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0))) $0) $0)))
 \end{lstlisting}
+
+\subsection{Hyperparameters and training details}
+
+\noindent\textbf{Neural net architecture} The recognition model for domains with sequential structure (list processing, text editing, regular expressions) is a
+recurrent neural network.
+We use a bidirectional GRU~\cite{cho2014learning} with 64 hidden units that reads each input/output pair; we concatenate the input and output along with a special delimiter
+symbol between them.
+We use a 64-dimensional vectors to embed symbols in the input/output.
+We MaxPool the final hidden unit activations in the GRU along both passes of the bidirectional GRU.
+
+The recognition model for domains with 2D visual structure (LOGO
+graphics, tower building, and symbolic regression) is a convolutional
+neural network.
+We take our convolutional architecture from~\cite{snell2017prototypical}.
+
+We follow the RNN/CNN by an MLP with 128 hidden units and a ReLU activation which then outputs the $Q_{ijk}$ matrix described in~\ref{recognitionAppendix}.
+
+\noindent\textbf{Neural net training} We train our recognition models using Adam~\cite{kingma2014adam} with a learning rate of 0.001.
+
+\noindent\textbf{\system Hyperparameters}
+Due to the high computational cost we
+performed only an informal coarse
+hyperparameter search.
+The most important parameter is
+the enumeration timeout during the wake phase;
+domains that present more challenging program synthesis
+problems require either longer timeouts, more CPUs, or both.
+\begin{center}
+  \begin{tabular}{ccccccc}
+    \toprule
+    Domain&Timeout&CPUs&Batch size&$\lambda$ (Sec.~\ref{consolidationSection})&$\alpha$ (\ref{mapAppendix})&Max frontier (\ref{systemPseudocode})\\\midrule
+    Lists&7m&64&10&1&30&5\\
+    Text&7m&64&10&1&30&5\\
+    Graphics&1h&128&40&1&30&5\\
+    Symbolic regression& & 40&10 & 1&30&5\\
+    Towers& & 64&10 & 1&30&5\\
+    Regexes& & 64&10 & 1&30&5\\
+    \bottomrule 
+    
+  \end{tabular}
+\end{center}
+
+
 \end{document}
