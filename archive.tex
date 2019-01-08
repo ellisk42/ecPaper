@@ -461,7 +461,7 @@ expertise through a novel kind of wake/sleep or `dream'
 learning~\cite{hinton1995wake}, iterating through a wake cycle --
 where it solves problems by writing programs -- and a pair of sleep
 cycles, both of which are loosely biologically inspired by actual
-human sleep.  The first sleep cycle, which we refer to as
+sleep.  The first sleep cycle, which we refer to as
 \textbf{consolidation}, grows the DSL by replying experiences from
 waking and consolidating them into new code abstractions.  This cycle
 is inspired by the formation of abstractions during sleep memory
@@ -473,6 +473,7 @@ programs. The neural net is trained on replayed experiences as well as
 inspired by the distinct episodic replay and hallucination components
 of dream sleep~\cite{fosse2003dreaming}.
 
+\begin{comment}
 This dream-learning architecture brings together two lines of prior work,
 both of which have been separately influential within
 artificial intelligence.
@@ -487,6 +488,19 @@ goal with DreamCoder is to show that the combination of these ideas is
 uniquely powerful, and pushes us toward program-writing systems that,
 like human learners, autonomously acquire the expertise needed to
 navigate a new domain of problems.
+\end{comment}
+
+Each wake/sleep cycle creates new DSL components that build on
+components learned in earlier sleep cycles, growing a DSL with nested 
+hierarchies of code.  We identify this cumulative nesting of
+abstractions as a kind of deep representation
+learning~\cite{lecun2015deep}.  Figure~\ref{exampleDSL} diagrams a
+subset of these learned networks (the DSL). For example, the system
+learns to sort sequences of numbers by invoking a DSL component 4
+layers deep, or draws the leftmost pairs of images in
+Figure~\ref{exampleDSL} using a depth-3 component.  For this reason we
+refer to \system as an instance of `deep program learning'.
+
 
 Because any learning problem can in principle be cast as program
 induction, it is important to delimit our focus.  In contrast to
@@ -3553,8 +3567,7 @@ problems require either longer timeouts, more CPUs, or both.
     Symbolic regression& & 40&10 & 1&30&5\\
     Towers& & 64&10 & 1&30&5\\
     Regexes& & 64&10 & 1&30&5\\
-    \bottomrule 
-    
+    \bottomrule     
   \end{tabular}
 \end{center}
 
