@@ -1716,10 +1716,9 @@ Procedural visual concepts are studied across AI and cognitive science
 --- Bongard problems~\cite{Moscow}, Raven's progressive
 matrices~\cite{raven2003raven}, and Lake et al.'s BPL model of
 omniglot~\cite{lake2015human} are prominent examples.  Here we take
-inspiration from LOGO Turtle graphics~\cite{turtle}, and give our
-agent the ability to control a pen, along with arithmetic operations
-on angles and distances and simple control flow primitives.  We task
-it with drawing a small corpus of images starting from this basis.
+inspiration from LOGO Turtle graphics~\cite{turtle}, tasking it with
+drawing a modest corpus of images while equipping it with control over
+a `pen', along with arithmetic operations on angles and distances.
 
 Inside its learned DSL we find interpretable parametric drawing
 routines corresponding to the families of visual objects in its
@@ -1777,11 +1776,16 @@ neural net gets richer and more highly varied training data.
   \caption{Example primitives learned by \system when trained on tasks in Figure~\ref{everyLogo}. Agent learns parametric routines for drawing families of curves (left) as well as subroutines that take entire programs as input (right). Each row of images on the left is the same code executed with different parameters. Each image on the right is the same code executed with different parameters and with a different subprogram provided as input.}\label{logoPrimitives}
   \end{figure}
 \begin{figure}
-\centering  \begin{tabular}{c|c}
-      \includegraphics[width = 0.5\textwidth]{figures/initialDreams/montage.png}&
-  \includegraphics[width = 0.5\textwidth]{figures/finalDreams/montage.png}
+\centering  \begin{tabular}{c|cc}
+  \begin{tabular}{c}
+    \includegraphics[width = 0.45\textwidth]{figures/initialDreams/montage.png}
+    \end{tabular}&
+      \begin{tabular}{c}
+        \includegraphics[width = 0.45\textwidth]{figures/finalDreams/cherry_random_montage.png}
+        \end{tabular}&
+      \rotatebox[origin=c]{90}{Cherry picked\hspace{3cm}Random}
     \end{tabular}
-  \caption{Dreams, or samples, from the DSL before (left) and after (right) training on tasks in Figure~\ref{everyLogo}. Blue: where the agent started drawing. Pink: where the agent ended drawing.}\label{logoDreams}
+  \caption{Sixteen dreams, or samples, from the DSL before (left) and after (right) training on tasks in Figure~\ref{everyLogo}. Blue: where the agent started drawing. Pink: where the agent ended drawing.}\label{logoDreams}
 \end{figure}
 
 \subsubsection{Building towers out of `Lego' blocks}\label{towerSection}
