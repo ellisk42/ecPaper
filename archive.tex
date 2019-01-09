@@ -685,11 +685,20 @@ domain expertise.  These correspond to tasks solved by short programs
     \draw [dashed] ([xshift=0.5cm,yshift=-0.25\verticalSpacing]programLabel.east) -- ([xshift=15cm,yshift=-0.25\verticalSpacing]programLabel.east);
     \node[align=left,anchor=center] at ([xshift=14cm,yshift=-0.3\verticalSpacing]programLabel.east) {\large $\uparrow$\;system inputs\\\\\\\large $\downarrow$\;system outputs};
 
-    \node[align=center,rotate=90] at ([xshift=1cm]snow.east) {$\underbrace{\hspace{6cm}}_{\text{\normalsize \textbf{\textsc{Dreams}: Samples from DSL}}}$};
+    \node(d1) at ([xshift=3.5cm,yshift=-0.5cm]semi.east) {\includegraphics[width = 1.5cm]{figures/finalDreams/63smooth_pretty}};
+    \node(d2) at ([yshift=-1cm]d1.center) {\includegraphics[width = 1.5cm]{figures/finalDreams/400smooth_pretty}};
+    \node(d3) at ([yshift=-1cm]d2.center) {\includegraphics[width = 1.5cm]{figures/finalDreams/399smooth_pretty}};
     
-    \node at ([xshift=3cm]semi.east) {\includegraphics[width = 1.5cm]{figures/finalDreams/63smooth_pretty}};
-    \node at ([xshift=3cm]snow.east) {\includegraphics[width = 1.5cm]{figures/finalDreams/400smooth_pretty}};
-    \node at ([xshift=3cm]line.east) {\includegraphics[width = 1.5cm]{figures/finalDreams/399smooth_pretty}};
+    \node(d4) at ([yshift=-1cm]d3.center) {\includegraphics[width = 1.5cm]{figures/finalDreams/425smooth_pretty}};
+    \node(dreamPanel)[draw,fit = (d1) (d2) (d3) (d4)] {};
+    \node[anchor=south,align=center] at (dreamPanel.north) {\textbf{\textsc{Dreams}}\\(\footnotesize Samples from DSL)};
+
+    \node(curly)[align=center,rotate=90] at ([xshift=1cm]snow.east) {$\underbrace{\hspace{6cm}}_{}$};
+    \draw[squiggle,->] ($(0,-3.3) + (curly.east)$) -- node[along, sloped, above]{sample}(dreamPanel.west);
+    
+
+    
+    
   \end{tikzpicture}
   \caption{Two of the six domains we apply our system to. Agent observes tasks (top rows) which it solves by writing programs (middle rows) while jointly growing a library (DSL; bottom rows). Learned DSLs rediscover multiple higher-order functions (\code{filter} for list functions and rotational symmetry for generative graphics). Learned DSL components call each other (arrows).}  \label{exampleDSL}
 \end{figure}
