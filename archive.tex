@@ -688,7 +688,7 @@ domain expertise.  These correspond to tasks solved by short programs
   \caption{Two of the six domains we apply our system to. Agent observes tasks (top rows) which it solves by writing programs (middle rows) while jointly growing a library (DSL; bottom rows). Learned DSLs rediscover multiple higher-order functions (\code{filter} for list functions and rotational symmetry for generative graphics). Learned DSL components call each other (arrows).}  \label{exampleDSL}
 \end{figure}
 
-\section{Wake/Sleep Program Induction}\label{overviewSection}
+\section{Deep Wake/Sleep Program Induction}\label{overviewSection}
 
 \system~takes as its goal to acquire domain-specific expertise, which
 it learns by solving a collection of programming \textbf{tasks}.  It
@@ -712,52 +712,46 @@ abstractions across programs discovered during waking, growing a
 network of increasingly deep and specialized domain-specific concepts
 (Figure~\ref{exampleDSL}, bottom rows).
 
-Viewed as an inference problem, our goal is to start with a collection
-of tasks, written $X$, and infer both a program for each task, as well
+We view these wake sleep/cycles as an approximate inference algorithm that starts with a collection of tasks, written $X$, and infers both a program for each task, as well
 as a distribution over programs encoded by a DSL, written
 $\mathcal{D}$.  We equip $\mathcal{D}$ with a learned weight vector
 $\theta$, and together $(\mathcal{D},\theta)$ define a generative
-model over programs (see Appendix~\ref{sampleProgram}).  We perform
-maximum a posteriori (MAP) inference of $(\mathcal{D},\theta)$ given
+model over programs (Appendix~\ref{sampleProgram}).  We perform
+maximum a posteriori (MAP) inference of the DSL and programs given
 $X$.  Writing $J$ for the joint probability of $(\mathcal{D},\theta)$
-and $X$, we want the $\mathcal{D}^*$ and $\theta^*$ solving:
+and $X$, we seek the generative model $\mathcal{D}^*,\theta^*$ solving:
 \begin{align}\label{intractableObjectives}
 \nonumber  J(\mathcal{D},\theta)\triangleq \probability[\mathcal{D},\theta]&\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
   \mathcal{D}^* = \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta &\qquad
   \theta^* =\argmax_\theta J(\mathcal{D}^*,\theta)
 \end{align}
-where $\probability[x|p]$ scores the likelihood of a task
-$x\in X$ given a program $p$.\footnote{For example, for list
-  processing, the likelihood is 1 if the program predicts the observed
-  outputs on the observed inputs, and 0 otherwise; when learning a
-  generative model or probabilistic program, the likelihood is the
-  probability of the program sampling the observation.}
-The above equations summarize the problem from the point of view of an ideal Bayesian learner.
-However, Eq.~\ref{intractableObjectives}
-is wildly intractable because evaluating $J(\mathcal{D},\theta)$ involves
-summing over the  infinite set of all programs.
-In practice we will only ever be able to sum over a finite set of programs.
-So, for each task, we define a finite set of programs, called a \emph{frontier}, and only marginalize over the frontiers:
-
-\begin{definition}
-A \textbf{frontier of task $x$}, written $\mathcal{F}_x$,
-is a finite set of programs s.t. $\probability[x|p] > 0$ for all $p\in \mathcal{F}_x$.
-\end{definition}
-\noindent Using the frontiers we  define the following intuitive lower bound on the joint probability, called $\lowerBound$:
+%% where $\probability[x|p]$ scores the likelihood of a task
+%% $x\in X$ given a program $p$.\footnote{For example, for list
+%%   processing, the likelihood is 1 if the program predicts the observed
+%%   outputs on the observed inputs, and 0 otherwise; when learning a
+%%   generative model or probabilistic program, the likelihood is the
+%%   probability of the program sampling the observation.}
+Evaluating Eq.~\ref{intractableObjectives}
+entails marginalizing over the infinite set of all programs -- which is impossible.
+We make a particle-based approximation to Eq.~\ref{intractableObjectives}
+and instead marginalize over a finite \textbf{beam} of programs,
+with one beam per task, collectively written $\left\{\mathcal{B}_x \right\}_{x\in X}$.
+This particle-based approximation is written $\lowerBound (\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})$
+and acts as a lower bound on the joint:
 \begin{align}
- J\geq \lowerBound\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]
+ J(\mathcal{D},\theta)\geq \lowerBound  (\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{B}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]\text{, where $|\mathcal{B}_x|$ is small}
 \end{align}
-Our wake and sleep cycles correspond to alternate maximization of $\lowerBound$ w.r.t. $\left\{\mathcal{F}_x \right\}_{x\in X}$  (\textbf{Wake})
+Wake and sleep cycles correspond to alternate maximization of $\lowerBound$ w.r.t. $\left\{\mathcal{B}_x \right\}_{x\in X}$  (\textbf{Wake})
 and $(\mathcal{D},\theta)$ (\textbf{Consolidation}):
-\\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the frontiers.} Here $(\mathcal{D},\theta)$ is fixed and we
-want to find new programs to add to  the frontiers so that $\lowerBound$ increases the most.
+\\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the beams.} Here $(\mathcal{D},\theta)$ is fixed and we
+want to find new programs to add to  the beams so that $\lowerBound$ increases the most.
 $\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]\propto\probability[p|x,\mathcal{D},\theta]$ 
 is large (i.e., programs with high posterior probability).
 %Here we use a simple and generic enumerative program synthesis algorithm.
-%% which we can accomplish by adding new programs to the frontiers means searching for new programs $p$ for task $x$
+%% which we can accomplish by adding new programs to the beams means searching for new programs $p$ for task $x$
 %% where  is large.
-\\\noindent \textbf{Sleep (Consolidation): Maxing $ \lowerBound$ w.r.t.\ the DSL.} Here $\left\{\mathcal{F}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound \;\mathrm{d}\theta$,
-and then updating $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\})$.
+\\\noindent \textbf{Sleep (Consolidation): Maxing $ \lowerBound$ w.r.t.\ the DSL.} Here $\left\{\mathcal{B}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound \;\mathrm{d}\theta$,
+and then updating $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})$.
 
 Searching for programs is hard because
 of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $Q(\cdot |\cdot )$,
@@ -766,12 +760,12 @@ posterior over programs, $Q(p|x)\approx \probability[p|x,\mathcal{D}]\propto\pro
   Thus training the neural network amortizes the cost of finding programs with high posterior probability.
 
 \noindent\textbf{Sleep (Dreaming): tractably maxing $\lowerBound$ w.r.t. the
-  frontiers.}  Here we train %% a neural network, $q$, to predict a
+  beams.}  Here we train %% a neural network, $q$, to predict a
 %% distribution over programs conditioned on a task. The objective of $q$
 %% is
 $Q(p|x)$ to assign high probability to programs $p$ where
 $\probability[x|p]\probability[p|\mathcal{D},\theta]$ is large, because incorporating those programs
-into the frontiers will most increase $\lowerBound$.
+into the beams will most increase $\lowerBound$.
 
 Intuitively, this 3-phase inference procedure can work in practice because each of the 3 phases bootstraps off of the others. As the DSL grows and as the recognition model becomes more accurate, waking becomes more effective, allowing the agent to solve more tasks; when we solve more tasks during waking,
 the Consolidation cycle has more data from which to learn the DSL; and, because the recognition model is trained on both
@@ -1000,15 +994,14 @@ the recognition model gets both more data, and higher-quality data, whenever the
 During waking we enumerate programs from the DSL in decreasing order
 of their probability according to the recognition model, and then
 check if a program $p$ assigns positive probability to a task
-($\probability[x|p] > 0$); if so, we incorporate $p$ into the frontier
-$\mathcal{F}_x$ (Figure~\ref{neuralPipeline}).  We represent programs
-as polymorphicly-typed $\lambda$-calculus expressions, a
-representation closely resembling Lisp and functional languages like
-Haskell and OCaml, including variables, conditionals, higher-order
-recursive functions, and the ability to create new functions.
-We `batch' the tasks by randomly shuffling the training set
-and playing small minibatches
-of tasks to the agent during each wake cycle.
+($\probability[x|p] > 0$); if so, we incorporate $p$ into the beam
+$\mathcal{B}_x$. We represent programs as polymorphicly-typed
+$\lambda$-calculus expressions, a representation closely resembling
+Lisp and functional languages like Haskell and OCaml, including
+variables, conditionals, higher-order recursive functions, and the
+ability to create new functions.  We `batch' the tasks by randomly
+shuffling the training set and playing small minibatches of tasks to
+the agent during each wake cycle.
 
 %% Our programs are all
 %% strongly typed.  We use the Hindley-Milner polymorphic typing
@@ -1041,26 +1034,28 @@ We have two reasons:
 (1) A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the search algorithm is very simple.
 (2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
 the space of  programs.
-\begin{figure}
-  \begin{tikzpicture}[every node/.style={rounded corners,thick}]
-    \node(x)[draw,align=center] at (0,0) {Task $x$\\e.g., input/outputs};
-    \node(e)[draw, align=center] at ([xshift=3cm]x.east) {Domain-specific encoder\\
-      e.g., RNN or CNN};
-%    \node(m)[draw,align = center] at ([xshift=1.1cm]e.east) {MLP};%\\Output: $(|\mathcal{D}| + 2)\times(|\mathcal{D}| + 1)\times A$};
-    \node[draw,align = center](s) at ([xshift=2cm]e.east) {Enumerate\\(Algorithm~\ref{recognitionSample})};
-    \node(f)[draw,align = center] at ([xshift=2cm]s.east) {Frontier\\$\mathcal{F}_x$};
+\begin{comment}
+  \begin{figure}
+    \begin{tikzpicture}[every node/.style={rounded corners,thick}]
+      \node(x)[draw,align=center] at (0,0) {Task $x$\\e.g., input/outputs};
+      \node(e)[draw, align=center] at ([xshift=3cm]x.east) {Domain-specific encoder\\
+        e.g., RNN or CNN};
+      %    \node(m)[draw,align = center] at ([xshift=1.1cm]e.east) {MLP};%\\Output: $(|\mathcal{D}| + 2)\times(|\mathcal{D}| + 1)\times A$};
+      \node[draw,align = center](s) at ([xshift=2cm]e.east) {Enumerate\\(Algorithm~\ref{recognitionSample})};
+      \node(f)[draw,align = center] at ([xshift=2cm]s.east) {Beam\\$\mathcal{B}_x$};
 
-    \draw[->] (x.east) -- (e.west);
-    \draw[->] (e.east) -- (s.west);
-%    \draw[->] (m.east) -- node(p)[fill=white,align=center,midway,inner sep=0,outer sep=0,rotate=90]{\small $Q_{ijk}(x)$}(s.west);
-    \draw[->] (s.east) -- (f.west);
-    \draw[->] (x.north) -- ([yshift=15]x.north) -- node[above = 0pt,midway]{\small likelihood $\probability[x|p]$}([yshift=15,xshift=40]s.north) -- ($(s.east)!0.5!(f.west)$);
-    \node[align=center] at ($(0,-1) + (e.center)$) {$\underbrace{\hspace{4cm}}_{\normalsize\text{\normalsize Recognition model $Q(p|x)$}}$};
-    \node[align=center] at ($(s.west)!0.5!(f.east) + (0,-1)$) {$\underbrace{\hspace{5cm}}_{\text{\normalsize Search}}$};
-  \end{tikzpicture}
-  \caption{Neurally-guided program inference pipeline. Recognition model outputs distribution over program $Q(p|x)$. Program output by enumerative search incorporated into frontier if likelihood $\probability[x|p] > 0$}
-  \label{neuralPipeline}
-\end{figure}
+      \draw[->] (x.east) -- (e.west);
+      \draw[->] (e.east) -- (s.west);
+      %    \draw[->] (m.east) -- node(p)[fill=white,align=center,midway,inner sep=0,outer sep=0,rotate=90]{\small $Q_{ijk}(x)$}(s.west);
+      \draw[->] (s.east) -- (f.west);
+      \draw[->] (x.north) -- ([yshift=15]x.north) -- node[above = 0pt,midway]{\small likelihood $\probability[x|p]$}([yshift=15,xshift=40]s.north) -- ($(s.east)!0.5!(f.west)$);
+      \node[align=center] at ($(0,-1) + (e.center)$) {$\underbrace{\hspace{4cm}}_{\normalsize\text{\normalsize Recognition model $Q(p|x)$}}$};
+      \node[align=center] at ($(s.west)!0.5!(f.east) + (0,-1)$) {$\underbrace{\hspace{5cm}}_{\text{\normalsize Search}}$};
+    \end{tikzpicture}
+    \caption{Neurally-guided program inference pipeline. Recognition model outputs distribution over program $Q(p|x)$. Program output by enumerative search incorporated into beam if likelihood $\probability[x|p] > 0$}
+    \label{neuralPipeline}
+  \end{figure}
+\end{comment}
 
 %%   However, a drawback of   enumerative search  is that we have no
 %% efficient means of solving for arbitrary constants that might occur in a
@@ -1088,14 +1083,14 @@ incorporating reused subexpressions into the DSL.
 
 Mathematically this compression takes the form of
 finding the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{overviewSection}).
-We replace this marginal with an AIC approximation
+We replace this marginal with an AIC approximation~\cite{akaike1998information}
 and minimize the following expression,
 which can be interpreted as a kind of compression:
 \begin{equation}
 \underbrace{-\log \probability[\mathcal{D}] + \min_{\theta}\Bigg(-\log
 \probability[\theta|\mathcal{D}] + \|\theta\|_0}_{\text{Description length of }(\mathcal{D},\theta)} +\sum_{x\in
   X}\underbrace{-\log \sum_{p\in
-  \mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
+  \mathcal{B}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
 \label{AIC}
   \end{equation}
 At a high level, our approach is to search locally through the space 
@@ -1105,7 +1100,7 @@ candidate $\lambda$-expressions into the DSL.
 
 However, there is a snag with this simple approach:
 whenever we add a new expression $e$ to the DSL,
-the programs found during waking ($\left\{\mathcal{F}_x \right\}$)
+the programs found during waking ($\left\{\mathcal{B}_x \right\}$)
 are not written in terms of $e$.
 Concretely, imagine we wanted to discover a new DSL procedure for doubling numbers,
 after having found the programs
@@ -1131,7 +1126,7 @@ We refine our objective to compress
 \emph{refactorings} of the programs found during waking, minimizing
 \begin{equation}
         -\log \probability[\mathcal{D}] + 
-\min_{\theta}\Bigg(-\log \probability[\theta|\mathcal{D}] + \|\theta\|_0 +\sum_{x\in X} - \log \underbrace{\sum_{\substack{p:\\\exists p'\in \mathcal{F}_x: p\manyReduce p'}}}_{\text{Refactors }\mathcal{F}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\Bigg)
+\min_{\theta}\Bigg(-\log \probability[\theta|\mathcal{D}] + \|\theta\|_0 +\sum_{x\in X} - \log \underbrace{\sum_{\substack{p:\\\exists p'\in \mathcal{B}_x: p\manyReduce p'}}}_{\text{Refactors }\mathcal{B}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\Bigg)
 \label{factorObjective}
 \end{equation}
 where $p\manyReduce p'$ is the standard notation for ``expression $p$
@@ -1164,7 +1159,7 @@ technique is substantially more efficient than explicitly representing
 the space of possible refactorings: for the example in
 Figure~\ref{mapFactor}A, we represent the space of refactorings using
 a version space with $10^6$ nodes, which encodes $10^{14}$
-refactorings.
+refactorings. Appendix~\ref{appendixCompression} specifies how we combine this probabilistic and symbolic machinery to update the DSL.
 
 
 
@@ -1196,7 +1191,7 @@ refactorings.
 %% Returning to Equation~\ref{factorObjective},
 %% this approximation gives the following objective:
 %% \begin{equation}
-%%         \log \probability[\mathcal{D}] + \argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 +\sum_{x\in X}\log \sum_{p\in \mathcal{F}_x}\probability[x|p]\max_{p'\in R_n(p)}\probability[p'|\mathcal{D},\theta]\Bigg)
+%%         \log \probability[\mathcal{D}] + \argmax_{\theta}\Bigg(\log \probability[\theta|\mathcal{D}] - \|\theta\|_0 +\sum_{x\in X}\log \sum_{p\in \mathcal{B}_x}\probability[x|p]\max_{p'\in R_n(p)}\probability[p'|\mathcal{D},\theta]\Bigg)
 %% \label{limitedObjective}
 %%   \end{equation}
 %% In practice, setting the number of refactoring steps $n$ to 3 suffices
@@ -1220,49 +1215,6 @@ refactorings.
 %% builds a data structure
 %% that represents the entire set of
 %% refactorings -- but without having to explicitly enumerate all of the refactorings.
-
-With this machinery in hand, we now have all the pieces needed to
-learn a DSL (Algorithm~\ref{grammarInductionAlgorithm}).
-The functions $I\beta(\cdot )$ and \textsc{refactor} construct
-a version space from a program and extract the shortest program from a version space, respectively (Algorithm~\ref{grammarInductionAlgorithm}, lines 5-6, 14; see Appendix~\ref{appendixVersion}).
-To define the prior distribution over $(\mathcal{D},\theta})$ (Algorithm~\ref{grammarInductionAlgorithm}, lines 7-8), we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
-  and $\lambda$ controls how strongly we regularize the size of the DSL.
-  We place a symmetric Dirichlet prior over the weight vector $\theta$.
-
-To appropriately score each proposed $\mathcal{D}$ we must reestimate
- the weight vector $\theta$ (Algorithm~\ref{grammarInductionAlgorithm}, line 7).
-Although this  may seem 
-very similar to estimating the parameters of a probabilistic context free grammar,
-for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
-our DSLs are context-sensitive due to the presence of variables
-in the programs and also due to the polymorphic typing system.
-Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
-
-
-
-\begin{algorithm}%[H]
-  %\setcounter{algorithm}{2} % there are two algorithms in the main paper.
-  \caption{DSL Induction Algorithm}
-  \label{grammarInductionAlgorithm}
-  \begin{algorithmic}[1]
-    \State {\bfseries Input:} Set of frontiers $\{\mathcal{F}_x\}$
-    %         \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
-    \State \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
-    \State $\mathcal{D}\gets$ every primitive in $\{\mathcal{F}_x\}$
-    \While{true}         
-    \State $\forall p\in \bigcup_{x}\mathcal{F}_x: $ $v_p\gets I\beta(p)$ \Comment{Construct a version space for each program}
-    \State Define $L(\mathcal{D}',\theta) =  \prod_x \sum_{p\in \mathcal{F}_x} \probability[x|p]\probability[\text{\textsc{refactor}}(p|\mathcal{D}')|\mathcal{D}',\theta]$ \Comment{Likelihood if $(\mathcal{D}',\theta)$ were the DSL}
-    \State Define $\theta^*(\mathcal{D}') = \argmax_\theta \probability[\theta|\mathcal{D}'] L(\mathcal{D}',\theta)$ \Comment{MAP estimate of $\theta$}
-    \State Define $\text{score}(\mathcal{D}') = \log \probability[\mathcal{D}'] + L(\mathcal{D}',\theta^*) - \|\theta\|_0$ \Comment{objective function}
-    \State components $\gets$ $\left\{\textsc{refactor}(v|\mathcal{D})\;:\;\forall x, \forall p\in \mathcal{F}_x, \forall v\in \text{children}(v_p) \right\}$ \Comment{Propose many new DSL components}
-    \State proposals $\gets$ $\left\{\mathcal{D}\cup\left\{c \right\}\;:\;\forall c\in \text{components} \right\}$ \Comment{Propose many new DSLs}
-    \State $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new DSL}
-    \State \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to DSL led to a better score}
-    \State $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better DSL. Update DSL.}
-    \State $\forall x\;:\;\mathcal{F}_x\gets\left\{\text{\textsc{refactor}}(p|\mathcal{D})\;:\; p\in \mathcal{F}_x\right\}$\Comment{Refactor frontiers in terms of new DSL}
-    \EndWhile
-  \end{algorithmic}
-\end{algorithm}
 
 
 
@@ -1335,7 +1287,7 @@ Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
   \node(panelA)[ultra thick, rounded corners=0, inner sep=10,outer sep=10, draw, fit=(t1) (t2) (m) (r1) (r2)] {}; \node at ($(0.5,0) + (panelA.west |- panelA.north)$) {\textbf{A}};
 
   \footnotesize
-  \begin{scope}[shift={(2,-11)}]  
+  \begin{scope}[shift={(-1,-12)}]  
     \node[draw, rounded corners](u1) at (0,0) {union};
     \node[draw, rounded corners](u2) at ($(0,-1) + (u1.south)$) {\code{(}union\code{ 1)}}; \draw (u1.south) -- (u2.north);
     \node[draw, rounded corners](u21) at ($(-1.3,-1) + (u2.south)$) {\code{(($\lambda$ (x) (x 1)) +)}}; \draw ([xshift=-0.2cm]u2.south) -- (u21.north);
@@ -1346,9 +1298,8 @@ Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
 
     \node(vs) at ($(u21.west)!0.5!(u12.east) + (0,-1.25)$) {$\underbrace{\hspace{8cm}}_{\text{\normalsize Subset of version space}}$};
 
-    \node[anchor=north](p) at ($(-6,0) + (u2)$) {\normalsize $\underbrace{\texttt{(+ 1 1)}}_{\text{\normalsize  Program}}$};
-    \draw[ultra thick,->] ($(0.5,0) + (p.east)$) -- ($(1.5,0) + (p.east)$);
-    \node at ($(1,0.25) + (p.east)$) {Refactors};
+    \node[anchor=north](p) at ($(0,2.5) + (u1)$) {\normalsize Program: \texttt{(+ 1 1)}};
+    \draw[ultra thick,->] ($(0,-0.1) + (p.south)$) --node[sloped, above, inner sep=5]{Refactors} ($(0,0.1) + (u1.north)$);
     \node(g)[anchor=left] at ($(7,0) + (u12.east)$) {\includegraphics[width = 6cm]{figures/vs.eps}};
     \node(panelB)[ultra thick, rounded corners=0, inner sep=10,outer sep=10, draw, fit=(p) (u1) (vs) (g)] {}; \node at ($(0.5,0) + (panelB.west |- panelB.north)$) {\normalsize\textbf{B}}; 
 
@@ -1385,9 +1336,9 @@ These objectives combine replays and fantasies:
 \begin{align*}
   \mathcal{L}^{\text{posterior}} &= \mathcal{L}_{\text{Replay}}^{\text{posterior}} + \mathcal{L}_{\text{Fantasy}}^{\text{posterior}}&
   \mathcal{L}^{\text{MAP}} &= \mathcal{L}_{\text{Replay}}^{\text{MAP}} + \mathcal{L}_{\text{Fantasy}}^{\text{MAP}}\\
-  \mathcal{L}_{\text{Replay}}^{\text{posterior}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
-    \frac{\probability\left[x,p|\mathcal{D},\theta \right]\log Q(p|x)}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\right] &
-  \mathcal{L}_{\text{Replay}}^{\text{MAP}}& = \expect_{x\sim X}\left[\max_{\substack{p\in \mathcal{F}_x\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}} \log Q(p|x) \right]  \\
+  \mathcal{L}_{\text{Replay}}^{\text{posterior}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{B}_x}
+    \frac{\probability\left[x,p|\mathcal{D},\theta \right]\log Q(p|x)}{\sum_{p'\in \mathcal{B}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\right] &
+  \mathcal{L}_{\text{Replay}}^{\text{MAP}}& = \expect_{x\sim X}\left[\max_{\substack{p\in \mathcal{B}_x\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}} \log Q(p|x) \right]  \\
   \mathcal{L}_{\text{Fantasy}}^{\text{posterior}} &= \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log Q(p|x)\right]&
   \mathcal{L}_{\text{Fantasy}}^{\text{MAP}} &= \expect_{x\sim(\mathcal{D},\theta) }\left[\max_{\substack{p\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}}\log Q(p)\right]
 \end{align*}
@@ -1716,9 +1667,10 @@ Procedural visual concepts are studied across AI and cognitive science
 --- Bongard problems~\cite{Moscow}, Raven's progressive
 matrices~\cite{raven2003raven}, and Lake et al.'s BPL model of
 omniglot~\cite{lake2015human} are prominent examples.  Here we take
-inspiration from LOGO Turtle graphics~\cite{turtle}, tasking it with
-drawing a modest corpus of images while equipping it with control over
-a `pen', along with arithmetic operations on angles and distances.
+inspiration from LOGO Turtle graphics~\cite{turtle}, tasking our agent
+with drawing a modest corpus of images while equipping it with control
+over a `pen', along with arithmetic operations on angles and
+distances.
 
 Inside its learned DSL we find interpretable parametric drawing
 routines corresponding to the families of visual objects in its
@@ -1890,10 +1842,10 @@ more closely matching the domain.
 %% because this is closest to how
 %% RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
 %% \\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
-%% only add \textbf{S}ub\textbf{E}xpressions of programs in the frontiers to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
+%% only add \textbf{S}ub\textbf{E}xpressions of programs in the beams to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
 %% \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
 %% but instead learns the parameters of the DSL ($\theta$), learning the parameters of a PCFG while not learning any of the structure.
-%% \\\noindent \textbf{Enum}, which enumerates a frontier without any learning --- equivalently, our first search step.
+%% \\\noindent \textbf{Enum}, which enumerates a beam without any learning --- equivalently, our first search step.
 %For each domain,
 %% We are interested both in how many tasks the
 %% agent can solve and how quickly it can find those solutions.
@@ -2002,10 +1954,10 @@ Algorithm~\ref{theWholeThing} specifies how we integrate wake and sleep cycles.
   \begin{algorithmic}[1]
     \State \textbf{function} \systemEnding$(\mathcal{D}, X)$:
     \State {\bfseries Input:} Initial DSL $\mathcal{D}$, tasks $X$
-    \State \textbf{Output:} Infinite stream of DSLs, recognition models, and frontiers
-    \State \textbf{Hyperparameters:} Batch size $B$, enumeration timeout $T$, maximum frontier size $F$
+    \State \textbf{Output:} Infinite stream of DSLs, recognition models, and beams
+    \State \textbf{Hyperparameters:} Batch size $B$, enumeration timeout $T$, maximum beam size $F$
     \State $\theta\gets $uniform distribution
-    \State $\mathcal{F}_x\gets\varnothing $, $\forall x\in X$\Comment{Initialize frontiers to be empty}
+    \State $\mathcal{F}_x\gets\varnothing $, $\forall x\in X$\Comment{Initialize beams to be empty}
     \While{true}\Comment{Loop over epochs}
     \State shuffle $\gets$ random permutation of $X$\Comment{Randomize minibatches}
     \While{shuffle is not empty}\Comment{Loop over minibatches}
@@ -2174,7 +2126,54 @@ This is similar in spirit to iterative deepening depth first search~\cite{Russel
    \end{algorithmic}
  \end{algorithm}
 
- \subsection{Refactoring code with version spaces}\label{appendixVersion}
+ \subsection{Details of DSL learning}\label{appendixCompression}
+
+ Algorithm~\ref{grammarInductionAlgorithm} specifies our DSL learning procedure.
+ This integrates two toolkits:
+ the machinery of version spaces (Appendix~\ref{appendixVersion})
+ and a probabilistic objective favoring compressive DSLs.
+ The functions $I\beta(\cdot )$ and \textsc{refactor} construct
+a version space from a program and extract the shortest program from a version space, respectively (Algorithm~\ref{grammarInductionAlgorithm}, lines 5-6, 14; Appendix~\ref{appendixVersion}).
+To define the prior distribution over $(\mathcal{D},\theta})$ (Algorithm~\ref{grammarInductionAlgorithm}, lines 7-8), we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
+  and $\lambda$ controls how strongly we regularize the size of the DSL.
+  We place a symmetric Dirichlet prior over the weight vector $\theta$.
+
+To appropriately score each proposed $\mathcal{D}$ we must reestimate
+ the weight vector $\theta$ (Algorithm~\ref{grammarInductionAlgorithm}, line 7).
+Although this  may seem 
+very similar to estimating the parameters of a probabilistic context free grammar,
+for which we have effective approaches like the Inside/Outside algorithm~\cite{international2000derivation},
+our DSLs are context-sensitive due to the presence of variables
+in the programs and also due to the polymorphic typing system.
+Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
+
+
+
+\begin{algorithm}%[H]
+  %\setcounter{algorithm}{2} % there are two algorithms in the main paper.
+  \caption{DSL Induction Algorithm}
+  \label{grammarInductionAlgorithm}
+  \begin{algorithmic}[1]
+    \State {\bfseries Input:} Set of beams $\{\mathcal{B}_x\}$
+    %         \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
+    \State \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+    \State $\mathcal{D}\gets$ every primitive in $\{\mathcal{B}_x\}$
+    \While{true}         
+    \State $\forall p\in \bigcup_{x}\mathcal{B}_x: $ $v_p\gets I\beta(p)$ \Comment{Construct a version space for each program}
+    \State Define $L(\mathcal{D}',\theta) =  \prod_x \sum_{p\in \mathcal{B}_x} \probability[x|p]\probability[\text{\textsc{refactor}}(v_p|\mathcal{D}')|\mathcal{D}',\theta]$ \Comment{Likelihood if $(\mathcal{D}',\theta)$ were the DSL}
+    \State Define $\theta^*(\mathcal{D}') = \argmax_\theta \probability[\theta|\mathcal{D}'] L(\mathcal{D}',\theta)$ \Comment{MAP estimate of $\theta$}
+    \State Define $\text{score}(\mathcal{D}') = \log \probability[\mathcal{D}'] + L(\mathcal{D}',\theta^*(\mathcal{D})) - \|\theta^*(\mathcal{D})\|_0$ \Comment{objective function}
+    \State components $\gets$ $\left\{\textsc{refactor}(v|\mathcal{D})\;:\;\forall x, \forall p\in \mathcal{B}_x, \forall v\in \text{children}(v_p) \right\}$ \Comment{Propose many new DSL components}
+    \State proposals $\gets$ $\left\{\mathcal{D}\cup\left\{c \right\}\;:\;\forall c\in \text{components} \right\}$ \Comment{Propose many new DSLs}
+    \State $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new DSL}
+    \State \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to DSL led to a better score}
+    \State $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better DSL. Update DSL.}
+    \State $\forall x\;:\;\mathcal{B}_x\gets\left\{\text{\textsc{refactor}}(p|\mathcal{D})\;:\; p\in \mathcal{B}_x\right\}$\Comment{Refactor beams in terms of new DSL}
+    \EndWhile
+  \end{algorithmic}
+\end{algorithm}
+
+ \subsubsection{Refactoring code with version spaces}\label{appendixVersion}
  Formally, a version space is either:
 \begin{itemize}
 \item A deBuijn\footnote{deBuijn indices are an alternative way of naming variables in $\lambda$-calculus. When using deBuijn indices, $\lambda$-abstractions are written \emph{without} a variable name, and variables are written as the count of the number of $\lambda$-abstractions up in the syntax tree the variable is bound to. For example, $\lambda x.\lambda y. (x\;y)$ is written $\lambda\lambda (\$1\;\$0)$ using deBuijn indices. See~\cite{pierce} for more details.} index: written $\$i$, where $i$ is a natural number
@@ -2563,7 +2562,7 @@ Finally we have our main result:
 How long does each update to the DSL in
 Algorithm~\ref{grammarInductionAlgorithm} take?  Constructing the
 version spaces takes time linear in the number of programs (written
-$P$) in the frontiers (Algorithm~\ref{grammarInductionAlgorithm}, line
+$P$) in the beams (Algorithm~\ref{grammarInductionAlgorithm}, line
 5), and, in the worst case, exponential time as a function of the
 number of refactoring steps $n$ --- but we bound the number of steps
 to be a small number (typically $n = 3$).  Writing $V$ for the number
@@ -2623,7 +2622,7 @@ we describe our MAP estimator for the continuous parameters ($\theta$) of the DS
 
 
 
-\subsection{Estimating the continuous parameters $\theta$ of a DSL}\label{mapAppendix}
+\subsubsection{Estimating the continuous parameters $\theta$ of a DSL}\label{mapAppendix}
 We use an EM algorithm to estimate the continuous parameters of the DSL, i.e. $\theta$.
 Suppressing dependencies on $\mathcal{D}$, the EM updates are
 \begin{align}
@@ -3564,7 +3563,7 @@ problems require either longer timeouts, more CPUs, or both.
 \begin{center}
   \begin{tabular}{ccccccc}
     \toprule
-    Domain&Timeout&CPUs&Batch size&$\lambda$ (Sec.~\ref{consolidationSection})&$\alpha$ (\ref{mapAppendix})&Max frontier (\ref{systemPseudocode})\\\midrule
+    Domain&Timeout&CPUs&Batch size&$\lambda$ (\ref{appendixCompression})&$\alpha$ (\ref{mapAppendix})&Max frontier (\ref{systemPseudocode})\\\midrule
     Lists&7m&64&10&1&30&5\\
     Text&7m&64&10&1&30&5\\
     Graphics&1h&128&40&1&30&5\\
