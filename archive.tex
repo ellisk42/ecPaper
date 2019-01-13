@@ -752,7 +752,7 @@ We make a particle-based approximation to Eq.~\ref{intractableObjectives}
 and instead marginalize over a finite \textbf{beam} of programs,
 with one beam per task, collectively written $\left\{\mathcal{B}_x \right\}_{x\in X}$.
 This particle-based approximation is written $\lowerBound (\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})$
-and acts as a lower bound on the joint:
+and acts as a lower bound on the joint density:
 \begin{align}
  J(\mathcal{D},\theta)\geq \lowerBound  (\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{B}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]\text{, where $|\mathcal{B}_x|$ is small}
 \end{align}
@@ -761,18 +761,31 @@ and $(\mathcal{D},\theta)$ (\textbf{Consolidation}):
 \\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the beams.} Here $(\mathcal{D},\theta)$ is fixed and we
 want to find new programs to add to  the beams so that $\lowerBound$ increases the most.
 $\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]\propto\probability[p|x,\mathcal{D},\theta]$ 
-is large (i.e., programs with high posterior probability).
-%Here we use a simple and generic enumerative program synthesis algorithm.
-%% which we can accomplish by adding new programs to the beams means searching for new programs $p$ for task $x$
-%% where  is large.
-\\\noindent \textbf{Sleep (Consolidation): Maxing $ \lowerBound$ w.r.t.\ the DSL.} Here $\left\{\mathcal{B}_x \right\}_{x\in X}$ is held fixed, and so we can evaluate $\lowerBound$. Now the problem is that of searching the discrete space of DSLs and finding one maximizing $\int \lowerBound \;\mathrm{d}\theta$,
-and then updating $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})$.
+is large, i.e., programs with high posterior probability,
+or programs which are a priori likely and which solve the task.
+We find programs solving a task by
+enumerating programs
+from the DSL in decreasing order of their probability
+under the recognition model,
+and then check if a program $p$ assigns positive probability to a task
+($\probability[x|p] > 0$); if so, we incorporate $p$ into the beam
+$\mathcal{B}_x$. We represent programs as polymorphicly typed $\lambda$-calculus expressions,
+an expressive formalism
+including conditionals,
+variables,
+higher-order recursive functions,
+and the ability to define new functions.
+\\\noindent \textbf{Sleep (Consolidation): Maxing $ \lowerBound$ w.r.t.\ the DSL.} Here $\left\{\mathcal{B}_x \right\}_{x\in X}$ is held fixed and the problem is to search the discrete space of DSLs and find one maximizing $\int \lowerBound \;\mathrm{d}\theta$,
+and then update $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})$.
 
-Searching for programs is hard because
-of the large combinatorial search space. We ease this difficulty by training a neural recognition model, $Q(\cdot |\cdot )$,
-during the \textbf{Dreaming} phase: $Q$ is trained to approximate the
-posterior over programs, $Q(p|x)\approx \probability[p|x,\mathcal{D}]\propto\probability[x|p]\probability[p|\mathcal{D}]$.
-  Thus training the neural network amortizes the cost of finding programs with high posterior probability.
+Finding programs solving tasks is difficult because of the infinitely
+large, combinatorial search landscape. We ease this difficulty by
+training a neural recognition model, $Q(p |x )$, during the
+\textbf{Dreaming} phase: $Q$ is trained to approximate the posterior
+over programs, $Q(p|x)\approx
+\probability[p|x,\mathcal{D}]\propto\probability[x|p]\probability[p|\mathcal{D}]$.
+Thus training the neural network amortizes the cost of finding
+programs with high posterior probability.
 
 \noindent\textbf{Sleep (Dreaming): tractably maxing $\lowerBound$ w.r.t. the
   beams.}  Here we train %% a neural network, $q$, to predict a
@@ -782,10 +795,18 @@ $Q(p|x)$ to assign high probability to programs $p$ where
 $\probability[x|p]\probability[p|\mathcal{D},\theta]$ is large, because incorporating those programs
 into the beams will most increase $\lowerBound$.
 
-Intuitively, this 3-phase inference procedure can work in practice because each of the 3 phases bootstraps off of the others. As the DSL grows and as the recognition model becomes more accurate, waking becomes more effective, allowing the agent to solve more tasks; when we solve more tasks during waking,
-the Consolidation cycle has more data from which to learn the DSL; and, because the recognition model is trained on both
-samples from the DSL and programs found during waking,
-the recognition model gets both more data, and higher-quality data, whenever the DSL improves and whenever we discover more successful programs.
+This 3-phase inference procedure works through two distinct kinds of bootstrapping.
+During each sleep cycle the next DSL
+bootstraps off the primitives learned
+during earlier cycles,
+growing an increasingly deep learned program representation (`deep program learning').
+In tandem the DSL and recognition model
+bootstrap each other:
+a more finely tuned
+DSL yields
+richer dreams for the recognition model to learn from,
+while a more accurate recognition model
+solves more tasks during waking which then feed into the next DSL.
 \begin{figure}
   \begin{tikzpicture}[line width=0.4mm]
     \draw[fill=white!5!white] (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
@@ -1004,19 +1025,6 @@ the recognition model gets both more data, and higher-quality data, whenever the
 \end{figure}
 
 
-\subsection{Wake: Solving tasks}\label{explorationSection}
-
-During waking we enumerate programs from the DSL in decreasing order
-of their probability according to the recognition model, and then
-check if a program $p$ assigns positive probability to a task
-($\probability[x|p] > 0$); if so, we incorporate $p$ into the beam
-$\mathcal{B}_x$. We represent programs as polymorphicly-typed
-$\lambda$-calculus expressions, a representation closely resembling
-Lisp and functional languages like Haskell and OCaml, including
-variables, conditionals, higher-order recursive functions, and the
-ability to create new functions.  We `batch' the tasks by randomly
-shuffling the training set and playing small minibatches of tasks to
-the agent during each wake cycle.
 
 %% Our programs are all
 %% strongly typed.  We use the Hindley-Milner polymorphic typing
@@ -1042,6 +1050,21 @@ the agent during each wake cycle.
 %% rather than sample,
 %% programs generated by Algorithm~\ref{sampleProgram}.
 
+\begin{comment}
+  \subsection{Wake: Solving tasks}\label{explorationSection}
+
+During waking we enumerate programs from the DSL in decreasing order
+of their probability according to the recognition model, and then
+check if a program $p$ assigns positive probability to a task
+($\probability[x|p] > 0$); if so, we incorporate $p$ into the beam
+$\mathcal{B}_x$. We represent programs as polymorphicly-typed
+$\lambda$-calculus expressions, a representation closely resembling
+Lisp and functional languages like Haskell and OCaml, including
+variables, conditionals, higher-order recursive functions, and the
+ability to create new functions.  We `batch' the tasks by randomly
+shuffling the training set and playing small minibatches of tasks to
+the agent during each wake cycle.
+
 
 Why enumerate, when the program synthesis community has invented many
 sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
@@ -1049,6 +1072,7 @@ We have two reasons:
 (1) A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the search algorithm is very simple.
 (2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
 the space of  programs.
+\end{comment}
 \begin{comment}
   \begin{figure}
     \begin{tikzpicture}[every node/.style={rounded corners,thick}]
@@ -1091,7 +1115,7 @@ express solutions to the tasks at hand. We automatically discover
 these new abstractions by combining two ideas. First, we build on
 techniques from the programming languages community to develop a new
 algorithm for automatically refractoring programs, where this
-refactoring exposes common reused subexpressions found across the
+refactoring exposes common reused subexpressions across the
 programs found during waking.  Second, we use this automatic refactoring
 process to search for DSLs that maximally compress these programs by
 incorporating reused subexpressions into the DSL.
@@ -1099,66 +1123,27 @@ incorporating reused subexpressions into the DSL.
 Mathematically this compression takes the form of
 finding the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{overviewSection}).
 We replace this marginal with an AIC approximation~\cite{akaike1998information}
-and minimize the following expression,
+and marginalize over refactorings of programs in the beams, minimizing the following expression,
 which can be interpreted as a kind of compression:
 \begin{equation}
 \underbrace{-\log \probability[\mathcal{D}] + \min_{\theta}\Bigg(-\log
 \probability[\theta|\mathcal{D}] + \|\theta\|_0}_{\text{Description length of }(\mathcal{D},\theta)} +\sum_{x\in
-  X}\underbrace{-\log \sum_{p\in
-  \mathcal{B}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
+  X}\underbrace{-\log \sum_{\substack{p:\\
+      \exists p'\in
+  \mathcal{B}_x: p\text{ refactors into }p'}}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
 \label{AIC}
-  \end{equation}
-At a high level, our approach is to search locally through the space 
-of DSLs, proposing small changes to $\mathcal{D}$ until Eq.~\ref{AIC}
-fails to decrease.  These small changes consist of introducing new
-candidate $\lambda$-expressions into the DSL.
-
-However, there is a snag with this simple approach:
-whenever we add a new expression $e$ to the DSL,
-the programs found during waking ($\left\{\mathcal{B}_x \right\}$)
-are not written in terms of $e$.
-Concretely, imagine we wanted to discover a new DSL procedure for doubling numbers,
-after having found the programs
-\code{(cons (+ 9 9) nil)} and \code{($\lambda$ (x) (+ (car x) (car x)))}.
-As human programmers,
-we can look at these pieces of code and recognize that,
-if we define a new procedure called \code{double},
-defined as \code{($\lambda$ (x) (+ x x))},
-then we can rewrite the original programs as
-\code{(cons (double 9) nil)} and \code{($\lambda$ (x) (double (car x)))}.
-This process is a kind of refactoring
-where a new subroutine is defined (\code{double})
-and the old programs rewritten
-in terms of the new subroutine.
-Figure~\ref{mapFactor}A
-diagrams this refactoring
-process for a more complicated
-setting,
-where the agent must rediscover the higher-order function \code{map}
-starting from the basics of Lisp and the Y-combinator.
-
-We refine our objective to compress
-\emph{refactorings} of the programs found during waking, minimizing
-\begin{equation}
-        -\log \probability[\mathcal{D}] + 
-\min_{\theta}\Bigg(-\log \probability[\theta|\mathcal{D}] + \|\theta\|_0 +\sum_{x\in X} - \log \underbrace{\sum_{\substack{p:\\\exists p'\in \mathcal{B}_x: p\manyReduce p'}}}_{\text{Refactors }\mathcal{B}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\Bigg)
-\label{factorObjective}
 \end{equation}
-where $p\manyReduce p'$ is the standard notation for ``expression $p$
-evaluates to $p'$ by the rules of $\lambda$-calculus''~\cite{pierce}.
-Equation~\ref{factorObjective} captures the idea that we want to add
-new components to the DSL while jointly refactoring our old programs
-in terms of these new components.  But this joint optimization is
-intractable, because there are infinitely many ways of refactoring a
-program.  To make refactoring tractable we first limit the degree to
-which a piece of code can be refactored: rather than consider every
-refactoring, we bound the number of $\lambda$-calculus evaluation
-steps separating a refactoring from its original program.  Now the
-number of refactoring this is finite but astronomically large: for the
-example in Figure~\ref{mapFactor} there are approximately $10^{14}$
-possible refactorings -- a quantity that grows exponentially both as a
-function of program size and a function of the bound on evaluation
-steps. How can we tame this combinatorial explosion?
+But a program has infinitely many possible refactorings, rendering
+Eq.~\ref{AIC} intractable.  Rather than consider every refactoring we
+bound the number of $\lambda$-calculus evaluation steps separating a
+program from its refactoring.  Now the number of refactorings is
+finite but astronomically large: Figure~\ref{mapFactor}A diagrams a
+problem where the agent rediscovers the higher-order function
+\code{map} starting from the basics of Lisp and the Y-combinator, but
+where there are approximately $10^{14}$ possible refactorings -- a quantity
+that grows exponentially both as a function of program size and a
+function of the bound on evaluation steps. How can we tame this
+combinatorial explosion?
 
 A structure called a \textbf{version space
   algebra}~\cite{lau2001programming,mitchell1977version,polozov2015flashmeta}
@@ -1167,14 +1152,67 @@ tree-shaped data structure that compactly represents a large set of
 programs and supports efficient set operations like union,
 intersection, and membership checking.  In
 Appendix~\ref{appendixVersion}, we give a dynamic program that takes
-as input a program $p$ and then outputs a version space containing the
-refactorings of $p$. Figure~\ref{mapFactor}B diagrams a subtree of a
+as input a program and then outputs a version space containing its
+refactorings. Figure~\ref{mapFactor}B diagrams a subtree of a
 version space containing refactorings of a small program. Our
 technique is substantially more efficient than explicitly representing
 the space of possible refactorings: for the example in
 Figure~\ref{mapFactor}A, we represent the space of refactorings using
 a version space with $10^6$ nodes, which encodes $10^{14}$
 refactorings. Appendix~\ref{appendixCompression} specifies how we combine this probabilistic and symbolic machinery to update the DSL.
+At a high level, our approach is to search locally through the space 
+of DSLs, proposing small changes until Eq.~\ref{AIC}
+fails to decrease.  
+
+
+
+
+%% However, there is a snag with this simple approach:
+%% whenever we add a new expression $e$ to the DSL,
+%% the programs found during waking
+%% are not written in terms of $e$ ---
+%% and so we must \emph{refactor}
+%% the programs in terms of the new DSL component.
+%% Concretely, imagine we wanted to discover a new DSL procedure for doubling numbers,
+%% after having found the programs
+%% \code{(cons (+ 9 9) nil)} and \code{($\lambda$ (x) (+ (car x) (car x)))}.
+%% As human programmers,
+%% we can look at these pieces of code and recognize that,
+%% if we define a new procedure called \code{double},
+%% defined as \code{($\lambda$ (x) (+ x x))},
+%% then we can rewrite the original programs as
+%% \code{(cons (double 9) nil)} and \code{($\lambda$ (x) (double (car x)))}.
+%% This process is a kind of refactoring
+%% where a new subroutine is defined (\code{double})
+%% and the old programs rewritten
+%% in terms of the new subroutine.
+%% Figure~\ref{mapFactor}A diagrams a refactoring process where the agent
+%% must rediscover the higher-order function \code{map} starting from the
+%% basics of Lisp and the Y-combinator.
+
+%% We refine our objective to compress
+%% \emph{refactorings} of the programs found during waking, minimizing
+%% \begin{equation}
+%%         -\log \probability[\mathcal{D}] + 
+%% \min_{\theta}\Bigg(-\log \probability[\theta|\mathcal{D}] + \|\theta\|_0 +\sum_{x\in X} - \log \underbrace{\sum_{\substack{p:\\\exists p'\in \mathcal{B}_x: p\manyReduce p'}}}_{\text{Refactors }\mathcal{B}_x}\probability[x|p]\probability[p|\mathcal{D},\theta]\Bigg)
+%% \label{factorObjective}
+%% \end{equation}
+%% where $p\manyReduce p'$ is the standard notation for ``expression $p$
+%% evaluates to $p'$ by the rules of $\lambda$-calculus''~\cite{pierce}.
+%% Equation~\ref{factorObjective} captures the idea that we want to add
+%% new components to the DSL while jointly refactoring our old programs
+%% in terms of these new components.  But this joint optimization is
+%% intractable, because there are infinitely many ways of refactoring a
+%% program.  To make refactoring tractable we first limit the degree to
+%% which a piece of code can be refactored: rather than consider every
+%% refactoring, we bound the number of $\lambda$-calculus evaluation
+%% steps separating a refactoring from its original program.  Now the
+%% number of refactoring this is finite but astronomically large: for the
+%% example in Figure~\ref{mapFactor} there are approximately $10^{14}$
+%% possible refactorings -- a quantity that grows exponentially both as a
+%% function of program size and a function of the bound on evaluation
+%% steps. How can we tame this combinatorial explosion?
+
 
 
 
@@ -1323,7 +1361,7 @@ refactorings. Appendix~\ref{appendixCompression} specifies how we combine this p
   \end{scope}
   
   \end{tikzpicture}
-  \caption{DSL learning as code refactoring. \textbf{Panel A:} For each task we discover programs during waking, then refactor the code from those programs to expose common subprograms (highlighted in \orange{orange}). Common subprograms are incorporated into the DSL when they increase a Bayesian objective. Intuitively, these new DSL components best compress the programs found during waking. \textbf{Panel B:} \# of possible refactorings grows exponentially with program size, so we represent refactorings using version spaces, which augment syntax trees with a \emph{union} operator whose children are themselves version spaces. Right graph: version spaces are exponentially more efficient than explicitly constructing set of refactorings. In this graph, refactored programs are of the form $1+1+\cdots  + 1$.}\label{mapFactor}
+  \caption{DSL learning as code refactoring. \textbf{Panel A:} During waking we discover programs for each task, then refactor the code from those programs to expose common subprograms (highlighted in \orange{orange}). Common subprograms are incorporated into the DSL when they increase a Bayesian objective. Intuitively, these new DSL components best compress the programs found during waking. \textbf{Panel B:} \# of possible refactorings grows exponentially with program size, so we represent refactorings using version spaces, which augment syntax trees with a \emph{union} operator whose children are themselves version spaces. Right graph: version spaces are exponentially more efficient than explicitly constructing set of refactorings. In this graph, refactored programs are of the form $1+1+\cdots  + 1$.}\label{mapFactor}
 \end{figure*}
 
 
@@ -1363,8 +1401,59 @@ $\mathcal{L}^{\text{MAP}}$ prioritizes the shortest program solving a
 task, thus more strongly accelerating enumerative search during waking;
 and, combined with our parameterization of $Q$, described next, we
 will show that $\mathcal{L}^{\text{MAP}}$ forces the recognition model
-to break symmetries in the space of programs
-(Sec.~\ref{symmetricSection}).
+to break symmetries in the space of programs.
+
+\noindent\textbf{Parameterizing $Q$.} The recognition model predicts a
+fixed-dimensional tensor encoding a distribution over subroutines in
+the DSL, conditioned on the local context in the syntax tree of the
+program. This local context consists of the parent node in the syntax
+tree, as well as which argument is being generated, functioning as a
+kind of `bigram' model over trees. Figure~\ref{symmetry} (left)
+diagrams this generative process.  This parameterization confers three
+main advantages: (1) it supports fast enumeration and sampling of
+programs, because the recognition model only runs once per
+task, like in~\cite{balog2016deepcoder,ecc,menon2013machine} -- thus
+we can fall back on fast enumeration if the target program is unlike
+the training programs; (2) the recognition model provides fine-grained
+information about the structure of the target program, similar
+to~\cite{devlin2017robustfill,zavershynskyi2018naps}; and (3) in
+conjunction with $\mathcal{L}^{\text{MAP}}$ the recognition model
+learns to break symmetries in the space of programs.
+
+\noindent\textbf{Symmetry breaking.} A good DSL not only exposes high-level building blocks, but also
+carefully restricts the ways in which those building blocks are
+allowed to compose.  For example,
+%% a DSL for list manipulation should
+%% contain both the empty list and a routine for appending lists, but
+%% should not allow appending the empty list.  Similarly 
+a DSL for arithmetic should disallow adding zero, or force
+right-associative addition.  These restrictions break symmetries in
+the space of programs.  A bigram parameterization of the recognition
+model, combined with the $\mathcal{L}^{\text{MAP}}$ training
+objective, interact in a way that breaks symmetries in the program
+space, allowing the agent to more efficiently explore the space of
+programs.  This interaction occurs because the bigram parameterization
+can disallow DSL primitives depending on their local syntactic
+context, while the $\mathcal{L}^{\text{MAP}}$ objective forces all
+probability mass onto a single member of a set of syntactically
+distinct but semantically equivalent expressions
+(Appendix~\ref{recognitionAppendix}).
+We experimentally confirm this symmetry-breaking
+behavior by training recognition models that minimize either
+$\mathcal{L}^{\text{MAP}}$/$\mathcal{L}^\text{posterior}$ and which
+use either a bigram parameterization/unigram\footnote{In the unigram variant $Q$ predicts a $|\mathcal{D}| + 1$-dimensional vector: $Q(p|x) = \probability[p|\mathcal{D},\theta_i = Q_i(x)]$,
+  and was used in our prior work~\cite{ecc}} parameterization.
+Figure~\ref{symmetry} (right) shows the result of training $Q$ in these four regimes
+and then sampling programs.
+On this particular run,
+the combination of
+bigrams and $\mathcal{L}^{\text{MAP}}$ learns to
+avoid adding zero and associate addition to the right ---
+different random initializations
+lead to either right or left association.
+
+
+\begin{comment}
 
 \subsubsection{Parameterizing $Q$}\label{recognitionParameterization}
 
@@ -1407,7 +1496,7 @@ take the form of (parent, child, argument index).
 Figure~\ref{symmetry} (left) diagrams this generative process and Algorithm~\ref{recognitionSample}
 specifies a sampling procedure for $Q(\cdot |x)$.
 This parameterization
-has three main advantages:
+confers three main advantages:
 (1) it supports fast enumeration
 and sampling of programs,
 because the
@@ -1457,7 +1546,7 @@ bigrams and $\mathcal{L}^{\text{MAP}}$ learns to
 avoid adding zero and associate addition to the right ---
 different random initializations
 lead to either right or left association.
-
+  \end{comment}
 \begin{figure}
   \begin{minipage}[c]{0.3\textwidth}
     \begin{tikzpicture}[scale=1]%[every node/.style={inner sep=0,outer sep=0}]
@@ -1522,51 +1611,51 @@ lead to either right or left association.
 Each conditional distribution predicted by the recognition model is written $Q_{\text{parent},\text{child},\text{argument index}}(x)$, where $x$ is a task. \textbf{Right:} Agent learns to break symmetries in program space only when using both bigram parameterization and $\mathcal{L}^{\text{MAP}}$ objective, associating addition to the right and avoiding adding zero. \% right-associative calculated by drawing 500 samples from $Q$. $\mathcal{L}^{\text{MAP}}$/Unigram agent incorrectly learns to never generate programs with \code{0}'s, while $\mathcal{L}^{\text{MAP}}$/Bigram agent correctly learns that \code{0} should only be disallowed as an argument of addition. Tasked with building programs from \code{+}, \code{1}, and \code{0}. }\label{symmetry}
 \end{figure}
 
-\begin{figure}
-\centering  \begin{tabular}{cll}
-     \toprule
-&     \multicolumn{1}{c}{Unigram}&\multicolumn{1}{c}{Bigram} \\\midrule
-     $\mathcal{L}^{\text{posterior}}$&
-     \begin{tabular}{l}
-       \emph{Three samples:}\\
-       \code{(+ 1 0)}\\
-\code{(+ (+ 0 0) (+ 1 0))}\\
-\code{(+ 1 1)}
-\\
-63.0\% right-associative; 37.4\% \code{+0}'s
-       \end{tabular}
-     &
-     \begin{tabular}{l}
-       \emph{Three samples:}\\
-       \code{0}\\
-\code{(+ (+ (+ 0 0) (+ 0 1)) 1)}\\
-\code{1}\\
-55.8\% right-associative; 31.9\% \code{+0}'s
-       \end{tabular}
-     \\\\
-     $\mathcal{L}^{\text{MAP}}$&
-     \begin{tabular}{l}
-       \emph{Three samples:}\\
-       \code{1}\\
-       \code{(+ 1 (+ 1 (+ (+ 1 (+ 1 1)) 1)))}\\
-       \code{(+ (+ 1 1) 1)}
-\\48.6\% right-associative;
-       0.5\% \code{+0}'s       
-       \end{tabular}
-     &
-     \begin{tabular}{l}
-       \emph{Three Samples:}\\
-\code{(+ 1 (+ 1 (+ 1 (+ 1 (+ 1 1)))))}\\
-\code{0}\\
-\code{(+ 1 (+ 1 (+ 1 1)))}
-       \\
-       \textbf{97.9\% right-associative};
-       2.5\% \code{+0}'s       
-       \end{tabular}
-\\    \bottomrule 
-  \end{tabular}
-  \caption{Agent learns to break symmetries in program space only when using both bigram parameterization and $\mathcal{L}^{\text{MAP}}$ objective, associating addition to the right and avoiding adding zero. \% right-associative calculated by drawing 500 samples from $Q$. $\mathcal{L}^{\text{MAP}}$/Unigram agent incorrectly learns to never generate programs with \code{0}'s, while $\mathcal{L}^{\text{MAP}}$/Bigram agent correctly learns that \code{0} should only be disallowed as an argument of addition. Tasked with building programs from \code{+}, \code{1}, and \code{0}. }\label{symmetry}
-  \end{figure}
+%% \begin{figure}
+%% \centering  \begin{tabular}{cll}
+%%      \toprule
+%% &     \multicolumn{1}{c}{Unigram}&\multicolumn{1}{c}{Bigram} \\\midrule
+%%      $\mathcal{L}^{\text{posterior}}$&
+%%      \begin{tabular}{l}
+%%        \emph{Three samples:}\\
+%%        \code{(+ 1 0)}\\
+%% \code{(+ (+ 0 0) (+ 1 0))}\\
+%% \code{(+ 1 1)}
+%% \\
+%% 63.0\% right-associative; 37.4\% \code{+0}'s
+%%        \end{tabular}
+%%      &
+%%      \begin{tabular}{l}
+%%        \emph{Three samples:}\\
+%%        \code{0}\\
+%% \code{(+ (+ (+ 0 0) (+ 0 1)) 1)}\\
+%% \code{1}\\
+%% 55.8\% right-associative; 31.9\% \code{+0}'s
+%%        \end{tabular}
+%%      \\\\
+%%      $\mathcal{L}^{\text{MAP}}$&
+%%      \begin{tabular}{l}
+%%        \emph{Three samples:}\\
+%%        \code{1}\\
+%%        \code{(+ 1 (+ 1 (+ (+ 1 (+ 1 1)) 1)))}\\
+%%        \code{(+ (+ 1 1) 1)}
+%% \\48.6\% right-associative;
+%%        0.5\% \code{+0}'s       
+%%        \end{tabular}
+%%      &
+%%      \begin{tabular}{l}
+%%        \emph{Three Samples:}\\
+%% \code{(+ 1 (+ 1 (+ 1 (+ 1 (+ 1 1)))))}\\
+%% \code{0}\\
+%% \code{(+ 1 (+ 1 (+ 1 1)))}
+%%        \\
+%%        \textbf{97.9\% right-associative};
+%%        2.5\% \code{+0}'s       
+%%        \end{tabular}
+%% \\    \bottomrule 
+%%   \end{tabular}
+%%   \caption{Agent learns to break symmetries in program space only when using both bigram parameterization and $\mathcal{L}^{\text{MAP}}$ objective, associating addition to the right and avoiding adding zero. \% right-associative calculated by drawing 500 samples from $Q$. $\mathcal{L}^{\text{MAP}}$/Unigram agent incorrectly learns to never generate programs with \code{0}'s, while $\mathcal{L}^{\text{MAP}}$/Bigram agent correctly learns that \code{0} should only be disallowed as an argument of addition. Tasked with building programs from \code{+}, \code{1}, and \code{0}. }\label{symmetry}
+%%   \end{figure}
 
 
 
@@ -1575,8 +1664,7 @@ Each conditional distribution predicted by the recognition model is written $Q_{
 \subsection{Programs that manipulate sequences}\label{sequences}
 We first apply \system to two classic benchmark domains: list
 processing and text editing. In both cases we solve tasks specified by
-a few input/output examples, using a recurrent neural network for the
-recognition model and starting with a generic functional programming
+a input/output examples, starting with a generic functional programming
 basis: \code{foldr}, \code{unfold}, \code{if}, \code{map},
 \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0},
 \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and
@@ -1586,16 +1674,17 @@ basis: \code{foldr}, \code{unfold}, \code{if}, \code{map},
 We took 218 list manipulation tasks from our previous work~\cite{ecc},
 each with 15 input/output examples.  In solving these tasks, the
 system composed 16 new DSL components, and discovered multiple
-higher-order functions, such as \code{filter} ($f_0$ in
-Figure~\ref{initialExampleDSL}).  Each round of memory consolidation
-built on components discovered in earlier sleep cycles --- for example
-the agent first learns \code{filter}, uses filter to learn to take the
-maximum element of a list, then uses that routine to learn a new
-component for extracting the $n^{\text{th}}$ largest element of a
-list, which it finally uses to learn how to sort a list of numbers
-(Figure~\ref{initialExampleDSL}).  This incremental, modular learning
-of deep hierarchies of DSL components occurs
-because of the alternation between code writing and code refactoring.
+higher-order functions. Each round of memory consolidation built on
+components discovered in earlier sleep cycles --- for example the
+agent first learns the higher-order function \code{filter}, uses
+\code{filter} to learn to take the maximum element of a list, then
+uses that routine to learn a new component for extracting the
+$n^{\text{th}}$ largest element of a list, which it finally uses to
+learn how to sort a list of numbers (Figure~\ref{initialExampleDSL}).
+This incremental, modular learning of deep hierarchies of DSL
+components occurs because of the alternation between code writing
+(during waking) and code refactoring (during the consolidation phase
+of sleep).
 
 %% \begin{figure}[b]\centering
 %% \vspace{-0.5cm}  \begin{tabular}{lll}
@@ -1658,23 +1747,7 @@ prior work.
 \subsection{Programs from visual input}
 We consider three domains where the agent must infer a program from an
 image (Figure~\ref{visualSpecs}).
-\subsubsection{Programs that make plans and take actions}
-
-We apply \system to two domains where the agent plans a series of actions
-in order to draw a picture (Sec.~\ref{logoSection}) or build a tower out of blocks (Sec.~\ref{towerSection}).
-For drawing pictures,
-the agent controls a `pen' that it can pick up or place down while moving across a canvas.
-For building towers,
-the agent controls a `hand' that it moves through a simulated world while
-placing down differently sized blocks.
-For each of these domains,
-the agent observes a target picture or block tower,
-and must either draw the picture or build the tower.
-The recognition model is a CNN that
-observes an image of the target picture or tower.
-The system is initially provided with two control flow operators:
-\code{loop} (a `for' loop) and \code{get/set},
-which saves and then restores the current state of the pen or hand.
+First we consider programs that make plans and take actions:  drawing pictures and building towers out of blocks (Sec.~\ref{logoSection}-\ref{towerSection}).
 
 \subsubsection{Programs that draw pictures}\label{logoSection}
 
@@ -1690,19 +1763,20 @@ distances.
 Inside its learned DSL we find interpretable parametric drawing
 routines corresponding to the families of visual objects in its
 training data, like polygons, circles, and spirals
-(Figure~\ref{logoPrimitives}, left). It additionally learns more
-abstract visual relationships, like rotational symmetry, which it
-models by incorporating a higher-order function into its DSL
-(Figure~\ref{logoPrimitives}, right).  This abstraction comes from
-jointly compressing programs for all of the training images into its
-DSL.
+(Figure~\ref{logoPrimitives}, left) -- without supervision the agent
+has learned the basic types of objects in its visual world. It
+additionally learns more abstract visual relationships, like
+rotational symmetry, which it models by incorporating a higher-order
+function into its DSL (Figure~\ref{logoPrimitives}, right).  This
+abstraction comes from jointly compressing programs for all of the
+training images into its DSL.
 
 What does \system dream of?  Prior to learning samples from the DSL
 are simple and largely unstructured (Figure~\ref{logoDreams}, left).
 After training the samples become richly structured
 (Figure~\ref{logoDreams}, right), compositionally recombining latent
 building blocks and motifs acquired from the training data. This
-offers a window into how the generative model bootstraps recognition
+offers a visual window into how the generative model bootstraps recognition
 model training: as the DSL grows more finely tuned to the domain, the
 neural net gets richer and more highly varied training data.
 
@@ -1764,9 +1838,7 @@ tower~\cite{towerCopy} --- we give \system 112 tower `copy tasks'
 tower and the locations of each of its blocks, and must write a
 program that plans how a simulated hand would build the tower.
 These towers are built from Lego-style blocks
-that snap together on a discrete grid.%%  (e.g., we do not model gravity
-%% and discretize the coordinates of the 
-%% blocks).
+that snap together on a discrete grid.
 The system starts with the same control flow primitives as with
 LOGO graphics,
 and learns parametric `options' for building blocks towers (Figure~\ref{tower}),
@@ -1826,15 +1898,23 @@ programs, and the likelihood model's BIC penalty.
 
 
 \subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
-We evaluate  on held-out testing tasks,
-measuring how many
-tasks are solved and how long it takes to solve them (Fig.~\ref{learningCurves}).
-Prior to any learning,
-the system cannot find solutions for most of the tasks,
-and those it does solve take a long time;
-with more wake/sleep iterations,
-we converge upon DSLs and recognition models 
-more closely matching the domain.
+To evaluate the relative importance of DSL learning and recognition
+model training, we evaluate on held-out testing tasks for each of our
+domains, measuring both how many tasks are solved and how long it
+takes to solve them across successive wake/sleep iterations
+(Fig.~\ref{learningCurves}).  We always solve more held-out tasks --
+and generally solve them in less time -- with both components
+combined.  Why?  One hypothesis is that some tasks are best solved by
+DSL learning and others by a neural network, and so including both of
+our sleep cycles  takes the union of these sets of tasks.  Another
+hypothesis is that the DSL and neural network interact
+synergistically, bootstrapping off each other to solve tasks for which
+neither alone suffice. We evaluate the relative weight of these interactions by
+computing the ratio of the tasks solved uniquely by the full model to 
+
+
+
+
 
 %% We compare with ablations of our model on held out tasks.
 %% The purpose of this ablation study is 
@@ -1880,8 +1960,9 @@ more closely matching the domain.
     \includegraphics[width = 5cm]{figures/listLearningCurve_batch.png}\\\\
     \includegraphics[width = 5cm]{figures/towerLearningCurve_batch.png}&
     \includegraphics[width = 5cm]{figures/rationalLearningCurve_batch.png}&
+    \includegraphics[width = 5cm]{figures/regexLearningCurve_batch.png}
   \end{tabular}
-  \caption{Test set performance across wake/sleep iterations. An Epoch is a full pass over the set of training tasks. Orange: \systemEnding. Teal: No recognition model. Purple: No DSL learning. Solid lines: \% tasks solved within 10 minute timeout. Dashed lines: average search time. Shaded region is $\pm 1$ stddev search time.}\label{learningCurves}
+  \caption{Test set performance across wake/sleep iterations. Orange: \systemEnding. Teal: No recognition model. Purple: No DSL learning. Solid lines: \% tasks solved within 10 minute timeout. Dashed lines: average search time. Shaded region is $\pm 1$ stddev search time.}\label{learningCurves}
 \end{figure}
 
 
@@ -1912,18 +1993,18 @@ that we initially provided our system with functional programming routines like
 \code{map} and \code{fold}.
 
 We ran the following experiment: \system was given a subset of the
-1959 Lisp primitives, and tasked with solving 22 programming
+1959 Lisp primitives, and tasked with solving 18 programming
 exercises. A key difference between this setup and our previous
 experiments is that, for this experiment, the system is given
 primitive recursion, whereas previously we had sequestered recursion
 within higher-order functions like \code{map}, \code{fold}, and
 \code{unfold}.
 
-After running for 93 hours on 64 CPUs, our
-algorithm solves these 22 exercises, along the way assembling a DSL
+After running for 93 hours on 48 CPUs, our
+algorithm solves these 18 exercises, along the way assembling a DSL
 with a modern repertoire of
 functional programming idioms and subroutines, including \code{map},
-\code{fold}, \code{zip}, \code{unfold}, \code{index}, \code{length},
+\code{fold}, \code{unfold}, \code{index}, \code{length},
 and  arithmetic operations like 
 building lists of natural numbers between an interval (see  Appendix~\ref{appendixMcCarthy}).
 
@@ -1937,21 +2018,49 @@ and can in principle recover many of the amenities of modern programming systems
 provided it is given enough computational power and a suitable
 spectrum of tasks.
 
-\subsection{Program Induction as part of the generic AI toolkit}
+\subsection{Acquiring Domain Expertise}
 
-Our aim with \system is both to show how learning can enable better
-program synthesis, and to show how better program synthesis can be
-more broadly useful for AI.
-Many challenges remain.
+One interpretation of our system is as a model of the acquisition of
+domain expertise. Humans can acquire expertise across many domains --
+cooking, coding, music, architecture, painting, tennis, or calculus,
+to name a handful of examples, and every child develops expertise in
+natural language, intuitive physics, motor control, kinship
+relationships, and more. Domain experts learn domain-specific
+abstractions, similar to a DSL: for example, a expert chef knows what
+combinations of seasonings go together, or an expert mathematician
+knows a wide set of useful theorems and lemmas.  Jointly, experts
+learn how to recognize when to use these abstractions to solve
+problems.  Becoming an expert involves a learning trajectory that
+unfolds over relatively long time scales, but has modest data
+requirements relative to the dominant machine learning paradigms. For
+example, basic competency in cooking or coding might require on the
+order of learning a hundred recipes or solving a hundred programming
+exercises.  It is this learning regime that we have targeted with
+\systemEnding: Learning about a domain from at most several hundred
+tasks, but where the learning unfolds over many wake/sleep cycles.
 
-How could a program induction approach to
-AI become broadly useful across a diverse spectrum of AI problems ---
-planning, natural language understanding, machine vision, causal
-inference, and more?
 
 
+\subsection{Prospects for program Induction as part of the generic AI toolkit}
 
+Our aim with \system is to chart a path by which program induction can
+become more broadly useful for AI.  This means viewing the AI
+landscape through the lens of program learning, including the terrain
+considered here --- simple kinds of generative modeling, inverse
+graphics, planning, and programming by example --- but also many
+others like reinforcement learning, commonsense reasoning, natural
+language understanding, and causal inference. Can program induction
+rise to the challenge?  We believe it can, provided we push jointly
+along  many different axes of AI research; and provided we continue
+to integrate learning algorithms -- both symbolic and neural, both
+top-down and bottom-up -- into our artificial agents.
 
+Our system, with its learned DSL and neural recognition model, is one
+embodiment of this hybrid symbolic/neural approach, and enjoys some
+success across small-scale problems in the different domains considered
+here. Scaling to larger problems,
+such as inferring 3-D object models (vs LOGO/Turtle),
+learning natural image grammars (vs ),
 
 
 \bibliography{main}
@@ -2183,7 +2292,7 @@ Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
     \State $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new DSL}
     \State \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to DSL led to a better score}
     \State $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better DSL. Update DSL.}
-    \State $\forall x\;:\;\mathcal{B}_x\gets\left\{\text{\textsc{refactor}}(p|\mathcal{D})\;:\; p\in \mathcal{B}_x\right\}$\Comment{Refactor beams in terms of new DSL}
+    \State $\forall x\;:\;\mathcal{B}_x\gets\left\{\text{\textsc{refactor}}(v_p|\mathcal{D})\;:\; p\in \mathcal{B}_x\right\}$\Comment{Refactor beams in terms of new DSL}
     \EndWhile
   \end{algorithmic}
 \end{algorithm}
@@ -2236,7 +2345,14 @@ Concretely, $  \textsc{refactor}(v|\mathcal{D})$ calculates $\argmin_{p\in \deno
 
 
 Recall that our goal is to define an operator over version spaces, $I\beta_n$,
-which calculates the set of $n$-step refactorings.
+which calculates the set of $n$-step refactorings of a program $p$,
+e.g.,
+the set of all programs $p'$ where
+$p'\underbrace{\reduce q\reduce\cdots\reduce}_{\text{$\leq n$ times}} p$,
+where $a \reduce b$
+is the standard notation
+for $a$ rewriting to $b$ according to the standard rewrite rules of $\lambda$-calculus~\cite{pierce}.
+
 We define this operator in terms of another operator, $I\beta'$, which performs a single step of refactoring:
 \begin{align*}
   I\beta_n(v)& = \uplus \left\{ \underbrace{I\beta'(I\beta'(I\beta'(\cdots}_{i \text{ times}} v))) \;:\; 0\leq i \leq n \right\}
@@ -3165,7 +3281,7 @@ Figure~\ref{learningFromScratch} shows the full set of tasks and the learned DSL
     %% (lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (#(lambda (lambda (fix1 $0 (lambda (lambda (if (empty? $0) empty (cons ($3 (car $0)) ($1 (cdr $0))))))))) (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
     \\\bottomrule 
     \end{tabular}
-  \caption{Bootstrapping a standard library of functional programming routines, starting from recursion along with primitive operations found in 1959 Lisp. Complete set of tasks and learned DSL shown. Learned DSL components are numbered in the order that they are learned.}\label{learningFromScratch}
+  \caption{Bootstrapping a standard library of functional programming routines, starting from recursion along with primitive operations found in 1959 Lisp. Complete set of tasks and learned DSL shown. Learned DSL components are numbered in the order that they are learned, \emph{i.e.}, the agent first learns fold, then unfold, then uses fold to define map, etc.}\label{learningFromScratch}
   \end{figure}
 
 
@@ -3581,10 +3697,10 @@ problems require either longer timeouts, more CPUs, or both.
     Domain&Timeout&CPUs&Batch size&$\lambda$ (\ref{appendixCompression})&$\alpha$ (\ref{mapAppendix})&Max frontier (\ref{systemPseudocode})\\\midrule
     Lists&7m&64&10&1&30&5\\
     Text&7m&64&10&1&30&5\\
-    Graphics&1h&128&40&1&30&5\\
-    Symbolic regression& & 40&10 & 1&30&5\\
-    Towers& & 64&10 & 1&30&5\\
-    Regexes& & 64&10 & 1&30&5\\
+    Graphics&1h&128&40&1.5&30&5\\
+    Symbolic regression&2m & 40&10 & 1&30&5\\
+    Towers& 2m& 64&10 & 1&30&5\\
+    Regexes&30m & 64&40 & 1&30&5\\
     \bottomrule     
   \end{tabular}
 \end{center}
