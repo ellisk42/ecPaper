@@ -493,7 +493,7 @@ navigate a new domain of problems.
 Each wake/sleep cycle creates new DSL components that build on
 components learned in earlier sleep cycles, growing a DSL with nested 
 hierarchies of code.  We identify this cumulative nesting of
-abstractions as a kind of deep representation
+abstractions as a variety of deep representation
 learning~\cite{lecun2015deep}.  Figure~\ref{exampleDSL} diagrams a
 subset of these learned networks (the DSL). For example, the system
 learns to sort sequences of numbers by invoking a DSL component 4
@@ -502,19 +502,18 @@ Figure~\ref{exampleDSL} using a depth-3 component.  For this reason we
 refer to \system as an instance of `deep program learning'.
 
 
-Because any learning problem can in principle be cast as program
-induction, it is important to delimit our focus.  In contrast to
-computer assisted programming~\cite{solar2008program} or genetic
-programming~\cite{DBLP:books/daglib/0070933}, our goal is not to
-automate software engineering, or to synthesize large bodies of code
-starting from scratch.  Ours is a basic AI goal: capturing the human
-ability to learn to think flexibly and efficiently in new domains ---
-to learn what you need to know about a domain so you don't have to
-solve new problems starting from scratch.  We are focused on problems
-that people solve relatively quickly, once they acquire the relevant
-domain expertise.  These correspond to tasks solved by short programs
---- if you have an expressive DSL.
-
+Our goal with \system is to engineer a system that develops domain
+expertise in humanlike ways. This involves learning both declarative and
+procedural knowledge, like a DSL and a recognition model, but includes
+other features of the development of expertise:
+humans can become experts in many fields,
+and so we evaluate our algorithm across six different problem domains;
+a human expert doesn't become an expert overnight,
+and needs more than a handful of example problems to learn from,
+but doesn't need millions of examples;
+similarly our algorithm's
+learning trajectory unfolds over a series of wake/sleep cycles
+requiring around a hundred problems per domain.
 
 
 \begin{figure}\centering
@@ -708,98 +707,63 @@ domain expertise.  These correspond to tasks solved by short programs
 \system~takes as its goal to acquire domain-specific expertise, which
 it learns by solving a collection of programming \textbf{tasks}.  It
 alternatingly finds programs that solve tasks (Wake --
-Figure~\ref{threeCycles} top); improves its DSL by discovering and
-reusing domain-specific subroutines (Consolidation --
-Figure~\ref{threeCycles} left); and trains a neural network that
-efficiently guides search for programs in the DSL (Dreaming --
-Figure~\ref{threeCycles} right).  The learned DSL acts as a a prior on
-programs likely to solve tasks in the domain, while the neural net
-looks at a specific task and produces a ``posterior'' for programs
-likely to solve that specific task (Figure~\ref{threeCycles} middle).
-The neural network thus functions as a \textbf{recognition model}
-supporting a form of approximate Bayesian program induction, jointly
-trained with a \textbf{generative model} for programs encoded in the
-DSL, in the spirit of the Helmholtz machine~\cite{hinton1995wake}. The
-recognition model ensures that searching for programs remains
-tractable even as the DSL (and hence the search space for programs)
-expands.  The generative model, or DSL, distills out common
-abstractions across programs discovered during waking, growing a
-network of increasingly deep and specialized domain-specific concepts
-(Figure~\ref{exampleDSL}, bottom rows).
+Figure~\ref{threeCycles} top); improves its DSL by analyzing programs
+found during waking (Consolidation -- Figure~\ref{threeCycles} left);
+and trains a neural network that efficiently guides search for
+programs in the DSL (Dreaming -- Figure~\ref{threeCycles} right).  The
+learned DSL acts as a a prior on programs likely to solve tasks in the
+domain, while the neural net looks at a specific task and produces a
+``posterior'' for programs likely to solve that specific task
+(Figure~\ref{threeCycles} middle).  The neural network thus functions
+as a \textbf{recognition model} supporting a form of approximate
+Bayesian program induction, jointly trained with a \textbf{generative
+  model} for programs encoded in the DSL, in the spirit of the
+Helmholtz machine~\cite{hinton1995wake}. The recognition model ensures
+that searching for programs remains tractable even as the DSL (and
+hence the search space for programs) expands.  The generative model,
+or DSL, distills out common abstractions across programs discovered
+during waking, growing a network of increasingly deep and specialized
+domain-specific concepts (Figure~\ref{exampleDSL}, bottom rows).
 
-We view these wake sleep/cycles as an approximate inference algorithm that starts with a collection of tasks, written $X$, and infers both a program for each task, as well
-as a distribution over programs encoded by a DSL, written
-$\mathcal{D}$.  We equip $\mathcal{D}$ with a learned weight vector
-$\theta$, and together $(\mathcal{D},\theta)$ define a generative
-model over programs (Appendix~\ref{sampleProgram}).  We perform
-maximum a posteriori (MAP) inference of the DSL and programs given
-$X$.  Writing $J$ for the joint probability of $(\mathcal{D},\theta)$
-and $X$, we seek the generative model $\mathcal{D}^*,\theta^*$ solving:
-\begin{align}\label{intractableObjectives}
-\nonumber  J(\mathcal{D},\theta)\triangleq \probability[\mathcal{D},\theta]&\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
-  \mathcal{D}^* = \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta &\qquad
-  \theta^* =\argmax_\theta J(\mathcal{D}^*,\theta)
-\end{align}
-%% where $\probability[x|p]$ scores the likelihood of a task
-%% $x\in X$ given a program $p$.\footnote{For example, for list
-%%   processing, the likelihood is 1 if the program predicts the observed
-%%   outputs on the observed inputs, and 0 otherwise; when learning a
-%%   generative model or probabilistic program, the likelihood is the
-%%   probability of the program sampling the observation.}
-Evaluating Eq.~\ref{intractableObjectives}
-entails marginalizing over the infinite set of all programs -- which is impossible.
-We make a particle-based approximation to Eq.~\ref{intractableObjectives}
-and instead marginalize over a finite \textbf{beam} of programs,
-with one beam per task, collectively written $\left\{\mathcal{B}_x \right\}_{x\in X}$.
-This particle-based approximation is written $\lowerBound (\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})$
-and acts as a lower bound on the joint density:
-\begin{align}
- J(\mathcal{D},\theta)\geq \lowerBound  (\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{B}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]\text{, where $|\mathcal{B}_x|$ is small}
-\end{align}
-Wake and sleep cycles correspond to alternate maximization of $\lowerBound$ w.r.t. $\left\{\mathcal{B}_x \right\}_{x\in X}$  (\textbf{Wake})
-and $(\mathcal{D},\theta)$ (\textbf{Consolidation}):
-\\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the beams.} Here $(\mathcal{D},\theta)$ is fixed and we
-want to find new programs to add to  the beams so that $\lowerBound$ increases the most.
-$\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]\propto\probability[p|x,\mathcal{D},\theta]$ 
-is large, i.e., programs with high posterior probability,
-or programs which are a priori likely and which solve the task.
-We find programs solving a task by
-enumerating programs
-from the DSL in decreasing order of their probability
-under the recognition model,
-and then check if a program $p$ assigns positive probability to a task
-($\probability[x|p] > 0$); if so, we incorporate $p$ into the beam
-$\mathcal{B}_x$. We represent programs as polymorphicly typed $\lambda$-calculus expressions,
-an expressive formalism
-including conditionals,
-variables,
-higher-order recursive functions,
-and the ability to define new functions.
-\\\noindent \textbf{Sleep (Consolidation): Maxing $ \lowerBound$ w.r.t.\ the DSL.} Here $\left\{\mathcal{B}_x \right\}_{x\in X}$ is held fixed and the problem is to search the discrete space of DSLs and find one maximizing $\int \lowerBound \;\mathrm{d}\theta$,
-and then update $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})$.
+%% Formally, $EC^2$ takes as input a collection of problems, written $X$, which can be solved by programs, and infers a domain specific language -- written $\mathcal{D}$ -- which functions as a generative model over programs likely to solve problems in the domain, and which we identify as an expert's a priori beliefs about what good solutions look like. Alongside this generative model it trains a neural recognition model, in the spirit of the Helmholtz machine or wake-sleep algorithm~\cite{dayan1995helmholtz}. The recognition model takes as input a specific problem and quickly predicts an approximate posterior over programs likely to solve that problem. Writing $p_x$ for the program solving problem $x\in X$ and $Q(p|x)$ for the distribution predicted by the recognition model, $EC^2$ iteratively (and approximately) solves for
+%% \begin{align}
+%% p_x& = \argmax_p \probability[x|p]\probability[p|\mathcal{D}]\label{wakingObjective}\\
+%% \mathcal{D}& = \argmax_\mathcal{D}\probability\left[\mathcal{D} \right]\prod_{x\in X}\sum_{\substack{p:\\p\text{ found during Explore}}} \probability[p|\mathcal{D}]\label{sleepg}\\
+%% Q(p|x)&\approx \probability[p|x,\mathcal{D}]\label{dreamingObjective}
+%% \end{align}
 
-Finding programs solving tasks is difficult because of the infinitely
-large, combinatorial search landscape. We ease this difficulty by
-training a neural recognition model, $Q(p |x )$, during the
-\textbf{Dreaming} phase: $Q$ is trained to approximate the posterior
-over programs, $Q(p|x)\approx
-\probability[p|x,\mathcal{D}]\propto\probability[x|p]\probability[p|\mathcal{D}]$.
-Thus training the neural network amortizes the cost of finding
-programs with high posterior probability.
 
-\noindent\textbf{Sleep (Dreaming): tractably maxing $\lowerBound$ w.r.t. the
-  beams.}  Here we train %% a neural network, $q$, to predict a
-%% distribution over programs conditioned on a task. The objective of $q$
-%% is
-$Q(p|x)$ to assign high probability to programs $p$ where
-$\probability[x|p]\probability[p|\mathcal{D},\theta]$ is large, because incorporating those programs
-into the beams will most increase $\lowerBound$.
+
+These wake sleep/cycles function as an approximate inference algorithm
+that observes a collection of tasks, written $X$, and infers both a
+program solving each task, as well as a distribution over programs
+encoded by a DSL, written $\mathcal{D}$.  We equip $\mathcal{D}$ with
+a learned weight vector $\theta$, and together $(\mathcal{D},\theta)$
+define a generative model over programs
+(Appendix~\ref{sampleProgram}).  Writing $Q(p|x)$ for the approximate
+posterior predicted by the recognition model, we iteratively (and
+approximately) solve for
+
+\begin{array}{lr}
+  \begin{array}{l}  p_x = \argmax_p \probability[x|p]\probability[p|\mathcal{D}^*,\theta^*]\end{array}
+    &\text{\emph{Wake}}\\\\
+\begin{array}{rl}  
+\mathcal{D}^* = \argmax_\mathcal{D}&\int\probability\left[\mathcal{D},\phantom{^*}\theta \right]\prod_{x\in X}\sum_{\substack{p\text{ found during waking}}} \probability[x|p]\probability[p|\mathcal{D},\phantom{^*}\theta]\;\text{d}\theta\\
+\theta^* = \argmax_\theta&\phantom{\int}\probability\left[\mathcal{D}^*,\theta \right]\prod_{x\in X}\sum_{p\text{ found during waking}} \probability[x|p]\probability[p|\mathcal{D}^*,\theta]
+ \end{array}
+&\text{\emph{Consolidation sleep}}\\\\
+\begin{array}{l} Q(p|x)\approx \probability[p|x,\mathcal{D}^*,\theta^*]\end{array}
+  &\text{\emph{Dream sleep}}
+\end{array}
+
+\noindent which serves to maximize a lower bound on the posterior over $(\mathcal{D},\theta)$ given $X$ (Appendix~\ref{probabilisticAppendix}).
+
 
 This 3-phase inference procedure works through two distinct kinds of bootstrapping.
 During each sleep cycle the next DSL
 bootstraps off the primitives learned
 during earlier cycles,
-growing an increasingly deep learned program representation (`deep program learning').
+growing an increasingly deep learned program representation.
 In tandem the DSL and recognition model
 bootstrap each other:
 a more finely tuned
@@ -807,6 +771,18 @@ DSL yields
 richer dreams for the recognition model to learn from,
 while a more accurate recognition model
 solves more tasks during waking which then feed into the next DSL.
+
+Waking consists of searching for task-specific programs with high
+posterior probability, or programs which are a priori likely and which
+solve a task.  We find programs solving a task by enumerating
+programs from the DSL in decreasing order of their probability under
+the recognition model, and then check if a program $p$ assigns
+positive probability to a task ($\probability[x|p] > 0$). We represent
+programs as polymorphicly typed $\lambda$-calculus expressions, an
+expressive formalism including conditionals, variables, higher-order
+recursive functions, and the ability to define new functions.
+
+
 \begin{figure}
   \begin{tikzpicture}[line width=0.4mm]
     \draw[fill=teal!5!white] (-1,1) -- (13,1) -- (13,-4) -- (-1,-4) -- (-1,1);
@@ -1121,16 +1097,14 @@ process to search for DSLs that maximally compress these programs by
 incorporating reused subexpressions into the DSL.
 
 Mathematically this compression takes the form of
-finding the DSL maximizing $\int \lowerBound\;\mathrm{d}\theta$ (Sec.~\ref{overviewSection}).
+finding the DSL maximizing $\int \probability[\mathcal{D},\theta]\probability[X|\mathcal{D},\theta]\;\mathrm{d}\theta$ (Sec.~\ref{overviewSection}).
 We replace this marginal with an AIC approximation~\cite{akaike1998information}
-and marginalize over refactorings of programs in the beams, minimizing the following expression,
+and marginalize over refactorings of programs found during waking, minimizing the following expression,
 which can be interpreted as a kind of compression:
 \begin{equation}
-\underbrace{-\log \probability[\mathcal{D}] + \min_{\theta}\Bigg(-\log
+\underbrace{-\log \probability[\mathcal{D}] + \min_{\substack{\theta\\\\\\\\}}\Bigg(-\log
 \probability[\theta|\mathcal{D}] + \|\theta\|_0}_{\text{Description length of }(\mathcal{D},\theta)} +\sum_{x\in
-  X}\underbrace{-\log \sum_{\substack{p:\\
-      \exists p'\in
-  \mathcal{B}_x: p\text{ refactors into }p'}}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
+  X}\underbrace{-\log \sum_{\substack{p \text{ a refactoring of } p'\\ p'\text{ found during waking}}}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
 \label{AIC}
 \end{equation}
 But a program has infinitely many possible refactorings, rendering
@@ -1145,24 +1119,28 @@ that grows exponentially both as a function of program size and a
 function of the bound on evaluation steps. How can we tame this
 combinatorial explosion?
 
-A structure called a \textbf{version space
-  algebra}~\cite{lau2001programming,mitchell1977version,polozov2015flashmeta}
-neatly resolves this exponential growth.  A version space is a
+To resolve this exponential growth we introduce a new data structure
+combining ideas from version space
+algebras~\cite{lau2001programming,mitchell1977version,polozov2015flashmeta}
+and equivalence graphs~\cite{tate2009equality}. A version space is a
 tree-shaped data structure that compactly represents a large set of
 programs and supports efficient set operations like union,
-intersection, and membership checking.  In
-Appendix~\ref{appendixVersion}, we give a dynamic program that takes
-as input a program and then outputs a version space containing its
-refactorings. Figure~\ref{mapFactor}B diagrams a subtree of a
+intersection, and membership checking, while equivalence graphs are
+data structures that track semantic equivalences between program
+subexpressions.  In Appendix~\ref{appendixVersion}, we give a dynamic
+program that takes as input a program and then outputs a version space
+containing its refactorings while tracking semantically equivalent
+subexpressions. Figure~\ref{mapFactor}B diagrams a subtree of a
 version space containing refactorings of a small program. Our
 technique is substantially more efficient than explicitly representing
 the space of possible refactorings: for the example in
 Figure~\ref{mapFactor}A, we represent the space of refactorings using
 a version space with $10^6$ nodes, which encodes $10^{14}$
-refactorings. Appendix~\ref{appendixCompression} specifies how we combine this probabilistic and symbolic machinery to update the DSL.
-At a high level, our approach is to search locally through the space 
-of DSLs, proposing small changes until Eq.~\ref{AIC}
-fails to decrease.  
+refactorings. Appendix~\ref{appendixCompression} specifies how we
+combine this probabilistic and symbolic machinery to update the DSL.
+At a high level, our approach is to search locally through the space
+of DSLs, proposing small changes until Eq.~\ref{AIC} fails to
+decrease.
 
 
 
@@ -1427,11 +1405,9 @@ allowed to compose.  For example,
 %% contain both the empty list and a routine for appending lists, but
 %% should not allow appending the empty list.  Similarly 
 a DSL for arithmetic should disallow adding zero, or force
-right-associative addition.  These restrictions break symmetries in
-the space of programs.  A bigram parameterization of the recognition
+right-associative addition. A bigram parameterization of the recognition
 model, combined with the $\mathcal{L}^{\text{MAP}}$ training
-objective, interact in a way that breaks symmetries in the program
-space, allowing the agent to more efficiently explore the space of
+objective, interact in a way that breaks symmetries like these, allowing the agent to more efficiently explore the space of
 programs.  This interaction occurs because the bigram parameterization
 can disallow DSL primitives depending on their local syntactic
 context, while the $\mathcal{L}^{\text{MAP}}$ objective forces all
@@ -1680,7 +1656,7 @@ agent first learns the higher-order function \code{filter}, uses
 \code{filter} to learn to take the maximum element of a list, then
 uses that routine to learn a new component for extracting the
 $n^{\text{th}}$ largest element of a list, which it finally uses to
-learn how to sort a list of numbers (Figure~\ref{initialExampleDSL}).
+solve a task involving sorting a list of numbers (Figure~\ref{initialExampleDSL}).
 This incremental, modular learning of deep hierarchies of DSL
 components occurs because of the alternation between code writing
 (during waking) and code refactoring (during the consolidation phase
@@ -1767,9 +1743,9 @@ training data, like polygons, circles, and spirals
 has learned the basic types of objects in its visual world. It
 additionally learns more abstract visual relationships, like
 rotational symmetry, which it models by incorporating a higher-order
-function into its DSL (Figure~\ref{logoPrimitives}, right).  This
-abstraction comes from jointly compressing programs for all of the
-training images into its DSL.
+function into its DSL (Figure~\ref{logoPrimitives}, right).  %% This
+%% abstraction comes from jointly compressing programs for all of the
+%% training images into its DSL.
 
 What does \system dream of?  Prior to learning samples from the DSL
 are simple and largely unstructured (Figure~\ref{logoDreams}, left).
@@ -1790,7 +1766,7 @@ neural net gets richer and more highly varied training data.
   \includegraphics[width = 0.3\textwidth]{figures/logo16.png}
   \includegraphics[width = 0.3\textwidth]{figures/tower9.png}
   \includegraphics[width = 0.3\textwidth]{figures/sr16.png}
-  \caption{Three domains where the agent infers a program from visual input. \textbf{Left}: 16 (out of 145) LOGO graphics tasks. Agent writes a program controlling a `pen' that draws the target picture. \textbf{Middle}: 9 (out of 112) tower building tasks. Agent writes a program controlling a `hand' that builds the target tower. \textbf{Right}: 16 (out of 200) symbolic regression tasks. Agent writes a program containing continuous real numbers that fits the points along the curve.}\label{visualSpecs}
+  \caption{Three domains where the agent infers a program from visual input. \textbf{Left}: 16 (out of 160) LOGO graphics tasks. Agent writes a program controlling a `pen' that draws the target picture. \textbf{Middle}: 9 (out of 112) tower building tasks. Agent writes a program controlling a `hand' that builds the target tower. \textbf{Right}: 16 (out of 200) symbolic regression tasks. Agent writes a program containing continuous real numbers that fits the points along the curve.}\label{visualSpecs}
 \end{figure}
 \begin{figure}
 \centering  \begin{tabular}{cc}
@@ -1955,15 +1931,45 @@ computing the ratio of the tasks solved uniquely by the full model to
 
 \begin{figure}
   \begin{tabular}{ccc}
-    \includegraphics[width = 5cm]{figures/logoLearningCurve_batch.png}&
-    \includegraphics[width = 5cm]{figures/textLearningCurve_batch.png}&
-    \includegraphics[width = 5cm]{figures/listLearningCurve_batch.png}\\\\
-    \includegraphics[width = 5cm]{figures/towerLearningCurve_batch.png}&
-    \includegraphics[width = 5cm]{figures/rationalLearningCurve_batch.png}&
-    \includegraphics[width = 5cm]{figures/regexLearningCurve_batch.png}
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/text_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/text_time.png}
+    \end{tabular}&
+
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/logo_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/logo_time.png}
+    \end{tabular}&
+    
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/rational_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/rational_time.png}
+    \end{tabular}\\\\\\
+
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/list_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/list_time.png}
+    \end{tabular}&
+
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/tower_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/tower_time.png}
+    \end{tabular}
   \end{tabular}
-  \caption{Test set performance across wake/sleep iterations. Orange: \systemEnding. Teal: No recognition model. Purple: No DSL learning. Solid lines: \% tasks solved within 10 minute timeout. Dashed lines: average search time. Shaded region is $\pm 1$ stddev search time.}\label{learningCurves}
+  \caption{Test set performance across wake/sleep iterations. Each curve is a run with a different random seed. Teal: Full model. Orange: Dreaming only (no DSL learning). Purple: Consolidation only (no recognition model). Search time plots show solid lines (time averaged over all tasks) and dotted lines (time averaged over solved tasks).}\label{learningCurves}      
 \end{figure}
+
+%% \begin{figure}
+%%   \begin{tabular}{ccc}
+%%     \includegraphics[width = 5cm]{figures/logoLearningCurve_batch.png}&
+%%     \includegraphics[width = 5cm]{figures/textLearningCurve_batch.png}&
+%%     \includegraphics[width = 5cm]{figures/listLearningCurve_batch.png}\\\\
+%%     \includegraphics[width = 5cm]{figures/towerLearningCurve_batch.png}&
+%%     \includegraphics[width = 5cm]{figures/rationalLearningCurve_batch.png}&
+%%     \includegraphics[width = 5cm]{figures/regexLearningCurve_batch.png}
+%%   \end{tabular}
+%%   \caption{Test set performance across wake/sleep iterations. Orange: \systemEnding. Teal: No recognition model. Purple: No DSL learning. Solid lines: \% tasks solved within 10 minute timeout. Dashed lines: average search time. Shaded region is $\pm 1$ stddev search time.}\label{learningCurves}
+%% \end{figure}
 
 
 \section{Discussion}
@@ -2070,9 +2076,80 @@ learning natural image grammars (vs ),
 
 \section{Appendix}
 
+\subsection{Probabilistic Formulation of \system}\label{probabilisticAppendix}
+Our objective is to infer the maximum a posteriori DSL $\mathcal{D}$ and
+parameters $\theta$. Writing $J$ for the joint probability of $(\mathcal{D},\theta)$,
+this corresponds to solving
+\begin{align}\label{intractableObjectives}
+\nonumber  J(\mathcal{D},\theta)\triangleq \probability[\mathcal{D},\theta]&\prod_{x\in X} \sum_p \probability[x|p]\probability[p|\mathcal{D},\theta]\\
+  \mathcal{D}^* = \argmax_{\mathcal{D}}\int J(\mathcal{D},\theta)\;\mathrm{d}\theta& \qquad
+  \theta^* =\argmax_\theta J(\mathcal{D}^*,\theta)
+\end{align}
+where $\probability[x|p]$ scores the likelihood of a task
+$x\in X$ given a program $p$.\footnote{For example, for list
+  processing, the likelihood is 1 if the program predicts the observed
+  outputs on the observed inputs, and 0 otherwise; when learning a
+  generative model or probabilistic program, the likelihood is the
+  probability of the program sampling the observation.}
+
+Evaluating Eq.~\ref{intractableObjectives}
+entails marginalizing over the infinite set of all programs -- which is impossible.
+We make a particle-based approximation to Eq.~\ref{intractableObjectives}
+and instead marginalize over a finite \textbf{beam} of programs,
+with one beam per task, collectively written $\left\{\mathcal{B}_x \right\}_{x\in X}$.
+This particle-based approximation is written $\lowerBound (\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})$
+and acts as a lower bound on the joint density:
+\begin{align}
+ J(\mathcal{D},\theta)\geq \lowerBound  (\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})\triangleq\probability[\mathcal{D},\theta]\prod_{x\in X} \sum_{p\in \mathcal{B}_x} \probability[x|p]\probability[p|\mathcal{D},\theta]\text{, where $|\mathcal{B}_x|$ is small}
+\end{align}
+In all of our experiments we set the maximum beam size $|\mathcal{B}_x|$ to 5.
+
+Wake and sleep cycles correspond to alternate maximization of $\lowerBound$ w.r.t. $\left\{\mathcal{B}_x \right\}_{x\in X}$  (\textbf{Wake})
+and $(\mathcal{D},\theta)$ (\textbf{Consolidation}):
+\\\noindent \textbf{Wake: Maxing $\lowerBound$ w.r.t.\ the beams.} Here $(\mathcal{D},\theta)$ is fixed and we
+want to find new programs to add to  the beams so that $\lowerBound$ increases the most.
+$\lowerBound$ most increases by finding programs where $\probability[x|p]\probability[p|\mathcal{D},\theta]\propto\probability[p|x,\mathcal{D},\theta]$ 
+is large, i.e., programs with high posterior probability,
+which is the search objective during waking.
+
+%% or programs which are a priori likely and which solve the task.
+%% We find programs solving a task by
+%% enumerating programs
+%% from the DSL in decreasing order of their probability
+%% under the recognition model,
+%% and then check if a program $p$ assigns positive probability to a task
+%% ($\probability[x|p] > 0$); if so, we incorporate $p$ into the beam
+%% $\mathcal{B}_x$. We represent programs as polymorphicly typed $\lambda$-calculus expressions,
+%% an expressive formalism
+%% including conditionals,
+%% variables,
+%% higher-order recursive functions,
+%% and the ability to define new functions.
+\\\noindent \textbf{Sleep (Consolidation): Maxing $ \lowerBound$ w.r.t.\ the DSL.} Here $\left\{\mathcal{B}_x \right\}_{x\in X}$ is held fixed and the problem is to search the discrete space of DSLs and find one maximizing $\int \lowerBound \;\mathrm{d}\theta$,
+and then update $\theta$ to $\argmax_\theta \lowerBound(\mathcal{D},\theta,\left\{\mathcal{B}_x \right\})$.
+
+Finding programs solving tasks is difficult because of the infinitely
+large, combinatorial search landscape. We ease this difficulty by
+training a neural recognition model, $Q(p |x )$, during the
+\textbf{Dreaming} phase: $Q$ is trained to approximate the posterior
+over programs, $Q(p|x)\approx
+\probability[p|x,\mathcal{D}]\propto\probability[x|p]\probability[p|\mathcal{D}]$.
+Thus training the neural network amortizes the cost of finding
+programs with high posterior probability.
+
+\noindent\textbf{Sleep (Dreaming): tractably maxing $\lowerBound$ w.r.t. the
+  beams.}  Here we train %% a neural network, $q$, to predict a
+%% distribution over programs conditioned on a task. The objective of $q$
+%% is
+$Q(p|x)$ to assign high probability to programs $p$ where
+$\probability[x|p]\probability[p|\mathcal{D},\theta]$ is large, because incorporating those programs
+into the beams will most increase $\lowerBound$.
+
+
 \subsection{\system pseudocode}\label{systemPseudocode}
 
-Algorithm~\ref{theWholeThing} specifies how we integrate wake and sleep cycles.
+Algorithm~\ref{theWholeThing} specifies how we integrate wake and
+sleep cycles.
 \begin{algorithm}
   \caption{Full \system algorithm}\label{theWholeThing}
   \begin{algorithmic}[1]
@@ -2254,8 +2331,8 @@ This is similar in spirit to iterative deepening depth first search~\cite{Russel
 
  Algorithm~\ref{grammarInductionAlgorithm} specifies our DSL learning procedure.
  This integrates two toolkits:
- the machinery of version spaces (Appendix~\ref{appendixVersion})
- and a probabilistic objective favoring compressive DSLs.
+ the machinery of version spaces and equivalence graphs (Appendix~\ref{appendixVersion})
+ along with a probabilistic objective favoring compressive DSLs.
  The functions $I\beta(\cdot )$ and \textsc{refactor} construct
 a version space from a program and extract the shortest program from a version space, respectively (Algorithm~\ref{grammarInductionAlgorithm}, lines 5-6, 14; Appendix~\ref{appendixVersion}).
 To define the prior distribution over $(\mathcal{D},\theta})$ (Algorithm~\ref{grammarInductionAlgorithm}, lines 7-8), we penalize the syntactic complexity of the $\lambda$-calculus expressions in the DSL, defining $    \probability[\mathcal{D}]\propto\exp(-\lambda\sum_{p\in \mathcal{D}}\text{size}(p) )$ where $\text{size}(p)$  measures the size of the syntax tree of program $p$,
@@ -2656,6 +2733,8 @@ Finally we have our main result:
   which combined with $p\reduce q$
   gives  $p\underbrace{\reduce q\reduce\cdots\reduce}_{\text{$\leq i\leq n$ times}} p'$.  
 \end{proof}
+
+\subsubsection{Tracking equivalences}
 
 %% First observe that
 %% we do not \emph{enumerate} every refactoring,
