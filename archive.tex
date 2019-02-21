@@ -410,10 +410,10 @@
 \section{Introduction}
 
 
-An old dream within AI is a machine that learns and reasons by
-writing its own programs.  This vision stretches back to the
-1960's~\cite{solomonoff1964formal} and and is central to much of
-what it would take to build machines that learn and think like humans.
+An old dream within AI is a machine that learns and reasons by writing
+its own programs.  This vision stretches back to the
+1960's~\cite{solomonoff1964formal} and, if fully realized, could bring
+us much closer to machines that learn and think like humans.
 Computational models of cognition often explain the flexibility and
 richness of human thinking in terms of program learning: from everyday
 thinking and problem solving (motor program induction as an account of
@@ -432,7 +432,8 @@ learning community are impressive along many dimensions, authoring
 programs for problem domains like drawing
 pictures~\cite{spiral,ellis2017learning}, transforming
 text~\cite{gulwani2011automating} and numerical
-sequences~\cite{balog2016deepcoder}, and reasoning over common sense
+sequences~\cite{balog2016deepcoder}, robot motion
+planning~\cite{devlin2017neural}, and reasoning over common sense
 knowledge bases~\cite{muggleton2015meta}.  These systems work in
 different ways, but typically hinge upon a carefully hand-engineered
 Domain Specific Language (DSL).  The DSL restricts the space of
@@ -448,9 +449,9 @@ concepts needed to navigate the domain.
 We contribute a program-induction system that learns the
 domain-specific concepts (DSL) while jointly learning how to use those
 concepts.  This joint learning problem models two complementary
-notions of domain expertise: (1) domain experts have at their disposal
+notions of domain expertise: domain experts have at their disposal
 a powerful, yet specialized repertoire of concepts and abstractions
-(analogous to the DSL) while also (2) having accurate intuitions about
+(analogous to the DSL) while also having accurate intuitions about
 when and how to use those concepts to solve new problems.
 Representative domains,
 along with DSLs we learn for them,
@@ -467,7 +468,7 @@ waking and consolidating them into new code abstractions.  This cycle
 is inspired by the formation of abstractions during sleep memory
 consolidation~\cite{DUDAI201520}.  The second sleep cycle, which we
 refer to as \textbf{dreaming}, improves the agents knowledge of how to
-write programs by training a neural network to help search for
+write code by training a neural network to help search for
 programs. The neural net is trained on replayed experiences as well as
 `fantasies', or samples, from the DSL.  These two kinds of dreams are
 inspired by the distinct episodic replay and hallucination components
@@ -1947,14 +1948,16 @@ computing the ratio of the tasks solved uniquely by the full model to
     \end{tabular}\\\\\\
 
     \begin{tabular}{c}
-      \includegraphics[width = 5cm]{figures/learningCurves/list_hits.png}\\
-      \includegraphics[width = 5cm]{figures/learningCurves/list_time.png}
+      \includegraphics[width = 5cm]{figures/learningCurves/list_hard_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/list_hard_time.png}
     \end{tabular}&
 
     \begin{tabular}{c}
       \includegraphics[width = 5cm]{figures/learningCurves/tower_hits.png}\\
       \includegraphics[width = 5cm]{figures/learningCurves/tower_time.png}
-    \end{tabular}
+    \end{tabular}&
+
+    \includegraphics[width = 5cm]{figures/learningCurves/regular}
   \end{tabular}
   \caption{Test set performance across wake/sleep iterations. Each curve is a run with a different random seed. Teal: Full model. Orange: Dreaming only (no DSL learning). Purple: Consolidation only (no recognition model). Search time plots show solid lines (time averaged over all tasks) and dotted lines (time averaged over solved tasks).}\label{learningCurves}      
 \end{figure}
@@ -2023,6 +2026,22 @@ What this experiment shows is that \system doesn't \emph{need} to start from a r
 and can in principle recover many of the amenities of modern programming systems,
 provided it is given enough computational power and a suitable
 spectrum of tasks.
+
+\subsection{\system and the Exploration-Compression family of algorithms}
+
+Our work sits within the Exploration-Compression (EC) family of
+algorithms.  EC~\cite{Dechter:2013:BLV:2540128.2540316} is a program
+induction framework where an agent alternates between searching, or
+`exploring', the space of programs, and then updating its search
+procedure by compressing programs found during exploration. \system
+grew directly out of research on EC-style systems and both of our
+sleep phases can be interpreted as a kind of compression:
+consolidation aims to compactly refactor code, while the recognition
+model aims to encode a program in as few bits as possible, conditioned
+on a task. Other offshoots of EC include our previous work,
+EC$^2$~\cite{ecc}, the direct predecessor of \systemEnding; and the
+neurosymbolic framework in~\cite{lazaro2019beyond}. Closely aligned ideas
+go much further back~\cite{solomonoff1989system,schmidhuber2004optimal}.
 
 \subsection{Acquiring Domain Expertise}
 
@@ -3786,3 +3805,4 @@ problems require either longer timeouts, more CPUs, or both.
 
 
 \end{document}
+
