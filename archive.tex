@@ -161,180 +161,7 @@
          
 \begin{document}
 
-\begin{figure}
-  \includegraphics[width = \textwidth]{figures/DeepLogo.pdf}
-  \caption{\textbf{Bottom}: Learned graphics programing DSL. Each circle encloses a different learned component; arrows point from a component to other components that use it. \textbf{Top}: 3 tasks, and below them the programs that solve them. Yellow/Blue/Green highlighting indicates which DSL components are used to solve which tasks.}
-  \end{figure}
 
-\begin{figure}
-  \begin{tikzpicture}
-    \renewcommand{\baselinestretch}{0.5}
-    \newcommand{\inventionColor}{orange}
-    \newcommand{\name}[2]{
-      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
-    }
-    \newcommand{\noArguments}[1]{
-      \mcode{{\color{\inventionColor}$f_{#1}\,=\,$}}
-    }
-
-    
-    \newcommand{\horizontalSpacing}{3.8cm}
-    \newcommand{\verticalSpacing}{2cm}
-
-    
-%    \draw (0,0) rectangle (10,5);
-    \node(t1)[align=left] at (1,-1) {
-      \footnotesize +106 769-43$\to $106.769.43\\
-      \footnotesize +83 973-831$\to $83.973.831\\
-      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(}\subnode{f01}{${\color{\inventionColor}f_0}$}\mcode{  \codechar{.} \codechar{-}}\\
-      \footnotesize \hspace{1.25cm}\mcode{(${\color{\inventionColor}f_0}$ \codechar{.} \codechar{ }}\\
-      \footnotesize \hspace{1.4cm}\mcode{(cdr s)))}
-    };
-    \node(t2)[align=left,anchor=center] at ([xshift=\horizontalSpacing]t1.center) {
-      \footnotesize Dream Coder$\to$Dr. Dream\\
-      \footnotesize Andy Cencici$\to$Dr. Andy\\
-      \footnotesize Jan Kotas$\to$Dr. Jan\\
-      \footnotesize Nancy Jones$\to$Dr. Nancy\\
-      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{\inventionColor}f_3}$ (${\color{\inventionColor}f_4}$ \codechar{ } s))}
-    };
-    \node(t3)[align=left] at ([xshift=2cm]t2.east) {
-      \footnotesize Dream (Coder)$\to$Coder\\
-      \footnotesize 1 (2) 3 4$\to$2\\
-      \footnotesize the (dog) ran$\to$ran\\
-      \footnotesize +817(33)99$\to$33\\
-      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{\inventionColor}f_6}$ \codechar{(} \codechar{)} s)}
-    };
-
-    \draw (-2,-2.5) -- (15,-2.5);
-    \node[align=left,rotate=90] at (-1.5,-1.3) {Tasks and\\\\\texttt{Programs}};
-
-    \node[align=left,rotate=90] at (-1.5,-6.3) {Domain Specific Language (DSL)\\\\System discovers subroutines in {\color{\inventionColor}orange}};
-
-    
-    \newcommand{\invention}[4]{
-      \node(#1)[inner sep=1,anchor=center,text width=2cm,draw,rounded corners,align=center] at (#2) {
-        \footnotesize #3
-      };
-      \node[anchor=north] at ([yshift=3.5pt]#1.south) {#4};
-    }
-    \newcommand{\vinvention}[4]{
-      \invention{#1}{[yshift=-\verticalSpacing]#2.center}{#3}{#4}
-    }
-    \newcommand{\hinvention}[4]{
-      \invention{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
-    }
-
-
-    \invention{substitution}{1,-4}{
-      ${\color{\inventionColor}f_0}($\mcode{s}$,$\mcode{a}$,$\mcode{b}$) \,=\, $\\
-       \mcode{(map ($\lambda$ (x) (if (= x a)\\ b x)) s)}
-    }{substitute chars}
-    \vinvention{cat}{substitution}{
-      ${\color{\inventionColor}f_1}($\mcode{a}$,$\mcode{b}$) \,=\, $\\
-      \mcode{(fold ($\lambda$ (x y)\\ (cons x y))\\ a b))}
-    }{concat strings}
-    \vinvention{looping}{cat}{
-       ${\color{\inventionColor}f_2}($\mcode{c}$,$\mcode{p}$,$\mcode{s}$) \,=\, $\\
-      \mcode{(unfold l ($\lambda$ (x) (= c (car x))) p ($\lambda$ (z) (cdr z)))}
-    }{loop until char}
-
-    \hinvention{constant}{substitution}{
-      ${\color{\inventionColor}f_3}($\mcode{s}$) \,=\, $\\
-      \mcode{(${\color{\inventionColor}f_1}$ s string)}
-    }{prepend constant}
-    \vinvention{drop}{constant}{
-      ${\color{\inventionColor}f_4}($\mcode{c}$) \,=\, $\\
-      \mcode{(${\color{\inventionColor}f_2}$ c ($\lambda$ }\\\mcode{(z) (car z)))}
-    }{prefix}
-    \vinvention{suffix}{drop}{
-      ${\color{\inventionColor}f_5}($\mcode{s}$,$\mcode{c}$) \,=\, $\\
-      \mcode{(fold ($\lambda$ (x y) }\\\mcode{(cdr (if (= x c)}\\\mcode{ s y))) s s)}
-    }{suffix}
-
-    \hinvention{delimited}{constant}{
-      \mcode{${\color{\inventionColor}f_6}($x$,$y$,$s$)\,=\,$}\\
-      \mcode{(${\color{\inventionColor}f_4}$ x (${\color{\inventionColor}f_5}$ y c))}
-    }{delimited substring}
-    \draw[->] (delimited.west) -- (drop.east);
-    \draw[->] (delimited.west) -- (suffix.east);
-
-    \vinvention{appendSingle}{delimited}{
-      \mcode{${\color{\inventionColor}f_7}($c$,$s$)\,=\,$}\\
-      \mcode{(${\color{\inventionColor}f_1}$ (cons c nil) s)}}{append character}
-    
-    \vinvention{surround}{appendSingle}{
-      \mcode{${\color{\inventionColor}f_8}($s$)\,=\,$}\\
-      \mcode{(cons \codechar{(} (${\color{\inventionColor}f_7}$ \codechar{)} s))}}{surround in parens}
-    \draw[->] (surround.west) to[in=200,out=160] ([yshift=-0.25cm]appendSingle.west);
-    \draw[->] (appendSingle.west) to[in=40,out=120] ([yshift=0.25cm]cat.east);
-    
-    \draw[->] (drop.west) -- (looping.east);
-    \draw[->] (constant.west) -- (cat.east);
-
-    \draw[->] ([xshift=-0.5cm]t2.south) -- (constant.north);
-    \draw[->] ([xshift=0.3cm]t2.south) to[in=30,out=-30] ([xshift=1cm]drop.north);
-
-    \draw[->] ([yshift=0.2cm,xshift=-0.2cm]t1.south) to[in=100,out=200] (substitution.north);
-    \draw[->] ([yshift=0.5cm,xshift=-0.5cm]t1.south) to[in=120,out=200] ([xshift=-0.5cm]substitution.north);
-    \draw[->] ([xshift=-0.5cm]t3.south) -- (delimited.north);
-          
-    \begin{scope}[shift={(0,-15)}]
-      \invention{filter}{0,0}{
-        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
-        }{higher-order `filter'}
-
-      \vinvention{three}{filter}{\footnotesize ${\color{\inventionColor}f_1} = $\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
-      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
-      \hinvention{single}{filter}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
-      \vinvention{for}{single}{\footnotesize ${\color{\inventionColor}f_4} = $\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
-      \vinvention{Max}{for}{\name{5}{l}\\\mcode{%
-          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
-      \hinvention{largest}{single}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
-      \vinvention{count}{largest}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
-      \vinvention{weird}{count}{\name{8}{p$,$l}\mcode{
-          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0))))}}
-                 {Higher-order incrementer}
-
-      \draw[->] (for.west) -- (three.east);
-      \draw[->] ([yshift=-0.0cm]largest.west) -- (Max.east);
-      \draw[->] ([yshift=-0.cm]largest.west) to[out=240,in=330] ([yshift=-0.1cm]filter.east);
-      \draw[->] (Max.west) -- (filter.east);
-      \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
-
-      \node(t1)[align=left,anchor=center] at (0,3) {
-        \mcode{[1 4 5 8]$\to$[5 8]}\\
-        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
-        \mcode{[3 4 5 6]$\to$[5 6]}\\
-        \mcode{[6 5 4 3]$\to$[6 5]}\\
-        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}
-      };
-      \node(t2)[align=left] at ([xshift=\horizontalSpacing]t1.center) {
-        \mcode{[9 2 4]$\to$[4 2 9]}\\
-        \mcode{[4 3]$\to$[3 4]}\\
-        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
-        \mcode{[]$\to$[]}\\
-        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}
-      };
-      \node(t3)[align=left] at ([xshift=\horizontalSpacing]t2.center) {
-        \mcode{[9 2 3]$\to$[2 3 9]}\\
-        \mcode{[2 1]$\to$[1 2]}\\
-        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
-        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}
-      };
-
-      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]t1.south) to[out=250] (filter.north);
-      \draw[->] ([yshift=0.0cm,xshift=0.3cm]t1.south) to[out=350,in=100] (for.west);
-      \draw[->] ([xshift=-0.7cm]t2.south) -- (single.north);
-      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]t3.south) to[out=240] (largest.north);
-
-    \end{scope}
-    
-    
-
-    
-
-    \end{tikzpicture}
-\end{figure}
 
 
 
@@ -410,441 +237,242 @@
 
 \section{Introduction}
 
-Human knowledge, both in children and in adults, seems to be organized
-into domains of expertise.  Some of us develop competence in cooking,
-calculus, tennis, drawing pictures, or writing software, and virtually
-every child masters natural language, motor control, and intuitive
-theories of kinship, taxonomy, and physics. Over short timescales,
-people can solve new problems within their domain of expertise, and
-over longer time scales, they can grow into domain experts for 
-new classes of problems.  A long-term goal for machine intelligence is
-to build an AI that captures these two human abilities: both solving
-new problems, and expanding the domains of problems that can be solved in
-the first place.
+What would it take to build a machine that can learn everything a
+person does over their lifetime?
+Although this goal will remain distant for the foreseeable future,
+we know that a general learning system like this would need to be able to acquire many different kinds of expertise.
+Virtually every child becomes an expert in natural language, motor control, and social interaction, while learning rich
+intuitive theories of kinship, taxonomy and physics. Many of those
+children will grow into adults with competence in cooking, calculus, tennis, drawing
+pictures, or writing software.
+Expertise -- the ability to quickly solve new problems in a domain -- is crucial.
+Human learning goes far beyond just memorizing a large set of facts or routines,
+but involves higher-order skills,
+like learning to learn new concepts or
+learning to solve new types of problems more quickly and effectively.
+Despite great advances in machine learning,
+we are still far from
+an AI with these abilities.
+The modern AI toolkit has given us machines that learn to play challenging games at superhuman levels,
+but cannot quickly transfer to similar games like a person would;
+or, which can learn to generate convincing English prose,
+but which do not then learn to analyze many different languages,
+like a field linguist would.
+Here, we contribute a computational model that takes a small step toward the goal of building machines that
+grow into domain experts,
+looking at much simpler kinds of problems that humans can learn to solve and indeed become experts in.
 
-We take the stance that an artificial agent with these humanlike
-abilities needs at least two ingredients.  First it must acquire the
-underlying system of domain-specific concepts.  For drawing pictures
-these concepts include polygons, spirals, arcs, and symmetries; for
-physics these concepts include dot products, vector fields, and
-conservation laws.  Second it must learn to quickly deploy these
-concepts efficiently on new problems: at a glance, human domain
+Our model is structured
+around the hypothesis that
+domain expertise
+consists primarily of two ingredients.
+First, domain experts have 
+explicit, declarative concepts that are powerful yet finely-tuned.
+A visual artist has concepts like arcs, spirals, symmetries, and perspectives;
+a physicist has concepts like dot products, vector fields, and conservation laws;
+and an architect has concepts like arches, supports, and bridges.
+Second, experts have implicit procedural skill in deploying those concepts
+to quickly solve new problems:
+at a glance, human domain
 experts can intuit which compositions of concepts are likely to solve
-the task at hand, even before they begin searching for a solution.
+the task at hand, even before searching for a solution.
+Studies of human expertise
+find that,
+compared to novices,
+experts can quickly categorize and classify problems based on the ``deep structure''
+of the problem's solution~\cite{chi1981expertise,chi2012seeing}.
+In short, we take the stance that expertise means both
+having the right concepts, and being able to quickly see how those concepts can be composed into a solution.
 
-We introduce a computational model that jointly acquires these two
-kinds of domain knowledge.  Because solutions to many kinds of
+Because solutions to many kinds of
 problems can often be described as some kind of
 program~\cite{lake2015human,Ullman2012,DBLP:journals/cogsr/SchmidK11},
-our system solves a specific problem by searching for a program.  It
+our model solves a specific problem by synthesizing a program solving it. It
 gradually grows its domain-specific knowledge for a class of problems
 by assembling a library of code containing concepts useful for the
 domain, and by training a neural network to quickly infer, for a
-specific problem, what code concepts from its library are likely to
-solve it.  We first investigate our model within classic program
+specific problem, what code in its library is likely to
+solve it. We think of these two learned components as analogous
+to the explicit concepts and
+implicit procedural skill that human experts develop.
+We will first investigate our model within classic program
 synthesis domains for manipulating sequences of numbers and text, and
 then consider visual and creative programs for drawing pictures and
-building towers out of toy blocks, altogether considering both
+building towers out of toy blocks, and finally consider programs for basic kinds of equation discovery and programming language design, altogether considering both
 deterministic and probabilistic programs that act both generatively
 (e.g., producing an artifact like an image or plan) and conditionally
 (e.g., mapping inputs to outputs).
 
-We call our system `DreamCoder' because it works through a novel kind
+Our model iteratively creates new library routines that build on
+concepts learned earlier in its learning trajectory, growing a library with nested
+hierarchies of code.  We think of this cumulative nesting of
+abstractions as a variety of deep representation
+learning~\cite{lecun2015deep}.  Figure~\ref{exampleDSL} diagrams a
+subset of these learned networks (the library). For example, the model
+learns to sort sequences of numbers by invoking a library component 4
+layers deep, or draws the leftmost pairs of images in
+Figure~\ref{exampleDSL} using a depth-3 component.  For this reason we
+refer to our approach as an instance of `deep program learning'.
+
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/dpl/list}
+  \includegraphics[width = \textwidth]{figures/dpl/logo}
+  \caption{}\label{exampleDSL}
+\end{figure}
+
+
+
+
+
+
+%% \section{Old introduction}
+
+%% An old dream within AI is a machine that learns and reasons by writing
+%% its own programs.  This vision stretches back to the
+%% 1960's~\cite{solomonoff1964formal} and, if fully realized, could bring
+%% us much closer to machines that learn and think like humans.
+%% Computational models of cognition often explain the flexibility and
+%% richness of human thinking in terms of program learning: from everyday
+%% thinking and problem solving (motor program induction as an account of
+%% recognition and generation of handwriting and
+%% speech~\cite{lake2015human}; functional programs as a model of natural
+%% language semantics~\cite{SOMETHING}) to learning problems that unfold
+%% over longer developmental time scales: the child's acquisition of
+%% intuitive theories (of kinship, taxonomy, etc.)~\cite{Ullman2012} and
+%% natural language grammar~\cite{DBLP:journals/cogsr/SchmidK11}, to name
+%% just a few.  An outstanding challenge, however, is to engineer
+%% program-learners that display the same level of domain-generality as
+%% the humans they are meant to model.
+
+%% Recent program-learning systems developed within the AI and machine
+%% learning community are impressive along many dimensions, authoring
+%% programs for problem domains like drawing
+%% pictures~\cite{spiral,ellis2017learning}, transforming
+%% text~\cite{gulwani2011automating} and numerical
+%% sequences~\cite{balog2016deepcoder}, robot motion
+%% planning~\cite{devlin2017neural}, and reasoning over common sense
+%% knowledge bases~\cite{muggleton2015meta}.  These systems work in
+%% different ways, but typically hinge upon a carefully hand-engineered
+%% Domain Specific Language (DSL).  The DSL restricts the space of
+%% programs to contain the kinds of concepts needed for one specific
+%% domain.  For example, a picture-drawing DSL could include concepts
+%% like circles and spirals, and a DSL for numerical sequences could
+%% include sorting and reversing lists of numbers.  Modern systems also
+%% learn how to efficiently deploy the DSL on new
+%% problems~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}, but --
+%% unlike human learners -- do not discover the underlying system of
+%% concepts needed to navigate the domain.
+
+%% We contribute a program-induction system that learns the
+%% domain-specific concepts (DSL) while jointly learning how to use those
+%% concepts.  This joint learning problem models two complementary
+%% notions of domain expertise: domain experts have at their disposal
+%% a powerful, yet specialized repertoire of concepts and abstractions
+%% (analogous to the DSL) while also having accurate intuitions about
+%% when and how to use those concepts to solve new problems.
+%% Representative domains,
+%% along with DSLs we learn for them,
+%% are shown in Figure~\ref{exampleDSL}.
+
+%% We call our system `DreamCoder' because it acquires these two kinds of
+%% expertise through a novel kind of wake/sleep or `dream'
+%% learning~\cite{hinton1995wake}, iterating through a wake cycle --
+%% where it solves problems by writing programs -- and a pair of sleep
+%% cycles, both of which are loosely biologically inspired by actual
+%% sleep.  The first sleep cycle, which we refer to as
+%% \textbf{consolidation}, grows the DSL by replying experiences from
+%% waking and consolidating them into new code abstractions.  This cycle
+%% is inspired by the formation of abstractions during sleep memory
+%% consolidation~\cite{DUDAI201520}.  The second sleep cycle, which we
+%% refer to as \textbf{dreaming}, improves the agents knowledge of how to
+%% write code by training a neural network to help search for
+%% programs. The neural net is trained on replayed experiences as well as
+%% `fantasies', or samples, from the DSL.  These two kinds of dreams are
+%% inspired by the distinct episodic replay and hallucination components
+%% of dream sleep~\cite{fosse2003dreaming}.
+
+
+%% This dream-learning architecture brings together two lines of prior work,
+%% both of which have been separately influential within
+%% artificial intelligence.
+%% One line of work
+%% considers the problem of learning new concepts, abstractions, or
+%% `options' from
+%% experience~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning},
+%% while the other line of work considers the problem of learning how to
+%% deploy those concepts
+%% efficiently~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}.  Our
+%% goal with DreamCoder is to show that the combination of these ideas is
+%% uniquely powerful, and pushes us toward program-writing systems that,
+%% like human learners, autonomously acquire the expertise needed to
+%% navigate a new domain of problems.
+
+
+%% Each wake/sleep cycle creates new DSL components that build on
+%% components learned in earlier sleep cycles, growing a DSL with nested 
+%% hierarchies of code.  We identify this cumulative nesting of
+%% abstractions as a variety of deep representation
+%% learning~\cite{lecun2015deep}.  Figure~\ref{exampleDSL} diagrams a
+%% subset of these learned networks (the DSL). For example, the system
+%% learns to sort sequences of numbers by invoking a DSL component 4
+%% layers deep, or draws the leftmost pairs of images in
+%% Figure~\ref{exampleDSL} using a depth-3 component.  For this reason we
+%% refer to \system as an instance of `deep program learning'.
+
+
+%% Our goal with \system is to engineer a system that develops domain
+%% expertise in humanlike ways. This involves learning both declarative and
+%% procedural knowledge, like a DSL and a recognition model, but includes
+%% other features of the development of expertise:
+%% humans can become experts in many fields,
+%% and so we evaluate our algorithm across six different problem domains;
+%% a human expert doesn't become an expert overnight,
+%% and needs more than a handful of example problems to learn from,
+%% but doesn't need millions of examples;
+%% similarly our algorithm's
+%% learning trajectory unfolds over a series of wake/sleep cycles
+%% requiring around a hundred problems per domain.
+
+
+%\input{dpl1.tex} % old latex deep programming figures
+
+\section{Deep Wake/Sleep Program Induction}\label{overviewSection}
+
+Our model, called \systemEnding, works through a novel kind
 of wake/sleep or `dream' learning~\cite{hinton1995wake}, iterating
-through a wake cycle -- where it solves problems by writing programs
+through a wake cycle -- where it solves \textbf{tasks} by writing programs (Figure~\ref{threeCycles} top)
 -- and a pair of sleep cycles, both of which are loosely biologically
 inspired. The first sleep cycle, which we refer to as
 \textbf{consolidation}, grows its library of code by replying
 experiences from waking and consolidating them into new code
-abstractions.  This cycle is inspired by the formation of abstractions
+abstractions (Figure~\ref{threeCycles} left).  This cycle is inspired by the formation of abstractions
 during sleep memory consolidation~\cite{DUDAI201520}.  The second
 sleep cycle, which we refer to as \textbf{dreaming}, improves the
 agents knowledge of how to write code by training a neural network to
-help search for programs. The neural net is trained on replayed
+help quickly search for programs. The neural net is trained on replayed
 experiences as well as `fantasies', or samples, from the learned
-library.  These two kinds of dreams are inspired by the distinct
+library (Figure~\ref{threeCycles} right).  These two kinds of dreams are inspired by the distinct
 episodic replay and hallucination components of dream
 sleep~\cite{fosse2003dreaming}.
 
-\system builds on several generations of research in AI, program
-synthesis, and cognitive science, with program induction being one of
-the oldest theoretical frameworks for concept learning within
-artificial intelligence~\cite{solomonoff1964formal}, and the
-conceptually allied `Language of Thought Hypothesis' being almost as
-old~\cite{fodor1975language}. Recent neural program synthesis systems
-pair a fixed programming language to a learned neural network that
-guides program
-search~\cite{spiral,balog2016deepcoder,devlin2017neural}, while recent
-symbolic AI research has developed frameworks for inferring 
-reusable pieces of code shared in a multitask
-setting~\cite{ecc,Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
-A main goal of this work is to combine and refine these techniques
-with the intention of building agents that, like humans, develop
-domain expertise for new classes of problems, motivated by models from
-cognitive science that explain the flexibility and generality of human
-thinking in terms of program-like mental representations, referred to
-as a `language of thought'~\cite{piantadosi2011learning}.
-
-Most prior program synthesis work assumes a fixed library of code
-components~\cite{jha2010oracle} or a hand-engineered domain-specific
-language (a `DSL'~\cite{polozov2015flashmeta,gulwani2011automating}).
-In the vocabulary of program synthesis, our approach is to learn an
-increasingly finely-tuned DSL (during consolidation) while jointly
-learning to deploy it efficiently on new problems (during dreaming).
-Each wake/sleep cycle creates new DSL components that build on
-components learned in earlier sleep cycles, growing a DSL with nested
-hierarchies of code.  We identify this cumulative nesting of
-abstractions as a variety of deep representation
-learning~\cite{lecun2015deep}.  Figure~\ref{exampleDSL} diagrams a
-subset of these learned networks (the DSL). For example, the system
-learns to sort sequences of numbers by invoking a DSL component 4
-layers deep, or draws the leftmost pairs of images in
-Figure~\ref{exampleDSL} using a depth-3 component.  For this reason we
-refer to \system as an instance of `deep program learning'.
-
-
-
-
-
-\section{Old introduction}
-
-An old dream within AI is a machine that learns and reasons by writing
-its own programs.  This vision stretches back to the
-1960's~\cite{solomonoff1964formal} and, if fully realized, could bring
-us much closer to machines that learn and think like humans.
-Computational models of cognition often explain the flexibility and
-richness of human thinking in terms of program learning: from everyday
-thinking and problem solving (motor program induction as an account of
-recognition and generation of handwriting and
-speech~\cite{lake2015human}; functional programs as a model of natural
-language semantics~\cite{SOMETHING}) to learning problems that unfold
-over longer developmental time scales: the child's acquisition of
-intuitive theories (of kinship, taxonomy, etc.)~\cite{Ullman2012} and
-natural language grammar~\cite{DBLP:journals/cogsr/SchmidK11}, to name
-just a few.  An outstanding challenge, however, is to engineer
-program-learners that display the same level of domain-generality as
-the humans they are meant to model.
-
-Recent program-learning systems developed within the AI and machine
-learning community are impressive along many dimensions, authoring
-programs for problem domains like drawing
-pictures~\cite{spiral,ellis2017learning}, transforming
-text~\cite{gulwani2011automating} and numerical
-sequences~\cite{balog2016deepcoder}, robot motion
-planning~\cite{devlin2017neural}, and reasoning over common sense
-knowledge bases~\cite{muggleton2015meta}.  These systems work in
-different ways, but typically hinge upon a carefully hand-engineered
-Domain Specific Language (DSL).  The DSL restricts the space of
-programs to contain the kinds of concepts needed for one specific
-domain.  For example, a picture-drawing DSL could include concepts
-like circles and spirals, and a DSL for numerical sequences could
-include sorting and reversing lists of numbers.  Modern systems also
-learn how to efficiently deploy the DSL on new
-problems~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}, but --
-unlike human learners -- do not discover the underlying system of
-concepts needed to navigate the domain.
-
-We contribute a program-induction system that learns the
-domain-specific concepts (DSL) while jointly learning how to use those
-concepts.  This joint learning problem models two complementary
-notions of domain expertise: domain experts have at their disposal
-a powerful, yet specialized repertoire of concepts and abstractions
-(analogous to the DSL) while also having accurate intuitions about
-when and how to use those concepts to solve new problems.
-Representative domains,
-along with DSLs we learn for them,
-are shown in Figure~\ref{exampleDSL}.
-
-We call our system `DreamCoder' because it acquires these two kinds of
-expertise through a novel kind of wake/sleep or `dream'
-learning~\cite{hinton1995wake}, iterating through a wake cycle --
-where it solves problems by writing programs -- and a pair of sleep
-cycles, both of which are loosely biologically inspired by actual
-sleep.  The first sleep cycle, which we refer to as
-\textbf{consolidation}, grows the DSL by replying experiences from
-waking and consolidating them into new code abstractions.  This cycle
-is inspired by the formation of abstractions during sleep memory
-consolidation~\cite{DUDAI201520}.  The second sleep cycle, which we
-refer to as \textbf{dreaming}, improves the agents knowledge of how to
-write code by training a neural network to help search for
-programs. The neural net is trained on replayed experiences as well as
-`fantasies', or samples, from the DSL.  These two kinds of dreams are
-inspired by the distinct episodic replay and hallucination components
-of dream sleep~\cite{fosse2003dreaming}.
-
-\begin{comment}
-This dream-learning architecture brings together two lines of prior work,
-both of which have been separately influential within
-artificial intelligence.
-One line of work
-considers the problem of learning new concepts, abstractions, or
-`options' from
-experience~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,solomonoff1989system,DBLP:journals/corr/abs-1110-5667,stolle2002learning},
-while the other line of work considers the problem of learning how to
-deploy those concepts
-efficiently~\cite{devlin2017robustfill,balog2016deepcoder,NGDS}.  Our
-goal with DreamCoder is to show that the combination of these ideas is
-uniquely powerful, and pushes us toward program-writing systems that,
-like human learners, autonomously acquire the expertise needed to
-navigate a new domain of problems.
-\end{comment}
-
-Each wake/sleep cycle creates new DSL components that build on
-components learned in earlier sleep cycles, growing a DSL with nested 
-hierarchies of code.  We identify this cumulative nesting of
-abstractions as a variety of deep representation
-learning~\cite{lecun2015deep}.  Figure~\ref{exampleDSL} diagrams a
-subset of these learned networks (the DSL). For example, the system
-learns to sort sequences of numbers by invoking a DSL component 4
-layers deep, or draws the leftmost pairs of images in
-Figure~\ref{exampleDSL} using a depth-3 component.  For this reason we
-refer to \system as an instance of `deep program learning'.
-
-
-Our goal with \system is to engineer a system that develops domain
-expertise in humanlike ways. This involves learning both declarative and
-procedural knowledge, like a DSL and a recognition model, but includes
-other features of the development of expertise:
-humans can become experts in many fields,
-and so we evaluate our algorithm across six different problem domains;
-a human expert doesn't become an expert overnight,
-and needs more than a handful of example problems to learn from,
-but doesn't need millions of examples;
-similarly our algorithm's
-learning trajectory unfolds over a series of wake/sleep cycles
-requiring around a hundred problems per domain.
-
-
-\begin{figure}\centering
-  \begin{tikzpicture}
-    \renewcommand{\baselinestretch}{0.5}
-    \newcommand{\inventionColor}{orange}
-
-    \newcommand{\name}[2]{
-      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
-    }
-    \newcommand{\noArguments}[1]{
-      \mcode{{\color{\inventionColor}$f_{#1}$}$\,=\,$}
-    }
-    \newcommand{\use}[1]{{\color{\inventionColor}$f_{#1}$}}
-    \newcommand{\horizontalSpacing}{4.2cm}
-    \newcommand{\verticalSpacing}{2cm}
-    
-    \newcommand{\invention}[4]{
-      \node(#1)[inner sep=1,anchor=south,text width=2.2cm,ellipse,draw,rounded corners,align=center] at (#2) {
-        \footnotesize #3
-      };
-      \node[anchor=north,align=center] at ([yshift=3.5pt]#1.south) {#4};
-    }
-    \newcommand{\vinvention}[4]{
-      \invention{#1}{[yshift=-\verticalSpacing]#2.south}{#3}{#4}
-    }
-    \newcommand{\hinvention}[4]{
-      \invention{#1}{[xshift=\horizontalSpacing]#2.south}{#3}{#4}
-    }
-    \newcommand{\exampleFunction}[2]{
-      \includegraphics[width = 0.5cm]{#1}, \includegraphics[width = 0.5cm]{#2}
-    }
-    \newcommand{\task}[4]{
-      \node[align=left,anchor=center](t#1) at (#2) {#3};
-      \node[align=left](p#1) at ([yshift=-0.75cm]t#1.south) {#4};
-    }
-    \newcommand{\nextTask}[4]{
-      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
-    }
-
-    \begin{scope}[shift={(0,8)}]
-      \task{1}{2,3}{
-        \textsc{Reverse}\\
-        \mcode{[9 2 4]$\to$[4 2 9]}\\
-        \mcode{[4 3]$\to$[3 4]}\\
-        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
-        \mcode{[]$\to$[]}
-      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}}
-      \nextTask{2}{t1}{
-        \textsc{Take if $\geq 5$}\\
-        \mcode{[1 4 5 8]$\to$[5 8]}\\
-        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
-        \mcode{[3 4 5 6]$\to$[5 6]}\\
-        \mcode{[6 5 4 3]$\to$[6 5]}
-      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}}
-      
-      \nextTask{3}{t2}{
-        \textsc{Sort}\\
-        \mcode{[9 2 3]$\to$[2 3 9]}\\
-        \mcode{[2 1]$\to$[1 2]}\\
-        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
-        \mcode{[9 8 9]$\to$[8 9 9]}
-      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}}
-
-      %% \vinvention{filter}{p1}{
-      %%   \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
-      %% }{higher-order `filter'}
-      \vinvention{single}{p1}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
-
-      \vinvention{three}{single}{\footnotesize \noArguments{1}\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
-      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
-      \hinvention{filter}{single}{
-        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
-      }{higher-order `filter'}
-      \vinvention{for}{filter}{\noArguments{4}\\\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
-      \vinvention{weird}{for}{\name{8}{p$,$l}\mcode{
-          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0)))}}{Higher-order incrementer}                 
-      \hinvention{largest}{filter}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
-      \vinvention{Max}{largest}{\name{5}{l}\\\mcode{%
-          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
-      \vinvention{count}{Max}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
-
-      \node[rotate=90,align=center] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
-      \node(programLabel)[rotate=90,align=center] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
-      \node[rotate=90,align=center] at ([xshift=-2cm]three.center) {\textbf{\textsc{Domain Specific Language}}\\
-        \small Learned routines in {\color{orange}orange}};
-      \node at ([yshift=0.5cm]t2.north) {\textbf{\Large \textsc{Domain: List Processing}}};
-
-      \draw [dashed] ([xshift=0.5cm,yshift=-0.25\verticalSpacing]programLabel.east) -- ([xshift=15cm,yshift=-0.25\verticalSpacing]programLabel.east);
-    \node[align=left,anchor=center] at ([xshift=14cm,yshift=-0.3\verticalSpacing]programLabel.east) {\large $\uparrow$\;system inputs\\\\\\\large $\downarrow$\;system outputs};
-
-
-      \draw[->] (for.west) -- (three.east);
-      \draw[->] (largest.east) to[out=0,in=0] (Max.east);
-      \draw[->] ([yshift=-0.cm]largest.west) -- ([yshift=0.2cm]filter.east);
-      \draw[->] (Max.west) -- (filter.east);
-      \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
-
-
-      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]p2.south) to[out=250] (filter.north);
-      \draw[->] ([yshift=0.0cm,xshift=0.3cm]p2.south) to[out=350,in=0] (for.east);
-      \draw[->] ([xshift=-0.7cm]p1.south) -- (single.north);
-      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]p3.south) to[out=240] (largest.north);
-
-      
-    \end{scope}
-    
-    \renewcommand{\task}[4]{
-      \node(t#1) at (#2) {\includegraphics[width = 2cm]{#3}};
-      \node(p#1) at ([yshift=-0.75cm]t#1.south) {#4};
-    }
-    \newcommand{\nextTask}[4]{
-      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
-    }
-    
-    
-    \task{1}{2,0}{figures/logoTasks/logo144.png}{\mcode{(for (i 4) (\use{3} i))}}
-    \nextTask{2}{t1}{figures/logoTasks/logo121.png}{\mcode{(\use{7} 6 (\use{1}; (\use{0} 1)))}}
-    \nextTask{3}{t2}{figures/logoTasks/logo133.png}{\mcode{(\use{7} 7 (\use{8}; \use{6}))}}
-    
-    \vinvention{circle}{p1}{
-      \name{0}{r}\mcode{(for (i $\infty$) (move r $\epsilon$) (move $\epsilon$ $\epsilon$))}
-    }{circle\\\exampleFunction{figures/logoTasks/logo51}{figures/logoTasks/logo63_dilated}}
-    \vinvention{pu}{circle}{
-      \noArguments{1}\mcode{(pen-up (move 1 0))}
-    }{pick up pen\\and move}
-    \vinvention{repeated}{pu}{
-      \name{2}{n$,$d$,$a}\mcode{(for (i n) (move d a))}
-    }{repeated segment\\\exampleFunction{figures/logoTasks/logoDemo1_dilated}{figures/logoTasks/logoDemo0_dilated.png}}
-    \hinvention{square}{circle}{
-      \name{3}{d}\mcode{(\use{2} 4 d (/ $2\pi$ 4))}
-    }{square\\\exampleFunction{figures/logoTasks/logo139_dilated}{figures/logoTasks/logo142_dilated}}
-    \vinvention{smooth}{square}{
-      \name{4}{d$,$a}\mcode{(\use{2} $\infty$ d a)}
-    }{Smooth curve\\\exampleFunction{figures/logoTasks/logoDemo2_dilated}{figures/logoTasks/logoDemo3_dilated}}
-    \vinvention{angle}{smooth}{
-      \name{5}{n}\mcode{(/ $2\pi$ n)}
-    }{$\frac{2\pi}{n}$}
-    \hinvention{semi}{square}{
-      \noArguments{6}\mcode{(\use{4} $\epsilon$ $\epsilon$)}
-    }{semicircle\\\exampleFunction{figures/logoTasks/logo55_dilated}{figures/logoTasks/logo62_dilated}}
-    \vinvention{snow}{semi}{
-      \name{7}{n$,$f}\mcode{(for (i n) \\(move 0 (\use{5} n))\\ (get/set f))}
-    }{rotational symmetry\\\exampleFunction{figures/logoTasks/logo119_dilated}{figures/logoTasks/logo68_dilated}}
-    \vinvention{line}{snow}{
-      \noArguments{8}\mcode{(move 1 0)}
-    }{line segment}
-
-    \draw[->] (p1.south) -- (square.north);
-    \draw[->] (p2.south) -- (circle.north);
-    \draw[->] (p3.south) -- (semi.north);
-    \draw[->] (p2.south) -- (snow.west);
-    \draw[->] (p2.south) -- (pu.east);
-    \draw[->] (p3.south) to[out=190,in=120] (line.west);
-    \draw[->] (p3.south) to[out=200,in=120] (snow.west);
-
-    \draw[->,orange] (snow.west) -- (angle.east);
-    \draw[->,orange] (smooth.west) -- (repeated.east);
-    \draw[->,orange] (semi.west) -- (smooth.east);
-    \draw[->,orange] (square.west) -- (repeated.east);
-
-    \node[align=center,rotate=90] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
-    \node(programLabel)[align=center,rotate=90] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
-    \node[rotate=90,align=center] at ([xshift=-2cm]pu.center) {\textbf{\textsc{Domain Specific Language}}\\
-      \small Learned routines in {\color{orange}orange}};
-          \node at ([yshift=0.5cm]t2.north) {\textbf{\Large \textsc{Domain: Graphics Programming}}};
-
-    \draw [dashed] ([xshift=0.5cm,yshift=-0.25\verticalSpacing]programLabel.east) -- ([xshift=15cm,yshift=-0.25\verticalSpacing]programLabel.east);
-    \node[align=left,anchor=center] at ([xshift=14cm,yshift=-0.3\verticalSpacing]programLabel.east) {\large $\uparrow$\;system inputs\\\\\\\large $\downarrow$\;system outputs};
-
-    \node(d1) at ([xshift=3.5cm,yshift=-0.5cm]semi.east) {\includegraphics[width = 1.5cm]{figures/finalDreams/63smooth_pretty}};
-    \node(d2) at ([yshift=-1cm]d1.center) {\includegraphics[width = 1.5cm]{figures/finalDreams/400smooth_pretty}};
-    \node(d3) at ([yshift=-1cm]d2.center) {\includegraphics[width = 1.5cm]{figures/finalDreams/399smooth_pretty}};
-    
-    \node(d4) at ([yshift=-1cm]d3.center) {\includegraphics[width = 1.5cm]{figures/finalDreams/425smooth_pretty}};
-    \node(dreamPanel)[draw,fit = (d1) (d2) (d3) (d4)] {};
-    \node[anchor=south,align=center] at (dreamPanel.north) {\textbf{\textsc{Dreams}}\\(\footnotesize Samples from DSL)};
-
-    \node(curly)[align=center,rotate=90] at ([xshift=1cm]snow.east) {$\underbrace{\hspace{6cm}}_{}$};
-    \draw[squiggle,->] ($(0,-3.3) + (curly.east)$) -- node[along, sloped, above]{sample}(dreamPanel.west);
-    
-
-    
-    
-  \end{tikzpicture}
-  \caption{Two of the six domains we apply our system to. Agent observes tasks (top rows) which it solves by writing programs (middle rows) while jointly growing a library (DSL; bottom rows). Learned DSLs rediscover multiple higher-order functions (\code{filter} for list functions and rotational symmetry for generative graphics). Learned DSL components call each other (arrows).}  \label{exampleDSL}
-\end{figure}
-
-\section{Deep Wake/Sleep Program Induction}\label{overviewSection}
-
-\system~takes as its goal to acquire domain-specific expertise, which
-it learns by solving a collection of programming \textbf{tasks}.  It
-alternatingly finds programs that solve tasks (Wake --
-Figure~\ref{threeCycles} top); improves its DSL by analyzing programs
-found during waking (Consolidation -- Figure~\ref{threeCycles} left);
-and trains a neural network that efficiently guides search for
-programs in the DSL (Dreaming -- Figure~\ref{threeCycles} right).  The
-learned DSL acts as a a prior on programs likely to solve tasks in the
-domain, while the neural net looks at a specific task and produces a
-``posterior'' for programs likely to solve that specific task
-(Figure~\ref{threeCycles} middle).  The neural network thus functions
-as a \textbf{recognition model} supporting a form of approximate
-Bayesian program induction, jointly trained with a \textbf{generative
-  model} for programs encoded in the DSL, in the spirit of the
-Helmholtz machine~\cite{hinton1995wake}. The recognition model ensures
-that searching for programs remains tractable even as the DSL (and
-hence the search space for programs) expands.  The generative model,
-or DSL, distills out common abstractions across programs discovered
-during waking, growing a network of increasingly deep and specialized
-domain-specific concepts (Figure~\ref{exampleDSL}, bottom rows).
-
-%% Formally, $EC^2$ takes as input a collection of problems, written $X$, which can be solved by programs, and infers a domain specific language -- written $\mathcal{D}$ -- which functions as a generative model over programs likely to solve problems in the domain, and which we identify as an expert's a priori beliefs about what good solutions look like. Alongside this generative model it trains a neural recognition model, in the spirit of the Helmholtz machine or wake-sleep algorithm~\cite{dayan1995helmholtz}. The recognition model takes as input a specific problem and quickly predicts an approximate posterior over programs likely to solve that problem. Writing $p_x$ for the program solving problem $x\in X$ and $Q(p|x)$ for the distribution predicted by the recognition model, $EC^2$ iteratively (and approximately) solves for
-%% \begin{align}
-%% p_x& = \argmax_p \probability[x|p]\probability[p|\mathcal{D}]\label{wakingObjective}\\
-%% \mathcal{D}& = \argmax_\mathcal{D}\probability\left[\mathcal{D} \right]\prod_{x\in X}\sum_{\substack{p:\\p\text{ found during Explore}}} \probability[p|\mathcal{D}]\label{sleepg}\\
-%% Q(p|x)&\approx \probability[p|x,\mathcal{D}]\label{dreamingObjective}
-%% \end{align}
-
-
-
-These wake sleep/cycles function as an approximate inference algorithm
-that observes a collection of tasks, written $X$, and infers both a
-program solving each task, as well as a distribution over programs
-encoded by a DSL, written $\mathcal{D}$.  We equip $\mathcal{D}$ with
-a learned weight vector $\theta$, and together $(\mathcal{D},\theta)$
-define a generative model over programs
-(Appendix~\ref{sampleProgram}).  Writing $Q(p|x)$ for the approximate
-posterior predicted by the recognition model, we iteratively (and
-approximately) solve for
+Viewed as a probabilistic inference problem, \system observes a set of
+tasks, written $X$, and infers both a program solving each task, as
+well as a prior distribution over programs likely to solve tasks in
+the domain (Figure~\ref{threeCycles} middle). This prior is encoded by
+a library, written $\mathcal{D}$, which combined with a
+learned weight vector $\theta$
+defines a generative model over programs
+(Appendix~\ref{sampleProgram}).  The neural network learns to invert
+this generative model by predicting, conditioned on a task, a
+``posterior'' distribution over programs likely to solve that specific
+task,
+thus functioning as a \textbf{recognition model} and trained jointly with the generative model, in the spirit of the Helmholtz machine~\cite{hinton1995wake}.
+Writing $Q(p|x)$ for the approximate
+posterior predicted by the recognition model, wake/sleep cycles correspond to iteratively (and
+approximately) solving for
 
 \begin{array}{lr}
-  \begin{array}{l}  p_x = \argmax_p \probability[x|p]\probability[p|\mathcal{D}^*,\theta^*]\end{array}
+  \begin{array}{l}  p_x = \argmax_p \probability[x|p]\probability[p|\mathcal{D}^*,\theta^*]\text{, for each task $x\in X$}\end{array}
     &\text{\emph{Wake}}\\\\
 \begin{array}{rl}  
 \mathcal{D}^* = \argmax_\mathcal{D}&\int\probability\left[\mathcal{D},\phantom{^*}\theta \right]\prod_{x\in X}\sum_{\substack{p\text{ found during waking}}} \probability[x|p]\probability[p|\mathcal{D},\phantom{^*}\theta]\;\text{d}\theta\\
@@ -858,28 +486,87 @@ approximately) solve for
 \noindent which serves to maximize a lower bound on the posterior over $(\mathcal{D},\theta)$ given $X$ (Appendix~\ref{probabilisticAppendix}).
 
 
-This 3-phase inference procedure works through two distinct kinds of bootstrapping.
-During each sleep cycle the next DSL
-bootstraps off the primitives learned
-during earlier cycles,
-growing an increasingly deep learned program representation.
-In tandem the DSL and recognition model
-bootstrap each other:
-a more finely tuned
-DSL yields
-richer dreams for the recognition model to learn from,
-while a more accurate recognition model
-solves more tasks during waking which then feed into the next DSL.
+
+%% The model inputs a collection of programming \textbf{tasks}, and then
+%% alternatingly finds programs that solve tasks (Wake --
+%% Figure~\ref{threeCycles} top); improves its library by analyzing programs
+%% found during waking (Consolidation -- Figure~\ref{threeCycles} left);
+%% and trains a neural network that efficiently guides search for
+%% programs written using the library (Dreaming -- Figure~\ref{threeCycles} right).  The
+%% learned library acts as a a prior on programs likely to solve tasks in the
+%% domain, while the neural net looks at a specific task and produces a
+%% ``posterior'' for programs likely to solve that specific task
+%% (Figure~\ref{threeCycles} middle).  The neural network thus functions
+%% as a \textbf{recognition model} supporting a form of approximate
+%% Bayesian program induction, jointly trained with a \textbf{generative
+%%   model} for programs encoded in the DSL, in the spirit of the
+%% Helmholtz machine~\cite{hinton1995wake}. The recognition model ensures
+%% that searching for programs remains tractable even as the library (and
+%% hence the search space for programs) expands.  The generative model,
+%% or library, distills out common abstractions across programs discovered
+%% during waking, growing a network of increasingly deep and specialized
+%% domain-specific concepts (Figure~\ref{exampleDSL}, bottom rows).
+
+%% Formally, $EC^2$ takes as input a collection of problems, written $X$, which can be solved by programs, and infers a domain specific language -- written $\mathcal{D}$ -- which functions as a generative model over programs likely to solve problems in the domain, and which we identify as an expert's a priori beliefs about what good solutions look like. Alongside this generative model it trains a neural recognition model, in the spirit of the Helmholtz machine or wake-sleep algorithm~\cite{dayan1995helmholtz}. The recognition model takes as input a specific problem and quickly predicts an approximate posterior over programs likely to solve that problem. Writing $p_x$ for the program solving problem $x\in X$ and $Q(p|x)$ for the distribution predicted by the recognition model, $EC^2$ iteratively (and approximately) solves for
+%% \begin{align}
+%% p_x& = \argmax_p \probability[x|p]\probability[p|\mathcal{D}]\label{wakingObjective}\\
+%% \mathcal{D}& = \argmax_\mathcal{D}\probability\left[\mathcal{D} \right]\prod_{x\in X}\sum_{\substack{p:\\p\text{ found during Explore}}} \probability[p|\mathcal{D}]\label{sleepg}\\
+%% Q(p|x)&\approx \probability[p|x,\mathcal{D}]\label{dreamingObjective}
+%% \end{align}
+
+
+
+
+This 3-phase inference procedure works through two distinct kinds of
+bootstrapping.  During each sleep cycle the next library bootstraps
+off the concepts learned during earlier cycles, growing an
+increasingly deep learned program representation.  In tandem the
+generative and recognition models bootstrap each other: a more finely
+tuned library of concepts yields richer dreams for the recognition
+model to learn from, while a more accurate recognition model solves
+more tasks during waking which then feed into the next library.
 
 Waking consists of searching for task-specific programs with high
 posterior probability, or programs which are a priori likely and which
-solve a task.  We find programs solving a task by enumerating
-programs from the DSL in decreasing order of their probability under
-the recognition model, and then check if a program $p$ assigns
+solve a task. During a Wake cycle we sample a minibatch of tasks and find programs solving specific task by enumerating
+programs in decreasing order of their probability under
+the recognition model,  then checking if a program $p$ assigns
 positive probability to a task ($\probability[x|p] > 0$). We represent
 programs as polymorphicly typed $\lambda$-calculus expressions, an
 expressive formalism including conditionals, variables, higher-order
 recursive functions, and the ability to define new functions.
+
+\section{Related work}
+
+We build on several generations of research in AI, program synthesis,
+and cognitive science, with program induction being one of the oldest
+theoretical frameworks for concept learning within artificial
+intelligence~\cite{solomonoff1964formal}, and the conceptually allied
+`Language of Thought Hypothesis' being almost as
+old~\cite{fodor1975language}. Recent neural program synthesis systems
+pair a fixed domain-specific programming language (a `DSL') to a
+learned neural network that guides program
+search~\cite{spiral,balog2016deepcoder,devlin2017neural}, while recent
+symbolic AI research has developed frameworks for learning the DSL by
+inferring reusable pieces of
+code~\cite{ecc,Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
+A main goal of this work is to combine and refine these techniques
+with the intention of building agents that, like humans, develop
+domain expertise for new classes of problems.  Work in cognitive
+modeling has often exploited program-like representations for both
+concept~\cite{piantadosi2011learning,lake2015human,GoodmanEtAl2015-Chapter} and intuitive theory
+learning~\cite{logical,Ullman2012},
+and we view these models of concept learning as
+a kind of program induction,
+and see theory learning as similar to inducing a DSL or library.
+
+Deep learning is a dominant machine intelligence paradigm that
+has had many successes
+at creating machines with impressive expertise at
+specific tasks in vision, natural language, gameplaying, and many other areas. ideas: we want to become an expert from modest amounts of data; we want to be able to transfer to different types of problems, and to do this zero shot; 
+
+
+
 
 
 \begin{figure}
@@ -889,7 +576,7 @@ recursive functions, and the ability to define new functions.
 
     
     \begin{scope}[shift={(0.5,0.5)}]
-      \node[align=right] at (0,-0.5) (d){\textbf{DSL}\\
+      \node[align=right] at (0,-0.5) (d){\textbf{Library}\\
         $f_1$, $f_2$, ...};
       \node[align=center] at ([yshift = -2cm]d) (t){\textbf{Task}\\
         \footnotesize            \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
@@ -912,7 +599,7 @@ recursive functions, and the ability to define new functions.
       \draw [->  ,rounded corners] (t.south) -- ([yshift = -0.5cm]t.south) -- ([yshift = -0.5cm] s.south |- t.south) -- (s.south);
     \end{scope}
     \begin{scope}[shift={(9.4,-3.5)},scale=0.6,line width=0.05mm]
-      \node[obs,scale=0.7] at (3.5,3) (dx){DSL};
+      \node[obs,scale=0.7] at (3.5,3) (dx){Library};
       \node[latent,scale=0.7] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
       \node[obs,scale=0.7] at ([yshift=-1.45cm]zp) (xp) {task};
       \node[latent,scale=0.7] at ([xshift=1.5cm]zp) (zp1){prog};
@@ -938,7 +625,7 @@ recursive functions, and the ability to define new functions.
 
     \begin{scope}[shift={(9.5,-4.5)}]
       \node(dreaming) at (1,-1) {\underline{Fantasies}};
-      \node[anchor=center] at ([yshift=-0.5cm]dreaming.south) (d){\textbf{DSL}};
+      \node[anchor=center] at ([yshift=-0.5cm]dreaming.south) (d){\textbf{Library}};
       \node at ([yshift=-1.75cm]d.south) (p1){program};
       \draw[squiggle,-> ] (d.south) -- node[sloped,above]{\small sample} (p1.north);
 
@@ -966,7 +653,7 @@ recursive functions, and the ability to define new functions.
       %% \draw [dashed] (p1.south) to[out=-120,in=180] node[above,fill=white]{\color{black}Loss} ([xshift=-0.4cm]n.west);
 
       \begin{scope}[shift={(-3.8,-8)},scale=0.6,line width=0.05mm]
-        \node[obs,scale=0.7] at (3.5,3) (dx){DSL};
+        \node[obs,scale=0.7] at (3.5,3) (dx){Library};
         \node[obs,scale=0.7] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
         \node[obs,scale=0.7] at ([yshift=-1.45cm]zp) (xp) {task};
         \node[obs,scale=0.7] at ([xshift=1.5cm]zp) (zp1){prog};
@@ -1033,7 +720,7 @@ recursive functions, and the ability to define new functions.
       
       \node(d) at ([yshift = -1.8cm]c.south) {
         \begin{tikzpicture}[scale=0.9,line width=0.5mm]
-          \node[align=center] at (0,0) {\textbf{new DSL} w/ \texttt{(+ x 1)}:};
+          \node[align=center] at (0,0) {\textbf{new Library} w/ \texttt{(+ x 1)}:};
           \begin{scope}[shift={(0.6,-0.5)}]
             \node[pop3](p1) at (-1,-1) {\texttt{+}};
             \node[pop3](n1) at (0.6,-0.9) {\texttt{1}};
@@ -1048,7 +735,7 @@ recursive functions, and the ability to define new functions.
 
 
       \begin{scope}[shift={(4,-8)},scale=0.6,line width=0.05mm]
-        \node[latent,scale=0.7] at (3.5,3) (dx){DSL};
+        \node[latent,scale=0.7] at (3.5,3) (dx){Library};
         \node[obs,scale=0.7] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
         \node[obs,scale=0.7] at ([yshift=-1.45cm]zp) (xp) {task};
         \node[obs,scale=0.7] at ([xshift=1.5cm]zp) (zp1){prog};
@@ -1071,7 +758,7 @@ recursive functions, and the ability to define new functions.
     %% center spiral
     \begin{scope}[shift={(3.25,-7.9)},scale=0.8]    
       \spiral{(3.5,1)}{3.5}
-      \node[latent,scale=1] at (3.5,3) (dx){DSL};
+      \node[latent,scale=1] at (3.5,3) (dx){Library};
       \node[latent,scale=1] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
       \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
       \node[latent,scale=1] at ([xshift=2cm]zp) (zp1){prog};
@@ -1125,51 +812,52 @@ recursive functions, and the ability to define new functions.
 %% rather than sample,
 %% programs generated by Algorithm~\ref{sampleProgram}.
 
-\begin{comment}
-  \subsection{Wake: Solving tasks}\label{explorationSection}
+%% \begin{comment}
 
-During waking we enumerate programs from the DSL in decreasing order
-of their probability according to the recognition model, and then
-check if a program $p$ assigns positive probability to a task
-($\probability[x|p] > 0$); if so, we incorporate $p$ into the beam
-$\mathcal{B}_x$. We represent programs as polymorphicly-typed
-$\lambda$-calculus expressions, a representation closely resembling
-Lisp and functional languages like Haskell and OCaml, including
-variables, conditionals, higher-order recursive functions, and the
-ability to create new functions.  We `batch' the tasks by randomly
-shuffling the training set and playing small minibatches of tasks to
-the agent during each wake cycle.
+%%   \subsection{Wake: Solving tasks}\label{explorationSection}
+
+%% During waking we enumerate programs from the DSL in decreasing order
+%% of their probability according to the recognition model, and then
+%% check if a program $p$ assigns positive probability to a task
+%% ($\probability[x|p] > 0$); if so, we incorporate $p$ into the beam
+%% $\mathcal{B}_x$. We represent programs as polymorphicly-typed
+%% $\lambda$-calculus expressions, a representation closely resembling
+%% Lisp and functional languages like Haskell and OCaml, including
+%% variables, conditionals, higher-order recursive functions, and the
+%% ability to create new functions.  We `batch' the tasks by randomly
+%% shuffling the training set and playing small minibatches of tasks to
+%% the agent during each wake cycle.
 
 
-Why enumerate, when the program synthesis community has invented many
-sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
-We have two reasons:
-(1) A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the search algorithm is very simple.
-(2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
-the space of  programs.
-\end{comment}
-\begin{comment}
-  \begin{figure}
-    \begin{tikzpicture}[every node/.style={rounded corners,thick}]
-      \node(x)[draw,align=center] at (0,0) {Task $x$\\e.g., input/outputs};
-      \node(e)[draw, align=center] at ([xshift=3cm]x.east) {Domain-specific encoder\\
-        e.g., RNN or CNN};
-      %    \node(m)[draw,align = center] at ([xshift=1.1cm]e.east) {MLP};%\\Output: $(|\mathcal{D}| + 2)\times(|\mathcal{D}| + 1)\times A$};
-      \node[draw,align = center](s) at ([xshift=2cm]e.east) {Enumerate\\(Algorithm~\ref{recognitionSample})};
-      \node(f)[draw,align = center] at ([xshift=2cm]s.east) {Beam\\$\mathcal{B}_x$};
+%% Why enumerate, when the program synthesis community has invented many
+%% sophisticated algorithms that search for programs?~\cite{solar2008program,schkufza2013stochastic,feser2015synthesizing,osera2015type,polozov2015flashmeta}.
+%% We have two reasons:
+%% (1) A key point of our work is that learning the DSL, along with a neural recognition model, can make program induction tractable, even if the search algorithm is very simple.
+%% (2) Enumeration is a general approach that can be applied to any program induction problem. Many of these more sophisticated approaches require special conditions on
+%% the space of  programs.
+%% \end{comment}
+%% \begin{comment}
+%%   \begin{figure}
+%%     \begin{tikzpicture}[every node/.style={rounded corners,thick}]
+%%       \node(x)[draw,align=center] at (0,0) {Task $x$\\e.g., input/outputs};
+%%       \node(e)[draw, align=center] at ([xshift=3cm]x.east) {Domain-specific encoder\\
+%%         e.g., RNN or CNN};
+%%       %    \node(m)[draw,align = center] at ([xshift=1.1cm]e.east) {MLP};%\\Output: $(|\mathcal{D}| + 2)\times(|\mathcal{D}| + 1)\times A$};
+%%       \node[draw,align = center](s) at ([xshift=2cm]e.east) {Enumerate\\(Algorithm~\ref{recognitionSample})};
+%%       \node(f)[draw,align = center] at ([xshift=2cm]s.east) {Beam\\$\mathcal{B}_x$};
 
-      \draw[->] (x.east) -- (e.west);
-      \draw[->] (e.east) -- (s.west);
-      %    \draw[->] (m.east) -- node(p)[fill=white,align=center,midway,inner sep=0,outer sep=0,rotate=90]{\small $Q_{ijk}(x)$}(s.west);
-      \draw[->] (s.east) -- (f.west);
-      \draw[->] (x.north) -- ([yshift=15]x.north) -- node[above = 0pt,midway]{\small likelihood $\probability[x|p]$}([yshift=15,xshift=40]s.north) -- ($(s.east)!0.5!(f.west)$);
-      \node[align=center] at ($(0,-1) + (e.center)$) {$\underbrace{\hspace{4cm}}_{\normalsize\text{\normalsize Recognition model $Q(p|x)$}}$};
-      \node[align=center] at ($(s.west)!0.5!(f.east) + (0,-1)$) {$\underbrace{\hspace{5cm}}_{\text{\normalsize Search}}$};
-    \end{tikzpicture}
-    \caption{Neurally-guided program inference pipeline. Recognition model outputs distribution over program $Q(p|x)$. Program output by enumerative search incorporated into beam if likelihood $\probability[x|p] > 0$}
-    \label{neuralPipeline}
-  \end{figure}
-\end{comment}
+%%       \draw[->] (x.east) -- (e.west);
+%%       \draw[->] (e.east) -- (s.west);
+%%       %    \draw[->] (m.east) -- node(p)[fill=white,align=center,midway,inner sep=0,outer sep=0,rotate=90]{\small $Q_{ijk}(x)$}(s.west);
+%%       \draw[->] (s.east) -- (f.west);
+%%       \draw[->] (x.north) -- ([yshift=15]x.north) -- node[above = 0pt,midway]{\small likelihood $\probability[x|p]$}([yshift=15,xshift=40]s.north) -- ($(s.east)!0.5!(f.west)$);
+%%       \node[align=center] at ($(0,-1) + (e.center)$) {$\underbrace{\hspace{4cm}}_{\normalsize\text{\normalsize Recognition model $Q(p|x)$}}$};
+%%       \node[align=center] at ($(s.west)!0.5!(f.east) + (0,-1)$) {$\underbrace{\hspace{5cm}}_{\text{\normalsize Search}}$};
+%%     \end{tikzpicture}
+%%     \caption{Neurally-guided program inference pipeline. Recognition model outputs distribution over program $Q(p|x)$. Program output by enumerative search incorporated into beam if likelihood $\probability[x|p] > 0$}
+%%     \label{neuralPipeline}
+%%   \end{figure}
+%% \end{comment}
 
 %%   However, a drawback of   enumerative search  is that we have no
 %% efficient means of solving for arbitrary constants that might occur in a
@@ -1528,100 +1216,100 @@ different random initializations
 lead to either right or left association.
 
 
-\begin{comment}
-
-\subsubsection{Parameterizing $Q$}\label{recognitionParameterization}
-
-Broadly the literature contains two different approaches to
-parameterizing conditional distributions over programs.  The first
-approach~\cite{devlin2017robustfill,zavershynskyi2018naps} is to use a
-recurrent network to predict the entire program token-by-token, which
-has the advantage that, if the network is sufficiently powerful, it
-can completely solve the synthesis problem.  The disadvantage is that
-these models can perform poorly at out-of-sample
-generalization~\cite{}, which is critical for our setting, as the
-agent may need to solve new tasks that are qualitatively different
-from the tasks it has solved so far.
-
-%% Second, a powerful deep
-%% recurrent network may be costly to sample or enumerate from --- so if
-%% the network cannot easily solve a task, we cannot compensate with
-%% rapid sampling or enumeration.  In contrast, state-of-the-art
-%% enumerative program synthesizers evaluate millions of programs per
-%% second~\cite{feser2015synthesizing}.
-
-The second approach is to have $Q$ predict a fixed-dimensional weight
-vector, which then biases a fast enumerator~\cite{balog2016deepcoder,ecc}
-or sampler~\cite{menon2013machine}.  This approach can enjoy strong
-out-of-sample generalization, because it can fall back on enumeration
-or sampling when the target program is unlike the training programs.
-A main drawback is that the neural net is deliberately handicapped,
-and can only send so much information about the target program.
-
-We adopt a middle ground between these two extremes.  Our recognition
-model predicts a distribution over primitives in the DSL,
-conditioned on the local context in the syntax tree of the
-program. When predicting the next node to add to the syntax tree of a program,
-the recognition model
-conditions on the parent node, as well as
-which argument is being generated.
-This is a kind of `bigram' model over trees,
-where the bigrams
-take the form of (parent, child, argument index).
-Figure~\ref{symmetry} (left) diagrams this generative process and Algorithm~\ref{recognitionSample}
-specifies a sampling procedure for $Q(\cdot |x)$.
-This parameterization
-confers three main advantages:
-(1) it supports fast enumeration
-and sampling of programs,
-because the
-recognition model
-only needs to run once for each task;
-(2) it allows the recognition model to provide fine-grained
-information about the structure of the target program;
-and (3)
-training this recognition model
-causes it to learn to break symmetries in the space of programs,
-described next.
-
-\subsubsection{Learning to break symmetries in program space}\label{symmetricSection}
-
-A good DSL not only exposes high-level building blocks, but also
-carefully restricts the ways in which those building blocks are
-allowed to compose.  For example,
-%% a DSL for list manipulation should
-%% contain both the empty list and a routine for appending lists, but
-%% should not allow appending the empty list.  Similarly 
-a DSL for arithmetic should contain both addition and the number zero
-but disallow adding zero.  These restrictions break symmetries in the
-space of programs.  A bigram parameterization of the recognition
-model, combined with the $\mathcal{L}^{\text{MAP}}$ training
-objective, interact in a way that breaks symmetries in the program
-space, allowing the agent to more efficiently explore the space of
-programs.  This interaction occurs because the bigram parameterization
-can disallow DSL primitives depending on their local syntactic
-context, while the $\mathcal{L}^{\text{MAP}}$ objective forces all
-probability mass onto a single member of a set of syntactically
-distinct but semantically equivalent expressions
-(Appendix~\ref{recognitionAppendix}).
 
 
+%% \subsubsection{Parameterizing $Q$}\label{recognitionParameterization}
+
+%% Broadly the literature contains two different approaches to
+%% parameterizing conditional distributions over programs.  The first
+%% approach~\cite{devlin2017robustfill,zavershynskyi2018naps} is to use a
+%% recurrent network to predict the entire program token-by-token, which
+%% has the advantage that, if the network is sufficiently powerful, it
+%% can completely solve the synthesis problem.  The disadvantage is that
+%% these models can perform poorly at out-of-sample
+%% generalization~\cite{}, which is critical for our setting, as the
+%% agent may need to solve new tasks that are qualitatively different
+%% from the tasks it has solved so far.
+
+%% %% Second, a powerful deep
+%% %% recurrent network may be costly to sample or enumerate from --- so if
+%% %% the network cannot easily solve a task, we cannot compensate with
+%% %% rapid sampling or enumeration.  In contrast, state-of-the-art
+%% %% enumerative program synthesizers evaluate millions of programs per
+%% %% second~\cite{feser2015synthesizing}.
+
+%% The second approach is to have $Q$ predict a fixed-dimensional weight
+%% vector, which then biases a fast enumerator~\cite{balog2016deepcoder,ecc}
+%% or sampler~\cite{menon2013machine}.  This approach can enjoy strong
+%% out-of-sample generalization, because it can fall back on enumeration
+%% or sampling when the target program is unlike the training programs.
+%% A main drawback is that the neural net is deliberately handicapped,
+%% and can only send so much information about the target program.
+
+%% We adopt a middle ground between these two extremes.  Our recognition
+%% model predicts a distribution over primitives in the DSL,
+%% conditioned on the local context in the syntax tree of the
+%% program. When predicting the next node to add to the syntax tree of a program,
+%% the recognition model
+%% conditions on the parent node, as well as
+%% which argument is being generated.
+%% This is a kind of `bigram' model over trees,
+%% where the bigrams
+%% take the form of (parent, child, argument index).
+%% Figure~\ref{symmetry} (left) diagrams this generative process and Algorithm~\ref{recognitionSample}
+%% specifies a sampling procedure for $Q(\cdot |x)$.
+%% This parameterization
+%% confers three main advantages:
+%% (1) it supports fast enumeration
+%% and sampling of programs,
+%% because the
+%% recognition model
+%% only needs to run once for each task;
+%% (2) it allows the recognition model to provide fine-grained
+%% information about the structure of the target program;
+%% and (3)
+%% training this recognition model
+%% causes it to learn to break symmetries in the space of programs,
+%% described next.
+
+%% \subsubsection{Learning to break symmetries in program space}\label{symmetricSection}
+
+%% A good DSL not only exposes high-level building blocks, but also
+%% carefully restricts the ways in which those building blocks are
+%% allowed to compose.  For example,
+%% %% a DSL for list manipulation should
+%% %% contain both the empty list and a routine for appending lists, but
+%% %% should not allow appending the empty list.  Similarly 
+%% a DSL for arithmetic should contain both addition and the number zero
+%% but disallow adding zero.  These restrictions break symmetries in the
+%% space of programs.  A bigram parameterization of the recognition
+%% model, combined with the $\mathcal{L}^{\text{MAP}}$ training
+%% objective, interact in a way that breaks symmetries in the program
+%% space, allowing the agent to more efficiently explore the space of
+%% programs.  This interaction occurs because the bigram parameterization
+%% can disallow DSL primitives depending on their local syntactic
+%% context, while the $\mathcal{L}^{\text{MAP}}$ objective forces all
+%% probability mass onto a single member of a set of syntactically
+%% distinct but semantically equivalent expressions
+%% (Appendix~\ref{recognitionAppendix}).
 
 
-We experimentally confirm this symmetry-breaking
-behavior by training recognition models that minimize either
-$\mathcal{L}^{\text{MAP}}$/$\mathcal{L}^\text{posterior}$ and which
-use either a bigram parameterization/unigram\footnote{In the unigram variant $Q$ predicts a $|\mathcal{D}| + 1$-dimensional vector: $Q(p|x) = \probability[p|\mathcal{D},\theta_i = Q_i(x)]$,
-  and was used in our prior work~\cite{ecc}} parameterization.
-Figure~\ref{symmetry} shows the result of training $Q$ in these four regimes for a DSL containing \code{+}, \code{0}, and \code{1}
-and then sampling programs.
-On this particular run,
-the combination of
-bigrams and $\mathcal{L}^{\text{MAP}}$ learns to
-avoid adding zero and associate addition to the right ---
-different random initializations
-lead to either right or left association.
-  \end{comment}
+
+
+%% We experimentally confirm this symmetry-breaking
+%% behavior by training recognition models that minimize either
+%% $\mathcal{L}^{\text{MAP}}$/$\mathcal{L}^\text{posterior}$ and which
+%% use either a bigram parameterization/unigram\footnote{In the unigram variant $Q$ predicts a $|\mathcal{D}| + 1$-dimensional vector: $Q(p|x) = \probability[p|\mathcal{D},\theta_i = Q_i(x)]$,
+%%   and was used in our prior work~\cite{ecc}} parameterization.
+%% Figure~\ref{symmetry} shows the result of training $Q$ in these four regimes for a DSL containing \code{+}, \code{0}, and \code{1}
+%% and then sampling programs.
+%% On this particular run,
+%% the combination of
+%% bigrams and $\mathcal{L}^{\text{MAP}}$ learns to
+%% avoid adding zero and associate addition to the right ---
+%% different random initializations
+%% lead to either right or left association.
+
 \begin{figure}
   \begin{minipage}[c]{0.3\textwidth}
     \begin{tikzpicture}[scale=1]%[every node/.style={inner sep=0,outer sep=0}]
@@ -3920,10 +3608,10 @@ problems require either longer timeouts, more CPUs, or both.
 \end{center}
 
 
-\subsection{Results on held out text patterns}
+%\subsection{Results on held out text patterns}
 %\makeatletter
-\renewcommand{\verbatim@font}{\ttfamily\tiny} 
-\input{regex.tex}
+%\renewcommand{\verbatim@font}{\ttfamily\tiny} 
+%\input{regex.tex}
 
 \end{document}
 

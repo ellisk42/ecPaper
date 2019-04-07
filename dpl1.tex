@@ -1,0 +1,355 @@
+\begin{figure}
+  \begin{tikzpicture}
+    \renewcommand{\baselinestretch}{0.5}
+    \newcommand{\inventionColor}{orange}
+    \newcommand{\name}[2]{
+      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
+    }
+    \newcommand{\noArguments}[1]{
+      \mcode{{\color{\inventionColor}$f_{#1}\,=\,$}}
+    }
+
+    
+    \newcommand{\horizontalSpacing}{3.8cm}
+    \newcommand{\verticalSpacing}{2cm}
+
+    
+%    \draw (0,0) rectangle (10,5);
+    \node(t1)[align=left] at (1,-1) {
+      \footnotesize +106 769-43$\to $106.769.43\\
+      \footnotesize +83 973-831$\to $83.973.831\\
+      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(}\subnode{f01}{${\color{\inventionColor}f_0}$}\mcode{  \codechar{.} \codechar{-}}\\
+      \footnotesize \hspace{1.25cm}\mcode{(${\color{\inventionColor}f_0}$ \codechar{.} \codechar{ }}\\
+      \footnotesize \hspace{1.4cm}\mcode{(cdr s)))}
+    };
+    \node(t2)[align=left,anchor=center] at ([xshift=\horizontalSpacing]t1.center) {
+      \footnotesize Dream Coder$\to$Dr. Dream\\
+      \footnotesize Andy Cencici$\to$Dr. Andy\\
+      \footnotesize Jan Kotas$\to$Dr. Jan\\
+      \footnotesize Nancy Jones$\to$Dr. Nancy\\
+      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{\inventionColor}f_3}$ (${\color{\inventionColor}f_4}$ \codechar{ } s))}
+    };
+    \node(t3)[align=left] at ([xshift=2cm]t2.east) {
+      \footnotesize Dream (Coder)$\to$Coder\\
+      \footnotesize 1 (2) 3 4$\to$2\\
+      \footnotesize the (dog) ran$\to$ran\\
+      \footnotesize +817(33)99$\to$33\\
+      \footnotesize $f(\text{\mcode{s}}) = $\mcode{(${\color{\inventionColor}f_6}$ \codechar{(} \codechar{)} s)}
+    };
+
+    \draw (-2,-2.5) -- (15,-2.5);
+    \node[align=left,rotate=90] at (-1.5,-1.3) {Tasks and\\\\\texttt{Programs}};
+
+    \node[align=left,rotate=90] at (-1.5,-6.3) {Domain Specific Language (DSL)\\\\System discovers subroutines in {\color{\inventionColor}orange}};
+
+    
+    \newcommand{\invention}[4]{
+      \node(#1)[inner sep=1,anchor=center,text width=2cm,draw,rounded corners,align=center] at (#2) {
+        \footnotesize #3
+      };
+      \node[anchor=north] at ([yshift=3.5pt]#1.south) {#4};
+    }
+    \newcommand{\vinvention}[4]{
+      \invention{#1}{[yshift=-\verticalSpacing]#2.center}{#3}{#4}
+    }
+    \newcommand{\hinvention}[4]{
+      \invention{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
+    }
+
+
+    \invention{substitution}{1,-4}{
+      ${\color{\inventionColor}f_0}($\mcode{s}$,$\mcode{a}$,$\mcode{b}$) \,=\, $\\
+       \mcode{(map ($\lambda$ (x) (if (= x a)\\ b x)) s)}
+    }{substitute chars}
+    \vinvention{cat}{substitution}{
+      ${\color{\inventionColor}f_1}($\mcode{a}$,$\mcode{b}$) \,=\, $\\
+      \mcode{(fold ($\lambda$ (x y)\\ (cons x y))\\ a b))}
+    }{concat strings}
+    \vinvention{looping}{cat}{
+       ${\color{\inventionColor}f_2}($\mcode{c}$,$\mcode{p}$,$\mcode{s}$) \,=\, $\\
+      \mcode{(unfold l ($\lambda$ (x) (= c (car x))) p ($\lambda$ (z) (cdr z)))}
+    }{loop until char}
+
+    \hinvention{constant}{substitution}{
+      ${\color{\inventionColor}f_3}($\mcode{s}$) \,=\, $\\
+      \mcode{(${\color{\inventionColor}f_1}$ s string)}
+    }{prepend constant}
+    \vinvention{drop}{constant}{
+      ${\color{\inventionColor}f_4}($\mcode{c}$) \,=\, $\\
+      \mcode{(${\color{\inventionColor}f_2}$ c ($\lambda$ }\\\mcode{(z) (car z)))}
+    }{prefix}
+    \vinvention{suffix}{drop}{
+      ${\color{\inventionColor}f_5}($\mcode{s}$,$\mcode{c}$) \,=\, $\\
+      \mcode{(fold ($\lambda$ (x y) }\\\mcode{(cdr (if (= x c)}\\\mcode{ s y))) s s)}
+    }{suffix}
+
+    \hinvention{delimited}{constant}{
+      \mcode{${\color{\inventionColor}f_6}($x$,$y$,$s$)\,=\,$}\\
+      \mcode{(${\color{\inventionColor}f_4}$ x (${\color{\inventionColor}f_5}$ y c))}
+    }{delimited substring}
+    \draw[->] (delimited.west) -- (drop.east);
+    \draw[->] (delimited.west) -- (suffix.east);
+
+    \vinvention{appendSingle}{delimited}{
+      \mcode{${\color{\inventionColor}f_7}($c$,$s$)\,=\,$}\\
+      \mcode{(${\color{\inventionColor}f_1}$ (cons c nil) s)}}{append character}
+    
+    \vinvention{surround}{appendSingle}{
+      \mcode{${\color{\inventionColor}f_8}($s$)\,=\,$}\\
+      \mcode{(cons \codechar{(} (${\color{\inventionColor}f_7}$ \codechar{)} s))}}{surround in parens}
+    \draw[->] (surround.west) to[in=200,out=160] ([yshift=-0.25cm]appendSingle.west);
+    \draw[->] (appendSingle.west) to[in=40,out=120] ([yshift=0.25cm]cat.east);
+    
+    \draw[->] (drop.west) -- (looping.east);
+    \draw[->] (constant.west) -- (cat.east);
+
+    \draw[->] ([xshift=-0.5cm]t2.south) -- (constant.north);
+    \draw[->] ([xshift=0.3cm]t2.south) to[in=30,out=-30] ([xshift=1cm]drop.north);
+
+    \draw[->] ([yshift=0.2cm,xshift=-0.2cm]t1.south) to[in=100,out=200] (substitution.north);
+    \draw[->] ([yshift=0.5cm,xshift=-0.5cm]t1.south) to[in=120,out=200] ([xshift=-0.5cm]substitution.north);
+    \draw[->] ([xshift=-0.5cm]t3.south) -- (delimited.north);
+          
+    \begin{scope}[shift={(0,-15)}]
+      \invention{filter}{0,0}{
+        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
+        }{higher-order `filter'}
+
+      \vinvention{three}{filter}{\footnotesize ${\color{\inventionColor}f_1} = $\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
+      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
+      \hinvention{single}{filter}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
+      \vinvention{for}{single}{\footnotesize ${\color{\inventionColor}f_4} = $\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
+      \vinvention{Max}{for}{\name{5}{l}\\\mcode{%
+          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
+      \hinvention{largest}{single}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
+      \vinvention{count}{largest}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
+      \vinvention{weird}{count}{\name{8}{p$,$l}\mcode{
+          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0))))}}
+                 {Higher-order incrementer}
+
+      \draw[->] (for.west) -- (three.east);
+      \draw[->] ([yshift=-0.0cm]largest.west) -- (Max.east);
+      \draw[->] ([yshift=-0.cm]largest.west) to[out=240,in=330] ([yshift=-0.1cm]filter.east);
+      \draw[->] (Max.west) -- (filter.east);
+      \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
+
+      \node(t1)[align=left,anchor=center] at (0,3) {
+        \mcode{[1 4 5 8]$\to$[5 8]}\\
+        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
+        \mcode{[3 4 5 6]$\to$[5 6]}\\
+        \mcode{[6 5 4 3]$\to$[6 5]}\\
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}
+      };
+      \node(t2)[align=left] at ([xshift=\horizontalSpacing]t1.center) {
+        \mcode{[9 2 4]$\to$[4 2 9]}\\
+        \mcode{[4 3]$\to$[3 4]}\\
+        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
+        \mcode{[]$\to$[]}\\
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}
+      };
+      \node(t3)[align=left] at ([xshift=\horizontalSpacing]t2.center) {
+        \mcode{[9 2 3]$\to$[2 3 9]}\\
+        \mcode{[2 1]$\to$[1 2]}\\
+        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
+        \footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}
+      };
+
+      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]t1.south) to[out=250] (filter.north);
+      \draw[->] ([yshift=0.0cm,xshift=0.3cm]t1.south) to[out=350,in=100] (for.west);
+      \draw[->] ([xshift=-0.7cm]t2.south) -- (single.north);
+      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]t3.south) to[out=240] (largest.north);
+
+    \end{scope}
+    
+    
+
+    
+
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}\centering
+  \begin{tikzpicture}
+    \renewcommand{\baselinestretch}{0.5}
+    \newcommand{\inventionColor}{orange}
+
+    \newcommand{\name}[2]{
+      \mcode{{\color{\inventionColor}$f_{#1}$}$($#2$)\,=\,$}
+    }
+    \newcommand{\noArguments}[1]{
+      \mcode{{\color{\inventionColor}$f_{#1}$}$\,=\,$}
+    }
+    \newcommand{\use}[1]{{\color{\inventionColor}$f_{#1}$}}
+    \newcommand{\horizontalSpacing}{4.2cm}
+    \newcommand{\verticalSpacing}{2cm}
+    
+    \newcommand{\invention}[4]{
+      \node(#1)[inner sep=1,anchor=south,text width=2.2cm,ellipse,draw,rounded corners,align=center] at (#2) {
+        \footnotesize #3
+      };
+      \node[anchor=north,align=center] at ([yshift=3.5pt]#1.south) {#4};
+    }
+    \newcommand{\vinvention}[4]{
+      \invention{#1}{[yshift=-\verticalSpacing]#2.south}{#3}{#4}
+    }
+    \newcommand{\hinvention}[4]{
+      \invention{#1}{[xshift=\horizontalSpacing]#2.south}{#3}{#4}
+    }
+    \newcommand{\exampleFunction}[2]{
+      \includegraphics[width = 0.5cm]{#1}, \includegraphics[width = 0.5cm]{#2}
+    }
+    \newcommand{\task}[4]{
+      \node[align=left,anchor=center](t#1) at (#2) {#3};
+      \node[align=left](p#1) at ([yshift=-0.75cm]t#1.south) {#4};
+    }
+    \newcommand{\nextTask}[4]{
+      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
+    }
+
+    \begin{scope}[shift={(0,8)}]
+      \task{1}{2,3}{
+        \textsc{Reverse}\\
+        \mcode{[9 2 4]$\to$[4 2 9]}\\
+        \mcode{[4 3]$\to$[3 4]}\\
+        \mcode{[3 4 5 6]$\to$[6 5 4 3]}\\
+        \mcode{[]$\to$[]}
+      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(fold ($\lambda$ (x a)}\\\hspace{0.25cm}\mcode{ (${\color{\inventionColor}f_3}$ x a)) nil z)}}
+      \nextTask{2}{t1}{
+        \textsc{Take if $\geq 5$}\\
+        \mcode{[1 4 5 8]$\to$[5 8]}\\
+        \mcode{[9 8 3 8]$\to$[9 8 8]}\\
+        \mcode{[3 4 5 6]$\to$[5 6]}\\
+        \mcode{[6 5 4 3]$\to$[6 5]}
+      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(${\color{\inventionColor}f_0}$ ($\lambda$ (x)}\\\hspace{0.5cm}\mcode{ (> x ${\color{\inventionColor}f_4}$)) z)}}
+      
+      \nextTask{3}{t2}{
+        \textsc{Sort}\\
+        \mcode{[9 2 3]$\to$[2 3 9]}\\
+        \mcode{[2 1]$\to$[1 2]}\\
+        \mcode{[8 7 9 2 5]$\to$[2 5 7 8 9]}\\
+        \mcode{[9 8 9]$\to$[8 9 9]}
+      }{\footnotesize $f(\text{\mcode{z}}) = $\mcode{(map ($\lambda$ (i)}\\\hspace{0.5cm}\mcode{(${\color{\inventionColor}f_6}$ z i)) }\\\hspace{0.5cm}\mcode{(+ 1 (range }\\\hspace{0.5cm}\mcode{(length z)))}}
+
+      %% \vinvention{filter}{p1}{
+      %%   \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
+      %% }{higher-order `filter'}
+      \vinvention{single}{p1}{\name{3}{z$,$l}\\\mcode{(fold ($\lambda$ (x y)\\(cons x y))\\ z l)}}{Append element}
+
+      \vinvention{three}{single}{\footnotesize \noArguments{1}\\\mcode{(+ 1 (+ 1 1))}}{The number `3'}
+      \vinvention{prefix}{three}{\name{2}{n$,$z}\\\mcode{(map ($\lambda$ (i) (index i z)) (range (+ 1 n)))}}{First $n$ elements}
+      \hinvention{filter}{single}{
+        \name{0}{p$,$z}\mcode{\\(fold ($\lambda$ (x a)\\ (if (p x) (cons x a) a))\\ nil z)} 
+      }{higher-order `filter'}
+      \vinvention{for}{filter}{\noArguments{4}\\\mcode{(+ 1 ${\color{\inventionColor}f_1}$)}}{The number `4'}
+      \vinvention{weird}{for}{\name{8}{p$,$l}\mcode{
+          (map ($\lambda$ (x) (if (p x) (+ 1 x) 0)))}}{Higher-order incrementer}                 
+      \hinvention{largest}{filter}{\name{6}{l$,$n}\\\mcode{(${\color{\inventionColor}f_5}$ (${\color{\inventionColor}f_0}$ ($\lambda$ (x) \\(> n (length (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (> x y)) l)))) l))}}{$n^{\text{th}}$ largest element}
+      \vinvention{Max}{largest}{\name{5}{l}\\\mcode{%
+          (car (${\color{\inventionColor}f_0}$ ($\lambda$ (x) (nil? (${\color{\inventionColor}f_0}$ l ($\lambda$ (z) (> z x))))) l))}}{max of list}
+      \vinvention{count}{Max}{\name{7}{p$,$l}\\\mcode{(length\\ (${\color{\inventionColor}f_0}$ ($\lambda$ (y) (= x y)) l))}}{count}
+
+      \node[rotate=90,align=center] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
+      \node(programLabel)[rotate=90,align=center] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
+      \node[rotate=90,align=center] at ([xshift=-2cm]three.center) {\textbf{\textsc{Domain Specific Language}}\\
+        \small Learned routines in {\color{orange}orange}};
+      \node at ([yshift=0.5cm]t2.north) {\textbf{\Large \textsc{Domain: List Processing}}};
+
+      \draw [dashed] ([xshift=0.5cm,yshift=-0.25\verticalSpacing]programLabel.east) -- ([xshift=15cm,yshift=-0.25\verticalSpacing]programLabel.east);
+    \node[align=left,anchor=center] at ([xshift=14cm,yshift=-0.3\verticalSpacing]programLabel.east) {\large $\uparrow$\;system inputs\\\\\\\large $\downarrow$\;system outputs};
+
+
+      \draw[->] (for.west) -- (three.east);
+      \draw[->] (largest.east) to[out=0,in=0] (Max.east);
+      \draw[->] ([yshift=-0.cm]largest.west) -- ([yshift=0.2cm]filter.east);
+      \draw[->] (Max.west) -- (filter.east);
+      \draw[->] ([yshift=0.1cm]count.west) -- ([yshift=-0.3cm]filter.east);
+
+
+      \draw[->] ([yshift=0.35cm,xshift=-0.3cm]p2.south) to[out=250] (filter.north);
+      \draw[->] ([yshift=0.0cm,xshift=0.3cm]p2.south) to[out=350,in=0] (for.east);
+      \draw[->] ([xshift=-0.7cm]p1.south) -- (single.north);
+      \draw[->] ([xshift=-1.3cm,yshift=0.6cm]p3.south) to[out=240] (largest.north);
+
+      
+    \end{scope}
+    
+    \renewcommand{\task}[4]{
+      \node(t#1) at (#2) {\includegraphics[width = 2cm]{#3}};
+      \node(p#1) at ([yshift=-0.75cm]t#1.south) {#4};
+    }
+    \newcommand{\nextTask}[4]{
+      \task{#1}{[xshift=\horizontalSpacing]#2.center}{#3}{#4}
+    }
+    
+    
+    \task{1}{2,0}{figures/logoTasks/logo144.png}{\mcode{(for (i 4) (\use{3} i))}}
+    \nextTask{2}{t1}{figures/logoTasks/logo121.png}{\mcode{(\use{7} 6 (\use{1}; (\use{0} 1)))}}
+    \nextTask{3}{t2}{figures/logoTasks/logo133.png}{\mcode{(\use{7} 7 (\use{8}; \use{6}))}}
+    
+    \vinvention{circle}{p1}{
+      \name{0}{r}\mcode{(for (i $\infty$) (move r $\epsilon$) (move $\epsilon$ $\epsilon$))}
+    }{circle\\\exampleFunction{figures/logoTasks/logo51}{figures/logoTasks/logo63_dilated}}
+    \vinvention{pu}{circle}{
+      \noArguments{1}\mcode{(pen-up (move 1 0))}
+    }{pick up pen\\and move}
+    \vinvention{repeated}{pu}{
+      \name{2}{n$,$d$,$a}\mcode{(for (i n) (move d a))}
+    }{repeated segment\\\exampleFunction{figures/logoTasks/logoDemo1_dilated}{figures/logoTasks/logoDemo0_dilated.png}}
+    \hinvention{square}{circle}{
+      \name{3}{d}\mcode{(\use{2} 4 d (/ $2\pi$ 4))}
+    }{square\\\exampleFunction{figures/logoTasks/logo139_dilated}{figures/logoTasks/logo142_dilated}}
+    \vinvention{smooth}{square}{
+      \name{4}{d$,$a}\mcode{(\use{2} $\infty$ d a)}
+    }{Smooth curve\\\exampleFunction{figures/logoTasks/logoDemo2_dilated}{figures/logoTasks/logoDemo3_dilated}}
+    \vinvention{angle}{smooth}{
+      \name{5}{n}\mcode{(/ $2\pi$ n)}
+    }{$\frac{2\pi}{n}$}
+    \hinvention{semi}{square}{
+      \noArguments{6}\mcode{(\use{4} $\epsilon$ $\epsilon$)}
+    }{semicircle\\\exampleFunction{figures/logoTasks/logo55_dilated}{figures/logoTasks/logo62_dilated}}
+    \vinvention{snow}{semi}{
+      \name{7}{n$,$f}\mcode{(for (i n) \\(move 0 (\use{5} n))\\ (get/set f))}
+    }{rotational symmetry\\\exampleFunction{figures/logoTasks/logo119_dilated}{figures/logoTasks/logo68_dilated}}
+    \vinvention{line}{snow}{
+      \noArguments{8}\mcode{(move 1 0)}
+    }{line segment}
+
+    \draw[->] (p1.south) -- (square.north);
+    \draw[->] (p2.south) -- (circle.north);
+    \draw[->] (p3.south) -- (semi.north);
+    \draw[->] (p2.south) -- (snow.west);
+    \draw[->] (p2.south) -- (pu.east);
+    \draw[->] (p3.south) to[out=190,in=120] (line.west);
+    \draw[->] (p3.south) to[out=200,in=120] (snow.west);
+
+    \draw[->,orange] (snow.west) -- (angle.east);
+    \draw[->,orange] (smooth.west) -- (repeated.east);
+    \draw[->,orange] (semi.west) -- (smooth.east);
+    \draw[->,orange] (square.west) -- (repeated.east);
+
+    \node[align=center,rotate=90] at ([xshift=-2cm]t1.center) {\textbf{\textsc{Tasks}}\\};
+    \node(programLabel)[align=center,rotate=90] at ([xshift=-2cm]p1.center) {\texttt{\textbf{Progs.}}\\};
+    \node[rotate=90,align=center] at ([xshift=-2cm]pu.center) {\textbf{\textsc{Domain Specific Language}}\\
+      \small Learned routines in {\color{orange}orange}};
+          \node at ([yshift=0.5cm]t2.north) {\textbf{\Large \textsc{Domain: Graphics Programming}}};
+
+    \draw [dashed] ([xshift=0.5cm,yshift=-0.25\verticalSpacing]programLabel.east) -- ([xshift=15cm,yshift=-0.25\verticalSpacing]programLabel.east);
+    \node[align=left,anchor=center] at ([xshift=14cm,yshift=-0.3\verticalSpacing]programLabel.east) {\large $\uparrow$\;system inputs\\\\\\\large $\downarrow$\;system outputs};
+
+    \node(d1) at ([xshift=3.5cm,yshift=-0.5cm]semi.east) {\includegraphics[width = 1.5cm]{figures/finalDreams/63smooth_pretty}};
+    \node(d2) at ([yshift=-1cm]d1.center) {\includegraphics[width = 1.5cm]{figures/finalDreams/400smooth_pretty}};
+    \node(d3) at ([yshift=-1cm]d2.center) {\includegraphics[width = 1.5cm]{figures/finalDreams/399smooth_pretty}};
+    
+    \node(d4) at ([yshift=-1cm]d3.center) {\includegraphics[width = 1.5cm]{figures/finalDreams/425smooth_pretty}};
+    \node(dreamPanel)[draw,fit = (d1) (d2) (d3) (d4)] {};
+    \node[anchor=south,align=center] at (dreamPanel.north) {\textbf{\textsc{Dreams}}\\(\footnotesize Samples from DSL)};
+
+    \node(curly)[align=center,rotate=90] at ([xshift=1cm]snow.east) {$\underbrace{\hspace{6cm}}_{}$};
+    \draw[squiggle,->] ($(0,-3.3) + (curly.east)$) -- node[along, sloped, above]{sample}(dreamPanel.west);
+    
+
+    
+    
+  \end{tikzpicture}
+  \caption{Two of the six domains we apply our system to. Agent observes tasks (top rows) which it solves by writing programs (middle rows) while jointly growing a library (DSL; bottom rows). Learned DSLs rediscover multiple higher-order functions (\code{filter} for list functions and rotational symmetry for generative graphics). Learned DSL components call each other (arrows).}  \label{exampleDSL}
+\end{figure}
