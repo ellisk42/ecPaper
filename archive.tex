@@ -271,7 +271,7 @@ explicit, declarative concepts that are powerful yet finely-tuned.
 A visual artist has concepts like arcs, spirals, symmetries, and perspectives;
 a physicist has concepts like dot products, vector fields, and conservation laws;
 and an architect has concepts like arches, supports, and bridges.
-Second, experts have implicit procedural skill in deploying those concepts
+Second, experts have implicit, procedural skill in deploying those concepts
 to quickly solve new problems:
 at a glance, human domain
 experts can intuit which compositions of concepts are likely to solve
@@ -282,19 +282,26 @@ compared to novices,
 experts can quickly categorize and classify problems based on the ``deep structure''
 of the problem's solution~\cite{chi1981expertise,chi2012seeing}.
 In short, we take the stance that expertise means both
-having the right concepts, and being able to quickly see how those concepts can be composed into a solution.
+having the right explicit concepts, and being able to quickly see how those concepts can be composed into a solution.
 
-Because solutions to many kinds of
-problems can often be described as some kind of
+Because solutions to many kinds of problems can often be described as
+some kind of
 program~\cite{lake2015human,Ullman2012,DBLP:journals/cogsr/SchmidK11},
-our model solves a specific problem by synthesizing a program solving it. It
-gradually grows its domain-specific knowledge for a class of problems
-by assembling a library of code containing concepts useful for the
-domain, and by training a neural network to quickly infer, for a
-specific problem, what code in its library is likely to
-solve it. We think of these two learned components as analogous
-to the explicit concepts and
-implicit procedural skill that human experts develop.
+our model solves a specific problem by synthesizing a program solving
+it. It gradually grows its explicit domain-specific knowledge for a
+class of problems by assembling a library of code containing concepts
+useful for the domain, and by training a neural network to quickly
+infer, for a specific problem, what code in its library is likely to
+solve it. We think of these two learned components as analogous to the
+explicit concepts and implicit procedural skill that human experts
+develop.  The model is an instance of what in the machine learning
+community is called a wake-sleep algorithm, where for us, `waking'
+corresponds to solving problems, while a pair of `sleep' cycles
+correspond to improving the library of explicit concepts and training
+the neural net to improve implicit procedural knowledge of how to
+write code.
+
+
 We will first investigate our model within classic program
 synthesis domains for manipulating sequences of numbers and text, and
 then consider visual and creative programs for drawing pictures and
@@ -1772,6 +1779,50 @@ computing the ratio of the tasks solved uniquely by the full model to
 
 
 \section{Discussion}
+
+\emph{(what we found)} Our goal was to build a model capturing
+humanlike aspects of learning to be an expert in a new domain of
+problems.  Two main findings of our work are that, first, a single
+program-induction system can learn to solve large sets of problems
+from many qualitatively different domains; and second, that fully
+acquiring expertise in these domains hinges both upon explicit
+declarative knowledge, and implicit procedural skill.  We have
+deliberately placed the interplay of declarative and procedural
+knowledge at the center of our model, and believe that both these
+kinds of learning are crucial for building agents that, like humans,
+autonomously learn to navigate a new domain of problems.
+
+Our model's domain knowledge grows over a series of wake/sleep cycles,
+with the solutions to easier problems bootstrapping
+solving of harder tasks.
+This dynamic is related to, but distinct from, curriculum learning. In curriculum learning approaches an agent solves a stream of pedagogically selected, increasingly difficult tasks; here we consider the case with the agent lacks a `teacher' and instead sees randomly sampled batches of tasks, effectively self-pacing its way through an implicit curriculum.
+But humans select their tasks in much richer ways,
+and can even generate their own tasks to solve,
+either as stepping stones toward hard, unsolved problems or motivated by curiosity and aesthetics.
+Building agents that generate their own problems in these humanlike ways is a necessary next step
+if we want machines that push against boundary of human domain knowledge or which even discover whole new domains of problems,
+both of which go far beyond the relatively small-scale demonstrations in this work.
+
+A basic representational challenge is to
+learn concepts fundamentally inexpressible in terms of the starting basis: \system invents procedures for
+adding vectors, taking dot products, and calculating forces,
+but can not make the jump needed to define new terms like `acceleration' and `coordinate system,'
+concepts inexpressible as a library of procedures.
+We believe approaches based either on term rewriting systems or defining new generalized algebraic datatypes could give traction to fundamental problems like these,
+strategies which are closely allied with conceptual role semantics.
+Indeed, humans often open up whole new fields of inquiry by introducing concepts not
+definable in terms of prior abstractions,
+like the meaning of `allele' in genetics
+or `force' in physics.
+
+
+
+
+related work
+
+limitations
+
+how will go beyond? generate own tasks; real DSL learning (all expressible in base language); lifelong learning (forgetting?)
 
 \subsection{Learning from Scratch}
 A long-standing dream within the program induction community
@@ -3596,13 +3647,13 @@ problems require either longer timeouts, more CPUs, or both.
 \begin{center}
   \begin{tabular}{ccccccc}
     \toprule
-    Domain&Timeout&CPUs&Batch size&$\lambda$ (\ref{appendixCompression})&$\alpha$ (\ref{mapAppendix})&Max frontier (\ref{systemPseudocode})\\\midrule
-    Lists&7m&64&10&1&30&5\\
-    Text&7m&64&10&1&30&5\\
-    Graphics&1h&128&40&1.5&30&5\\
+    Domain&Timeout&CPUs&Batch size&$\lambda$ (\ref{appendixCompression})&$\alpha$ (\ref{mapAppendix})&Max beam size (\ref{systemPseudocode})\\\midrule
+    Lists&7m&64&10&1.5&30&5\\
+    Text&7m&64&10&1.5&30&5\\
+    Graphics&1h&96&50&1.5&30&5\\
     Symbolic regression&2m & 40&10 & 1&30&5\\
-    Towers& 2m& 64&10 & 1&30&5\\
-    Regexes&30m & 64&40 & 1&30&5\\
+    Towers& 1h& 64&50 & 1.5&30&5\\
+    Regexes&30m & 64&40 & 1.5&30&5\\
     \bottomrule     
   \end{tabular}
 \end{center}
