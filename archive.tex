@@ -1950,6 +1950,19 @@ learning natural image grammars (vs ),
 
 \section{Appendix}
 
+\subsection{Neural Initial Problem Representations}
+
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/all_tsne.png}
+  \caption{}\label{allTSNE}
+\end{figure}
+
+How do \systemEnding `s representations of problems themselves change, as the model acquires expertise? Within cognitive science, a rich body of evidence suggests that human experts learn to `see` problems differently in their domains -- even before solving a problem, human novices and experts seem to construct fundamentally different initial representations \cite{chi1981categorization}. Novices notice a problem’s `surface features`, the literal objects and details made obvious by the task description. Experts, on the other hand, somehow see past these details to pick out each problem’s `deep structures`, the underlying principles and concepts that govern its ultimate solution \cite{chi2012seeing,chi2006two}.
+
+
+\systemEnding`s neural recognition model can be seen as forming analogous `initial` problem representations, implicitly encoded within the activations of the neural network. Intuitively, these initial neural representations map problem features to a `gist` over the model’s current domain-specific concepts -- they guide and constrain how the model searches for problem solutions, but are not symbolically structured solutions themselves. To probe how these representations change as the model gains a richer conceptual vocabulary within each domain, we compare how they cluster problems within that domain over the course of \systemEnding`s learning trajectory. Figure \ref{allTSNE} depicts TSNE visualizations of these neural problem representations at the first and last iteration of the algorithm. We color-code each problem using semantic, human-interpretable categories determined apriori by the task designers, but critically, the model itself never has access to these categories. Rather, as \systemEnding acquires domain expertise, the neural network adapts how it transforms each task`s surface features, restructuring its initial problem representation space to draw together problems that share deeper, more abstract conceptual similarities.
+
+
 \subsection{Probabilistic Formulation of \system}\label{probabilisticAppendix}
 Our objective is to infer the maximum a posteriori DSL $\mathcal{D}$ and
 parameters $\theta$. Writing $J$ for the joint probability of $(\mathcal{D},\theta)$,
