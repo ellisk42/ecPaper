@@ -1672,6 +1672,63 @@ agent with inferring a probabilistic regular expression from a small
 number (5) of strings - for example, observing the strings \$1.20 and \$9.42
 and predicting the regex \$d
 
+For this task, we used the dataset from [cite Luke], consisting of a
+large corpus of string concepts. Each string concept has 5 ``train"
+strings and 5 ``test" strings.
+
+We trained \system using 128 string concepts, randomly sampled from
+the corpus, and tested on another 128 randomly sampled string
+concepts.
+
+Our initial DSL consisted of all printable characters, four special
+character classes (lowercase letters $\\l$, uppercase letters $\\u$,
+digits $\\d$, and '.', which represents all possible characters), and
+3 functions: \textbf{Kleene Star}, \textbf{Maybe}, \textbf{Or}. We
+also included a task-dependent 'constant' token, which prints the
+largest constant string shared across the 5 training tasks.
+Concatenation was done via continuation-style, as above in the logo
+domain ... [idk how you wanted this to be mentioned?]
+
+Because this domain has a relatively large number of parameters, we
+used a modified version of the recognition model, where only unigram
+parameters were inferred. We found that this recognition model trained
+quicker and more had more stable convergence.
+
+Probabilistic regexes have no ground truth notion of ``solved," so we
+evaluate differently from other domains. Our main evaluation metric is
+to report a lower bound on the posterior predictive of each task given
+the learned grammar:
+
+\begin{align} 
+\Probablility[x_{test}|x_{train}, \mathcal D , \theta ] &= \integral
+dp \Probability[x_{test}| p] \Probablility[p| x_{train}, \mathcal D ,
+\theta]\\
+&= \integral dp \Probability[x_{test}| p] \Probablility[x_{train}|p]
+\Probablility[p|\mathcal D , \theta]\\
+\geq& \sum_{p\in F} \Probability[x_{test}| p] \Probablility[x_
+{train}|p] \Probablility[p|\mathcal D , \theta]
+\end{align} 
+
+%\begin{align} 
+%\Probablility[x|\mathcal D , \theta ] &= \integral dp \Probablility
+[x|p] \Probablility[p|\mathcal D , \theta]\\
+%\geq& \sum_{p\in F} \Probablility[x|p] \Probablility[p|\mathcal D ,
+\theta]
+%\end{align} 
+
+where $x_{train}$ are the training strings for task $x$, and $x_
+{test}$ are the held-out test strings, not seen during search.
+
+For this domain we use an additional post-processing step, in order to
+generate realistic samples from the probabilistic programs. For each
+task and each found probabilistic regex, we separately optimize the
+continuous regex production parameters in order to maximize the
+likelihood on the training strings for that task. We apply additive
+smoothing to ensure optimization does not over-fit to the training
+tasks.
+
+
+
 \begin{tabular}{ccc}
   \toprule   Observed text&Inferred regex&Held out testing text\\\midrule
   
