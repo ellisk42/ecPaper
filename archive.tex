@@ -1435,15 +1435,16 @@ Each conditional distribution predicted by the recognition model is written $Q_{
 We first apply \system to two classic benchmark domains: list
 processing and text editing. In both cases we solve tasks specified by
 a input/output examples, starting with a generic functional programming
-basis: \code{foldr}, \code{unfold}, \code{if}, \code{map},
-\code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0},
-\code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and
-\code{is-nil}.
+basis, including routines like \code{map}, \code{fold}, \code{cons}, \code{car}, \code{cdr}, etc.
+%% : \code{foldr}, \code{unfold}, \code{if}, \code{map},
+%% \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0},
+%% \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and
+%% \code{is-nil}.
 
 \subsubsection{List Processing}\label{listSection}
 We took 218 list manipulation tasks from our previous work~\cite{ecc},
 each with 15 input/output examples.  In solving these tasks, the
-system composed 16 new DSL components, and discovered multiple
+system typically composes around 20 new DSL components, and discovered multiple
 higher-order functions. Each round of memory consolidation built on
 components discovered in earlier sleep cycles --- for example the
 agent first learns the higher-order function \code{filter}, uses
@@ -1513,6 +1514,16 @@ that applied generically to
 all of the tasks,
 and perform comparably to the best
 prior work.
+
+How do \systemEnding's representations of these problems themselves change, as the model acquires expertise? Within cognitive science, a rich body of evidence suggests that human experts learn to `see' problems differently in their domains -- even before solving a problem, human novices and experts seem to construct fundamentally different initial representations \cite{chi1981categorization}. Novices notice a problem’s `surface features', the literal objects and details made obvious by the task description. Experts, on the other hand, somehow see past these details to pick out each problem’s `deep structures', the underlying principles and concepts that govern its ultimate solution \cite{chi2012seeing,chi2006two}.
+
+
+\systemEnding's neural recognition model can be seen as forming analogous `initial' problem representations, implicitly encoded within the activations of the neural network. Intuitively, these initial neural representations map problem features to a `gist' over the model’s current domain-specific concepts -- they guide and constrain how the model searches for problem solutions, but are not symbolically structured solutions themselves. To probe how these representations change as the model gains a richer conceptual vocabulary within each domain, we compare how they cluster problems within that domain over the course of \systemEnding's learning trajectory. Figure \ref{textExpertiseCluster} depicts TSNE visualizations of these neural problem representations at the first and last iteration of the algorithm. We color-code each problem using semantic, human-interpretable categories determined apriori by the task designers, but critically, the model itself never has access to these categories. Rather, as \system acquires domain expertise, the neural network adapts how it transforms each task's surface features, restructuring its initial problem representation space to draw together problems that share deeper, more abstract conceptual similarities.
+
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/text_tsne.png}
+  \caption{Left: TSNE embedding of model's `at-a-glance' (before searching for solution) organization of text tasks (neural net activations), after first wake/sleep cycle. Middle: at-a-glance organization after 20 wake/sleep cycles. Right: TSNE visualization of programs actually used to solve tasks; intuitively, how model organizes tasks after searching for a solution. More examples in Fig.~\ref{allTSNE}}\label{textExpertiseCluster}
+\end{figure}
 
 \subsection{Programs from visual input}
 We consider three domains where the agent must infer a program from an
@@ -1955,26 +1966,6 @@ in~\cite{lazaro2019beyond} and the hierarchical Bayesian program
 learner in~\cite{DBLP:conf/icml/LiangJK10}. Closely aligned ideas go
 even further back~\cite{solomonoff1989system,schmidhuber2004optimal}.
 
-\subsection{Acquiring Domain Expertise}
-
-One interpretation of our system is as a model of the acquisition of
-domain expertise. Humans can acquire expertise across many domains --
-cooking, coding, music, architecture, painting, tennis, or calculus,
-to name a handful of examples, and every child develops expertise in
-natural language, intuitive physics, motor control, kinship
-relationships, and more. Domain experts learn domain-specific
-abstractions, similar to a DSL: for example, a expert chef knows what
-combinations of seasonings go together, or an expert mathematician
-knows a wide set of useful theorems and lemmas.  Jointly, experts
-learn how to recognize when to use these abstractions to solve
-problems.  Becoming an expert involves a learning trajectory that
-unfolds over relatively long time scales, but has modest data
-requirements relative to the dominant machine learning paradigms. For
-example, basic competency in cooking or coding might require on the
-order of learning a hundred recipes or solving a hundred programming
-exercises.  It is this learning regime that we have targeted with
-\systemEnding: Learning about a domain from at most several hundred
-tasks, but where the learning unfolds over many wake/sleep cycles.
 
 
 
@@ -2007,17 +1998,6 @@ learning natural image grammars (vs ),
 
 \section{Appendix}
 
-\subsection{Neural Initial Problem Representations}
-
-\begin{figure}
-  \includegraphics[width = \textwidth]{figures/all_tsne.png}
-  \caption{}\label{allTSNE}
-\end{figure}
-
-How do \systemEnding `s representations of problems themselves change, as the model acquires expertise? Within cognitive science, a rich body of evidence suggests that human experts learn to `see` problems differently in their domains -- even before solving a problem, human novices and experts seem to construct fundamentally different initial representations \cite{chi1981categorization}. Novices notice a problem’s `surface features`, the literal objects and details made obvious by the task description. Experts, on the other hand, somehow see past these details to pick out each problem’s `deep structures`, the underlying principles and concepts that govern its ultimate solution \cite{chi2012seeing,chi2006two}.
-
-
-\systemEnding`s neural recognition model can be seen as forming analogous `initial` problem representations, implicitly encoded within the activations of the neural network. Intuitively, these initial neural representations map problem features to a `gist` over the model’s current domain-specific concepts -- they guide and constrain how the model searches for problem solutions, but are not symbolically structured solutions themselves. To probe how these representations change as the model gains a richer conceptual vocabulary within each domain, we compare how they cluster problems within that domain over the course of \systemEnding`s learning trajectory. Figure \ref{allTSNE} depicts TSNE visualizations of these neural problem representations at the first and last iteration of the algorithm. We color-code each problem using semantic, human-interpretable categories determined apriori by the task designers, but critically, the model itself never has access to these categories. Rather, as \systemEnding acquires domain expertise, the neural network adapts how it transforms each task`s surface features, restructuring its initial problem representation space to draw together problems that share deeper, more abstract conceptual similarities.
 
 
 \subsection{Probabilistic Formulation of \system}\label{probabilisticAppendix}
@@ -3093,6 +3073,12 @@ But in practice we found that a bigrams combined with $\mathcal{L}^{\text{MAP}}$
 works well,
 and we use with this combination throughout the paper.
 
+\subsection{Neural Problem Representations}
+
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/all_tsne.png}
+  \caption{}\label{allTSNE}
+\end{figure}
 
 \subsection{Full set of LOGO  tasks}
 
