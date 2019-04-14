@@ -323,7 +323,7 @@ refer to our approach as an instance of `deep program learning'.
 
 \begin{figure}
   \includegraphics[width = \textwidth]{figures/dpl/list}
-  \includegraphics[width = \textwidth]{figures/DeepLogo_4_9}
+  \includegraphics[width = \textwidth]{figures/DeepLogo_4_11}
   \caption{}\label{exampleDSL}
 \end{figure}
 
@@ -450,7 +450,7 @@ of wake/sleep or `dream' learning~\cite{hinton1995wake}, iterating
 through a wake cycle -- where it solves \textbf{tasks} by writing programs (Figure~\ref{threeCycles} top)
 -- and a pair of sleep cycles, both of which are loosely biologically
 inspired. The first sleep cycle, which we refer to as
-\textbf{consolidation}, grows its library of code by replying
+\textbf{abstraction}, grows its library of code by replying
 experiences from waking and consolidating them into new code
 abstractions (Figure~\ref{threeCycles} left).  This cycle is inspired by the formation of abstractions
 during sleep memory consolidation~\cite{DUDAI201520}.  The second
@@ -485,9 +485,9 @@ approximately) solving for
 \mathcal{D}^* = \argmax_\mathcal{D}&\int\probability\left[\mathcal{D},\phantom{^*}\theta \right]\prod_{x\in X}\sum_{\substack{p\text{ found during waking}}} \probability[x|p]\probability[p|\mathcal{D},\phantom{^*}\theta]\;\text{d}\theta\\
 \theta^* = \argmax_\theta&\phantom{\int}\probability\left[\mathcal{D}^*,\theta \right]\prod_{x\in X}\sum_{p\text{ found during waking}} \probability[x|p]\probability[p|\mathcal{D}^*,\theta]
  \end{array}
-&\text{\emph{Consolidation sleep}}\\\\
+&\text{\emph{Abstraction (sleep)}}\\\\
 \begin{array}{l} Q(p|x)\approx \probability[p|x,\mathcal{D}^*,\theta^*]\end{array}
-  &\text{\emph{Dream sleep}}
+  &\text{\emph{Dreaming (sleep)}}
 \end{array}
 
 \noindent which serves to maximize a lower bound on the posterior over $(\mathcal{D},\theta)$ given $X$ (Appendix~\ref{probabilisticAppendix}).
@@ -542,36 +542,6 @@ positive probability to a task ($\probability[x|p] > 0$). We represent
 programs as polymorphicly typed $\lambda$-calculus expressions, an
 expressive formalism including conditionals, variables, higher-order
 recursive functions, and the ability to define new functions.
-
-\section{Related work}
-
-We build on several generations of research in AI, program synthesis,
-and cognitive science, with program induction being one of the oldest
-theoretical frameworks for concept learning within artificial
-intelligence~\cite{solomonoff1964formal}, and the conceptually allied
-`Language of Thought Hypothesis' being almost as
-old~\cite{fodor1975language}. Recent neural program synthesis systems
-pair a fixed domain-specific programming language (a `DSL') to a
-learned neural network that guides program
-search~\cite{spiral,balog2016deepcoder,devlin2017neural}, while recent
-symbolic AI research has developed frameworks for learning the DSL by
-inferring reusable pieces of
-code~\cite{ecc,Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
-A main goal of this work is to combine and refine these techniques
-with the intention of building agents that, like humans, develop
-domain expertise for new classes of problems.  Work in cognitive
-modeling has often exploited program-like representations for both
-concept~\cite{piantadosi2011learning,lake2015human,GoodmanEtAl2015-Chapter} and intuitive theory
-learning~\cite{logical,Ullman2012},
-and we view these models of concept learning as
-a kind of program induction,
-and see theory learning as similar to inducing a DSL or library.
-
-Deep learning is a dominant machine intelligence paradigm that
-has had many successes
-at creating machines with impressive expertise at
-specific tasks in vision, natural language, gameplaying, and many other areas. ideas: we want to become an expert from modest amounts of data; we want to be able to transfer to different types of problems, and to do this zero shot; 
-
 
 
 
@@ -766,7 +736,7 @@ specific tasks in vision, natural language, gameplaying, and many other areas. i
     \begin{scope}[shift={(3.25,-7.9)},scale=0.8]    
       \spiral{(3.5,1)}{3.5}
       \node[latent,scale=1] at (3.5,3) (dx){Library};
-      \node[latent,scale=1] at ([yshift=-1.7cm,xshift=0cm]dx) (zp){prog};
+      \node[latent,scale=1] at ([yshift=-2cm,xshift=0cm]dx) (zp){prog};
       \node[obs,scale=1] at ([yshift=-1.45cm]zp) (xp) {task};
       \node[latent,scale=1] at ([xshift=2cm]zp) (zp1){prog};
       \node[obs,scale=1] at ([xshift=2cm]xp) (xp1) {task};
@@ -790,7 +760,7 @@ specific tasks in vision, natural language, gameplaying, and many other areas. i
     \end{scope}
     
   \end{tikzpicture}
-  \caption{\textbf{Middle:} \system as a graphical model. Agent observes programming tasks (e.g., input/outputs for list processing or images for graphics programs), which it explains with latent programs, while jointly inferring a latent Domain Specific Language (DSL) capturing cross-program regularities. A neural network, called the \emph{recognition model} (red arrows) is trained to quickly infer programs with high posterior probability. \textbf{Top}: Wake phase infers programs while holding the DSL and recognition model fixed. \textbf{Left}: Sleep (Consolidation) phase infers DSL while holding the programs fixed by refactoring programs found during waking and extracting common components. \textbf{Right}: Sleep (Dreaming) phase trains recognition model to predict approximate posterior over programs conditioned on task. Trained on `Fantasies' (programs sampled from DSL) \& `Replays' (programs found during waking).}\label{threeCycles}
+  \caption{\textbf{Middle:} \system as a graphical model. Agent observes programming tasks (e.g., input/outputs for list processing or images for graphics programs), which it explains with latent programs, while jointly inferring a latent library capturing cross-program regularities. A neural network, called the \emph{recognition model} (red arrows) is trained to quickly infer programs with high posterior probability. \textbf{Top}: Wake phase infers programs while holding the library and recognition model fixed. \textbf{Left}: Sleep (Consolidation) phase updates library while holding the programs fixed by refactoring programs found during waking and extracting common components. \textbf{Right}: Sleep (Dreaming) phase trains recognition model to predict approximate posterior over programs conditioned on task. Trained on `Fantasies' (programs sampled from library) \& `Replays' (programs found during waking).}\label{threeCycles}
 \end{figure}
 
 
@@ -878,20 +848,20 @@ specific tasks in vision, natural language, gameplaying, and many other areas. i
 
 
 
-\subsection{Consolidation-Sleep: Growing a Domain Specific Language}\label{consolidationSection}
+\subsection{Abstraction Sleep: Growing a Library of Concepts}\label{consolidationSection}
 
-The DSL offers a set of abstractions that allow an agent to concisely
+The library offers a set of abstractions that allow an agent to concisely
 express solutions to the tasks at hand. We automatically discover
 these new abstractions by combining two ideas. First, we build on
 techniques from the programming languages community to develop a new
 algorithm for automatically refractoring programs, where this
 refactoring exposes common reused subexpressions across the
 programs found during waking.  Second, we use this automatic refactoring
-process to search for DSLs that maximally compress these programs by
+process to search for libraries that maximally compress these programs by
 incorporating reused subexpressions into the DSL.
 
 Mathematically this compression takes the form of
-finding the DSL maximizing $\int \probability[\mathcal{D},\theta]\probability[X|\mathcal{D},\theta]\;\mathrm{d}\theta$ (Sec.~\ref{overviewSection}).
+finding the library maximizing $\int \probability[\mathcal{D},\theta]\probability[X|\mathcal{D},\theta]\;\mathrm{d}\theta$ (Sec.~\ref{overviewSection}).
 We replace this marginal with an AIC approximation~\cite{akaike1998information}
 and marginalize over refactorings of programs found during waking, minimizing the following expression,
 which can be interpreted as a kind of compression:
@@ -931,9 +901,9 @@ the space of possible refactorings: for the example in
 Figure~\ref{mapFactor}A, we represent the space of refactorings using
 a version space with $10^6$ nodes, which encodes $10^{14}$
 refactorings. Appendix~\ref{appendixCompression} specifies how we
-combine this probabilistic and symbolic machinery to update the DSL.
+combine this probabilistic and symbolic machinery to update the library.
 At a high level, our approach is to search locally through the space
-of DSLs, proposing small changes until Eq.~\ref{AIC} fails to
+of libraries, proposing small changes until Eq.~\ref{AIC} fails to
 decrease.
 
 
@@ -1133,7 +1103,7 @@ decrease.
   \end{scope}
   
   \end{tikzpicture}
-  \caption{DSL learning as code refactoring. \textbf{Panel A:} During waking we discover programs for each task, then refactor the code from those programs to expose common subprograms (highlighted in \orange{orange}). Common subprograms are incorporated into the DSL when they increase a Bayesian objective. Intuitively, these new DSL components best compress the programs found during waking. \textbf{Panel B:} \# of possible refactorings grows exponentially with program size, so we represent refactorings using version spaces, which augment syntax trees with a \emph{union} operator whose children are themselves version spaces. Right graph: version spaces are exponentially more efficient than explicitly constructing set of refactorings. In this graph, refactored programs are of the form $1+1+\cdots  + 1$.}\label{mapFactor}
+  \caption{Library learning as code refactoring. \textbf{Panel A:} During waking we discover programs for each task, then refactor the code from those programs to expose common subprograms (highlighted in \orange{orange}). Common subprograms are incorporated into the library when they increase a Bayesian objective. Intuitively, these new components best compress the programs found during waking. \textbf{Panel B:} \# of possible refactorings grows exponentially with program size, so we represent refactorings using version spaces, which augment syntax trees with a \emph{union} operator whose children are themselves version spaces. Right graph: version spaces are exponentially more efficient than explicitly constructing set of refactorings. In this graph, refactored programs are of the form $1+1+\cdots  + 1$.}\label{mapFactor}
 \end{figure*}
 
 
@@ -1142,7 +1112,7 @@ decrease.
 During ``dreaming'' the system learns a recognition model that guides
 program search.  It learns from (program, task) pairs drawn from two
 sources of self-supervised data: \emph{replays} of programs discovered
-during waking, and \emph{fantasies}, or programs drawn from the DSL.
+during waking, and \emph{fantasies}, or programs drawn from $(\mathcal{D},\theta)$.
 Replays ensure that the recognition model is trained on the actual
 tasks it needs to solve, and does not forget how to solve them.
 Fantasies ensure that the recognition model has a large and highly
@@ -1176,8 +1146,8 @@ will show that $\mathcal{L}^{\text{MAP}}$ forces the recognition model
 to break symmetries in the space of programs.
 
 \noindent\textbf{Parameterizing $Q$.} The recognition model predicts a
-fixed-dimensional tensor encoding a distribution over subroutines in
-the DSL, conditioned on the local context in the syntax tree of the
+fixed-dimensional tensor encoding a distribution over routines in
+the library, conditioned on the local context in the syntax tree of the
 program. This local context consists of the parent node in the syntax
 tree, as well as which argument is being generated, functioning as a
 kind of `bigram' model over trees. Figure~\ref{symmetry} (left)
@@ -1192,18 +1162,18 @@ to~\cite{devlin2017robustfill,zavershynskyi2018naps}; and (3) in
 conjunction with $\mathcal{L}^{\text{MAP}}$ the recognition model
 learns to break symmetries in the space of programs.
 
-\noindent\textbf{Symmetry breaking.} A good DSL not only exposes high-level building blocks, but also
-carefully restricts the ways in which those building blocks are
+\noindent\textbf{Symmetry breaking.} Effective domain-specific representations not only exposes high-level building blocks, but also
+carefully restrict the ways in which those building blocks are
 allowed to compose.  For example,
 %% a DSL for list manipulation should
 %% contain both the empty list and a routine for appending lists, but
 %% should not allow appending the empty list.  Similarly 
-a DSL for arithmetic should disallow adding zero, or force
+when searching over arithmetic expressions, one could disallow adding zero, and force
 right-associative addition. A bigram parameterization of the recognition
 model, combined with the $\mathcal{L}^{\text{MAP}}$ training
 objective, interact in a way that breaks symmetries like these, allowing the agent to more efficiently explore the space of
 programs.  This interaction occurs because the bigram parameterization
-can disallow DSL primitives depending on their local syntactic
+can disallow library routines depending on their local syntactic
 context, while the $\mathcal{L}^{\text{MAP}}$ objective forces all
 probability mass onto a single member of a set of syntactically
 distinct but semantically equivalent expressions
@@ -1444,7 +1414,7 @@ basis, including routines like \code{map}, \code{fold}, \code{cons}, \code{car},
 \subsubsection{List Processing}\label{listSection}
 We took 218 list manipulation tasks from our previous work~\cite{ecc},
 each with 15 input/output examples.  In solving these tasks, the
-system typically composes around 20 new DSL components, and discovered multiple
+system typically composes around 20 new library routines, and discovered multiple
 higher-order functions. Each round of memory consolidation built on
 components discovered in earlier sleep cycles --- for example the
 agent first learns the higher-order function \code{filter}, uses
@@ -1452,32 +1422,17 @@ agent first learns the higher-order function \code{filter}, uses
 uses that routine to learn a new component for extracting the
 $n^{\text{th}}$ largest element of a list, which it finally uses to
 solve a task involving sorting a list of numbers (Figure~\ref{initialExampleDSL}).
-This incremental, modular learning of deep hierarchies of DSL
+This incremental, modular learning of deep hierarchies of library
 components occurs because of the alternation between code writing
-(during waking) and code refactoring (during the consolidation phase
+(during waking) and code refactoring (during the abstraction phase
 of sleep).
-
-%% \begin{figure}[b]\centering
-%% \vspace{-0.5cm}  \begin{tabular}{lll}
-%%     \toprule
-%%     Name & Input & Output \\\midrule
-%%     repeat-3 & [7\, 0] & [7\, 0\, 7\, 0\, 7\, 0] \\
-%%     drop-3 & [0\, 3\, 8\, 6\, 4] & [6\, 4] \\
-%%     rotate-2 & [8\, 14\, 1\, 9] & [1\, 9\, 8\, 14] \\
-%%     count-head-in-tail & [1\, 2\, 1\, 1\, 3] & 2 \\
-%%     keep-div-5 & [5\, 9\, 14\, 6\, 3\, 0] & [5\, 0] \\
-%%     product & [7\, 1\, 6\, 2] & 84 \\
-%%     \bottomrule
-%%   \end{tabular}
-%%   \captionof{table}{Some tasks in our list function domain.}\label{listExamples}\vspace{-0.5cm}
-%% \end{figure}
 
 \subsubsection{Text Editing}\label{textSection}
 Synthesizing programs that edit text is a classic problem in the
 programming languages and AI literatures~\cite{lau2001programming},
 and algorithms that synthesize text editing programs ship in Microsoft
 Excel~\cite{gulwani2011automatin}.  This prior work uses
-hand-engineered DSLs and hand-engineered search strategies.  Here, we
+hand-engineered libraries of primitives and hand-engineered search strategies.  Here, we
 will show that we can jointly learn both these ingredients and surpass
 the state-of-the-art domain-general program synthesizers on a standard
 text editing benchmark.
@@ -1537,28 +1492,26 @@ Procedural visual concepts are studied across AI and cognitive science
 matrices~\cite{raven2003raven}, and Lake et al.'s BPL model of
 omniglot~\cite{lake2015human} are prominent examples.  Here we take
 inspiration from LOGO Turtle graphics~\cite{turtle}, tasking our agent
-with drawing a modest corpus of images while equipping it with control
+with drawing a corpus of 160 images while equipping it with control
 over a `pen', along with arithmetic operations on angles and
 distances.
 
-Inside its learned DSL we find interpretable parametric drawing
+Inside its learned library we find interpretable parametric drawing
 routines corresponding to the families of visual objects in its
 training data, like polygons, circles, and spirals
 (Figure~\ref{logoPrimitives}, left) -- without supervision the agent
 has learned the basic types of objects in its visual world. It
 additionally learns more abstract visual relationships, like
-rotational symmetry, which it models by incorporating a higher-order
-function into its DSL (Figure~\ref{logoPrimitives}, right).  %% This
-%% abstraction comes from jointly compressing programs for all of the
-%% training images into its DSL.
+rotational symmetry, which it models by abstracting out a new higher-order
+function into its library (Figure~\ref{logoPrimitives}, right).
 
-What does \system dream of?  Prior to learning samples from the DSL
+What does \system dream of?  Prior to learning random programs written using the library
 are simple and largely unstructured (Figure~\ref{logoDreams}, left).
 After training the samples become richly structured
 (Figure~\ref{logoDreams}, right), compositionally recombining latent
 building blocks and motifs acquired from the training data. This
 offers a visual window into how the generative model bootstraps recognition
-model training: as the DSL grows more finely tuned to the domain, the
+model training: as the library grows more finely tuned to the domain, the
 neural net gets richer and more highly varied training data.
 
 
@@ -1644,7 +1597,7 @@ inferring concepts like arches, staircases, bridges and brick walls.
     \\\bottomrule 
     \end{tabular}
   \caption{\textbf{Left}: Three (out of 19) learned DSL components for building towers out of Lego-style blocks. These components act like parametric options~\cite{stolle2002learning},
-    giving higher-level building blocks that the agent can use to plan. \textbf{Right}: 16 random samples, or `dreams', from learned DSL.}\label{tower}
+    giving higher-level building blocks that the agent can use to plan. \textbf{Right}: 16 random samples, or `dreams', built from learned library.}\label{tower}
 \end{figure}
 
 
@@ -1678,223 +1631,44 @@ Bayesian framing: both the generative model's bias toward shorter
 programs, and the likelihood model's BIC penalty.
 
 \subsubsection{Generative Modeling of Text}
-We investigate few-shot learning of generative models by tasking our
+Few-shot learning of simple generative concepts comes naturally to
+humans, from learning new rules in natural language~\cite{marcus1999rule},
+to learning routines for symbols and signs
+\cite{lake2015human},
+to learning new motor routines for producing words.
+We investigate few-shot generative modeling by tasking our
 agent with inferring a probabilistic regular expression from a small
-number (5) of strings - for example, observing the strings \$1.20 and \$9.42
-and predicting the regex \$d
-
-For this task, we used the dataset from [cite Luke], consisting of a
-large corpus of string concepts. Each string concept has 5 ``train"
-strings and 5 ``test" strings.
-
-We trained \system using 128 string concepts, randomly sampled from
-the corpus, and tested on another 128 randomly sampled string
-concepts.
-
-Our initial DSL consisted of all printable characters, four special
-character classes (lowercase letters $\\l$, uppercase letters $\\u$,
-digits $\\d$, and '.', which represents all possible characters), and
-3 functions: \textbf{Kleene Star}, \textbf{Maybe}, \textbf{Or}. We
-also included a task-dependent 'constant' token, which prints the
-largest constant string shared across the 5 training tasks.
-Concatenation was done via continuation-style, as above in the logo
-domain ... [idk how you wanted this to be mentioned?]
-
-Because this domain has a relatively large number of parameters, we
-used a modified version of the recognition model, where only unigram
-parameters were inferred. We found that this recognition model trained
-quicker and more had more stable convergence.
-
-Probabilistic regexes have no ground truth notion of ``solved," so we
-evaluate differently from other domains. Our main evaluation metric is
-to report a lower bound on the posterior predictive of each task given
-the learned grammar:
-
-\begin{align} 
-\Probablility[x_{test}|x_{train}, \mathcal D , \theta ] &= \integral
-dp \Probability[x_{test}| p] \Probablility[p| x_{train}, \mathcal D ,
-\theta]\\
-&= \integral dp \Probability[x_{test}| p] \Probablility[x_{train}|p]
-\Probablility[p|\mathcal D , \theta]\\
-\geq& \sum_{p\in F} \Probability[x_{test}| p] \Probablility[x_
-{train}|p] \Probablility[p|\mathcal D , \theta]
-\end{align} 
-
-%\begin{align} 
-%\Probablility[x|\mathcal D , \theta ] &= \integral dp \Probablility
-[x|p] \Probablility[p|\mathcal D , \theta]\\
-%\geq& \sum_{p\in F} \Probablility[x|p] \Probablility[p|\mathcal D ,
-\theta]
-%\end{align} 
-
-where $x_{train}$ are the training strings for task $x$, and $x_
-{test}$ are the held-out test strings, not seen during search.
-
-For this domain we use an additional post-processing step, in order to
-generate realistic samples from the probabilistic programs. For each
-task and each found probabilistic regex, we separately optimize the
-continuous regex production parameters in order to maximize the
-likelihood on the training strings for that task. We apply additive
-smoothing to ensure optimization does not over-fit to the training
-tasks.
-
-
-
-\begin{tabular}{ccc}
-  \toprule   Observed text&Inferred regex&Held out testing text\\\midrule
-  
-  \end{tabular}
-
-\subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
-To evaluate the relative importance of DSL learning and recognition
-model training, we evaluate on held-out testing tasks for each of our
-domains, measuring both how many tasks are solved and how long it
-takes to solve them across successive wake/sleep iterations
-(Fig.~\ref{learningCurves}).  We always solve more held-out tasks --
-and generally solve them in less time -- with both components
-combined.  Why?  One hypothesis is that some tasks are best solved by
-DSL learning and others by a neural network, and so including both of
-our sleep cycles  takes the union of these sets of tasks.  Another
-hypothesis is that the DSL and neural network interact
-synergistically, bootstrapping off each other to solve tasks for which
-neither alone suffice. We evaluate the relative weight of these interactions by
-computing the ratio of the tasks solved uniquely by the full model to 
-
-
-
-
-
-%% We compare with ablations of our model on held out tasks.
-%% The purpose of this ablation study is 
-%% both to examine the role of each component of \systemEnding,
-%% as well as to compare with
-%% prior approaches in the literature:
-%% a head-to-head
-%% comparison of program synthesizers is complicated by the fact that
-%% each system, including ours, makes idiosyncratic 
-%% assumptions about the space of programs and the statement of tasks.
-
-%% Nevertheless, much prior work can be modeled within our setup. 
-%% We compare with the following ablations (Tbl~\ref{baselineComparisons};
-%% Fig~\ref{learningCurves}):
-%% \\\noindent \textbf{No NN:} lesions the recognition model.
-%% \\\noindent \textbf{NPS}, which does not learn the DSL,
-%% instead learning the recognition model
-%% from samples drawn from the fixed DSL.
-%% We call this NPS (Neural Program Synthesis)
-%% because this is closest to how
-%% RobustFill~\cite{devlin2017robustfill} and DeepCoder~\cite{balog2016deepcoder} are trained.
-%% \\\noindent \textbf{SE}, which lesions the recognition model and restricts the DSL  learning algorithm to
-%% only add \textbf{S}ub\textbf{E}xpressions of programs in the beams to the DSL. This is how most prior approaches have learned libraries of functions~\cite{Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
-%% \\\noindent \textbf{PCFG}, which lesions the recognition model and does not learn the DSL,
-%% but instead learns the parameters of the DSL ($\theta$), learning the parameters of a PCFG while not learning any of the structure.
-%% \\\noindent \textbf{Enum}, which enumerates a beam without any learning --- equivalently, our first search step.
-%For each domain,
-%% We are interested both in how many tasks the
-%% agent can solve and how quickly it can find those solutions.
-%% Tbl.~\ref{baselineComparisons}
-%% compares our model against these alternatives.
-%% We consistently
-%% improve on the baselines,
-%% and find that lesioning the recognition model
-%% and lesioning it also slows down the convergence of the algorithm,
-%% taking more iterations to reach a given number of tasks solved (Fig.~\ref{learningCurves}).
-%% This supports a view of the recognition model as a way of amortizing the cost of search.
-
+number of strings, where these strings are drawn from CSV columns crawled from the web~\cite{LUKE}. Across wake/sleep cycles, our agent learns to learn
+regular expressions that describe the structure of a typically occurring text concepts,
+like numbers or dates.
+Figure~\ref{qualitativeRegex} shows example model outputs on held out generative modeling tasks,
+contrasting the full model with ablations that lesion either the library learning or recognition model training.
 \begin{figure}
-  \begin{tabular}{ccc}
-    \begin{tabular}{c}
-      \includegraphics[width = 5cm]{figures/learningCurves/text_hits.png}\\
-      \includegraphics[width = 5cm]{figures/learningCurves/text_time.png}
-    \end{tabular}&
-
-    \begin{tabular}{c}
-      \includegraphics[width = 5cm]{figures/learningCurves/logo_hits.png}\\
-      \includegraphics[width = 5cm]{figures/learningCurves/logo_time.png}
-    \end{tabular}&
-    
-    \begin{tabular}{c}
-      \includegraphics[width = 5cm]{figures/learningCurves/rational_hits.png}\\
-      \includegraphics[width = 5cm]{figures/learningCurves/rational_time.png}
-    \end{tabular}\\\\\\
-
-    \begin{tabular}{c}
-      \includegraphics[width = 5cm]{figures/learningCurves/list_hard_hits.png}\\
-      \includegraphics[width = 5cm]{figures/learningCurves/list_hard_time.png}
-    \end{tabular}&
-
-    \begin{tabular}{c}
-      \includegraphics[width = 5cm]{figures/learningCurves/tower_hits.png}\\
-      \includegraphics[width = 5cm]{figures/learningCurves/tower_time.png}
-    \end{tabular}&
-
-    \includegraphics[width = 5cm]{figures/learningCurves/regular}
-  \end{tabular}
-  \caption{Test set performance across wake/sleep iterations. Each curve is a run with a different random seed. Teal: Full model. Orange: Dreaming only (no DSL learning). Purple: Consolidation only (no recognition model). Search time plots show solid lines (time averaged over all tasks) and dotted lines (time averaged over solved tasks).}\label{learningCurves}      
+  \includegraphics[width = \textwidth]{figures/regexQualitative.pdf}
+  \caption{Qualitative results on probabilistic generative text modeling. Agent observes 5 strings (`Input' column) and infers a probabilistic regex (MAP program--regex primitives highlighted in red), from which it can imagine more examples of the latent text concept. No Library: Dreaming only (ablates library learning). No Rec: Consolidation only (ablates recognition model)}\label{qualitativeRegex}
 \end{figure}
 
-%% \begin{figure}
-%%   \begin{tabular}{ccc}
-%%     \includegraphics[width = 5cm]{figures/logoLearningCurve_batch.png}&
-%%     \includegraphics[width = 5cm]{figures/textLearningCurve_batch.png}&
-%%     \includegraphics[width = 5cm]{figures/listLearningCurve_batch.png}\\\\
-%%     \includegraphics[width = 5cm]{figures/towerLearningCurve_batch.png}&
-%%     \includegraphics[width = 5cm]{figures/rationalLearningCurve_batch.png}&
-%%     \includegraphics[width = 5cm]{figures/regexLearningCurve_batch.png}
-%%   \end{tabular}
-%%   \caption{Test set performance across wake/sleep iterations. Orange: \systemEnding. Teal: No recognition model. Purple: No DSL learning. Solid lines: \% tasks solved within 10 minute timeout. Dashed lines: average search time. Shaded region is $\pm 1$ stddev search time.}\label{learningCurves}
-%% \end{figure}
+\subsection{From libraries to languages}
+
+Rather than start with a domain-specific basis and then enrich it over successive wake/sleep cycles -- as these prior experiments have done --
+could we instead start with a highly generic basis,
+and then learn a library encoding something closer to the basic domain language?
+We first consider learning a basic language for equations describing physical laws,
+starting \emph{without} concepts like vectors or forces
+and instead providing sequences of real numbers and Lisp-style sequence manipulation.
+We collected 57 equations for physical laws from AP and MCAT physics `cheat sheets' --
+forms like Coulomb's law and expressions for the center of mass of a set of objects --
+along with
+reference vector algebra identities from machine learning textbooks,
+and tasked our agent with inferring programs calculating these input/output mappings.
+In solving these tasks, \system first discovers the building blocks of vector algebra,
+like inner products, vector sums, and norms,
+and then uses this vocabulary to infer library routines for common
+physical relationships like inverse square laws and integrating second derivatives over time.
 
 
-\section{Discussion}
-
-\emph{(what we found)} Our goal was to build a model capturing
-humanlike aspects of learning to be an expert in a new domain of
-problems.  Two main findings of our work are that, first, a single
-program-induction system can learn to solve large sets of problems
-from many qualitatively different domains; and second, that fully
-acquiring expertise in these domains hinges both upon explicit
-declarative knowledge, and implicit procedural skill.  We have
-deliberately placed the interplay of declarative and procedural
-knowledge at the center of our model, and believe that both these
-kinds of learning are crucial for building agents that, like humans,
-autonomously learn to navigate a new domain of problems.
-
-Our model's domain knowledge grows over a series of wake/sleep cycles,
-with the solutions to easier problems bootstrapping
-solving of harder tasks.
-This dynamic is related to, but distinct from, curriculum learning. In curriculum learning approaches an agent solves a stream of pedagogically selected, increasingly difficult tasks; here we consider the case with the agent lacks a `teacher' and instead sees randomly sampled batches of tasks, effectively self-pacing its way through an implicit curriculum.
-But humans select their tasks in much richer ways,
-and can even generate their own tasks to solve,
-either as stepping stones toward hard, unsolved problems or motivated by curiosity and aesthetics.
-Building agents that generate their own problems in these humanlike ways is a necessary next step
-if we want machines that push against boundary of human domain knowledge or which even discover whole new domains of problems,
-both of which go far beyond the relatively small-scale demonstrations in this work.
-
-A basic representational challenge is to
-learn concepts fundamentally inexpressible in terms of the starting basis: \system invents procedures for
-adding vectors, taking dot products, and calculating forces,
-but can not make the jump needed to define new terms like `acceleration' and `coordinate system,'
-concepts inexpressible as a library of procedures.
-We believe approaches based either on term rewriting systems or defining new generalized algebraic datatypes could give traction to fundamental problems like these,
-strategies which are closely allied with conceptual role semantics.
-Indeed, humans often open up whole new fields of inquiry by introducing concepts not
-definable in terms of prior abstractions,
-like the meaning of `allele' in genetics
-or `force' in physics.
-
-
-
-
-related work
-
-limitations
-
-how will go beyond? generate own tasks; real DSL learning (all expressible in base language); lifelong learning (forgetting?)
-
-\subsection{Learning from Scratch}
-A long-standing dream within the program induction community
-is ``learning from scratch'': starting with a \emph{minimal} Turing-complete programming language,
+Could we also learn the basics of programming, including these foundational sequence manipulation primitives?
+This goal is relevant to a long-standing dream within the program induction community to ``learn from scratch'': starting with a \emph{minimal} Turing-complete programming language,
 and then learning to solve a wide swath of
 induction problems~\cite{solomonoff1964formal,schmidhuber2004optimal,hutter2004universal,solomonoff1989system}.
 All existing systems,
@@ -1942,26 +1716,117 @@ and can in principle recover many of the amenities of modern programming systems
 provided it is given enough computational power and a suitable
 spectrum of tasks.
 
-\subsection{\system and the Exploration-Compression family of algorithms}
+
+
+
+\subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
+To evaluate the relative importance of library learning and recognition
+model training, we evaluate on held-out testing tasks for each of our
+domains, measuring both how many tasks are solved and how long it
+takes to solve them across successive wake/sleep iterations
+(Fig.~\ref{learningCurves}).  We always solve more held-out tasks --
+and generally solve them in less time -- with both components
+combined.  Why?  One hypothesis is that some tasks are best solved by
+DSL learning and others by a neural network, and so including both of
+our sleep cycles  takes the union of these sets of tasks.  Another
+hypothesis is that the DSL and neural network interact
+synergistically, bootstrapping off each other to solve tasks for which
+neither alone suffice. We evaluate the relative weight of these interactions by
+computing the ratio of the tasks solved uniquely by the full model to 
+
+
+
+\begin{figure}
+  \begin{tabular}{ccc}
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/text_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/text_time.png}
+    \end{tabular}&
+
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/logo_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/logo_time.png}
+    \end{tabular}&
+    
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/rational_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/rational_time.png}
+    \end{tabular}\\\\\\
+
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/list_hard_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/list_hard_time.png}
+    \end{tabular}&
+
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/tower_hits.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/tower_time.png}
+    \end{tabular}&
+
+    \begin{tabular}{c}
+      \includegraphics[width = 5cm]{figures/learningCurves/regex_marginal_test_unigram_gen.png}\\
+      \includegraphics[width = 5cm]{figures/learningCurves/regex_task_train_unigram_gen.png}
+      \end{tabular}
+  \end{tabular}
+  \caption{Test set performance across wake/sleep iterations. Each curve is a run with a different random seed. Teal: Full model. Orange: Dreaming only (no DSL learning). Purple: Consolidation only (no recognition model). Search time plots show solid lines (time averaged over all tasks) and dotted lines (time averaged over solved tasks). Generative text modeling plots show (top) posterior predictive likelihood of held-out strings on held out tasks and (bottom) lower bound on marginal likelihood of held out tasks, both of which are averaged per character.}\label{learningCurves}      
+\end{figure}
+
+
+\section{Discussion}
+
+\emph{(what we found)} Our goal was to build a model capturing
+humanlike aspects of learning to be an expert in a new domain of
+problems.  Two main findings of our work are that, first, a single
+program-induction system can learn to solve large sets of problems
+from many qualitatively different domains; and second, that fully
+acquiring expertise in these domains hinges both upon explicit
+declarative knowledge, and implicit procedural skill.  We have
+deliberately placed the interplay of declarative and procedural
+knowledge at the center of our model, and believe that both these
+kinds of learning are crucial for building agents that, like humans,
+autonomously learn to navigate a new domain of problems.
+
+\emph{(related work)} \system builds on several generations of research in AI, program synthesis,
+and cognitive science, with program induction being one of the oldest
+theoretical frameworks for concept learning within artificial
+intelligence~\cite{solomonoff1964formal}, and the conceptually allied
+`Language of Thought Hypothesis' being almost as
+old~\cite{fodor1975language}. Recent neural program synthesis systems
+pair a fixed domain-specific programming language (a `DSL') to a
+learned neural network that guides program
+search~\cite{spiral,balog2016deepcoder,devlin2017neural}, while recent
+symbolic AI research has developed frameworks for learning the DSL by
+inferring reusable pieces of
+code~\cite{ecc,Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
+A main goal of this work is to combine and refine these techniques
+with the intention of building agents that, like humans, develop
+domain expertise for new classes of problems.  Work in cognitive
+modeling has often exploited program-like representations for both
+concept~\cite{piantadosi2011learning,lake2015human,GoodmanEtAl2015-Chapter} and intuitive theory
+learning~\cite{logical,Ullman2012},
+and we view these models of concept learning as
+a kind of program induction,
+and see theory learning as similar to inducing a DSL or library.
+
 
 Our work sits within the Exploration-Compression (EC) family of
-algorithms.  EC~\cite{Dechter:2013:BLV:2540128.2540316} is a program
-induction framework where an agent alternates between searching, or
-`exploring', the space of programs, and then updating its search
-procedure by compressing programs found during exploration. \system
+algorithms.  EC~\cite{Dechter:2013:BLV:2540128.2540316} algorithms alternate between searching, or
+`exploring', the space of programs, and then updating their search
+procedure by compressing solutions found during exploration. \system
 grew directly out of research on EC-style systems and both of our
 sleep phases can be interpreted as a kind of compression:
 consolidation aims to compactly refactor code, while the recognition
 model aims to encode a program in as few bits as possible, conditioned
-on a task. Our previous work, EC$^2$~\cite{ecc}, introduced
-neurally-guided search into the EC framework and served as the
-starting point for \systemEnding.  Our work here extends EC$^2$ by (1)
-introducing a new refactoring compression algorithm, (2) enriching the
-neural network with a new bigram-over-trees parameterization and loss
-function that together learn to break symmetries, accelerating program
-search during waking, and (3) demonstrating how this family of
-approaches can be applied to planning and generative modeling
-problems.  Other offshoots of EC include the neurosymbolic framework
+on a task. %%  Our previous work, EC$^2$~\cite{ecc}, introduced
+%% neurally-guided search into the EC framework and served as the
+%% starting point for \systemEnding.  Our work here extends EC$^2$ by (1)
+%% introducing a new refactoring compression algorithm, (2) enriching the
+%% neural network with a new bigram-over-trees parameterization and loss
+%% function that together learn to break symmetries, accelerating program
+%% search during waking, and (3) demonstrating how this family of
+%% approaches can be applied to planning and generative modeling
+%% problems. 
+Other offshoots of EC include our prior work, EC$^2$~\cite{ecc}, the neurosymbolic framework
 in~\cite{lazaro2019beyond} and the hierarchical Bayesian program
 learner in~\cite{DBLP:conf/icml/LiangJK10}. Closely aligned ideas go
 even further back~\cite{solomonoff1989system,schmidhuber2004optimal}.
@@ -1969,26 +1834,67 @@ even further back~\cite{solomonoff1989system,schmidhuber2004optimal}.
 
 
 
-\subsection{Prospects for program Induction as part of the generic AI toolkit}
+\emph{(limitations - and how to go beyond them)} Our model's domain knowledge grows over a series of wake/sleep cycles,
+with the solutions to easier problems bootstrapping
+solving of harder tasks.
+This dynamic is related to, but distinct from, curriculum learning. In curriculum learning approaches an agent solves a stream of pedagogically selected, increasingly difficult tasks; here we consider the case with the agent lacks a `teacher' and instead self-paces its way through an implicit curriculum.
+But humans select their tasks in much richer ways,
+and can even generate their own tasks to solve,
+either as stepping stones toward hard, unsolved problems or motivated by considerations like curiosity and aesthetics.
+Building agents that generate their own problems in these humanlike ways is a necessary next step
+if we want machines that push against boundary of human domain knowledge or which even discover whole new domains of problems,
+both of which go far beyond the relatively small-scale demonstrations in this work.
 
-Our aim with \system is to chart a path by which program induction can
-become more broadly useful for AI.  This means viewing the AI
-landscape through the lens of program learning, including the terrain
-considered here --- simple kinds of generative modeling, inverse
-graphics, planning, and programming by example --- but also many
-others like reinforcement learning, commonsense reasoning, natural
-language understanding, and causal inference. Can program induction
-rise to the challenge?  We believe it can, provided we push jointly
-along  many different axes of AI research; and provided we continue
-to integrate learning algorithms -- both symbolic and neural, both
-top-down and bottom-up -- into our artificial agents.
+\emph{(I feel the lifelong learning setting is less important of a point to make - we might remove this)} Over a lifetime humans develop expertise in many domains --
+unlike our model,
+which learned to solve many classes of problems,
+but only class one at a time.
+Scaling approaches like ours to this multidomain, lifelong setting
+could be enabled by a hierarchical Bayesian model of DSLs for many domains,
+capturing  shared conceptual structure between similar domains  (e.g., Parcheesi and chess)
+and separating knowledge between dissimilar domains (e.g., Parcheesi and cheese making).
 
-Our system, with its learned DSL and neural recognition model, is one
-embodiment of this hybrid symbolic/neural approach, and enjoys some
-success across small-scale problems in the different domains considered
-here. Scaling to larger problems,
-such as inferring 3-D object models (vs LOGO/Turtle),
-learning natural image grammars (vs ),
+
+A basic representational challenge is to
+learn concepts fundamentally inexpressible in terms of the starting basis. \system invents procedures for
+adding vectors, taking dot products, and calculating forces,
+but can not make the jump needed to define new terms like `acceleration' and `coordinate system,'
+concepts inexpressible as a library of procedures.
+We believe approaches based either on term rewriting systems or defining new generalized algebraic datatypes could give traction to fundamental problems like these,
+and we note that these strategies are similar in spirit to conceptual role models of semantics.
+Indeed, humans often open up whole new fields of inquiry by introducing concepts not
+definable in terms of prior abstractions,
+like the meaning of `allele' in genetics
+or `force' in physics.
+
+Programs, as a knowledge representation,
+hold promise because of their universal expressiveness and
+compositional systemacity.
+We are optimistic that programs can become a more standard part of the AI toolkit,
+and that a key enabling insight will be combination of
+explicit declarative concepts and implicit procedural skill, both jointly learned.
+
+
+%% \subsection{Prospects for program Induction as part of the generic AI toolkit}
+
+%% Our aim with \system is to chart a path by which program induction can
+%% become more broadly useful for AI.  This means viewing the AI
+%% landscape through the lens of program learning, including the terrain
+%% considered here --- simple kinds of generative modeling, inverse
+%% graphics, planning, and programming by example --- but also many
+%% others like reinforcement learning, commonsense reasoning, natural
+%% language understanding, and causal inference. Can program induction
+%% rise to the challenge?  We believe it can, provided we push jointly
+%% along  many different axes of AI research; and provided we continue
+%% to integrate learning algorithms -- both symbolic and neural, both
+%% top-down and bottom-up -- into our artificial agents.
+
+%% Our system, with its learned DSL and neural recognition model, is one
+%% embodiment of this hybrid symbolic/neural approach, and enjoys some
+%% success across small-scale problems in the different domains considered
+%% here. Scaling to larger problems,
+%% such as inferring 3-D object models (vs LOGO/Turtle),
+%% learning natural image grammars (vs ),
 
 
 \bibliography{main}
