@@ -443,21 +443,21 @@ refer to our approach as an instance of `deep program learning'.
 
 %\input{dpl1.tex} % old latex deep programming figures
 
-\section{Deep Wake/Sleep Program Induction}\label{overviewSection}
+\section{A Wake/Sleep Algorithm for Program Induction}\label{overviewSection}
 
 Our model, called \systemEnding, works through a novel kind
 of wake/sleep or `dream' learning~\cite{hinton1995wake}, iterating
 through a wake cycle -- where it solves \textbf{tasks} by writing programs (Figure~\ref{threeCycles} top)
 -- and a pair of sleep cycles, both of which are loosely biologically
-inspired. The first sleep cycle, which we refer to as
-\textbf{abstraction}, grows its library of code by replying
+inspired by the different memory consolidation processes that occur during sleep~\cite{rasch2013sleep}. The first sleep cycle, which we refer to as
+\textbf{abstraction}, grows the library of code by replying
 experiences from waking and consolidating them into new code
-abstractions (Figure~\ref{threeCycles} left).  This cycle is inspired by the formation of abstractions
-during sleep memory consolidation~\cite{DUDAI201520}.  The second
+abstractions (Figure~\ref{threeCycles} left).  This cycle is loosely inspired by the formation of declarative abstractions
+during slow-wave sleep memory consolidation~\cite{DUDAI201520}.  The second
 sleep cycle, which we refer to as \textbf{dreaming}, improves the
-agents knowledge of how to write code by training a neural network to
+agents procedural knowledge of how to write code by training a neural network to
 help quickly search for programs. The neural net is trained on replayed
-experiences as well as `fantasies', or samples, from the learned
+experiences as well as `fantasies', or sampled programs, built from the learned
 library (Figure~\ref{threeCycles} right).  These two kinds of dreams are inspired by the distinct
 episodic replay and hallucination components of dream
 sleep~\cite{fosse2003dreaming}.
@@ -858,7 +858,7 @@ algorithm for automatically refractoring programs, where this
 refactoring exposes common reused subexpressions across the
 programs found during waking.  Second, we use this automatic refactoring
 process to search for libraries that maximally compress these programs by
-incorporating reused subexpressions into the DSL.
+incorporating reused subexpressions into the library.
 
 Mathematically this compression takes the form of
 finding the library maximizing $\int \probability[\mathcal{D},\theta]\probability[X|\mathcal{D},\theta]\;\mathrm{d}\theta$ (Sec.~\ref{overviewSection}).
@@ -1421,7 +1421,7 @@ agent first learns the higher-order function \code{filter}, uses
 \code{filter} to learn to take the maximum element of a list, then
 uses that routine to learn a new component for extracting the
 $n^{\text{th}}$ largest element of a list, which it finally uses to
-solve a task involving sorting a list of numbers (Figure~\ref{initialExampleDSL}).
+solve a task involving sorting a list of numbers (Figure~\ref{exampleDSL}).
 This incremental, modular learning of deep hierarchies of library
 components occurs because of the alternation between code writing
 (during waking) and code refactoring (during the abstraction phase
@@ -1487,10 +1487,9 @@ First we consider programs that make plans and take actions:  drawing pictures a
 
 \subsubsection{Programs that draw pictures}\label{logoSection}
 
-Procedural visual concepts are studied across AI and cognitive science
---- Bongard problems~\cite{Moscow}, Raven's progressive
-matrices~\cite{raven2003raven}, and Lake et al.'s BPL model of
-omniglot~\cite{lake2015human} are prominent examples.  Here we take
+Procedural or generative visual concepts 
+--- from Bongard problems~\cite{Moscow}, to handwritten characters~\cite{lake2015human,hofstadter1993letter}, to Raven's progressive
+matrices~\cite{raven2003raven} --- are studied across AI and cognitive science.  Here we take
 inspiration from LOGO Turtle graphics~\cite{turtle}, tasking our agent
 with drawing a corpus of 160 images while equipping it with control
 over a `pen', along with arithmetic operations on angles and
@@ -1578,8 +1577,8 @@ LOGO graphics,
 and learns parametric `options' for building blocks towers (Figure~\ref{tower}),
 inferring concepts like arches, staircases, bridges and brick walls.
 \begin{figure}
-  \begin{tabular}{cc}
-    \toprule Example learned DSL components&Samples from DSL\\\midrule
+\centering  \begin{tabular}{cc}
+    \toprule Example learned DSL components&Samples written using final library\\\midrule
     \begin{tabular}{rl}
       Brickwall&\begin{tabular}{l}
         \includegraphics[width = 5cm]{figures/tower/tower_dsl_bricks.png}
@@ -1726,16 +1725,16 @@ domains, measuring both how many tasks are solved and how long it
 takes to solve them across successive wake/sleep iterations
 (Fig.~\ref{learningCurves}).  We always solve more held-out tasks --
 and generally solve them in less time -- with both components
-combined.  Why?  One hypothesis is that some tasks are best solved by
-DSL learning and others by a neural network, and so including both of
-our sleep cycles  takes the union of these sets of tasks.  Another
-hypothesis is that the DSL and neural network interact
-synergistically, bootstrapping off each other to solve tasks for which
-neither alone suffice. We evaluate the relative weight of these interactions by
-computing the ratio of the tasks solved uniquely by the full model to 
-
-
-
+combined, suggesting a synergy between library learning and
+recognition model training. Examining the libraries learned with and without
+recognition models reveals a difference in the typical \emph{depth}
+of learned subroutines, and this average depth correlates
+with the number of solved testing tasks ($r=0.71$, $p < 10^{-8}$).
+In contrast, the correlation between the \emph{number} of learned subroutines and number of solved tasks is weaker and not statistically significant ($r=0.20$, $p > 0.05$),
+suggesting that the recognition model bootstraps
+``better'' libraries, where ``better'' is at least partly explained by the depth
+of the learned representation. Figure~\ref{depthMontage} shows typical `deep' libraries learned by
+\system and contrasts this depth with \% solved tasks, both with and without the recognition model.
 \begin{figure}
   \begin{tabular}{ccc}
     \begin{tabular}{c}
@@ -1771,12 +1770,21 @@ computing the ratio of the tasks solved uniquely by the full model to
   \caption{Test set performance across wake/sleep iterations. Each curve is a run with a different random seed. Teal: Full model. Orange: Dreaming only (no DSL learning). Purple: Consolidation only (no recognition model). Search time plots show solid lines (time averaged over all tasks) and dotted lines (time averaged over solved tasks). Generative text modeling plots show (top) posterior predictive likelihood of held-out strings on held out tasks and (bottom) lower bound on marginal likelihood of held out tasks, both of which are averaged per character.}\label{learningCurves}      
 \end{figure}
 
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/dpl/montage.pdf}
+  \caption{Top: Learned libraries diagrammed as networks. Arrows point from a learned concept to all other concepts that use it. Bottom: Deeper networks solve more testing tasks, both as measured by average depth (left) and maximum depth (right). Full model (circles on scatterplots) learns deeper libraries than no-recognition-model ablation (crosses on scatterplots). Each scatter plot point run with a different random seed.}\label{depthMontage}
+  \end{figure}
+
 
 \section{Discussion}
 
 \emph{(what we found)} Our goal was to build a model capturing
 humanlike aspects of learning to be an expert in a new domain of
-problems.  Two main findings of our work are that, first, a single
+problems. Our model works through a wake/sleep algorithm that grows an increasingly deep
+representation of a domain's conceptual structure,
+while learning to quickly combine these concepts into programs
+solving specific problems within the domain.
+Two main findings of our work are that, first, a single
 program-induction system can learn to solve large sets of problems
 from many qualitatively different domains; and second, that fully
 acquiring expertise in these domains hinges both upon explicit
@@ -1873,6 +1881,7 @@ compositional systemacity.
 We are optimistic that programs can become a more standard part of the AI toolkit,
 and that a key enabling insight will be combination of
 explicit declarative concepts and implicit procedural skill, both jointly learned.
+
 
 
 %% \subsection{Prospects for program Induction as part of the generic AI toolkit}
@@ -2986,17 +2995,54 @@ and we use with this combination throughout the paper.
   \caption{}\label{allTSNE}
 \end{figure}
 
-\subsection{Full set of LOGO  tasks}
+\subsection{LOGO Graphics Experiment}
+
+We apply our system to 160 LOGO graphics tasks, split 50/50 test/train (Figure~\ref{everyLogoTask}).
+For each task of the agent must write a program that moves a simulated pen across the canvas,
+with the goal of drawing the target image, as measured by pixel level similarity.
+
+We initially provide our agent with two control flow primitives: \code{for} (a `for` loop), and \code{get/set}, which gets and saves the current state of the agent's pen, executes a block of code, and then restores the state to its previous value. We provide two different drawing primitives: \code{move}, which takes as input both a distance and angle, and moves the pen forward by that distance and rotates by that angle, and \code{pen-up}, which lifts up the pen and then executes a block of code \emph{without} placing down ink on the canvas.
+
+These programs are imperative (produce a sequence of actions) rather than purely functional (calculate a stateless mapping).
+The \system infrastructure only supports purely functional $\lambda$-calculus programs.
+To embed imperative routines within this framework,
+we model imperative routines using a state monad~\cite{wadler1990comprehending} and encode each imperative action in a continuation passing style where each imperative primitive takes as input the actions to execute afterwards (i.e., the continuation),
+and the program as a whole takes as input a final no-op continuation.
+This continuation passing set up allows the program synthesizer to not need the monadic `bind' operator to sequence chains of commands.
+To be concrete, our imperative primitives have the following types:
+
+\begin{tabular}{l}
+  \code{move} : \code{distance}$\to$\code{angle}$\to$\code{State ()}$\to$\code{State ()}\\
+  \code{pen-up} : \code{(State ()$\to$State ())}$\to$\code{State ()}$\to$\code{State ()}\\
+  \code{for} : \code{int$\to$(State ()$\to$State ())}$\to$\code{State ()}$\to$\code{State ()}\\
+  \code{get/set} : \code{(State ()$\to$State ())}$\to$\code{State ()}$\to$\code{State ()}
+\end{tabular}
+
+and each synthesized program has type \code{State ()}$\to$\code{State ()}. We additionally provide the agent with natural numbers (1 through 9), arithmetic operations (addition/subtraction/multiplication/division), unit distances and angles (1 meter and $2\pi$ radians), and special values $\infty$ (approximated as $20$) and $\epsilon$ (approximated as $1/20$). We distinguish distances and angles in the type system, only allowing a distance/angle to be added/subtracted with another object that is also a distance/angle, and only allowing multiplication/division by unitless scalars. This trick requires no modification of the underlying \system software, and is a standard way of embedding units and dimensions within a type system~\cite{fsunits}.
+
 
 \begin{figure}
   \includegraphics[width = \textwidth]{figures/fullLogo.png}
-  \caption{Full set of LOGO graphics tasks that we apply our system to}
+  \caption{Full set of LOGO graphics tasks that we apply our system to}\label{everyLogoTask}
 \end{figure}
 
-\subsection{Full set of tower tasks}
+\subsection{Tower Building Experiment}
+We apply our system to 112 tower building tasks (Figure~\ref{everyTowerTask}), split 50/50 test/train.
+We use the same monadic, continuation-passing encoding of imperative programs as we used for LOGO graphics,
+and include the exact same control flow primitives.
+Rather than moving a pen over a canvas, the agent here moves a simulated hand left/right over a 2D tower building stage, and has at its disposal an unlimited supply of horizontal and vertical blocks.
+All coordinates are discretized.
+Horizontal blocks have size 6x2 and vertical blocks have size 2x6.
+The state of the simulated hand maintains both its position (a single discrete scalar) and its orientation (a single boolean, either facing left are facing right).
+We include two domain specific primitives for adjusting the position of the hand: \code{move}, which takes as input a scalar $d$ and moves the hand forward  by distance $d$,
+and \code{reverse},
+which flips the orientation of the hand.
+The agent has two additional domain specific primitives for dropping a horizontal/vertical block at the current position of the hand.
+
+
 \begin{figure}
   \includegraphics[width = \textwidth]{figures/fullTower.png}
-  \caption{Full set of tower building tasks that we apply our system to}
+  \caption{Full set of tower building tasks that we apply our system to}\label{everyTowerTask}
 \end{figure}
 
 \subsection{Learning from Scratch: Tasks and DSL}\label{appendixMcCarthy}
