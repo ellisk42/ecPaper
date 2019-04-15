@@ -1654,7 +1654,8 @@ could we instead start with a highly generic basis,
 and then learn a library encoding something closer to the basic domain language?
 We first consider learning a basic language for equations describing physical laws,
 starting \emph{without} concepts like vectors or forces
-and instead providing sequences of real numbers and Lisp-style sequence manipulation.
+and instead providing Lisp-style sequence manipulation primitives like
+\code{map} and \code{fold}.
 We collected 57 equations for physical laws from AP and MCAT physics `cheat sheets' --
 forms like Coulomb's law and expressions for the center of mass of a set of objects --
 along with
@@ -1665,6 +1666,100 @@ like inner products, vector sums, and norms,
 and then uses this vocabulary to infer library routines for common
 physical relationships like inverse square laws and integrating second derivatives over time.
 
+\begin{figure}
+  \centering
+  \begin{tabular}{lll}\toprule
+    &\multicolumn{1}{c}{Physical Laws}&\multicolumn{1}{c}{Recursive Functions}\\\midrule
+    \normalsize \rotatebox[origin=c]{90}{\pop{Programs} \& Tasks}&
+    % physical laws programs and tasks
+    \begin{tabular}{l}
+      \begin{tabular}{l}
+        Center-of-mass:\\
+      \end{tabular}\\\\
+      \begin{tabular}{l}
+        Coulomb's law:\\
+      \end{tabular}\\\\
+      \begin{tabular}{l}
+        Integrating position over time:\\
+        \end{tabular}
+      \end{tabular}
+    &
+    % recursive functions programs and tasks
+    \begin{tabular}{l}
+      \begin{tabular}{l}
+        Duplicate each list element:\\
+        \code{[9 2]$\to $[9 9 2 2]}\\
+        \code{[5 0 3]$\to $[5 5 0 0 3 3]}\\
+        \code{[1 2 3 4]$\to $[1 1 2 2 3 3 4 4]}\\
+        \blueCode{$f(l) = $($f_0$ ($\lambda$ (x a) (cons x (cons x a))) l nil)}        
+      \end{tabular}\\\\
+
+      \begin{tabular}{l}
+        Lengths of list-of-lists:\\
+        \code{[[2 1] [1 2 9]\, []]}$\to $\code{[2 3 0]}\\
+        \code{[[5 2 9 3 7 5 2]]}$\to $\code{[7]}\\
+        \code{[[] [] [9 8 9 9]]$\to$[0 0 4]}\\
+        \blueCode{$f(\ell) = $($f_2$ ($\lambda$ (z) ($f_4$ z)) $\ell$)}
+      \end{tabular}\\\\
+      \begin{tabular}{l}
+        1-index into list:\\
+        \code{1, [9 2 3]$\to $9}\\
+        \code{2, [1 5 8]$\to $5}\\
+        \code{4, [0 2 8 1 5 6]$\to $1}\\
+        \blueCode{$f($n$,$l$) = $($f_7$ l (+ 1 n))}
+      \end{tabular}\\\\
+      
+      
+      \end{tabular}
+    \\\midrule
+    \rotatebox[origin=c]{90}{\popp{Library}}&
+    % physical laws library
+    &
+    % recursive functions programs and tasks
+    \begin{tabular}{l}
+      \begin{tabular}{l}
+        \popp{\code{$f_0($f$,$l$,$x$)\,=\,$(if (empty? l) x}}\\
+        \phantom{\code{$f_0($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(f (car l) ($f_0$ (cdr l))))}}\\
+          \hspace{\helpSize}($f_0$: \emph{fold})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \popp{\code{$f_1($p$,$f$,$n$,$x$)\,=\,$(if (p x) nil}}\\
+        \phantom{\code{$f_1($f$,$l$,$x$)\,=\,$(if }}}\popp{\code{(cons (f x) ($f_1$ (n x))))}}\\
+          \hspace{\helpSize}($f_1$: \emph{unfold})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_2($f$,$l$)\,=\,$($f_0$ nil l ($\lambda$ (x a) (cons (f x) a)))}\\
+        \hspace{\helpSize}($f_2$: \emph{map})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_3($f$,$p$,$n$)\,=\,$($f_1$ p f (+ 1) n)}\\
+        \hspace{\helpSize}($f_3$: \emph{count upward until predicate holds})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_4($l$)\,=\,$($f_0$ ($\lambda$ (a x) (+ 1 a)) l 0)}\\
+        \hspace{\helpSize}($f_4$: \emph{length})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_5($p$)\,=\,$($f_3$ ($\lambda$ (x) x) p 0)}\\
+        \hspace{\helpSize}($f_5$: \emph{count upward from 0 until predicate holds})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_6($n$)\,=\,$($f_5$ (eq? n))}\\
+        \hspace{\helpSize}($f_6$: \emph{range})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_7($l$,$n$)\,=\,$(car ($f_0$ ($\lambda$ (a x) (cdr a)) ($f_6$ n) l))}\\
+        \hspace{\helpSize}($f_7$: \emph{index})
+      \end{tabular}
+      
+      
+      
+    \end{tabular}
+
+    \\\bottomrule 
+    
+  \end{tabular}
+  \end{figure}
 
 Could we also learn the basics of programming, including these foundational sequence manipulation primitives?
 This goal is relevant to a long-standing dream within the program induction community to ``learn from scratch'': starting with a \emph{minimal} Turing-complete programming language,
@@ -3073,9 +3168,9 @@ Figure~\ref{learningFromScratch} shows the full set of tasks and the learned DSL
         \blueCode{$f(\ell) = $($f_5$ $\ell$)}
       \end{tabular}&
       \begin{tabular}{l}
-        \code{[[2 1]\, []]}$\to $\code{[1 0]}\\
+        \code{[[2 1]\, []]}$\to $\code{[2 0]}\\
         \code{[[] [] [9 8 9 9]]$\to$[0 0 4]}\\
-        \blueCode{$f(\ell) = $($f_2$ $f_4$ $\ell$)}
+        \blueCode{$f(\ell) = $($f_2$ $f_5$ $\ell$)}
       \end{tabular}\\\\
 
       \begin{tabular}{l}
@@ -3194,7 +3289,7 @@ Figure~\ref{learningFromScratch} shows the full set of tasks and the learned DSL
       \end{tabular}\\
       \begin{tabular}{l}
         \greenCode{$f_4($f$,$p$,$n$)\,=\,$($f_1$ p f (+ 1) n)}\\
-        \hspace{\helpSize}($f_4$: \emph{generalization of range})
+        \hspace{\helpSize}($f_4$: \emph{count upward until predicate holds})
       \end{tabular}&
       \begin{tabular}{l}
         \greenCode{$f_5($l$)\,=\,$($f_0$ ($\lambda$ (a x) (+ 1 a)) l 0)}\\
@@ -3206,7 +3301,7 @@ Figure~\ref{learningFromScratch} shows the full set of tasks and the learned DSL
       \end{tabular}&
       \begin{tabular}{l}
         \greenCode{$f_7($p$)\,=\,$($f_4$ ($\lambda$ (x) x) p 0)}\\
-        \hspace{\helpSize}($f_7$: \emph{another generalization of range})
+        \hspace{\helpSize}($f_7$: \emph{count upward from 0 until predicate holds})
       \end{tabular}\\
       \begin{tabular}{l}
         \greenCode{$f_8($n$,$m$)\,=\,$($f_4$ ($\lambda$ (x) (- n x)) (eq? 0) m)}\\
