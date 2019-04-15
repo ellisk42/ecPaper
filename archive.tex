@@ -553,11 +553,14 @@ recursive functions, and the ability to define new functions.
 
     
     \begin{scope}[shift={(0.5,0.5)}]
-      \node[align=right] at (0,-0.5) (d){\textbf{Library}\\
-        $f_1$, $f_2$, ...};
+      \node[align=center] at (0,-0.5) (d){\textbf{Library}\\
+        \code{$f_1($x$)=$(+ x 1)}\\
+        \code{$f_2($z$)=$(fold cons (cons z nil))}\\
+         ...};
       \node[align=center] at ([yshift = -2cm]d) (t){\textbf{Task}\\
-        \footnotesize            \code{[7\, 2\, 3]}$\to$\code{[7\, 3]}         \\
-        \footnotesize    \code{[4\, 3\, 2\, 1]}$\to$\code{[4\, 3]} };
+        \footnotesize            \code{[7\, 2\, 3]}$\to$\code{[4 3 8]}         \\
+        \footnotesize    \code{[3\, 8]}$\to$\code{[9 4]}\\
+        \footnotesize    \code{[4\, 3\, 2]}$\to$\code{[3 4 5]} };
 
       \node at ([xshift = 1.25cm]t.east) (nn){\NeuralNetwork{0.25}};
       \node[align = center, text width = 1cm] at ([yshift = 0.7cm,xshift=0cm]nn.north) {\baselineskip=0pt \small Recog. model\par};
@@ -569,7 +572,7 @@ recursive functions, and the ability to define new functions.
       \draw [->,rounded corners,] (d.east) -- ([yshift = 2cm]nn.center) -- ([yshift = 0.25cm]s.west);
 
       \node[align=left] at ([xshift=3cm]s.east) (f) {\textbf{Programs:}\\
-        \small    \code{($f_1$ $\ell$ ($\lambda$ (x) (> x 2)))}\\
+        \small    \code{(map $f_1$ (fold $f_2$ nil x))}\\
         \small $\cdots\cdots\cdots$};
       \draw [->  ] (s.east) -- (f.west);
 
@@ -595,7 +598,7 @@ recursive functions, and the ability to define new functions.
     \end{scope}
 
 
-    \node at (0,-4.75) {\textbf{\textsc{Sleep: Consolidation}}};
+    \node at (0,-4.75) {\textbf{\textsc{Sleep: Abstraction}}};
     \draw[fill=teal!5!white] (-3,-5) -- (3,-5) -- (3,-10) -- (5.5,-10) -- (5.5,-13) -- (-3,-13) -- (-3,-5);
     \node at (12,-4.75) {\textbf{\textsc{Sleep: Dreaming}}};
     \draw[fill=teal!5!white] (15,-5) -- (9,-5) -- (9,-10) -- (6.5,-10) -- (6.5,-13) -- (15,-13) -- (15,-5);
@@ -760,7 +763,7 @@ recursive functions, and the ability to define new functions.
     \end{scope}
     
   \end{tikzpicture}
-  \caption{\textbf{Middle:} \system as a graphical model. Agent observes programming tasks (e.g., input/outputs for list processing or images for graphics programs), which it explains with latent programs, while jointly inferring a latent library capturing cross-program regularities. A neural network, called the \emph{recognition model} (red arrows) is trained to quickly infer programs with high posterior probability. \textbf{Top}: Wake phase infers programs while holding the library and recognition model fixed. \textbf{Left}: Sleep (Consolidation) phase updates library while holding the programs fixed by refactoring programs found during waking and extracting common components. \textbf{Right}: Sleep (Dreaming) phase trains recognition model to predict approximate posterior over programs conditioned on task. Trained on `Fantasies' (programs sampled from library) \& `Replays' (programs found during waking).}\label{threeCycles}
+  \caption{\textbf{Middle:} \system as a graphical model. Agent observes programming tasks (e.g., input/outputs for list processing or images for graphics programs), which it explains with latent programs, while jointly inferring a latent library capturing cross-program regularities. A neural network, called the \emph{recognition model} (red arrows) is trained to quickly infer programs with high posterior probability. \textbf{Top}: Wake phase infers programs while holding the library and recognition model fixed. \textbf{Left}: Sleep (Abstraction) phase updates library while holding the programs fixed by refactoring programs found during waking and abstracting out common components (highlighted in orange). \textbf{Right}: Sleep (Dreaming) phase trains recognition model to predict approximate posterior over programs conditioned on task. Trained on `Fantasies' (programs sampled from library) \& `Replays' (programs found during waking).}\label{threeCycles}
 \end{figure}
 
 
