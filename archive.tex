@@ -1660,19 +1660,32 @@ contrasting the full model with ablations that lesion either the library learnin
 Rather than start with a domain-specific basis and then enrich it over successive wake/sleep cycles -- as these prior experiments have done --
 could we instead start with a highly generic basis,
 and then learn a library encoding something closer to the basic domain language?
-We first consider learning a basic language for equations describing physical laws,
-starting \emph{without} concepts like vectors or forces
-and instead providing Lisp-style sequence manipulation primitives like
+We first consider learning a basic language for physical laws,
+starting with generic sequence-manipulation primitives,
+and then investigate how these fundamental sequence-manipulating routines could themselves be learned.
+
+We first task \system with inferring 57 equations describing physical laws,
+like closed forms for ballistic motion, inverse square laws,
+expressions for calculating centers of mass, etc.,
+drawing verbatim from AP and MCAT physics `cheat sheets'
+along with equation guides from machine learning textbooks.
+These relationships are easy to express
+given concepts like vectors or forces.
+Rather than `bake in' abstractions like these we
+initialize the system with Lisp-style sequence manipulation primitives like
 \code{map} and \code{fold}.
-We collected 57 equations for physical laws from AP and MCAT physics `cheat sheets' --
-forms like Coulomb's law and expressions for the center of mass of a set of objects --
-along with
-reference vector algebra identities from machine learning textbooks,
-and tasked our agent with inferring programs calculating these input/output mappings.
+We automatically convert each task into a
+regression problem by randomly generating real or vector valued input/outputs,
+and encode vectors as lists of reals.
+
 In solving these tasks, \system first discovers the building blocks of vector algebra,
-like inner products, vector sums, and norms,
-and then uses this vocabulary to infer library routines for common
-physical relationships like inverse square laws and integrating second derivatives over time.
+like inner products, vector sums, and norms.
+It then uses this vocabulary to infer library routines for common
+physical relationships like the vector form inverse square laws
+and integrating second derivatives over time,
+effectively undergoing a `change of basis' from the initial Lisp-style primitives into a
+physics-style basis. Figure~\ref{librariesToLanguages}~(left) illustrates a subset
+of the provided tasks and learned library for this domain. 
 
 \begin{figure}
   \centering
@@ -1683,12 +1696,20 @@ physical relationships like inverse square laws and integrating second derivativ
     \begin{tabular}{l}
       \begin{tabular}{l}
         Center-of-mass:\\
+        $m_1$, $\vec{r}_1$, $m_2$, $\vec{r}_2\mapsto \frac{m_1}{m_1 + m_2}\vec{r}_1 + \frac{m_2}{m_1 + m_2}\vec{r}_2$\\
+        \code{2, [3 0 1], 4, [0 6 0]}$\to$\code{[1 4 0.333]}\\
+        \code{5, [7 1 6], 5, [9 2 2]}$\to$\code{[8 0.5 4]}        
       \end{tabular}\\\\
       \begin{tabular}{l}
         Coulomb's law:\\
+        $q_1$, $\vec{r}_1$, $q_2$, $\vec{r}_2\mapsto \frac{q_1q_2}{|\vec{r}_1 - \vec{r}_2|_2^2} \times \frac{\vec{r}_1 - \vec{r}_2}{|\vec{r}_1 - \vec{r}_2|}$\\
+        \code{4, [1 5 2], 2, [2 5 2]$\to$[-8 0 0]}\\
+        \code{-1, [0 1 1], -1, [0 0 0]$\to$[0 0.5 0.5]}        
       \end{tabular}\\\\
       \begin{tabular}{l}
         Integrating position over time:\\
+        $x_0$, $\dot{x}$, $\ddot{x}$, $t\mapsto \frac{1}{2}\ddot{x}t^2 + \dot{x}t + x_0$\\
+        
         \end{tabular}
       \end{tabular}
     &
@@ -1722,6 +1743,40 @@ physical relationships like inverse square laws and integrating second derivativ
     \\\midrule
     \rotatebox[origin=c]{90}{\popp{Library}}&
     % physical laws library
+    \begin{tabular}{l}
+      \begin{tabular}{l}
+        \greenCode{$f_0($v$)\,=\,$(fold 0 ($\lambda$ (x y) (+ (* x x) y)) v)}\\
+        \hspace{\helpSize}($f_0$: \emph{L-2 norm})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_1($v$)\,=\,$(fold 0 ($\lambda$ (x y) (+ x y)) v)}\\
+        \hspace{\helpSize}($f_1$: \emph{Sum vector components})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_2($v,u$)\,=\,$($f_1$ (zip v u ($\lambda$ (x y) (* x y))))}\\
+        \hspace{\helpSize}($f_2$: \emph{Dot product})
+      \end{tabular}\\
+      %(lambda (fold $0 (map (lambda (*. $0 0.)) (car $0)) (lambda (lambda (zip $0 $1 (lambda (lambda (+. $0 $1)))))))) 
+      \begin{tabular}{l}
+        \greenCode{$f_3($vs$)\,=\,$(fold vs (map ($\lambda$ (x) (* x 0))}\\
+        \phantom{\greenCode{$f_3($vs$)\,=\,$(fold vs (}}\greenCode{(car vs))}\\
+        \phantom{\greenCode{$f_3($vs$)\,=\,$(}}\greenCode{($\lambda$ (v u) (zip v u ($\lambda$ (x y) (+ x y)))))}\\
+        \hspace{\helpSize}($f_3$: \emph{Sum (list of) vectors})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_4($x$)\,=\,$(/ x (+ 1 1))}\\
+        \hspace{\helpSize}($f_4$: \emph{Divide by two})
+      \end{tabular}\\
+      %      %#(lambda (lambda (lambda (lambda (+. $2 (*. $0 (+. (*. (#(lambda (/. $0 (+. 1. 1.))) $0) $1) $3))))))) $2 $3 $1 $0)))))
+      \begin{tabular}{l}
+        \greenCode{$f_5($v,x,a,t$)\,=\,$(+ x (* t (+ (* ($f_4$ t) a) v)))}\\
+        \hspace{\helpSize}($f_5$: \emph{Integrate given first and second derivatives})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_6($v$)\,=\,$(power ($f_0$ v) ($f_4$ 1))}\\
+        \hspace{\helpSize}($f_6$: \emph{n-dimensional vector length})
+        \end{tabular}
+      \end{tabular}
     &
     % recursive functions programs and tasks
     \begin{tabular}{l}
@@ -1767,9 +1822,10 @@ physical relationships like inverse square laws and integrating second derivativ
     \\\bottomrule 
     
   \end{tabular}
+  \caption{\textbf{Left:} Learning a language for physical laws starting with recursive list routines like \code{map} and \code{fold}. Agent observes input/outputs of latent functions encoding physical laws (top left, 20 input/outputs per task). Vectors are represented as lists of real numbers. Physical constants expressed in Planck units. \textbf{Right:} Learning a language for recursive list routines starting with only recursion and primitives found in 1959 Lisp. Agent rediscovers \code{map}, \code{fold}, \code{unfold}, etc. For full tasks and learned libraries see Appendix~\ref{appendixMcCarthy}}\label{librariesToLanguages}
   \end{figure}
 
-Could we also learn the basics of programming, including these foundational sequence manipulation primitives?
+Could we also learn the basics of programming, including these recursive sequence manipulation primitives?
 This goal is relevant to a long-standing dream within the program induction community to ``learn from scratch'': starting with a \emph{minimal} Turing-complete programming language,
 and then learning to solve a wide swath of
 induction problems~\cite{solomonoff1964formal,schmidhuber2004optimal,hutter2004universal,solomonoff1989system}.
@@ -1798,26 +1854,22 @@ exercises. A key difference between this setup and our previous
 experiments is that, for this experiment, the system is given
 primitive recursion, whereas previously we had sequestered recursion
 within higher-order functions like \code{map}, \code{fold}, and
-\code{unfold}.
-
-After running for 93 hours on 48 CPUs, our
-algorithm solves these 18 exercises, along the way assembling a DSL
-with a modern repertoire of
-functional programming idioms and subroutines, including \code{map},
-\code{fold}, \code{unfold}, \code{index}, \code{length},
-and  arithmetic operations like 
-building lists of natural numbers between an interval (see  Appendix~\ref{appendixMcCarthy}).
+\code{unfold}.  In solving these 18 exercises, the algorithm assembles
+a DSL containing a modern repertoire of functional programming idioms
+and subroutines, including \code{map}, \code{fold}, \code{unfold},
+\code{index}, \code{length}, and arithmetic operations like building
+lists of natural numbers between an interval (see
+Figure~\ref{librariesToLanguages}, right).
 
 We believe that program learners should \emph{not}
 start from scratch,
 but instead should start from
 a rich, domain-agnostic
 basis like those embodied in the standard libraries of modern  languages.
-What this experiment shows is that \system doesn't \emph{need} to start from a rich basis,
+What these experiments reveal is that \system doesn't \emph{need} to start from a rich basis,
 and can in principle recover many of the amenities of modern programming systems,
 provided it is given enough computational power and a suitable
 spectrum of tasks.
-
 
 
 
@@ -3148,7 +3200,7 @@ The agent has two additional domain specific primitives for dropping a horizonta
   \caption{Full set of tower building tasks that we apply our system to}\label{everyTowerTask}
 \end{figure}
 
-\subsection{Learning from Scratch: Tasks and DSL}\label{appendixMcCarthy}
+\subsection{Learning from Scratch: Tasks and Library}\label{appendixMcCarthy}
 
 We gave our system the following primitives: \code{if}, \code{=},
 \code{>}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
@@ -3164,7 +3216,7 @@ recognition model for this experiment: a bottom-up pattern recognizer
 is of little use for acquiring this abstract knowledge from less than
 two dozen problems.
 
-Figure~\ref{learningFromScratch} shows the full set of tasks and the learned DSL.
+Figure~\ref{learningFromScratch} shows the full set of tasks and the learned library.
 \begin{figure}  \newcommand{\helpSize}{0.25cm}
   \begin{tabular}{ll}\toprule
     \normalsize \rotatebox[origin=c]{90}{\pop{Programs} \& Tasks}&%&\normalsize \popp{DSL}\\\midrule
@@ -3275,7 +3327,7 @@ Figure~\ref{learningFromScratch} shows the full set of tasks and the learned DSL
       \end{tabular}      
     \end{tabular}
     \\\midrule 
-    \rotatebox[origin=c]{90}{\normalsize \popp{DSL}}&
+    \rotatebox[origin=c]{90}{\normalsize \popp{Library}}&
     \begin{tabular}{ll}
       \begin{tabular}{l}
         \popp{\code{$f_0($f$,$l$,$x$)\,=\,$(if (empty? l) x}}\\
