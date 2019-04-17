@@ -1695,21 +1695,31 @@ of the provided tasks and learned library for this domain.
     % physical laws programs and tasks
     \begin{tabular}{l}
       \begin{tabular}{l}
-        Center-of-mass:\\
-        $m_1$, $\vec{r}_1$, $m_2$, $\vec{r}_2\mapsto \frac{m_1}{m_1 + m_2}\vec{r}_1 + \frac{m_2}{m_1 + m_2}\vec{r}_2$\\
-        \code{2, [3 0 1], 4, [0 6 0]}$\to$\code{[1 4 0.333]}\\
-        \code{5, [7 1 6], 5, [9 2 2]}$\to$\code{[8 0.5 4]}        
+        Kinetic energy:\\
+        $m$, $\vec{v}\mapsto \frac{1}{2}m|\vec{v}|^2$\\
+        \code{1, [0 2 -1]$\to$2.5}\\
+        \code{2, [2 1 3]$\to$14}\\
+        \blueCode{$f(m$, $\vec{v}) = $($f_4$ (* $m$ ($f_0$ $\vec{v}$)))}
+        
+        %% Center-of-mass:\\
+        %% $m_1$, $\vec{r}_1$, $m_2$, $\vec{r}_2\mapsto \frac{m_1}{m_1 + m_2}\vec{r}_1 + \frac{m_2}{m_1 + m_2}\vec{r}_2$\\
+        %% \code{2, [3 0 1], 4, [0 6 0]}$\to$\code{[1 4 0.333]}\\
+        %% \code{5, [7 1 6], 5, [9 2 2]}$\to$\code{[8 0.5 4]}        
       \end{tabular}\\\\
       \begin{tabular}{l}
         Coulomb's law:\\
         $q_1$, $\vec{r}_1$, $q_2$, $\vec{r}_2\mapsto \frac{q_1q_2}{|\vec{r}_1 - \vec{r}_2|_2^2} \times \frac{\vec{r}_1 - \vec{r}_2}{|\vec{r}_1 - \vec{r}_2|}$\\
         \code{4, [1 5 2], 2, [2 5 2]$\to$[-8 0 0]}\\
-        \code{-1, [0 1 1], -1, [0 0 0]$\to$[0 0.5 0.5]}        
+        \code{-1, [0 1 1], -1, [0 0 0]$\to$[0 0.5 0.5]}        \\
+        \blueCode{$f(q_1$, $\vec{r}_1$, $q_2$, $\vec{r}_2) = $}\\
+        \hspace{0.2cm}\blueCode{($f_7$ $q_1$ $q_2$ (zip $\vec{r}_1$ $\vec{r}_2$ ($\lambda$ (x y) (- x y))))}
       \end{tabular}\\\\
       \begin{tabular}{l}
-        Integrating position over time:\\
-        $x_0$, $\dot{x}$, $\ddot{x}$, $t\mapsto \frac{1}{2}\ddot{x}t^2 + \dot{x}t + x_0$\\
-        
+        Integrating angle over time:\\
+        $\theta_0$, $\omega_0$, $\alpha$, $t\mapsto \frac{1}{2}\alpha t^2 + \omega_0t + \theta_0$\\
+        \code{1, 3, 0, 2$\to$7}\\
+        \code{-5, 0, 10, 1$\to$0}\\
+        \blueCode{$f(\theta_0$, $\omega_0$, $\alpha$, t$) = $($f_5$ $\omega_0$ $\theta_0$ $\alpha$ t)}
         \end{tabular}
       \end{tabular}
     &
@@ -1775,8 +1785,16 @@ of the provided tasks and learned library for this domain.
       \begin{tabular}{l}
         \greenCode{$f_6($v$)\,=\,$(power ($f_0$ v) ($f_4$ 1))}\\
         \hspace{\helpSize}($f_6$: \emph{n-dimensional vector length})
-        \end{tabular}
+      \end{tabular}\\
+      %(lambda (lambda (lambda (map (lambda (*. (/. (*. (/. $0 (#(lambda (fold $0 0. (lambda (lambda (+. (*. $1 $1) $0))))) $1)) $3) (#(lambda (power (#(lambda (fold $0 0. (lambda (lambda (+. (*. $1 $1) $0))))) $0) (#(lambda (/. $0 (+. 1. 1.))) 1.))) $1)) $2)) $0)
+    %(lambda (lambda (lambda (map ($\lambda$ (x) (* (/ (* (/ x ($f_0$ v)) a) ($f_6$ v)) b)) v)
+    \begin{tabular}{l}
+      \greenCode{$f_7($a,b,v$)\,=\,$(map ($\lambda$ (x)}\\
+      \greenCode{\phantom{$f_7($a,b}(* (/ (* (/ x ($f_0$ v)) a) ($f_6$ v)) b)) v)}\\
+      \hspace{\helpSize}($f_7$: Inverse square law)
       \end{tabular}
+    \end{tabular}
+    
     &
     % recursive functions programs and tasks
     \begin{tabular}{l}
@@ -1972,7 +1990,10 @@ a kind of program induction,
 and see theory learning as similar to inducing a DSL or library.
 
 
-Our work sits within the Exploration-Compression (EC) family of
+Our model alternatingly searches for solutions to tasks and then improves its search strategy;
+within program induction, these principles were first elucidated by the Exploration-Compression (EC) algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
+
+Our work  sits within the Exploration-Compression (EC) family of
 algorithms.  EC~\cite{Dechter:2013:BLV:2540128.2540316} algorithms alternate between searching, or
 `exploring', the space of programs, and then updating their search
 procedure by compressing solutions found during exploration. \system
