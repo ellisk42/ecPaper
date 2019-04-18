@@ -1409,11 +1409,12 @@ Each conditional distribution predicted by the recognition model is written $Q_{
 
 \section{Experiments}
 
-\subsection{Programs that manipulate sequences}\label{sequences}
+\subsection{Conditional programs that manipulate sequences}\label{sequences}
 We first apply \system to two classic benchmark domains: list
 processing and text editing. In both cases we solve tasks specified by
-a input/output examples, starting with a generic functional programming
-basis, including routines like \code{map}, \code{fold}, \code{cons}, \code{car}, \code{cdr}, etc.
+a conditional mapping (i.e., input/output examples), starting with a
+generic functional programming basis, including routines like
+\code{map}, \code{fold}, \code{cons}, \code{car}, \code{cdr}, etc.
 %% : \code{foldr}, \code{unfold}, \code{if}, \code{map},
 %% \code{length}, \code{index}, \code{=}, \code{+}, \code{-}, \code{0},
 %% \code{1}, \code{cons}, \code{car}, \code{cdr}, \code{nil}, and
@@ -1423,8 +1424,8 @@ basis, including routines like \code{map}, \code{fold}, \code{cons}, \code{car},
 We took 218 list manipulation tasks from our previous work~\cite{ecc},
 each with 15 input/output examples.  In solving these tasks, the
 system typically composes around 20 new library routines, and discovered multiple
-higher-order functions. Each round of memory consolidation built on
-components discovered in earlier sleep cycles --- for example the
+higher-order functions. Each round of abstraction built on
+concepts discovered in earlier sleep cycles --- for example the
 agent first learns the higher-order function \code{filter}, uses
 \code{filter} to learn to take the maximum element of a list, then
 uses that routine to learn a new component for extracting the
@@ -1478,65 +1479,70 @@ all of the tasks,
 and perform comparably to the best
 prior work.
 
-How do \systemEnding's representations of these problems themselves change, as the model acquires expertise? Within cognitive science, a rich body of evidence suggests that human experts learn to `see' problems differently in their domains -- even before solving a problem, human novices and experts seem to construct fundamentally different initial representations \cite{chi1981categorization}. Novices notice a problem’s `surface features', the literal objects and details made obvious by the task description. Experts, on the other hand, somehow see past these details to pick out each problem’s `deep structures', the underlying principles and concepts that govern its ultimate solution \cite{chi2012seeing,chi2006two}.
 
+\subsection{Generative \& Procedural Programs}
+%% We consider three domains where the agent must infer a program from an
+%% image (Figure~\ref{visualSpecs}).
+%% First we consider programs that make plans and take actions:  drawing pictures and building towers out of blocks (Sec.~\ref{logoSection}-\ref{towerSection}).
 
-\systemEnding's neural recognition model can be seen as forming analogous `initial' problem representations, implicitly encoded within the activations of the neural network. Intuitively, these initial neural representations map problem features to a `gist' over the model’s current domain-specific concepts -- they guide and constrain how the model searches for problem solutions, but are not symbolically structured solutions themselves. To probe how these representations change as the model gains a richer conceptual vocabulary within each domain, we compare how they cluster problems within that domain over the course of \systemEnding's learning trajectory. Figure \ref{textExpertiseCluster} depicts TSNE visualizations of these neural problem representations at the first and last iteration of the algorithm. We color-code each problem using semantic, human-interpretable categories determined apriori by the task designers, but critically, the model itself never has access to these categories. Rather, as \system acquires domain expertise, the neural network adapts how it transforms each task's surface features, restructuring its initial problem representation space to draw together problems that share deeper, more abstract conceptual similarities.
-
+\subsubsection{Programs for Smooth Trajectories}\label{regressionSection}
+Many procedures that people learn, like as motor routines, can be
+thought of as some kind of smooth trajectory. Modeling these
+procedures as programs entails jointly inferring their combinatorial
+structure and their continuous parameters.  We consider simple
+programs generating trajectories described by polynomials (up to
+degree 4) and rational functions, and equip our learner with a
+primitive for introducing a continuous parameter into the discrete
+structure of its programs, which an inner loop optimizes via gradient
+descent. We penalize the use of real-valued parameters using a
+BIC~\cite{Bishop:2006:PRM:1162264} likelihood model.  We use a convolutional neural
+network as a `visual' recognition model, which observes a graph of the
+trajectory over time, allowing the agent to `eyeball' the trajectory
+prior to writing code that describes it
+(Figure~\ref{symbolicRegressionExamples}).  In solving 100 such tasks,
+the model learns to find programs minimizing the number of continuous
+parameters --- this phenomenon arises from our Bayesian framing: both
+the generative model's bias toward shorter programs, and the likelihood
+model's BIC penalty.
 \begin{figure}
-  \includegraphics[width = \textwidth]{figures/text_tsne.png}
-  \caption{Left: TSNE embedding of model's `at-a-glance' (before searching for solution) organization of text tasks (neural net activations), after first wake/sleep cycle. Middle: at-a-glance organization after 20 wake/sleep cycles. Right: TSNE visualization of programs actually used to solve tasks; intuitively, how model organizes tasks after searching for a solution. More examples in Fig.~\ref{allTSNE}}\label{textExpertiseCluster}
-\end{figure}
-
-\subsection{Programs from visual input}
-We consider three domains where the agent must infer a program from an
-image (Figure~\ref{visualSpecs}).
-First we consider programs that make plans and take actions:  drawing pictures and building towers out of blocks (Sec.~\ref{logoSection}-\ref{towerSection}).
-
-\subsubsection{Programs that draw pictures}\label{logoSection}
+    \includegraphics[width = \textwidth]{figures/sr16_horizontal.png}
+  \caption{Sixteen smooth-trajectory tasks. Agent writes a program containing continuous real numbers that fits the points along the curve. Recognition model is a CNN that takes as input a graph of the trajectory over time (shown above). Task is `solved' if program matches points on curve.}\label{symbolicRegressionExamples}
+  \end{figure}
+\subsubsection{Programs that generate images}\label{logoSection}
 
 Procedural or generative visual concepts 
 --- from Bongard problems~\cite{Moscow}, to handwritten characters~\cite{lake2015human,hofstadter1993letter}, to Raven's progressive
 matrices~\cite{raven2003raven} --- are studied across AI and cognitive science.  Here we take
 inspiration from LOGO Turtle graphics~\cite{turtle}, tasking our agent
-with drawing a corpus of 160 images while equipping it with control
+with drawing a corpus of 160 images (Figure~\ref{logoMaster}, top) while equipping it with control
 over a `pen', along with arithmetic operations on angles and
 distances.
 
 Inside its learned library we find interpretable parametric drawing
 routines corresponding to the families of visual objects in its
 training data, like polygons, circles, and spirals
-(Figure~\ref{logoPrimitives}, left) -- without supervision the agent
+(Figure~\ref{logoPrimitives}, middle) -- without supervision the agent
 has learned the basic types of objects in its visual world. It
 additionally learns more abstract visual relationships, like
 rotational symmetry, which it models by abstracting out a new higher-order
-function into its library (Figure~\ref{logoPrimitives}, right).
+function into its library.
 
 What does \system dream of?  Prior to learning random programs written using the library
-are simple and largely unstructured (Figure~\ref{logoDreams}, left).
+are simple and largely unstructured (Figure~\ref{logoMaster}, bottom left).
 After training the samples become richly structured
-(Figure~\ref{logoDreams}, right), compositionally recombining latent
+(Figure~\ref{logoMaster}, bottom right), compositionally recombining latent
 building blocks and motifs acquired from the training data. This
 offers a visual window into how the generative model bootstraps recognition
 model training: as the library grows more finely tuned to the domain, the
 neural net gets richer and more highly varied training data.
-
-
-%% has primitives for moving the pen forward and rotating it (\code{move}),
-%% picking the pen up and then putting it down (\code{pen-up}),
-%% arithmetic operations on angles and distances,
-%% and constants ($2\pi$, 0 through 9, and $\infty$\footnote{To ensure that programs terminate, we set $\infty = 20$}).
-
-\begin{figure}\centering
-  \includegraphics[width = 0.3\textwidth]{figures/logo16.png}
-  \includegraphics[width = 0.3\textwidth]{figures/tower9.png}
-  \includegraphics[width = 0.3\textwidth]{figures/sr16.png}
-  \caption{Three domains where the agent infers a program from visual input. \textbf{Left}: 16 (out of 160) LOGO graphics tasks. Agent writes a program controlling a `pen' that draws the target picture. \textbf{Middle}: 9 (out of 112) tower building tasks. Agent writes a program controlling a `hand' that builds the target tower. \textbf{Right}: 16 (out of 200) symbolic regression tasks. Agent writes a program containing continuous real numbers that fits the points along the curve.}\label{visualSpecs}
-\end{figure}
 \begin{figure}
-\centering  \begin{tabular}{cc}
-    \toprule
-    Parametric drawing routines&Higher-order drawing routine\\\midrule
+  \centering
+  \begin{tabular}{cc}
+\toprule     \multicolumn{2}{c}{    Subset of 160 tasks}\\\midrule
+    \multicolumn{2}{c}{\includegraphics[width = \textwidth]{figures/horizontalLogoTasks.png}}\\\\ 
+    
+
+    \midrule  Parametric drawing routines in library&Higher-order drawing routine in library\\\midrule
     \begin{tabular}{rl}
       Semicircle:& \raisebox{-.5\height}{\includegraphics[width = 0.3\textwidth]{figures/logo_primitives/logo_primitive_24.png}}\\
       Circles:
@@ -1549,95 +1555,71 @@ neural net gets richer and more highly varied training data.
     \end{tabular}
     &
     \begin{tabular}{c}
-      Rotational Symmetry:\\
+      Radial Symmetry:\\
           \includegraphics[width = 0.35\textwidth]{figures/rotationalmontage.png}
       \end{tabular}
     
-    \\\bottomrule 
-  \end{tabular}
-  \caption{Example primitives learned by \system when trained on tasks in Figure~\ref{everyLogo}. Agent learns parametric routines for drawing families of curves (left) as well as subroutines that take entire programs as input (right). Each row of images on the left is the same code executed with different parameters. Each image on the right is the same code executed with different parameters and with a different subprogram provided as input.}\label{logoPrimitives}
-  \end{figure}
-\begin{figure}
-\centering  \begin{tabular}{c|cc}
-  \begin{tabular}{c}
-    \includegraphics[width = 0.45\textwidth]{figures/initialDreams/montage.png}
-    \end{tabular}&
-      \begin{tabular}{c}
-        \includegraphics[width = 0.45\textwidth]{figures/finalDreams/cherry_random_montage.png}
+    \\\bottomrule \\\\
+    \multicolumn{2}{c}{
+      \begin{tabular}{ccc}
+        Dreams before learning&Dreams after learning&\\
+        \begin{tabular}{c}
+          \includegraphics[width = 0.4\textwidth]{figures/initialDreams/montage.png}
         \end{tabular}&
-      \rotatebox[origin=c]{90}{Cherry picked\hspace{3cm}Random}
-    \end{tabular}
-  \caption{Sixteen dreams, or samples, from the DSL before (left) and after (right) training on tasks in Figure~\ref{everyLogo}. Blue: where the agent started drawing. Pink: where the agent ended drawing.}\label{logoDreams}
-\end{figure}
+        \begin{tabular}{c}
+          \includegraphics[width = 0.4\textwidth]{figures/finalDreams/cherry_random_montage.png}
+        \end{tabular}&
+        \rotatebox[origin=c]{90}{Cherry picked\hspace{2.5cm}Random}
+      \end{tabular}
+    }
+  \end{tabular}
+  \caption{\textbf{Top}: 48 (out of 160) LOGO graphics tasks. Agent writes a program controlling a `pen' that draws the target picture. \textbf{Middle}: Example learned library routines. Agent learns parametric routines for drawing families of curves (left) as well as subroutines that take entire programs as input (right). Each row of images on the left is the same code executed with different parameters. Each image on the right is the same code executed with different parameters and with a different subprogram provided as input. \textbf{Bottom}: Sixteen dreams, or sampled programs, from library before (left) and after (right) learning. Blue: where the agent started drawing. Pink: where the agent ended drawing.}\label{logoMaster}
+  \end{figure}
 
 \subsubsection{Building towers out of `Lego' blocks}\label{towerSection}
 
 Inspired by the classic AI `copy task' --- where an agent must look at
 an image of a tower made of toy blocks and re-create the
 tower~\cite{towerCopy} --- we give \system 112 tower `copy tasks'
-(Figure~\ref{towerTasks}).  Here the agent observes both an image of a
+(Figure~\ref{tower}, top).  Here the agent observes both an image of a
 tower and the locations of each of its blocks, and must write a
 program that plans how a simulated hand would build the tower.
 These towers are built from Lego-style blocks
 that snap together on a discrete grid.
 The system starts with the same control flow primitives as with
 LOGO graphics,
-and learns parametric `options' for building blocks towers (Figure~\ref{tower}),
+and learns parametric `options' for building blocks towers (Figure~\ref{tower}, bottom left),
 inferring concepts like arches, staircases, bridges and brick walls.
 \begin{figure}
-\centering  \begin{tabular}{cc}
+  \centering  \begin{tabular}{cc}
+    \toprule
+    \multicolumn{2}{c}{Subset of 112 Tasks}\\\midrule
+    \multicolumn{2}{c}{\includegraphics[width = \textwidth]{figures/tower12.png}}\\\midrule \\
     \toprule Example learned DSL components&Samples written using final library\\\midrule
     \begin{tabular}{rl}
       Brickwall&\begin{tabular}{l}
-        \includegraphics[width = 5cm]{figures/tower/tower_dsl_bricks.png}
+        \includegraphics[width = 6cm]{figures/tower/tower_dsl_bricks.png}
       \end{tabular}\\
       Bridge&\begin{tabular}{l}
-        \includegraphics[width = 5cm]{figures/tower/tower_dsl_bridge.png}
+        \includegraphics[width = 6cm]{figures/tower/tower_dsl_bridge.png}
       \end{tabular}\\
       Staircase&\begin{tabular}{l}
-        \includegraphics[width = 5cm]{figures/tower/tower_dsl_staircase.png}
+        \includegraphics[width = 6cm]{figures/tower/tower_dsl_staircase.png}
         \end{tabular}
     \end{tabular}&
     \begin{tabular}{l}
-      \includegraphics[width = 5cm]{figures/tower/dreams.png}
+      \includegraphics[width = 6cm]{figures/tower/dreams.png}
       \end{tabular}
     \\\bottomrule 
     \end{tabular}
-  \caption{\textbf{Left}: Three (out of 19) learned DSL components for building towers out of Lego-style blocks. These components act like parametric options~\cite{stolle2002learning},
-    giving higher-level building blocks that the agent can use to plan. \textbf{Right}: 16 random samples, or `dreams', built from learned library.}\label{tower}
+  \caption{\textbf{Top}: Twelve (out of 112) tower building tasks. Agent writes a program controlling a `hand' that builds the target tower. \textbf{Bottom left}: Three learned library routines. These components act like parametric options~\cite{stolle2002learning},
+    giving higher-level building blocks that the agent can use to plan. \textbf{Bottom Right}: 16 random samples, or `dreams', built from learned library.}\label{tower}
 \end{figure}
 
 
 
-\subsubsection{Symbolic Regression}\label{regressionSection}
-Here, the agent observes points along the curve of a function, and
-must write a program that fits those points.  We initially equip our
-learner with addition, multiplication, and division, and task it with
-solving 200 symbolic regression problems, each either a polynomial or
-rational function.  The recognition model is a convnet that observes
-an image of the target function's graph (Fig.~\ref{visualSpecs},
-rightmost) --- visually, different kinds of polynomials and rational
-functions produce different kinds of graphs, and so the convnet can
-look at a graph and predict what kind of function best explains it.  A
-key difficulty, however, is that these problems are best solved with
-programs containing real numbers.  Our solution to this difficulty is
-to enumerate programs with real-valued parameters, and then fit those
-parameters by automatically differentiating through the programs the
-system writes and use gradient descent to fit the parameters.  We
-define the likelihood model, $\probability[x|p]$, by assuming a
-Gaussian noise model for the input/output examples, and penalize the
-use of real-valued parameters using the
-BIC~\cite{Bishop:2006:PRM:1162264}.
 
-We learn a DSL containing 13 new functions, mainly templates for
-different pieces of polynomials or ratios of polynomials.  The model
-also learns to find programs minimizing the number of continuous
-parameters --- for example, learning to represent linear functions
-with \code{(* real (+ x real))}.  This phenomenon arises from our
-Bayesian framing: both the generative model's bias toward shorter
-programs, and the likelihood model's BIC penalty.
-
-\subsubsection{Generative Modeling of Text}
+\subsubsection{Probabilistic Generative Modeling of Text}
 Few-shot learning of simple generative concepts comes naturally to
 humans, from learning new rules in natural language~\cite{marcus1999rule},
 to learning routines for symbols and signs
@@ -1891,7 +1873,7 @@ spectrum of tasks.
 
 
 
-\subsection{Quantitative Results on Held-Out Tasks}\label{quantitative}
+\subsection{Analyzing \system across domains}\label{quantitative}
 To evaluate the relative importance of library learning and recognition
 model training, we evaluate on held-out testing tasks for each of our
 domains, measuring both how many tasks are solved and how long it
@@ -1945,8 +1927,19 @@ of the learned representation. Figure~\ref{depthMontage} shows typical `deep' li
 
 \begin{figure}
   \includegraphics[width = \textwidth]{deepMontage.pdf}
-  \caption{Top: Learned libraries diagrammed as networks. Arrows point from a learned concept to all other concepts that use it. Bottom: Deeper networks solve more testing tasks, both as measured by average depth (left) and maximum depth (middle), while total library size is more weakly associated with solving tasks (right). Full model (circles on scatterplots) learns deeper libraries than no-recognition-model ablation (crosses on scatterplots). Each scatter plot point run with a different random seed.}\label{depthMontage}
-  \end{figure}
+  \caption{Top: Learned libraries diagrammed as networks. Arrows point from a learned concept to all other concepts that use it. Bottom: Deeper networks solve more testing tasks, both as measured by average depth (left) and maximum depth (middle), while total library size is more weakly associated with solving tasks (right). Full model (stars on scatterplots) learns deeper libraries than no-recognition-model ablation (triangles on scatterplots). Each scatter plot point run with a different random seed.}\label{depthMontage}
+\end{figure}
+
+How do \systemEnding's representations of these tasks themselves change, as the model acquires expertise? Within cognitive science, a rich body of evidence suggests that human experts learn to `see' problems differently in their domains -- even before solving a problem, human novices and experts seem to construct fundamentally different initial representations \cite{chi1981categorization}. Novices notice a problem’s `surface features', the literal objects and details made obvious by the task description. Experts, on the other hand, somehow see past these details to pick out each problem’s `deep structures', the underlying principles and concepts that govern its ultimate solution \cite{chi2012seeing,chi2006two}.
+
+
+\systemEnding's neural recognition model can be seen as forming analogous `initial' problem representations, implicitly encoded within the activations of the neural network. Intuitively, these initial neural representations map problem features to a `gist' over the model’s current domain-specific concepts -- they guide and constrain how the model searches for problem solutions, but are not symbolically structured solutions themselves. To probe how these representations change as the model gains a richer conceptual vocabulary within each domain, we compare how they cluster problems within that domain over the course of \systemEnding's learning trajectory. Figure \ref{textExpertiseCluster} depicts TSNE visualizations of these neural problem representations at the first and last iteration of the algorithm. We color-code each problem using semantic, human-interpretable categories determined apriori by the task designers, but critically, the model itself never has access to these categories. Rather, as \system acquires domain expertise, the neural network adapts how it transforms each task's surface features, restructuring its initial problem representation space to draw together problems that share deeper, more abstract conceptual similarities.
+
+\begin{figure}
+  \includegraphics[width = \textwidth]{figures/textLogo_tsne.png}
+  \caption{Left: TSNE embedding of model's `at-a-glance' (before searching for solution) organization of tasks (neural net activations), after first wake/sleep cycle. Middle: at-a-glance organization after last wake/sleep cycle. Right: TSNE visualization of programs actually used to solve tasks; intuitively, how model organizes tasks after searching for a solution. We convert each program into a feature vector by counting the \# times each library routine is used, and then embed those feature vectors. More examples in Fig.~\ref{allTSNE}}\label{textExpertiseCluster}
+\end{figure}
+
 
 
 \section{Discussion}
