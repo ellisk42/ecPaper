@@ -1,0 +1,21 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usepackage{anyfontsize}
+% all other packages and stuff you need for the picture
+%
+\begin{document}
+\begin{tikzpicture}
+  \node(logo)[anchor=east,align=center] at (0,0) {{\Huge \textbf{LOGO Graphics}}\\\includegraphics[scale=0.5]{figures/dpl/logo.pdf}};
+  \node(tower)[anchor=west,align=center] at (logo.east) {{\Huge \textbf{Tower Building}}\\\includegraphics[scale=0.5]{figures/dpl/tower.pdf}};
+  \node(list)[anchor=north,align=center] at (logo.south) {{\Huge \textbf{List Processing}}\\\includegraphics[scale=0.5]{figures/dpl/listGraph.pdf}};
+  \node(text)[anchor=west,align=center] at (list.east) {{\Huge \textbf{Text Editing}}\\\includegraphics[scale=0.5]{figures/dpl/text.pdf}};
+  \node(regex)[anchor=north,align=center] at (list.south) {{\Huge \textbf{Generative Text Patterns}}\\\includegraphics[scale=0.5]{figures/dpl/regex.pdf}};
+  \node(scientific)[anchor=north,align=center] at (text.south) {{\Huge \textbf{Scientific Laws}}\\\includegraphics[scale=0.5]{figures/dpl/scientificLaws.pdf}};
+  \node(McCarthy)[anchor=north,align=center] at (scientific.south) {{\Huge \textbf{Basic Recursive Functions}}\\\includegraphics[scale=0.5]{figures/dpl/McCarthy.pdf}};
+  \node(rational)[anchor=west,align=center] at (tower.east) {{\Huge \textbf{Symbolic Regression}}\\\includegraphics[scale=0.5]{figures/dpl/rational.pdf}};
+
+  \node(g1)[anchor=north] at (regex.south) {\includegraphics[scale=1.5]{figures/dpl/depthVersusAccuracy_MEAN.eps}};
+  \node(g2)[anchor=west] at (g1.east) {\includegraphics[scale=1.5]{figures/dpl/depthVersusAccuracy_MAX.eps}};
+  \node(g3)[anchor=west] at (g2.east) {\includegraphics[scale=1.5]{figures/dpl/depthVersusAccuracy_SIZE.eps}};
+\end{tikzpicture}
+\end{document}
