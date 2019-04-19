@@ -287,7 +287,7 @@ having the right explicit concepts, and being able to quickly see how those conc
 Because solutions to many kinds of problems can often be described as
 some kind of
 program~\cite{lake2015human,Ullman2012,DBLP:journals/cogsr/SchmidK11},
-our model solves a specific problem by synthesizing a program solving
+our model approaches a specific problem by searching for a program solving
 it. It gradually grows its explicit domain-specific knowledge for a
 class of problems by assembling a library of code containing concepts
 useful for the domain, and by training a neural network to quickly
@@ -311,7 +311,7 @@ deterministic and probabilistic programs that act both generatively
 (e.g., mapping inputs to outputs).
 
 Our model iteratively creates new library routines that build on
-concepts learned earlier in its learning trajectory, growing a library with nested
+concepts acquired earlier in its learning trajectory, growing a library with nested
 hierarchies of code.  We think of this cumulative nesting of
 abstractions as a variety of deep representation
 learning~\cite{lecun2015deep}.  Figure~\ref{exampleDSL} diagrams a
@@ -1844,9 +1844,6 @@ A  basic first goal is to start with
 these primitives,
 and then recover a DSL that
 more closely resembles modern functional languages like Haskell and OCaml.
-Recall (Sec.~\ref{sequences})
-that we initially provided our system with functional programming routines like
-\code{map} and \code{fold}.
 
 We ran the following experiment: \system was given a subset of the
 1959 Lisp primitives, and tasked with solving 18 programming
@@ -1880,8 +1877,8 @@ domains, measuring both how many tasks are solved and how long it
 takes to solve them across successive wake/sleep iterations
 (Fig.~\ref{learningCurves}).  We always solve more held-out tasks --
 and generally solve them in less time -- with both components
-combined, suggesting a synergy between library learning and
-recognition model training. Examining the libraries learned with and without
+combined, suggesting a synergy between these forms of declarative and procedural knowledge.
+Examining the libraries learned with and without
 recognition models reveals a difference in the typical \emph{depth}
 of learned subroutines, and this average depth correlates
 with the number of solved testing tasks ($r=0.71$, $p < 10^{-8}$).
