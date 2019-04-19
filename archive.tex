@@ -1472,8 +1472,8 @@ this previous
 result and solve
 84.3\% of the problems.
 SyGuS additionally comes with a
-different hand-engineered DSL \emph{for each text editing problem}. %\footnote{SyGuS text editing problems also prespecify the set of allowed string constants for each task. For these experiments, our system did not use this assistance.}
-Here  we learned a single DSL
+different hand-engineered libraries of primitives \emph{for each text editing problem}. %\footnote{SyGuS text editing problems also prespecify the set of allowed string constants for each task. For these experiments, our system did not use this assistance.}
+Here  we learned a single library of text-editing concepts
 that applied generically to
 all of the tasks,
 and perform comparably to the best
@@ -1504,7 +1504,7 @@ the model learns to find programs minimizing the number of continuous
 parameters --- this phenomenon arises from our Bayesian framing: both
 the generative model's bias toward shorter programs, and the likelihood
 model's BIC penalty.
-\begin{figure}
+\begin{figure}[b]
     \includegraphics[width = \textwidth]{figures/sr16_horizontal.png}
   \caption{Sixteen smooth-trajectory tasks. Agent writes a program containing continuous real numbers that fits the points along the curve. Recognition model is a CNN that takes as input a graph of the trajectory over time (shown above). Task is `solved' if program matches points on curve.}\label{symbolicRegressionExamples}
   \end{figure}
@@ -1521,7 +1521,7 @@ distances.
 Inside its learned library we find interpretable parametric drawing
 routines corresponding to the families of visual objects in its
 training data, like polygons, circles, and spirals
-(Figure~\ref{logoPrimitives}, middle) -- without supervision the agent
+(Figure~\ref{logoMaster}, middle) -- without supervision the agent
 has learned the basic types of objects in its visual world. It
 additionally learns more abstract visual relationships, like
 rotational symmetry, which it models by abstracting out a new higher-order
@@ -1588,14 +1588,14 @@ These towers are built from Lego-style blocks
 that snap together on a discrete grid.
 The system starts with the same control flow primitives as with
 LOGO graphics,
-and learns parametric `options' for building blocks towers (Figure~\ref{tower}, bottom left),
-inferring concepts like arches, staircases, bridges and brick walls.
+and inside its learned library we find parametric `options' for building blocks towers (Figure~\ref{tower}, bottom left),
+including latent concepts like arches, staircases, bridges and brick walls.
 \begin{figure}
   \centering  \begin{tabular}{cc}
     \toprule
     \multicolumn{2}{c}{Subset of 112 Tasks}\\\midrule
     \multicolumn{2}{c}{\includegraphics[width = \textwidth]{figures/tower12.png}}\\\midrule \\
-    \toprule Example learned DSL components&Samples written using final library\\\midrule
+    \toprule Example learned Library components&Samples written using final library\\\midrule
     \begin{tabular}{rl}
       Brickwall&\begin{tabular}{l}
         \includegraphics[width = 6cm]{figures/tower/tower_dsl_bricks.png}
@@ -1627,7 +1627,7 @@ to learning routines for symbols and signs
 to learning new motor routines for producing words.
 We investigate few-shot generative modeling by tasking our
 agent with inferring a probabilistic regular expression from a small
-number of strings, where these strings are drawn from CSV columns crawled from the web~\cite{LUKE}. Across wake/sleep cycles, our agent learns to learn
+number of strings, where these strings are drawn from CSV columns crawled from the web~\cite{mws}. Across wake/sleep cycles, our agent learns to learn
 regular expressions that describe the structure of a typically occurring text concepts,
 like numbers or dates.
 Figure~\ref{qualitativeRegex} shows example model outputs on held out generative modeling tasks,
@@ -1646,7 +1646,7 @@ We first consider learning a basic language for physical laws,
 starting with generic sequence-manipulation primitives,
 and then investigate how these fundamental sequence-manipulating routines could themselves be learned.
 
-We first task \system with inferring 57 equations describing physical laws,
+We first task \system with inferring 60 equations describing physical laws,
 like closed forms for ballistic motion, inverse square laws,
 expressions for calculating centers of mass, etc.,
 drawing verbatim from AP and MCAT physics `cheat sheets'
@@ -1842,7 +1842,7 @@ conditionals, recursion, arithmetic, and the
 list operators \code{cons}, \code{car}, \code{cdr}, and \code{nil}.
 A  basic first goal is to start with
 these primitives,
-and then recover a DSL that
+and then recover a representation that
 more closely resembles modern functional languages like Haskell and OCaml.
 
 We ran the following experiment: \system was given a subset of the
@@ -1852,7 +1852,7 @@ experiments is that, for this experiment, the system is given
 primitive recursion, whereas previously we had sequestered recursion
 within higher-order functions like \code{map}, \code{fold}, and
 \code{unfold}.  In solving these 18 exercises, the algorithm assembles
-a DSL containing a modern repertoire of functional programming idioms
+a library containing a modern repertoire of functional programming idioms
 and subroutines, including \code{map}, \code{fold}, \code{unfold},
 \code{index}, \code{length}, and arithmetic operations like building
 lists of natural numbers between an interval (see
@@ -1919,7 +1919,7 @@ of the learned representation. Figure~\ref{depthMontage} shows typical `deep' li
       \includegraphics[width = 5cm]{figures/learningCurves/regex_task_train_unigram_gen.png}
       \end{tabular}
   \end{tabular}
-  \caption{Test set performance across wake/sleep iterations. Each curve is a run with a different random seed. Teal: Full model. Orange: Dreaming only (no DSL learning). Purple: Consolidation only (no recognition model). Search time plots show solid lines (time averaged over all tasks) and dotted lines (time averaged over solved tasks). Generative text modeling plots show (top) posterior predictive likelihood of held-out strings on held out tasks and (bottom) lower bound on marginal likelihood of held out tasks, both of which are averaged per character.}\label{learningCurves}      
+  \caption{Test set performance across wake/sleep iterations. Each curve is a run with a different random seed. Teal: Full model. Orange: Dreaming only (no library learning). Purple: Consolidation only (no recognition model). Search time plots show solid lines (time averaged over all tasks) and dotted lines (time averaged over solved tasks). Generative text modeling plots show (top) posterior predictive likelihood of held-out strings on held out tasks and (bottom) lower bound on marginal likelihood of held out tasks, both of which are averaged per character.}\label{learningCurves}      
 \end{figure}
 
 \begin{figure}
@@ -1965,7 +1965,7 @@ intelligence~\cite{solomonoff1964formal}, and the conceptually allied
 old~\cite{fodor1975language}. Recent neural program synthesis systems
 pair a fixed domain-specific programming language (a `DSL') to a
 learned neural network that guides program
-search~\cite{spiral,balog2016deepcoder,devlin2017neural}, while recent
+search~\cite{DBLP:journals/corr/abs-1804-01118,balog2016deepcoder,devlin2017neural}, while recent
 symbolic AI research has developed frameworks for learning the DSL by
 inferring reusable pieces of
 code~\cite{ecc,Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
@@ -1980,30 +1980,37 @@ a kind of program induction,
 and see theory learning as similar to inducing a DSL or library.
 
 
-Our model alternatingly searches for solutions to tasks and then improves its search strategy;
-within program induction, these principles were first elucidated by the Exploration-Compression (EC) algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
+Our model draws on ideas first elucidated by the
+Exploration-Compression family of algorithms~\cite{Dechter:2013:BLV:2540128.2540316,ecc,lazaro2019beyond,DBLP:conf/icml/LiangJK10,solomonoff1989system,schmidhuber2004optimal,ozkural2011teraflop},
+which alternate
+between searching, or `exploring', a space of solutions, and then
+updating their search procedure by compressing solutions found during
+exploration.  Both of our sleep phases can be interpreted as a kind of
+compression: abstraction aims to compactly refactor code, while the
+recognition model aims to encode a program in as few bits as possible,
+conditioned on a task. What \system contributes here is the joint capture of
+declarative aspects of domain knowledge -- considered in prior EC works -- and
+the equally crucial procedural knowledge,
+both of which human experts seem to need.
 
-Our work  sits within the Exploration-Compression (EC) family of
-algorithms.  EC~\cite{Dechter:2013:BLV:2540128.2540316} algorithms alternate between searching, or
-`exploring', the space of programs, and then updating their search
-procedure by compressing solutions found during exploration. \system
-grew directly out of research on EC-style systems and both of our
-sleep phases can be interpreted as a kind of compression:
-consolidation aims to compactly refactor code, while the recognition
-model aims to encode a program in as few bits as possible, conditioned
-on a task. %%  Our previous work, EC$^2$~\cite{ecc}, introduced
-%% neurally-guided search into the EC framework and served as the
-%% starting point for \systemEnding.  Our work here extends EC$^2$ by (1)
-%% introducing a new refactoring compression algorithm, (2) enriching the
-%% neural network with a new bigram-over-trees parameterization and loss
-%% function that together learn to break symmetries, accelerating program
-%% search during waking, and (3) demonstrating how this family of
-%% approaches can be applied to planning and generative modeling
-%% problems. 
-Other offshoots of EC include our prior work, EC$^2$~\cite{ecc}, the neurosymbolic framework
-in~\cite{lazaro2019beyond} and the hierarchical Bayesian program
-learner in~\cite{DBLP:conf/icml/LiangJK10}. Closely aligned ideas go
-even further back~\cite{solomonoff1989system,schmidhuber2004optimal}.
+
+%% Our model alternatingly searches for solutions to tasks and then improves its search strategy;
+%% within program induction, these principles were first elucidated by the Exploration-Compression (EC) algorithm~\cite{Dechter:2013:BLV:2540128.2540316}.
+
+%% Our work  sits within the Exploration-Compression (EC) family of
+%% algorithms.%%  Our previous work, EC$^2$~\cite{ecc}, introduced
+%% %% neurally-guided search into the EC framework and served as the
+%% %% starting point for \systemEnding.  Our work here extends EC$^2$ by (1)
+%% %% introducing a new refactoring compression algorithm, (2) enriching the
+%% %% neural network with a new bigram-over-trees parameterization and loss
+%% %% function that together learn to break symmetries, accelerating program
+%% %% search during waking, and (3) demonstrating how this family of
+%% %% approaches can be applied to planning and generative modeling
+%% %% problems. 
+%% Other offshoots of EC include our prior work, EC$^2$~\cite{ecc}, the neurosymbolic framework
+%% in~\cite{lazaro2019beyond} and the hierarchical Bayesian program
+%% learner in~\cite{DBLP:conf/icml/LiangJK10}. Closely aligned ideas go
+%% even further back~\cite{solomonoff1989system,schmidhuber2004optimal}.
 
 
 
@@ -2047,6 +2054,12 @@ compositional systemacity.
 We are optimistic that programs can become a more standard part of the AI toolkit,
 and that a key enabling insight will be combination of
 explicit declarative concepts and implicit procedural skill, both jointly learned.
+Looking forward we anticipate that making machines which can \emph{simultaneously}
+develop expertise for many different classes of problems, as humans do,
+could be enabled by metalearning a library, DSL, or `language-of-thought':
+learning a single generic programmatic substrate,
+which can then differentiate itself into domain-specific
+representations for many different classes of problems.
 
 
 
