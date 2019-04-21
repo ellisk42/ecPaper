@@ -1524,7 +1524,7 @@ training data, like polygons, circles, and spirals
 (Figure~\ref{logoMaster}, middle) -- without supervision the agent
 has learned the basic types of objects in its visual world. It
 additionally learns more abstract visual relationships, like
-rotational symmetry, which it models by abstracting out a new higher-order
+radial symmetry, which it models by abstracting out a new higher-order
 function into its library.
 
 What does \system dream of?  Prior to learning random programs written using the library
@@ -1649,7 +1649,7 @@ and then investigate how these fundamental sequence-manipulating routines could 
 We first task \system with inferring 60 equations describing physical laws,
 like closed forms for ballistic motion, inverse square laws,
 expressions for calculating centers of mass, etc.,
-drawing verbatim from AP and MCAT physics `cheat sheets'
+which we took from AP and MCAT physics `cheat sheets'
 along with equation guides from machine learning textbooks.
 These relationships are easy to express
 given concepts like vectors or forces.
@@ -1671,6 +1671,7 @@ of the provided tasks and learned library for this domain.
 
 \begin{figure}
   \centering
+  \setlength{\tabcolsep}{2pt} % default is 6pt
   \begin{tabular}{lll}\toprule
     &\multicolumn{1}{c}{Physical Laws}&\multicolumn{1}{c}{Recursive Functions}\\\midrule
     \normalsize \rotatebox[origin=c]{90}{\pop{Programs} \& Tasks}&
@@ -1681,7 +1682,8 @@ of the provided tasks and learned library for this domain.
         $m$, $\vec{v}\mapsto \frac{1}{2}m|\vec{v}|^2$\\
         \code{1, [0 2 -1]$\to$2.5}\\
         \code{2, [2 1 3]$\to$14}\\
-        \blueCode{$f(m$, $\vec{v}) = $($f_4$ (* $m$ ($f_0$ $\vec{v}$)))}
+        %#(lambda (lambda (*. (/. $0 (+. $1 $1))))) 1. $1 (#(lambda (fold $0 0. (lambda (lambda (+. $0 (*. $1 $1)))))) $0))))
+        \blueCode{$f(m$, $\vec{v}) = $($f_5$ 1 $m$ ($f_0$ $\vec{v}$))}
         
         %% Center-of-mass:\\
         %% $m_1$, $\vec{r}_1$, $m_2$, $\vec{r}_2\mapsto \frac{m_1}{m_1 + m_2}\vec{r}_1 + \frac{m_2}{m_1 + m_2}\vec{r}_2$\\
@@ -1694,14 +1696,19 @@ of the provided tasks and learned library for this domain.
         \code{4, [1 5 2], 2, [2 5 2]$\to$[-8 0 0]}\\
         \code{-1, [0 1 1], -1, [0 0 0]$\to$[0 0.5 0.5]}        \\
         \blueCode{$f(q_1$, $\vec{r}_1$, $q_2$, $\vec{r}_2) = $}\\
-        \hspace{0.2cm}\blueCode{($f_7$ $q_1$ $q_2$ (zip $\vec{r}_1$ $\vec{r}_2$ ($\lambda$ (x y) (- x y))))}
+        \hspace{0.2cm}\blueCode{($f_{10}$ $q_1$ $q_2$ (zip $\vec{r}_1$ $\vec{r}_2$ ($\lambda$ (x y) (- x y))))}
       \end{tabular}\\\\
       \begin{tabular}{l}
-        Integrating angle over time:\\
-        $\theta_0$, $\omega_0$, $\alpha$, $t\mapsto \frac{1}{2}\alpha t^2 + \omega_0t + \theta_0$\\
-        \code{1, 3, 0, 2$\to$7}\\
-        \code{-5, 0, 10, 1$\to$0}\\
-        \blueCode{$f(\theta_0$, $\omega_0$, $\alpha$, t$) = $($f_5$ $\omega_0$ $\theta_0$ $\alpha$ t)}
+        %% Integrating angle over time:\\
+        %% $\theta_0$, $\omega_0$, $\alpha$, $t\mapsto \frac{1}{2}\alpha t^2 + \omega_0t + \theta_0$\\
+        %% \code{1, 3, 0, 2$\to$7}\\
+        %% \code{-5, 0, 10, 1$\to$0}\\
+        %% \blueCode{$f(\theta_0$, $\omega_0$, $\alpha$, t$) = $($f_5$ $\omega_0$ $\theta_0$ $\alpha$ t)}
+        Newton's Second Law:\\
+        $m$, $\{\vec{F}_i \}\mapsto \frac{1}{m}\sum_i\vec{F}_i = a$\\
+        \code{2, [[2 4 1]]$\to$[1 2 0.5]}\\
+        \code{3, [[0 0 2] [3 0 1]]$\to$[1 0 0.333]}\\
+        \blueCode{$f(m$, forces$) = $($f_4$ ($f_7$ m) ($f_3$ forces))}
         \end{tabular}
       \end{tabular}
     &
@@ -1727,7 +1734,7 @@ of the provided tasks and learned library for this domain.
         \code{1, [9 2 3]$\to $9}\\
         \code{2, [1 5 8]$\to $5}\\
         \code{4, [0 2 8 1 5 6]$\to $1}\\
-        \blueCode{$f($n$,$l$) = $($f_7$ l (+ 1 n))}
+        \blueCode{$f($n$,$l$) = $($f_8$ l (+ 1 n))}
       \end{tabular}\\\\
       
       
@@ -1738,43 +1745,51 @@ of the provided tasks and learned library for this domain.
     \begin{tabular}{l}
       \begin{tabular}{l}
         \greenCode{$f_0($v$)\,=\,$(fold 0 ($\lambda$ (x y) (+ (* x x) y)) v)}\\
-        \hspace{\helpSize}($f_0$: \emph{L-2 norm})
+        \hspace{\helpSize}($f_0$: \emph{L-2 norm}) % still here
       \end{tabular}\\
       \begin{tabular}{l}
         \greenCode{$f_1($v$)\,=\,$(fold 0 ($\lambda$ (x y) (+ x y)) v)}\\
-        \hspace{\helpSize}($f_1$: \emph{Sum vector components})
+        \hspace{\helpSize}($f_1$: \emph{Sum vector components}) % still here
       \end{tabular}\\
       \begin{tabular}{l}
         \greenCode{$f_2($v,u$)\,=\,$($f_1$ (zip v u ($\lambda$ (x y) (* x y))))}\\
-        \hspace{\helpSize}($f_2$: \emph{Dot product})
-      \end{tabular}\\
-      %(lambda (fold $0 (map (lambda (*. $0 0.)) (car $0)) (lambda (lambda (zip $0 $1 (lambda (lambda (+. $0 $1)))))))) 
+        \hspace{\helpSize}($f_2$: \emph{Dot product}) % still here
+      \end{tabular}\\ 
       \begin{tabular}{l}
         \greenCode{$f_3($vs$)\,=\,$(fold vs (map ($\lambda$ (x) (* x 0))}\\
         \phantom{\greenCode{$f_3($vs$)\,=\,$(fold vs (}}\greenCode{(car vs))}\\
         \phantom{\greenCode{$f_3($vs$)\,=\,$(}}\greenCode{($\lambda$ (v u) (zip v u ($\lambda$ (x y) (+ x y)))))}\\
-        \hspace{\helpSize}($f_3$: \emph{Sum (list of) vectors})
+        \hspace{\helpSize}($f_3$: \emph{Sum (list of) vectors}) % still here
       \end{tabular}\\
       \begin{tabular}{l}
-        \greenCode{$f_4($x$)\,=\,$(/ x (+ 1 1))}\\
-        \hspace{\helpSize}($f_4$: \emph{Divide by two})
+        \greenCode{$f_4($x,v$)\,=\,$(map ($\lambda$ (y) (* x y)) v)}\\
+        \hspace{\helpSize}($f_4$: \emph{Multiply vector by scalar})
+        \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_5($x,y,z$)\,=\,$(* (/ y (+ x x)) z)}
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_6($x,y$)\,=\,$(* ($f_5$ 1 x y) x)}\hspace{1cm}\greenCode{$f_7($x$)\,=\,$(/ 1 x)}
       \end{tabular}\\
       %      %#(lambda (lambda (lambda (lambda (+. $2 (*. $0 (+. (*. (#(lambda (/. $0 (+. 1. 1.))) $0) $1) $3))))))) $2 $3 $1 $0)))))
+      %% \begin{tabular}{l}
+      %%   \greenCode{$f_5($v,x,a,t$)\,=\,$(+ x (* t (+ (* ($f_4$ t) a) v)))}\\
+      %%   \hspace{\helpSize}($f_5$: \emph{Integrate given first and second derivatives})
+      %% \end{tabular}\\
       \begin{tabular}{l}
-        \greenCode{$f_5($v,x,a,t$)\,=\,$(+ x (* t (+ (* ($f_4$ t) a) v)))}\\
-        \hspace{\helpSize}($f_5$: \emph{Integrate given first and second derivatives})
-      \end{tabular}\\
-      \begin{tabular}{l}
-        \greenCode{$f_6($v$)\,=\,$(power ($f_0$ v) ($f_4$ 1))}\\
-        \hspace{\helpSize}($f_6$: \emph{n-dimensional vector length})
+        \greenCode{$f_8($v$)\,=\,$(power ($f_0$ v) ($f_6$ 1 1))}\\
+        \hspace{\helpSize}($f_8$: \emph{vector length})
       \end{tabular}\\
       %(lambda (lambda (lambda (map (lambda (*. (/. (*. (/. $0 (#(lambda (fold $0 0. (lambda (lambda (+. (*. $1 $1) $0))))) $1)) $3) (#(lambda (power (#(lambda (fold $0 0. (lambda (lambda (+. (*. $1 $1) $0))))) $0) (#(lambda (/. $0 (+. 1. 1.))) 1.))) $1)) $2)) $0)
-    %(lambda (lambda (lambda (map ($\lambda$ (x) (* (/ (* (/ x ($f_0$ v)) a) ($f_6$ v)) b)) v)
-    \begin{tabular}{l}
-      \greenCode{$f_7($a,b,v$)\,=\,$(map ($\lambda$ (x)}\\
-      \greenCode{\phantom{$f_7($a,b}(* (/ (* (/ x ($f_0$ v)) a) ($f_6$ v)) b)) v)}\\
-      \hspace{\helpSize}($f_7$: Inverse square law)
-      \end{tabular}
+      %(lambda (lambda (lambda (map ($\lambda$ (x) (* (/ (* (/ x ($f_0$ v)) a) ($f_6$ v)) b)) v)
+      \begin{tabular}{l}
+        \greenCode{$f_9($x,y,z$)\,=\,$(* (/ x ($f_0$ z)) y)}\\
+        \hspace{\helpSize}($f_9$: \emph{scalar form of inverse square law})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_{10}($x,y,v$)\,=\,$($f_4$ ($f_9$ y (/ x ($f_7$ v)) v) v)}\\
+        \hspace{\helpSize}($f_{10}$: \emph{vector form of inverse square law})
+        \end{tabular}
     \end{tabular}
     
     &
@@ -1811,9 +1826,14 @@ of the provided tasks and learned library for this domain.
         \hspace{\helpSize}($f_6$: \emph{range})
       \end{tabular}\\
       \begin{tabular}{l}
-        \greenCode{$f_7($l$,$n$)\,=\,$(car ($f_0$ ($\lambda$ (a x) (cdr a)) ($f_6$ n) l))}\\
-        \hspace{\helpSize}($f_7$: \emph{index})
+        \greenCode{$f_7($f$,$l$)\,=\,$($f_0$ nil l ($\lambda$ (x a) (if (f x) a (cons x a))))}\\
+          \hspace{\helpSize}($f_7$: \emph{filter})
+      \end{tabular}\\
+      \begin{tabular}{l}
+        \greenCode{$f_8($l$,$n$)\,=\,$(car ($f_0$ ($\lambda$ (a x) (cdr a)) ($f_6$ n) l))}\\
+        \hspace{\helpSize}($f_8$: \emph{index})
       \end{tabular}
+      
       
       
       
@@ -1822,6 +1842,7 @@ of the provided tasks and learned library for this domain.
     \\\bottomrule 
     
   \end{tabular}
+  \setlength{\tabcolsep}{6pt} % default is 6pt
   \caption{\textbf{Left:} Learning a language for physical laws starting with recursive list routines like \code{map} and \code{fold}. Agent observes input/outputs of latent functions encoding physical laws (top left, 20 input/outputs per task). Vectors are represented as lists of real numbers. Physical constants expressed in Planck units. \textbf{Right:} Learning a language for recursive list routines starting with only recursion and primitives found in 1959 Lisp. Agent rediscovers \code{map}, \code{fold}, \code{unfold}, etc. For full tasks and learned libraries see Appendix~\ref{appendixMcCarthy}}\label{librariesToLanguages}
   \end{figure}
 
@@ -1941,7 +1962,7 @@ How do \systemEnding's representations of these tasks themselves change, as the 
 
 \section{Discussion}
 
-\emph{(what we found)} Our goal was to build a model capturing
+Our goal was to build a model capturing
 humanlike aspects of learning to be an expert in a new domain of
 problems. Our model works through a wake/sleep algorithm that grows an increasingly deep
 representation of a domain's conceptual structure,
@@ -1957,7 +1978,7 @@ knowledge at the center of our model, and believe that both these
 kinds of learning are crucial for building agents that, like humans,
 autonomously learn to navigate a new domain of problems.
 
-\emph{(related work)} \system builds on several generations of research in AI, program synthesis,
+\system builds on several generations of research in AI, program synthesis,
 and cognitive science, with program induction being one of the oldest
 theoretical frameworks for concept learning within artificial
 intelligence~\cite{solomonoff1964formal}, and the conceptually allied
@@ -2015,7 +2036,7 @@ both of which human experts seem to need.
 
 
 
-\emph{(limitations - and how to go beyond them)} Our model's domain knowledge grows over a series of wake/sleep cycles,
+Our model's domain knowledge grows over a series of wake/sleep cycles,
 with the solutions to easier problems bootstrapping
 solving of harder tasks.
 This dynamic is related to, but distinct from, curriculum learning. In curriculum learning approaches an agent solves a stream of pedagogically selected, increasingly difficult tasks; here we consider the case with the agent lacks a `teacher' and instead self-paces its way through an implicit curriculum.
@@ -2026,14 +2047,14 @@ Building agents that generate their own problems in these humanlike ways is a ne
 if we want machines that push against boundary of human domain knowledge or which even discover whole new domains of problems,
 both of which go far beyond the relatively small-scale demonstrations in this work.
 
-\emph{(I feel the lifelong learning setting is less important of a point to make - we might remove this)} Over a lifetime humans develop expertise in many domains --
-unlike our model,
-which learned to solve many classes of problems,
-but only class one at a time.
-Scaling approaches like ours to this multidomain, lifelong setting
-could be enabled by a hierarchical Bayesian model of DSLs for many domains,
-capturing  shared conceptual structure between similar domains  (e.g., Parcheesi and chess)
-and separating knowledge between dissimilar domains (e.g., Parcheesi and cheese making).
+%% Over a lifetime humans develop expertise in many domains --
+%% unlike our model,
+%% which learned to solve many classes of problems,
+%% but only class one at a time.
+%% Scaling approaches like ours to this multidomain, lifelong setting
+%% could be enabled by a hierarchical Bayesian model of DSLs for many domains,
+%% capturing  shared conceptual structure between similar domains  (e.g., Parcheesi and chess)
+%% and separating knowledge between dissimilar domains (e.g., Parcheesi and cheese making).
 
 
 A basic representational challenge is to
