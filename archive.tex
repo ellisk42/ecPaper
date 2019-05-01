@@ -279,7 +279,7 @@ the task at hand, even before searching for a solution.
 Studies of human expertise
 find that,
 compared to novices,
-experts can quickly categorize and classify problems based on the ``deep structure''
+experts can, at a glance, categorize and classify problems based on the ``deep structure''
 of the problem's solution~\cite{chi1981expertise,chi2012seeing}.
 In short, we take the stance that expertise means both
 having the right explicit concepts, and being able to quickly see how those concepts can be composed into a solution.
@@ -288,9 +288,9 @@ Because solutions to many kinds of problems can often be described as
 some kind of
 program~\cite{lake2015human,Ullman2012,DBLP:journals/cogsr/SchmidK11},
 our model approaches a specific problem by searching for a program solving
-it. It gradually grows its explicit domain-specific knowledge for a
+it. It gradually grows its domain-specific knowledge for a
 class of problems by assembling a library of code containing concepts
-useful for the domain, and by training a neural network to quickly
+useful for the domain, while jointly training a neural network to quickly
 infer, for a specific problem, what code in its library is likely to
 solve it. We think of these two learned components as analogous to the
 explicit concepts and implicit procedural skill that human experts
@@ -317,14 +317,15 @@ abstractions as a variety of deep representation
 learning~\cite{lecun2015deep}.  Figure~\ref{exampleDSL} diagrams a
 subset of these learned networks (the library). For example, the model
 learns to sort sequences of numbers by invoking a library component 4
-layers deep, or draws the leftmost pairs of images in
+layers deep, or draws the topmost image in
 Figure~\ref{exampleDSL} using a depth-3 component.  For this reason we
 refer to our approach as an instance of `deep program learning'.
 
-\begin{figure}
-  \includegraphics[width = \textwidth]{figures/DeepLogo_4_15}
-  \includegraphics[width = \textwidth]{figures/DeepList_4_17}
-  \caption{Model solves tasks (left; top, task is to draw an image. bottom, task is input/output mapping) by writing programs (right column) where these programs invoke explicit declarative knowledge in the form of library routines (middle) jointly learned w/ the solutions. Library code can call each other (arrows), forming a layered network of domain-specific concepts. Fantasies (below library) are tasks sampled by randomly combining code from library. Fantasies are used to train a neural net to help search for programs.}\label{exampleDSL}
+\begin{figure}\centering
+  \includegraphics[width = \textwidth]{figures/deepLogo_may1}
+  \includegraphics[width = \textwidth]{figures/deepList_may1}
+  \caption{Model solves tasks (left; top, task is to draw an image. bottom, task is input/output mapping) by writing programs (right column) where these programs invoke explicit declarative knowledge in the form of library routines (middle) jointly learned w/ the solutions. Library code can call each other (arrows), forming a layered network of domain-specific concepts. %% Fantasies (below library) are tasks sampled by randomly combining code from library. Fantasies are used to train a neural net to help search for programs.
+  }\label{exampleDSL}
 \end{figure}
 
 
@@ -870,13 +871,21 @@ incorporating reused subexpressions into the library.
 
 Mathematically this compression takes the form of
 finding the library maximizing $\int \probability[\mathcal{D},\theta]\probability[X|\mathcal{D},\theta]\;\mathrm{d}\theta$ (Sec.~\ref{overviewSection}).
-We replace this marginal with an AIC approximation~\cite{akaike1998information}
-and marginalize over refactorings of programs found during waking, minimizing the following expression,
+We %% replace this marginal with an AIC approximation~\cite{akaike1998information}
+%% and
+marginalize over refactorings of programs found during waking, seeking to minimize the following expression,
 which can be interpreted as a kind of compression:
+%% \begin{equation}
+%% \underbrace{-\log \probability[\mathcal{D}] + \min_{\substack{\theta\\\\\\\\}}\Bigg(-\log
+%% \probability[\theta|\mathcal{D}] + \|\theta\|_0}_{\text{Description length of }(\mathcal{D},\theta)} +\sum_{x\in
+%%   X}\underbrace{-\log \sum_{\substack{p \text{ a refactoring of } p'\\ p'\text{ found during waking}}}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
+%% \label{AIC}
+%% \end{equation}
 \begin{equation}
-\underbrace{-\log \probability[\mathcal{D}] + \min_{\substack{\theta\\\\\\\\}}\Bigg(-\log
-\probability[\theta|\mathcal{D}] + \|\theta\|_0}_{\text{Description length of }(\mathcal{D},\theta)} +\sum_{x\in
-  X}\underbrace{-\log \sum_{\substack{p \text{ a refactoring of } p'\\ p'\text{ found during waking}}}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
+\underbrace{  -\log \probability[\mathcal{D}]_{\substack{\phantom{p}\\\\\\\\\\}}}_{\text{Description length of library}}\underbrace{-\log \int \probability[\theta|\mathcal{D}]\prod_{x\in X}\sum_{\substack{p \text{ a refactoring of } p'\\ p'\text{ found during waking}}}\probability[x|p]\probability[p|\mathcal{D},\theta]\;\mathrm{d}\theta}_{\text{Description length of tasks given library}}
+%% \underbrace{-\log \probability[\mathcal{D}] + \min_{\substack{\theta\\\\\\\\}}\Bigg(-\log
+%% \probability[\theta|\mathcal{D}] + \|\theta\|_0}_{\text{Description length of }(\mathcal{D},\theta)} +\sum_{x\in
+%%   X}\underbrace{-\log \sum_{\substack{p \text{ a refactoring of } p'\\ p'\text{ found during waking}}}\probability[x|p]\probability[p|\mathcal{D},\theta]}_{\text{Description length of programs for task }x}\Bigg)
 \label{AIC}
 \end{equation}
 But a program has infinitely many possible refactorings, rendering
@@ -1423,12 +1432,12 @@ generic functional programming basis, including routines like
 \subsubsection{List Processing}\label{listSection}
 We took 218 list manipulation tasks from our previous work~\cite{ecc},
 each with 15 input/output examples.  In solving these tasks, the
-system typically composes around 20 new library routines, and discovered multiple
-higher-order functions. Each round of abstraction built on
+system typically composes around 20 new library routines, and rediscovers
+higher-order functions such as \code{filter}. Each round of abstraction built on
 concepts discovered in earlier sleep cycles --- for example the
-agent first learns the higher-order function \code{filter}, uses
-\code{filter} to learn to take the maximum element of a list, then
-uses that routine to learn a new component for extracting the
+agent first learns \code{filter}, then uses
+it to learn to take the maximum element of a list, then
+uses that routine to learn a new library routine for extracting the
 $n^{\text{th}}$ largest element of a list, which it finally uses to
 solve a task involving sorting a list of numbers (Figure~\ref{exampleDSL}).
 This incremental, modular learning of deep hierarchies of library
@@ -1440,25 +1449,14 @@ of sleep).
 Synthesizing programs that edit text is a classic problem in the
 programming languages and AI literatures~\cite{lau2001programming},
 and algorithms that synthesize text editing programs ship in Microsoft
-Excel~\cite{gulwani2011automatin}.  This prior work uses
+Excel~\cite{gulwani2011automating}.  This prior work uses
 hand-engineered libraries of primitives and hand-engineered search strategies.  Here, we
-will show that we can jointly learn both these ingredients and surpass
+will show that we can jointly learn both these ingredients and perform comparably to
 the state-of-the-art domain-general program synthesizers on a standard
 text editing benchmark.
 
-%% Because our enumerative search procedure cannot generate string %
-%% constants, we instead enumerate programs with string-valued
-%% parameters.  For example, to learn a program that prepends ``Dr.'', we
-%% enumerate $\text{\code{(}}f_3\code{ string s)}$ -- where $f_3$ is the
-%% learned appending primitive (Fig.~\ref{initialExampleDSL}) --- and then
-%% define $\probability[x|p]$ by approximately marginalizing out the
-%% string parameters via a simple dynamic program.
-%% In Sec.~\ref{regressionSection}, we will use a similar trick to
-%% synthesize programs containing real numbers, but using gradient
-%% descent instead of dynamic programming.
-
 We trained our system on 128 automatically-generated text editing tasks, with 4 input/output examples each.
-We tested, but did not train, on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Before any learning,
+We tested, but did not train, on the 108 text editing problems from the SyGuS~\cite{alur2016sygus} program synthesis competition. Figure~\ref{textEditExamples} shows representative text-editing problems. Before any learning,
 \system solves 3.7\% of the problems within 10 minutes with an average search time of 235 seconds.
 After learning,
 it solves 79.6\%, and does so much faster,
@@ -1478,7 +1476,23 @@ that applied generically to
 all of the tasks,
 and perform comparably to the best
 prior work.
-
+\begin{figure}[h]\centering
+  \begin{tabular}{ccc}
+    \fbox{\begin{tabular}{c}
+        \;\,Dream Coder$\to$(Coder)\\
+        Domain Expertise$\to$(Expertise)
+    \end{tabular}}&
+    \fbox{\begin{tabular}{c}
+        Temple Anna H$\to $Dr. TAH\\
+        Lara Gregori$\to $Dr. LG
+    \end{tabular}}&
+    \fbox{\begin{tabular}{c}
+      this test-split here.$\to$split here\\
+      another-text.test for you$\to$text
+    \end{tabular}}
+  \end{tabular}
+  \caption{Three example text editing tasks. Each task is specified by input/output pairs (notated above as input$\to$output), and the goal is to infer a program producing the input/output mapping.}\label{texEditProblems}
+\end{figure}
 
 \subsection{Generative \& Procedural Programs}
 %% We consider three domains where the agent must infer a program from an
@@ -1562,18 +1576,14 @@ neural net gets richer and more highly varied training data.
     \\\bottomrule \\\\
     \multicolumn{2}{c}{
       \begin{tabular}{ccc}
-        Dreams before learning&Dreams after learning&\\
-        \begin{tabular}{c}
-          \includegraphics[width = 0.4\textwidth]{figures/initialDreams/montage.png}
-        \end{tabular}&
-        \begin{tabular}{c}
-          \includegraphics[width = 0.4\textwidth]{figures/finalDreams/cherry_random_montage.png}
-        \end{tabular}&
-        \rotatebox[origin=c]{90}{Cherry picked\hspace{2.5cm}Random}
+        Dreams before learning&Dreams after learning&Dreams after learning (cherry picked)\\
+          \includegraphics[width = 0.3\textwidth]{figures/dreams/beforeLearning25}&
+          \includegraphics[width = 0.3\textwidth]{figures/dreams/final25}&
+          \includegraphics[width = 0.3\textwidth]{figures/dreams/cherry_picked/montage}
       \end{tabular}
     }
   \end{tabular}
-  \caption{\textbf{Top}: 48 (out of 160) LOGO graphics tasks. Agent writes a program controlling a `pen' that draws the target picture. \textbf{Middle}: Example learned library routines. Agent learns parametric routines for drawing families of curves (left) as well as subroutines that take entire programs as input (right). Each row of images on the left is the same code executed with different parameters. Each image on the right is the same code executed with different parameters and with a different subprogram provided as input. \textbf{Bottom}: Sixteen dreams, or sampled programs, from library before (left) and after (right) learning. Blue: where the agent started drawing. Pink: where the agent ended drawing.}\label{logoMaster}
+  \caption{\textbf{Top}: 48 (out of 160) LOGO graphics tasks. Agent writes a program controlling a `pen' that draws the target picture. \textbf{Middle}: Example learned library routines. Agent learns parametric routines for drawing families of curves (left) as well as subroutines that take entire programs as input (right). Each row of images on the left is the same code executed with different parameters. Each image on the right is the same code executed with different parameters and with a different subprogram provided as input. \textbf{Bottom}: 25 dreams, or sampled programs, from library before (left column) and after (middle \& right) learning. Blue: where the agent started drawing. Pink: where the agent ended drawing.}\label{logoMaster}
   \end{figure}
 
 \subsubsection{Building towers out of `Lego' blocks}\label{towerSection}
@@ -1595,7 +1605,7 @@ including latent concepts like arches, staircases, bridges and brick walls.
     \toprule
     \multicolumn{2}{c}{Subset of 112 Tasks}\\\midrule
     \multicolumn{2}{c}{\includegraphics[width = \textwidth]{figures/tower_montage_10.png}}\\\midrule \\
-    \toprule Example learned Library components&Samples written using final library\\\midrule
+    \toprule Example learned library components&Dreams from learned library\\\midrule
     \begin{tabular}{rl}
       Brickwall&\begin{tabular}{l}
         \includegraphics[width = 6cm]{figures/tower/tower_dsl_bricks.png}
@@ -1608,7 +1618,7 @@ including latent concepts like arches, staircases, bridges and brick walls.
         \end{tabular}
     \end{tabular}&
     \begin{tabular}{l}
-      \includegraphics[width = 6cm]{figures/tower/dreams.png}
+      \includegraphics[width = 8cm]{figures/tower/dreams/cherry_montage.png}
       \end{tabular}
     \\\bottomrule 
     \end{tabular}
@@ -1663,7 +1673,7 @@ and encode vectors as lists of reals.
 In solving these tasks, \system first discovers the building blocks of vector algebra,
 like inner products, vector sums, and norms.
 It then uses this vocabulary to infer library routines for common
-physical relationships like the vector form inverse square laws
+physical relationships like the vector form of inverse square laws
 and integrating second derivatives over time,
 effectively undergoing a `change of basis' from the initial Lisp-style primitives into a
 physics-style basis. Figure~\ref{librariesToLanguages}~(left) illustrates a subset
@@ -1692,7 +1702,7 @@ of the provided tasks and learned library for this domain.
       \end{tabular}\\\\
       \begin{tabular}{l}
         Coulomb's law:\\
-        $q_1$, $\vec{r}_1$, $q_2$, $\vec{r}_2\mapsto \frac{q_1q_2}{|\vec{r}_1 - \vec{r}_2|_2^2} \times \frac{\vec{r}_1 - \vec{r}_2}{|\vec{r}_1 - \vec{r}_2|}$\\
+        $q_1$, $\vec{r}_1$, $q_2$, $\vec{r}_2\mapsto \frac{q_1q_2}{|\vec{r}_1 - \vec{r}_2|^2} \times \frac{\vec{r}_1 - \vec{r}_2}{|\vec{r}_1 - \vec{r}_2|}$\\
         \code{4, [1 5 2], 2, [2 5 2]$\to$[-8 0 0]}\\
         \code{-1, [0 1 1], -1, [0 0 0]$\to$[0 0.5 0.5]}        \\
         \blueCode{$f(q_1$, $\vec{r}_1$, $q_2$, $\vec{r}_2) = $}\\
@@ -1940,7 +1950,7 @@ of the learned representation. Figure~\ref{depthMontage} shows typical `deep' li
       \includegraphics[width = 5cm]{figures/learningCurves/regex_task_train_unigram_gen.png}
       \end{tabular}
   \end{tabular}
-  \caption{Test set performance across wake/sleep iterations. Each curve is a run with a different random seed. Teal: Full model. Orange: Dreaming only (no library learning). Purple: Consolidation only (no recognition model). Search time plots show solid lines (time averaged over all tasks) and dotted lines (time averaged over solved tasks). Generative text modeling plots show (top) posterior predictive likelihood of held-out strings on held out tasks and (bottom) lower bound on marginal likelihood of held out tasks, both of which are averaged per character.}\label{learningCurves}      
+  \caption{Test set performance across wake/sleep iterations. Each curve is a run with a different random seed. Teal: Full model. Orange: Dreaming only (no library learning). Purple: Abstraction only (no recognition model). Search time plots show solid lines (time averaged over all tasks) and dotted lines (time averaged over solved tasks). Generative text modeling plots show (top) posterior predictive likelihood of held-out strings on held out tasks and (bottom) lower bound on marginal likelihood of held out tasks, both of which are averaged per character.}\label{learningCurves}      
 \end{figure}
 
 \begin{figure}
@@ -1962,8 +1972,8 @@ How do \systemEnding's representations of these tasks themselves change, as the 
 
 \section{Discussion}
 
-Our goal was to build a model capturing
-humanlike aspects of learning to be an expert in a new domain of
+Our goal was to build a computational model capturing
+aspects of learning to be an expert in a new domain of
 problems. Our model works through a wake/sleep algorithm that grows an increasingly deep
 representation of a domain's conceptual structure,
 while learning to quickly combine these concepts into programs
@@ -1976,7 +1986,7 @@ declarative knowledge, and implicit procedural skill.  We have
 deliberately placed the interplay of declarative and procedural
 knowledge at the center of our model, and believe that both these
 kinds of learning are crucial for building agents that, like humans,
-autonomously learn to navigate a new domain of problems.
+autonomously learn to solve a new domain of problems.
 
 \system builds on several generations of research in AI, program synthesis,
 and cognitive science, with program induction being one of the oldest
@@ -1991,7 +2001,7 @@ symbolic AI research has developed frameworks for learning the DSL by
 inferring reusable pieces of
 code~\cite{ecc,Dechter:2013:BLV:2540128.2540316,DBLP:conf/icml/LiangJK10,DBLP:conf/ecai/LinDETM14}.
 A main goal of this work is to combine and refine these techniques
-with the intention of building agents that, like humans, develop
+with the intention of building agents that develop
 domain expertise for new classes of problems.  Work in cognitive
 modeling has often exploited program-like representations for both
 concept~\cite{piantadosi2011learning,lake2015human,GoodmanEtAl2015-Chapter} and intuitive theory
@@ -2039,7 +2049,7 @@ both of which human experts seem to need.
 Our model's domain knowledge grows over a series of wake/sleep cycles,
 with the solutions to easier problems bootstrapping
 solving of harder tasks.
-This dynamic is related to, but distinct from, curriculum learning. In curriculum learning approaches an agent solves a stream of pedagogically selected, increasingly difficult tasks; here we consider the case with the agent lacks a `teacher' and instead self-paces its way through an implicit curriculum.
+This dynamic is related to, but distinct from, curriculum learning. In curriculum learning approaches an agent solves a stream of pedagogically selected, increasingly difficult tasks, but here we consider the case with the agent lacks a `teacher' and instead self-paces its way through an implicit curriculum.
 But humans select their tasks in much richer ways,
 and can even generate their own tasks to solve,
 either as stepping stones toward hard, unsolved problems or motivated by considerations like curiosity and aesthetics.
