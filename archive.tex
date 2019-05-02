@@ -158,9 +158,11 @@
    preaction = {decorate},                                                                          
    postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]                                    
 \tikzstyle{innerWhite} = [semithick, white,line width=1.4pt, shorten >= 4.5pt]                      
-         
-\begin{document}
 
+\title{\systemEnding: A Wake/Sleep Algorithm for Developing Domain Expertise}
+\date{}
+\begin{document}
+\maketitle{}
 
 
 
@@ -1913,9 +1915,9 @@ Examining the libraries learned with and without
 recognition models reveals a difference in the typical \emph{depth}
 of learned subroutines, and this average depth correlates
 with the number of solved testing tasks ($r=0.71$, $p < 10^{-8}$).
-In contrast, the correlation between the \emph{number} of learned subroutines and number of solved tasks is weaker and not statistically significant ($r=0.20$, $p > 0.05$),
-suggesting that the recognition model bootstraps
-``better'' libraries, where ``better'' is at least partly explained by the depth
+In contrast, the correlation between the \emph{number} of learned subroutines and number of solved tasks is weaker ($r=0.20$, $p > 0.05$), although, within each domain, the recognition model still leads to bigger libraries.
+These results suggest that the recognition model bootstraps
+``better'' libraries, where ``better'' is largely explained by the depth
 of the learned representation. Figure~\ref{depthMontage} shows typical `deep' libraries learned by
 \system and contrasts this depth with \% solved tasks, both with and without the recognition model.
 \begin{figure}
@@ -1955,7 +1957,7 @@ of the learned representation. Figure~\ref{depthMontage} shows typical `deep' li
 
 \begin{figure}
   \includegraphics[width = \textwidth]{deepMontage.pdf}
-  \caption{Top: Learned libraries diagrammed as networks. Arrows point from a learned concept to all other concepts that use it. Bottom: Deeper networks solve more testing tasks, both as measured by average depth (left) and maximum depth (middle), while total library size is more weakly associated with solving tasks (right). Full model (stars on scatterplots) learns deeper libraries than no-recognition-model ablation (triangles on scatterplots). Each scatter plot point run with a different random seed.}\label{depthMontage}
+  \caption{Top: Learned libraries diagrammed as networks. Arrows point from a learned concept to all other concepts that use it. Bottom: Deeper networks solve more testing tasks, both as measured by average depth (left) and maximum depth (middle). Total library size is more also associated with solving tasks (right), but across domains the association is weaker. Full model (stars on scatterplots) learns bigger and deeper libraries than no-recognition-model ablation (triangles on scatterplots). Each scatter plot point run with a different random seed.}\label{depthMontage}
 \end{figure}
 
 How do \systemEnding's representations of these tasks themselves change, as the model acquires expertise? Within cognitive science, a rich body of evidence suggests that human experts learn to `see' problems differently in their domains -- even before solving a problem, human novices and experts seem to construct fundamentally different initial representations \cite{chi1981categorization}. Novices notice a problem’s `surface features', the literal objects and details made obvious by the task description. Experts, on the other hand, somehow see past these details to pick out each problem’s `deep structures', the underlying principles and concepts that govern its ultimate solution \cite{chi2012seeing,chi2006two}.
