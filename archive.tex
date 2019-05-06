@@ -159,12 +159,12 @@
    postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]                                    
 \tikzstyle{innerWhite} = [semithick, white,line width=1.4pt, shorten >= 4.5pt]                      
 
-\title{\systemEnding: A Wake/Sleep Algorithm for Developing Domain Expertise}
+\title{\systemEnding: Building Deep Domain Expertise with Wake/Sleep Bayesian Program Learning}
 \date{}
 \begin{document}
 \maketitle{}
 
-
+\vspace{-1cm}
 
 
 %% \section{Introduction: Expertise}
@@ -260,10 +260,14 @@ but cannot quickly transfer to similar games like a person would;
 or, which can learn to generate convincing English prose,
 but which do not then learn to analyze many different languages,
 like a field linguist would.
-Here, we contribute a computational model that takes a small step toward the goal of building machines that
+Here, we present a computational model that takes a step toward the goal of building machines that
 grow into domain experts,
-looking at much simpler kinds of problems that humans can learn to solve and indeed become experts in.
+looking at a number of problem domains that humans can learn and indeed become experts in.
 
+we draw inspiration from cognitive science.
+this inspiration says that there are two things.
+we do both these things.
+hooray for us.
 Our model is structured
 around the hypothesis that
 domain expertise
@@ -289,19 +293,19 @@ having the right explicit concepts, and being able to quickly see how those conc
 Because solutions to many kinds of problems can often be described as
 some kind of
 program~\cite{lake2015human,Ullman2012,DBLP:journals/cogsr/SchmidK11},
-our model approaches a specific problem by searching for a program solving
-it. It gradually grows its domain-specific knowledge for a
+our model approaches a specific problem by searching for a program
+solving it. It gradually grows its domain-specific knowledge for a
 class of problems by assembling a library of code containing concepts
-useful for the domain, while jointly training a neural network to quickly
-infer, for a specific problem, what code in its library is likely to
-solve it. We think of these two learned components as analogous to the
-explicit concepts and implicit procedural skill that human experts
-develop.  The model is an instance of what in the machine learning
-community is called a wake-sleep algorithm, where for us, `waking'
-corresponds to solving problems, while a pair of `sleep' cycles
-correspond to improving the library of explicit concepts and training
-the neural net to improve implicit procedural knowledge of how to
-write code.
+useful for the domain, while jointly training a neural network to
+quickly infer, for a specific problem, what code in its library is
+likely to solve it. We think of these two learned components as
+analogous to the explicit concepts and implicit procedural skill that
+human experts develop.  The model, called \systemEnding, is an
+instance of what in the machine learning community is called a
+wake-sleep algorithm, where for us, `waking' corresponds to solving
+problems, while a pair of `sleep' cycles correspond to improving the
+library of explicit concepts and training the neural net to improve
+implicit procedural knowledge.
 
 
 We will first investigate our model within classic program
@@ -448,7 +452,7 @@ refer to our approach as an instance of `deep program learning'.
 
 \section{A Wake/Sleep Algorithm for Program Induction}\label{overviewSection}
 
-Our model, called \systemEnding, works through a novel kind
+\system works through a novel kind
 of wake/sleep or `dream' learning~\cite{hinton1995wake}, iterating
 through a wake cycle -- where it solves \textbf{tasks} by writing programs (Figure~\ref{threeCycles} top)
 -- and a pair of sleep cycles, both of which are loosely biologically
@@ -480,19 +484,11 @@ thus functioning as a \textbf{recognition model} and trained jointly with the ge
 Writing $Q(p|x)$ for the approximate
 posterior predicted by the recognition model, wake/sleep cycles correspond to iteratively (and
 approximately) solving for
-
-\begin{array}{lr}
-  \begin{array}{l}  p_x = \argmax_p \probability[x|p]\probability[p|\mathcal{D}^*,\theta^*]\text{, for each task $x\in X$}\end{array}
-    &\text{\emph{Wake}}\\\\
-\begin{array}{rl}  
-\mathcal{D}^* = \argmax_\mathcal{D}&\int\probability\left[\mathcal{D},\phantom{^*}\theta \right]\prod_{x\in X}\sum_{\substack{p\text{ found during waking}}} \probability[x|p]\probability[p|\mathcal{D},\phantom{^*}\theta]\;\text{d}\theta\\
-\theta^* = \argmax_\theta&\phantom{\int}\probability\left[\mathcal{D}^*,\theta \right]\prod_{x\in X}\sum_{p\text{ found during waking}} \probability[x|p]\probability[p|\mathcal{D}^*,\theta]
- \end{array}
-&\text{\emph{Abstraction (sleep)}}\\\\
-\begin{array}{l} Q(p|x)\approx \probability[p|x,\mathcal{D}^*,\theta^*]\end{array}
-  &\text{\emph{Dreaming (sleep)}}
-\end{array}
-
+\begin{align}
+  p_x &= \argmax_{\substack{p\\Q(p|x)\text{ is large}}} \probability[x|p]\probability[p|\mathcal{D},\theta]\text{, for each task $x\in X$}&&\text{\emph{Wake}}\\
+  \mathcal{D},\theta &= \argmax_{\mathcal{D},\theta}\probability\left[\mathcal{D},\theta \right]\prod_{x\in X}\sum_{p\text{ found during waking}} \probability[x|p]\probability[p|\mathcal{D},\theta]&&\text{\emph{Sleep: Abstraction}}\\
+  Q(p|x)&\approx \probability[p|x,\mathcal{D},\theta]&&\text{\emph{Sleep: Dreaming}}  
+\end{align}
 \noindent which serves to maximize a lower bound on the posterior over $(\mathcal{D},\theta)$ given $X$ (Appendix~\ref{probabilisticAppendix}).
 
 
@@ -1578,10 +1574,10 @@ neural net gets richer and more highly varied training data.
     \\\bottomrule \\\\
     \multicolumn{2}{c}{
       \begin{tabular}{ccc}
-        Dreams before learning&Dreams after learning&Dreams after learning (cherry picked)\\
-          \includegraphics[width = 0.3\textwidth]{figures/dreams/beforeLearning25}&
-          \includegraphics[width = 0.3\textwidth]{figures/dreams/final25}&
-          \includegraphics[width = 0.3\textwidth]{figures/dreams/cherry_picked/montage}
+        Dreams before learning&Dreams after learning (random)&Dreams after learning (selected)\\
+          \fbox{\includegraphics[width = 0.3\textwidth]{figures/dreams/beforeLearning25}}&
+          \fbox{\includegraphics[width = 0.3\textwidth]{figures/dreams/final25}}&
+          \fbox{\includegraphics[width = 0.3\textwidth]{figures/dreams/cherry_picked/montage}}
       \end{tabular}
     }
   \end{tabular}
@@ -1855,7 +1851,7 @@ of the provided tasks and learned library for this domain.
     
   \end{tabular}
   \setlength{\tabcolsep}{6pt} % default is 6pt
-  \caption{\textbf{Left:} Learning a language for physical laws starting with recursive list routines like \code{map} and \code{fold}. Agent observes input/outputs of latent functions encoding physical laws (top left, 20 input/outputs per task). Vectors are represented as lists of real numbers. Physical constants expressed in Planck units. \textbf{Right:} Learning a language for recursive list routines starting with only recursion and primitives found in 1959 Lisp. Agent rediscovers \code{map}, \code{fold}, \code{unfold}, etc. For full tasks and learned libraries see Appendix~\ref{appendixMcCarthy}}\label{librariesToLanguages}
+  \caption{\textbf{Left:} Learning a language for physical laws starting with recursive list routines like \code{map} and \code{fold}. Agent observes input/outputs of latent functions encoding physical laws (top left, 20 input/outputs per task). Vectors are represented as lists of real numbers. Physical constants expressed in Planck units. \textbf{Right:} Learning a language for recursive list routines starting with only recursion and primitives found in 1959 Lisp. Agent rediscovers \code{map}, \code{fold}, \code{unfold}, etc. For full tasks and learned libraries see Appendix~\ref{physicsAppendix,appendixMcCarthy}}\label{librariesToLanguages}
   \end{figure}
 
 Could we also learn the basics of programming, including these recursive sequence manipulation primitives?
@@ -2018,13 +2014,19 @@ Exploration-Compression family of algorithms~\cite{Dechter:2013:BLV:2540128.2540
 which alternate
 between searching, or `exploring', a space of solutions, and then
 updating their search procedure by compressing solutions found during
-exploration.  Both of our sleep phases can be interpreted as a kind of
+exploration.
+EC : not only one difference. we actually incorporate several improvements.
+for example our compression is very sophisticated.
+it is a fancy kind of re- factoring.
+exploring is analogous to waking except that we also are better here because we can break symmetries and have a deep network.
+Both of our sleep phases can be interpreted as a kind of
 compression: abstraction aims to compactly refactor code, while the
 recognition model aims to encode a program in as few bits as possible,
 conditioned on a task. What \system contributes here is the joint capture of
 declarative aspects of domain knowledge -- considered in prior EC works -- and
 the equally crucial procedural knowledge,
 both of which human experts seem to need.
+also it turns out that computers need these two too!!!
 
 
 %% Our model alternatingly searches for solutions to tasks and then improves its search strategy;
@@ -2209,18 +2211,18 @@ sleep cycles.
     \State \textbf{Output:} Infinite stream of DSLs, recognition models, and beams
     \State \textbf{Hyperparameters:} Batch size $B$, enumeration timeout $T$, maximum beam size $F$
     \State $\theta\gets $uniform distribution
-    \State $\mathcal{F}_x\gets\varnothing $, $\forall x\in X$\Comment{Initialize beams to be empty}
+    \State $\mathcal{B}_x\gets\varnothing $, $\forall x\in X$\Comment{Initialize beams to be empty}
     \While{true}\Comment{Loop over epochs}
     \State shuffle $\gets$ random permutation of $X$\Comment{Randomize minibatches}
     \While{shuffle is not empty}\Comment{Loop over minibatches}
     \State batch $\gets$ first $B$ elements of shuffle\Comment{Next minibatch of tasks}
     \State shuffle $\gets$ shuffle with first $B$ elements removed
-    \State $\forall x\in \text{batch}$: $\mathcal{F}_x\gets\mathcal{F}_x\cup \left\{p\;|\;p\in \text{enumerate}(\probability[\cdot |\mathcal{D},\theta],T)\text{ if }\probability[x|p] > 0 \right\}$\Comment{Wake}
-    \State Train $Q(\cdot |\cdot )$ to minimize $\mathcal{L}^{\text{MAP}}$ across all $\left\{\mathcal{F}_x \right\}_{x\in X}$\Comment{Dream Sleep}
-    \State $\forall x\in \text{batch}$: $\mathcal{F}_x\gets\mathcal{F}_x\cup \left\{p\;|\;p\in \text{enumerate}(Q(\cdot |x),T)\text{ if }\probability[x|p] > 0 \right\}$\Comment{Wake}
-    \State $\forall x\in \text{batch}$: $\mathcal{F}_x\gets\text{ top }F\text{ elements of }\mathcal{F}_x\text{ as measured by }\probability[\cdot |x,\mathcal{D},\theta]$\Comment{Keep top $F$ programs}
-    \State $\mathcal{D},\theta,\left\{\mathcal{F}_x \right\}_{x\in X}\gets $\textsc{Consolidate}$(\mathcal{D},\theta,\left\{\mathcal{F}_x \right\}_{x\in X})$\Comment{Consolidation Sleep}
-    \State \textbf{yield} $(\mathcal{D},\theta)$, $Q$, $\left\{\mathcal{F}_x \right\}_{x\in X}$ \Comment{Yield the updated DSL, recognition model, and solutions found to tasks}
+    \State $\forall x\in \text{batch}$: $\mathcal{B}_x\gets\mathcal{B}_x\cup \left\{p\;|\;p\in \text{enumerate}(\probability[\cdot |\mathcal{D},\theta],T)\text{ if }\probability[x|p] > 0 \right\}$\Comment{Wake}
+    \State Train $Q(\cdot |\cdot )$ to minimize $\mathcal{L}^{\text{MAP}}$ across all $\left\{\mathcal{B}_x \right\}_{x\in X}$\Comment{Dream Sleep}
+    \State $\forall x\in \text{batch}$: $\mathcal{B}_x\gets\mathcal{B}_x\cup \left\{p\;|\;p\in \text{enumerate}(Q(\cdot |x),T)\text{ if }\probability[x|p] > 0 \right\}$\Comment{Wake}
+    \State $\forall x\in \text{batch}$: $\mathcal{B}_x\gets\text{ top }F\text{ elements of }\mathcal{B}_x\text{ as measured by }\probability[\cdot |x,\mathcal{D},\theta]$\Comment{Keep top $F$ programs}
+    \State $\mathcal{D},\theta,\left\{\mathcal{B}_x \right\}_{x\in X}\gets $\textsc{Consolidate}$(\mathcal{D},\theta,\left\{\mathcal{B}_x \right\}_{x\in X})$\Comment{Consolidation Sleep}
+    \State \textbf{yield} $(\mathcal{D},\theta)$, $Q$, $\left\{\mathcal{B}_x \right\}_{x\in X}$ \Comment{Yield the updated DSL, recognition model, and solutions found to tasks}
     \EndWhile
     \EndWhile
 
@@ -2403,24 +2405,24 @@ Appendix~\ref{mapAppendix} derives a tractable MAP estimator for $\theta$.
 
 \begin{algorithm}%[H]
   %\setcounter{algorithm}{2} % there are two algorithms in the main paper.
-  \caption{DSL Induction Algorithm}
+  \caption{Library Induction Algorithm}
   \label{grammarInductionAlgorithm}
   \begin{algorithmic}[1]
     \State {\bfseries Input:} Set of beams $\{\mathcal{B}_x\}$
     %         \STATE \textbf{Hyperparameters:} Pseudocounts $\alpha$, regularization parameter $\lambda$
-    \State \textbf{Output:} DSL $\mathcal{D}$, weight vector $\theta$
+    \State \textbf{Output:} Library $\mathcal{D}$, weight vector $\theta$
     \State $\mathcal{D}\gets$ every primitive in $\{\mathcal{B}_x\}$
     \While{true}         
     \State $\forall p\in \bigcup_{x}\mathcal{B}_x: $ $v_p\gets I\beta(p)$ \Comment{Construct a version space for each program}
-    \State Define $L(\mathcal{D}',\theta) =  \prod_x \sum_{p\in \mathcal{B}_x} \probability[x|p]\probability[\text{\textsc{refactor}}(v_p|\mathcal{D}')|\mathcal{D}',\theta]$ \Comment{Likelihood if $(\mathcal{D}',\theta)$ were the DSL}
+    \State Define $L(\mathcal{D}',\theta) =  \prod_x \sum_{p\in \mathcal{B}_x} \probability[x|p]\probability[\text{\textsc{refactor}}(v_p|\mathcal{D}')|\mathcal{D}',\theta]$ \Comment{Likelihood under $(\mathcal{D}',\theta)$}
     \State Define $\theta^*(\mathcal{D}') = \argmax_\theta \probability[\theta|\mathcal{D}'] L(\mathcal{D}',\theta)$ \Comment{MAP estimate of $\theta$}
     \State Define $\text{score}(\mathcal{D}') = \log \probability[\mathcal{D}'] + L(\mathcal{D}',\theta^*(\mathcal{D})) - \|\theta^*(\mathcal{D})\|_0$ \Comment{objective function}
-    \State components $\gets$ $\left\{\textsc{refactor}(v|\mathcal{D})\;:\;\forall x, \forall p\in \mathcal{B}_x, \forall v\in \text{children}(v_p) \right\}$ \Comment{Propose many new DSL components}
-    \State proposals $\gets$ $\left\{\mathcal{D}\cup\left\{c \right\}\;:\;\forall c\in \text{components} \right\}$ \Comment{Propose many new DSLs}
-    \State $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new DSL}
-    \State \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to DSL led to a better score}
-    \State $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better DSL. Update DSL.}
-    \State $\forall x\;:\;\mathcal{B}_x\gets\left\{\text{\textsc{refactor}}(v_p|\mathcal{D})\;:\; p\in \mathcal{B}_x\right\}$\Comment{Refactor beams in terms of new DSL}
+    \State components $\gets$ $\left\{\textsc{refactor}(v|\mathcal{D})\;:\;\forall x, \forall p\in \mathcal{B}_x, \forall v\in \text{children}(v_p) \right\}$ \Comment{Propose many new components}
+    \State proposals $\gets$ $\left\{\mathcal{D}\cup\left\{c \right\}\;:\;\forall c\in \text{components} \right\}$ \Comment{Propose many new libraries}
+    \State $\mathcal{D}'\gets \argmax_{\mathcal{D}'\in \text{proposals}}\text{score}(\mathcal{D}') $\Comment{Get highest scoring new library}
+    \State \textbf{if }$\text{score}(\mathcal{D}') < \text{score}(\mathcal{D})$\textbf{ return }$\mathcal{D},\theta^*(\mathcal{D})$\Comment{No changes to library led to a better score}
+    \State $\mathcal{D}\gets\mathcal{D}'$ \Comment{Found better library. Update library.}
+    \State $\forall x\;:\;\mathcal{B}_x\gets\left\{\text{\textsc{refactor}}(v_p|\mathcal{D})\;:\; p\in \mathcal{B}_x\right\}$\Comment{Refactor beams in terms of new library}
     \EndWhile
   \end{algorithmic}
 \end{algorithm}
@@ -2452,7 +2454,7 @@ We refer to this set as the \textbf{extension} of the version space:
 Version spaces also support efficient membership checking, which we
 write as  $e\in \denotation{v}$.
 Important for our purposes, it is also efficient to refactor the
-members of a version space's extension in terms of a new DSL.
+members of a version space's extension in terms of a new library.
 We define $\textsc{refactor}(v|\mathcal{D})$ inductively as:
 \begin{align*}
   \textsc{refactor}(v|\mathcal{D}) &= \begin{cases}
@@ -2466,7 +2468,7 @@ We define $\textsc{refactor}(v|\mathcal{D})$ inductively as:
   \textsc{refactor}'(f\;x|\mathcal{D}) &= \textsc{refactor}(f|\mathcal{D})\;\textsc{refactor}(x|\mathcal{D})&%\\\nonumber
   \textsc{refactor}'(\uplus V|\mathcal{D}) &= \argmin_{e\in \left\{\textsc{refactor}(v|\mathcal{D})\;:\;v\in V \right\}}\text{size}(e|\mathcal{D})\nonumber
   \end{align*}
-where $\text{size}(e|\mathcal{D})$ for program $e$ and DSL $\mathcal{D}$
+where $\text{size}(e|\mathcal{D})$ for program $e$ and library $\mathcal{D}$
 is the size of the syntax tree of $e$,
 when members of $\mathcal{D}$ are counted as having size 1.
 Concretely, $  \textsc{refactor}(v|\mathcal{D})$ calculates $\argmin_{p\in \denotation{v}}\text{size}(p|\mathcal{D})$.
@@ -2533,7 +2535,7 @@ and only calculate the operators $I\beta_n$,
 $I\beta'$, and $S_k$ once per each version space.
 %Refactoring is similarly done more quickly with dynamic programming (see Equation~\ref{FACTORING} for the recursive definition of \textsc{refactor}).
 
-We now formally prove that $I\beta$ exhaustively enumerates the space of possible refactorings.
+We now formally prove that $I\beta_n$ exhaustively enumerates the space of possible refactorings.
 Our approach is to first prove that $S_k$ exhaustively enumerates
 the space of possible substitutions that
 could give rise to a program.
@@ -2669,7 +2671,7 @@ The following pair of technical lemmas are useful; both are easily proven by str
     \end{itemize}
 \end{proof}
 
-From these results the consistency and completeness of $I\beta$ follows:
+From these results the consistency and completeness of $I\beta_n$ follows:
 \begin{theorem}
   \textbf{Consistency of $I\beta'$.}\\
   If $p\in \denotation{I\beta'(u)}$ then there exists $p'\in \denotation{u}$ such that $p\reduce p'$.
@@ -2787,6 +2789,26 @@ Finally we have our main result:
 
 \subsubsection{Tracking equivalences}
 
+Having introduced the version-space machinery, we now are in a position to define
+how these version spaces aggregate into a single data structure, one for each program, tracking every equivalence revealed by
+$I\beta_n$.
+Observe that every time we calculate $I\beta_n(p)$, we obtain a version space containing expressions semantically equivalent to program $p$.
+In line with prior work in program analysis~\cite{tate2009equality},
+we track these equivalences,
+and finally return a single structure for each program compiling all of these equivalences.
+Concretely,
+Algorithm~\ref{grammarInductionAlgorithm} calculates (line 5), for each program $p$,
+a version space $I\beta(p)$ defined as
+\begin{equation*}
+  I\beta(p) = I\beta_n(p)\uplus\begin{cases}
+  \text{if $p = (f\;x)$: }I\beta(f)\;I\beta(x)\\
+  \text{if $p = \lambda b$: }\lambda I\beta(b)\\
+  \text{if $p$ is an index or primitive: }\varnothing 
+  \end{cases}
+\end{equation*}
+where $n$, the amount of refactoring, is a hyper parameter. We set $n$ to 3 for all experiments with the exception of learning recursive functions from basic Lisp primitives (Appendix~\ref{appendixMcCarthy}),
+where more involved refactoring was required; for that experiment we set $n = 4$.
+
 %% First observe that
 %% we do not \emph{enumerate} every refactoring,
 %% but only those for which every expression of the form $(\lambda x.b)v$ has
@@ -2818,9 +2840,9 @@ Finally we have our main result:
 %% \end{proof}
 
 
-\subsubsection{Computational complexity of DSL learning}
+\subsubsection{Computational complexity of library learning}
 
-How long does each update to the DSL in
+How long does each update to the library in
 Algorithm~\ref{grammarInductionAlgorithm} take?  Constructing the
 version spaces takes time linear in the number of programs (written
 $P$) in the beams (Algorithm~\ref{grammarInductionAlgorithm}, line
@@ -2830,14 +2852,14 @@ to be a small number (typically $n = 3$).  Writing $V$ for the number
 of version spaces, this means that $V$ is $O(P2^n)$.  The number of
 proposals (line 10) is linear in the number of distinct version
 spaces, so is $O(V)$.  For each proposal we have to refactor every
-program (line 6), so this means we spend $O(V^2) = O(P^22^n)$ per DSL
+program (line 6), so this means we spend $O(V^2) = O(P^22^n)$ per library
 update.  In practice this quadratic dependence on $P$ (the number of
 programs) is prohibitively slow.  We now describe a linear time
 approximation to the refactor step in
 Algorithm~\ref{grammarInductionAlgorithm} based on beam search.
 
 For each version space $v$ we calculate a \emph{beam}, which is a
-function from a DSL $\mathcal{D}$ to a shortest program in
+function from a library $\mathcal{D}$ to a shortest program in
 $\denotation{v}$ using primitives in $\mathcal{D}$.  Our strategy will
 be to only maintain the top $B$ shortest programs in the beam;
 throughout all of the experiments in this paper, we set $B = 10^6$,
@@ -2845,7 +2867,7 @@ and in the limit $B\to\infty$ we recover the exact behavior of \textsc{refactor}
 The following recursive equations
 define how we calculate these beams;
 the set `proposals' is defined in line 10 of Algorithm~\ref{grammarInductionAlgorithm},
-and $\mathcal{D}$ is the current DSL:
+and $\mathcal{D}$ is the current library:
 \begin{align*}
   \text{beam}_v(\mathcal{D}')& = \begin{cases}
     \text{if }\mathcal{D}'\in \text{dom}(b_v)\text{: }&b_v(\mathcal{D}')\\
@@ -2868,7 +2890,7 @@ $P$) with a $B\log B$ term, where the parameter $B$ can be chosen
 freely, but at the cost of a less accurate beam search.
 
 After performing this beam search,
-we take only the top $I$ proposals as measured by $-\sum_x\min_{p\in \mathcal{F}_x}\text{beam}_{v_p}(\mathcal{D}')$.
+we take only the top $I$ proposals as measured by $-\sum_x\min_{p\in \mathcal{B}_x}\text{beam}_{v_p}(\mathcal{D}')$.
 We set $I = 300$ in all of our experiments,
 so $I \ll B$.
 The reason why we
@@ -2879,16 +2901,16 @@ so we perform a very wide beam search and then at the very end
 tim the beam down to
 only $I = 300$ proposals.
 Next,
-we describe our MAP estimator for the continuous parameters ($\theta$) of the DSL.
+we describe our MAP estimator for the continuous parameters ($\theta$) of the generative model.
 
 
 
-\subsubsection{Estimating the continuous parameters $\theta$ of a DSL}\label{mapAppendix}
-We use an EM algorithm to estimate the continuous parameters of the DSL, i.e. $\theta$.
+\subsubsection{Estimating the continuous parameters $\theta$ of the generative model}\label{mapAppendix}
+We use an EM algorithm to estimate the continuous parameters of the generative model, i.e. $\theta$.
 Suppressing dependencies on $\mathcal{D}$, the EM updates are
 \begin{align}
 \label{maximizeStep}  \theta& = \argmax_\theta \log P(\theta) + \sum_x \expect_{q_x}\left[\log \probability\left[p|\theta \right] \right]\\
-  q_x(p)&\propto \probability[x|p]\probability[p|\theta]\indicator\left[p\in \mathcal{F}_x \right]
+  q_x(p)&\propto \probability[x|p]\probability[p|\theta]\indicator\left[p\in \mathcal{B}_x \right]
 \end{align}
 In the M step of EM we will update $\theta$ by instead maximizing a lower bound on $\log \probability[p|\theta]$,
 making our approach an instance of Generalized EM.
@@ -2933,9 +2955,9 @@ and are not added to the number of times that we could have used each primitive.
 
 We are only maximizing a lower bound on the log posterior; when is this lower bound tight?
 This lower bound is tight whenever all
-of the types of the expressions in the DSL are not polymorphic, in which case our DSL is equivalent to a PCFG
+of the types of the expressions in the library are not polymorphic, in which case our library is equivalent to a PCFG
 and this estimator is equivalent to the inside/outside algorithm.
-Polymorphism introduces context-sensitivity to the DSL,
+Polymorphism introduces context-sensitivity to the library,
 and exactly maximizing the likelihood with respect to $\theta$
 becomes intractable,
 so for domains with polymorphic types we use this estimator.
@@ -2946,9 +2968,9 @@ Recall that our goal is to maximize either $\mathcal{L}^{posterior}$ or $\mathca
 \begin{align*}
   \mathcal{L}^{\text{posterior}} &= \mathcal{L}_{\text{Replay}}^{\text{posterior}} + \mathcal{L}_{\text{Fantasy}}^{\text{posterior}}&
   \mathcal{L}^{\text{MAP}} &= \mathcal{L}_{\text{Replay}}^{\text{MAP}} + \mathcal{L}_{\text{Fantasy}}^{\text{MAP}}\\
-  \mathcal{L}_{\text{Replay}}^{\text{posterior}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{F}_x}
-    \frac{\probability\left[x,p|\mathcal{D},\theta \right]\log Q(p|x)}{\sum_{p'\in \mathcal{F}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\right] &
-\mathcal{L}_{\text{Replay}}^{\text{MAP}}& = \expect_{x\sim X}\left[\max_{\substack{p\in \mathcal{F}_x\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}} \log Q(p|x) \right]  \\
+  \mathcal{L}_{\text{Replay}}^{\text{posterior}}& = \expect_{x\sim X}\left[\sum_{p\in \mathcal{B}_x}
+    \frac{\probability\left[x,p|\mathcal{D},\theta \right]\log Q(p|x)}{\sum_{p'\in \mathcal{B}_x}\probability\left[x,p'|\mathcal{D},\theta \right]}\right] &
+\mathcal{L}_{\text{Replay}}^{\text{MAP}}& = \expect_{x\sim X}\left[\max_{\substack{p\in \mathcal{B}_x\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}} \log Q(p|x) \right]  \\
   \mathcal{L}_{\text{Fantasy}}^{\text{posterior}} &= \expect_{(p,x)\sim(\mathcal{D},\theta) }\left[\log Q(p|x)\right]&
     \mathcal{L}_{\text{Fantasy}}^{\text{MAP}} &= \expect_{x\sim(\mathcal{D},\theta) }\left[\max_{\substack{p\\p\text{ maxing }\probability[\cdot |x,\mathcal{D},\theta]}}\log Q(p)\right]
 \end{align*}
@@ -2959,7 +2981,7 @@ Once we bootstrap a $(\mathcal{D},\theta)$,
 we can draw unlimited samples from $(\mathcal{D},\theta)$
 and train $Q$ on those samples.
 But, evaluating $\mathcal{L}_{\text{Fantasy}}$ involves drawing programs from
-the current DSL, running them to get their outputs,
+the current library, running them to get their outputs,
 and then training $Q$ to regress from the input/outputs to the program.
 Since these programs map inputs to outputs,
 we need to sample the inputs as well.
@@ -2967,7 +2989,7 @@ Our solution is to sample the inputs
 from the empirical observed distribution of inputs in $X$.
 
 The $\mathcal{L}_{\text{Fantasy}}^{\text{MAP}}$ objective involves
-finding the MAP program solving a task drawn from the DSL.  To make
+finding the MAP program solving a task drawn from the library.  To make
 this tractable, rather than \emph{sample} programs as training data
 for $\mathcal{L}_{\text{Fantasy}}^{\text{MAP}}$, we \emph{enumerate}
 programs in decreasing order of their prior probability, tracking, for
@@ -2977,7 +2999,7 @@ $\probability[x,p|\mathcal{D},\theta]$.
 We parameterize $Q$ using a bigram model over syntax trees.
 Formally,
 $Q$ predicts a $(|\mathcal{D}|+2)\times (|\mathcal{D}|+1)\times A$-dimensional tensor,
-where $A$ is the maximum arity\footnote{The arity of a function is the number of arguments that it takes as input.} of any primitive in the DSL.
+where $A$ is the maximum arity\footnote{The arity of a function is the number of arguments that it takes as input.} of any primitive in the library.
 Slightly abusing notation, we write this tensor as $Q_{ijk}(x)$,
 where $x$ is a task,
 $i\in \mathcal{D}\cup\left\{\text{start},\text{var}\right\}$,
@@ -2995,13 +3017,13 @@ specifies a procedure for drawing samples from $Q(\cdot |X)$.
    \label{recognitionSample}
    \begin{algorithmic}[1]
      \State \textbf{function} recognitionSample$(Q, x, \mathcal{D}, \tau)$:
-     \State {\bfseries Input:} recognition model $Q$, task $x$, DSL $\mathcal{D}$, type $\tau$
+     \State {\bfseries Input:} recognition model $Q$, task $x$, library $\mathcal{D}$, type $\tau$
      \State \textbf{Output:} a program whose type unifies with $\tau$
      \State \textbf{return } $\text{recognitionSample}'(Q,x,\text{start},1,\mathcal{D},\varnothing,\tau)$
      \Statex
 
      \State \textbf{function} recognitionSample$'(Q, x, \text{parent}, \text{argumentIndex}, \mathcal{D}, \mathcal{E}, \tau)$:
-     \State {\bfseries Input:} recognition model $Q$, task $x$, DSL $\mathcal{D}$, parent $\in \mathcal{D}\cup\left\{\text{start},\text{var} \right\}$, argumentIndex $\in \mathbb{N}$, environment $\mathcal{E}$, type $\tau$
+     \State {\bfseries Input:} recognition model $Q$, task $x$, library $\mathcal{D}$, parent $\in \mathcal{D}\cup\left\{\text{start},\text{var} \right\}$, argumentIndex $\in \mathbb{N}$, environment $\mathcal{E}$, type $\tau$
      \State \textbf{Output:} a program whose type unifies with $\tau$
      \If{$\tau = \alpha\to\beta$}\Comment{Function type --- start with a lambda}
      \State var $\gets$ an unused variable name
@@ -3165,7 +3187,7 @@ or that addition should always associate to the right
 The $\mathcal{L}^{\text{MAP}}$ training objective encourages
 learning these canonical forms.
 Consider two recognition models, $Q_1$ and $Q_2$,
-and two programs in frontier $\mathcal{F}_x$,
+and two programs in beam $\mathcal{B}_x$,
 $p_1=\code{(+ (+ 1 1) 1)}$ and $p_2=\code{(+ 1 (+ 1 1))}$,
 where
 \begin{align*}
@@ -3195,16 +3217,26 @@ a simple unigram model lacks the expressive power to
 encode it.
 
 To be clear,
-our recognition model does not learn to break \emph{every} possible symmetry in every possible DSL.
+our recognition model does not learn to break \emph{every} possible symmetry in every possible library or DSL.
 But in practice we found that a bigrams combined with $\mathcal{L}^{\text{MAP}}$
 works well,
 and we use with this combination throughout the paper.
 
 \subsection{Neural Problem Representations}
-
+Figure~\ref{allTSNE} shows how \system organizes and represents its tasks over its learning trajectory for several domains.
+We visualize the inferred program representations (left columns) by
+calculating a feature vector for each task $x$, written $\phi(x)$,
+whose $i^{\text{th}}$ component is the expected number of times that the $i^\text{th}$  library component was used when solving the task:
+\[
+\phi(x)_i = \expect_{\probability[p |\mathcal{D},\theta,x]}\left[ \text{number of times }i\in \mathcal{D} \text{ occurs in }p\right]
+\]
+and then embed those feature vectors in a two dimensional space using tSNE~\cite{maaten2008visualizing}.
+We visualize the recognition model's task representations by
+flattening the neural output $Q_{ijk}(x)$ (Appendix~\ref{recognitionAppendix}) to
+obtain a feature vector for each task, which we visualize also using tSNE both after the first wake/sleep cycle (left column) and after the final wake/sleep cycle (middle column).
 \begin{figure}
   \includegraphics[width = \textwidth]{figures/all_tsne.png}
-  \caption{}\label{allTSNE}
+  \caption{Left: TSNE embedding of model's `at-a-glance' (before searching for solution) organization of tasks (neural net activations), after first wake/sleep cycle. Middle: at-a-glance organization after last wake/sleep cycle. Right: TSNE visualization of programs actually used to solve tasks; intuitively, how model organizes tasks after searching for a solution. We convert each program into a feature vector by counting the \# times each library routine is used, and then embed those feature vectors.}\label{allTSNE}
 \end{figure}
 
 \subsection{LOGO Graphics Experiment}
@@ -3257,7 +3289,35 @@ The agent has two additional domain specific primitives for dropping a horizonta
   \caption{Full set of tower building tasks that we apply our system to}\label{everyTowerTask}
 \end{figure}
 
-\subsection{Learning from Scratch: Tasks and Library}\label{appendixMcCarthy}
+\subsection{Learning a language for physical laws}\label{physicsAppendix}
+
+We took equations from MCAT as well as AP Physics B \& C cheat sheets (\url{http://mcat.prep101.com/wp-content/uploads/ES_MCATPhysics.pdf}; \url{https://secure-media.collegeboard.org/digitalServices/pdf/ap/ap-physics-1-equations-table.pdf}; \url{https://secure-media.collegeboard.org/digitalServices/pdf/ap/physics-c-tables-and-equations-list.pdf}),
+choosing representative laws,
+but excluding expressions with trigonometric functions, multivariate differentials, and integrals.
+These equations included  free fall velocity ($\sqrt{2gh}$),
+velocity under ballistic motion ($v^2 = v_0^2 + 2a(x - x_0)$),
+velocity magnitude ($v = \sqrt{v_x^2 + v_y^2}$),
+angular acceleration ($a_r = v^2/R$),
+mass energy equivalence ($e = mc^2$),
+expressions for center of mass ($\sum_i m_ix_i/\sum_im_i$ and $(m_1\vec{x_1} + m_2\vec{x_2})/(m_1 + m_2)$),
+density ($\pho = m/v$), pressure ($F/A$), power ($P = I^2R$ and $P = V^2/R$),
+RMS voltage ($V/\sqrt{2}$), energy stored in a capacitor ($U = 1/2CV^2$, $1/2QV$, and $1/2Q^2/C$),
+optical power ($P = 1/f$),
+
+Each equation was converted to a symbolic regression problem by sampling 10 random input/output examples,
+where the inputs correspond to free variables in the target expression.
+Physical constants were expressed in Planck units, which generally drops certain special coefficients from
+these expressions (e.g., the gravitational constant $G = 1$).
+We gave the system the following primitives: \code{0}, \code{1}, $\pi$, \code{power}, \code{+}, \code{*}, \code{/}, \code{-}, \code{map}, \code{fold}, \code{zip}, \code{cons}, \code{car}, \code{cdr}, and \code{nil}.
+
+At each wake cycle, rather than sample a random minibatch of tasks,
+we gave the agent all tasks it had not solved in the past two wake cycles.
+This had the effect of the agent solving the easiest tasks first,
+and then reallocating its compute time to a smaller set of harder, unsolved tasks.
+
+
+
+\subsection{Learning a language of recursive functions}\label{appendixMcCarthy}
 
 We gave our system the following primitives: \code{if}, \code{=},
 \code{>}, \code{+}, \code{-}, \code{0}, \code{1}, \code{cons},
@@ -3454,7 +3514,7 @@ Figure~\ref{learningFromScratch} shows the full set of tasks and the learned lib
     %% (lambda (lambda (fix1 $0 (lambda (lambda (#(lambda (lambda (lambda (if $0 empty (cons $1 $2))))) (#(lambda (lambda (fix1 $0 (lambda (lambda (if (empty? $0) empty (cons ($3 (car $0)) ($1 (cdr $0))))))))) (lambda (#(+ 1) $0)) ($1 (#(lambda (- $0 1)) $0))) 0 (eq? $0 $3)))))))
     \\\bottomrule 
     \end{tabular}
-  \caption{Bootstrapping a standard library of functional programming routines, starting from recursion along with primitive operations found in 1959 Lisp. Complete set of tasks and learned DSL shown. Learned DSL components are numbered in the order that they are learned, \emph{i.e.}, the agent first learns fold, then unfold, then uses fold to define map, etc.}\label{learningFromScratch}
+  \caption{Bootstrapping a standard library of functional programming routines, starting from recursion along with primitive operations found in 1959 Lisp. Complete set of tasks and learned library shown. Learned library routines are numbered in the order that they are learned, \emph{i.e.}, the agent first learns fold, then unfold, then uses fold to define map, etc.}\label{learningFromScratch}
   \end{figure}
 
 
@@ -3717,126 +3777,126 @@ Figure~\ref{learningFromScratch} shows the full set of tasks and the learned lib
 %% \caption{Top: Tasks from three domains we apply our algorithm to, each followed by the programs \system discovers for them. Bottom: Several examples from learned DSL. Notice that learned DSL primitives can call each other, and that \system rediscovers higher-order functions like \code{filter} ($f_1$ under List Functions)}\label{initialExampleDSL}%\vspace{-0.5cm}
 %% \end{table*}
 
-\subsection{Learned DSLs}
-Here we present representative DSLs learned by our model. DSL primitives
-discovered by the algorithm are prefixed with \lstinline!#!.
-Variables are prefixed with \lstinline!$!, and we adopt De Bruijn indices to
-model bound variables~\cite{pierce}.
+%% \subsection{Learned DSLs}
+%% Here we present representative DSLs learned by our model. DSL primitives
+%% discovered by the algorithm are prefixed with \lstinline!#!.
+%% Variables are prefixed with \lstinline!$!, and we adopt De Bruijn indices to
+%% model bound variables~\cite{pierce}.
 
 
-\lstset{
-  basicstyle=\footnotesize,
-  escapechar=@,
-  breaklines=true,
-  breakatwhitespace=true,
-  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}
-}
+%% \lstset{
+%%   basicstyle=\footnotesize,
+%%   escapechar=@,
+%%   breaklines=true,
+%%   breakatwhitespace=true,
+%%   postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}
+%% }
 
 
-\subsubsection{List processing}
-\begin{lstlisting}
-#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range ($0 (+ 1))))))
-#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0))))))
-#(+ 1 (+ 1 1))
-#(@$\lambda$@ (@$\lambda$@ (fold $1 (cons $0 empty) (@$\lambda$@ (@$\lambda$@ (cons $1 $0))))))
-#(+ 1 #(+ 1 (+ 1 1)))
-#(@$\lambda$@ (map (@$\lambda$@ (if ($1 $0) (+ $0 1) 0))))
-#(@$\lambda$@ (cdr (cdr $0)))
-#(@$\lambda$@ (@$\lambda$@ (fold (#(@$\lambda$@ (cdr (cdr $0))) (#(@$\lambda$@ (cdr (cdr $0))) $1)) $0 (@$\lambda$@ (@$\lambda$@ (cdr (#(@$\lambda$@ (@$\lambda$@ (fold $1 (cons $0 empty) (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $0 (car $0))))))))
-#(@$\lambda$@ (car (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $0 (@$\lambda$@ (empty? (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (gt? $0 $1))))))))
-#(@$\lambda$@ (@$\lambda$@ (length (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (eq? $0 $1))))))
-#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (is-prime (+ $1 (mod $0 #(+ 1 #(+ 1 (+ 1 1))))))))))
-#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0))))))
-#(@$\lambda$@ (map (@$\lambda$@ (mod $0 $1))))
-#(@$\lambda$@ (map (@$\lambda$@ (eq? (mod $0 $1) 0))))
-#(@$\lambda$@ (gt? (mod $0 #(+ 1 (+ 1 1))) 0))
-#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (car (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $0 (@$\lambda$@ (empty? (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (gt? $0 $1)))))))) (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (gt? $1 (length (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $2 (@$\lambda$@ (gt? $1 $0))))))))))
-\end{lstlisting}
+%% \subsubsection{List processing}
+%% \begin{lstlisting}
+%% #(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range ($0 (+ 1))))))
+%% #(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0))))))
+%% #(+ 1 (+ 1 1))
+%% #(@$\lambda$@ (@$\lambda$@ (fold $1 (cons $0 empty) (@$\lambda$@ (@$\lambda$@ (cons $1 $0))))))
+%% #(+ 1 #(+ 1 (+ 1 1)))
+%% #(@$\lambda$@ (map (@$\lambda$@ (if ($1 $0) (+ $0 1) 0))))
+%% #(@$\lambda$@ (cdr (cdr $0)))
+%% #(@$\lambda$@ (@$\lambda$@ (fold (#(@$\lambda$@ (cdr (cdr $0))) (#(@$\lambda$@ (cdr (cdr $0))) $1)) $0 (@$\lambda$@ (@$\lambda$@ (cdr (#(@$\lambda$@ (@$\lambda$@ (fold $1 (cons $0 empty) (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $0 (car $0))))))))
+%% #(@$\lambda$@ (car (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $0 (@$\lambda$@ (empty? (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (gt? $0 $1))))))))
+%% #(@$\lambda$@ (@$\lambda$@ (length (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (eq? $0 $1))))))
+%% #(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (is-prime (+ $1 (mod $0 #(+ 1 #(+ 1 (+ 1 1))))))))))
+%% #(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0))))))
+%% #(@$\lambda$@ (map (@$\lambda$@ (mod $0 $1))))
+%% #(@$\lambda$@ (map (@$\lambda$@ (eq? (mod $0 $1) 0))))
+%% #(@$\lambda$@ (gt? (mod $0 #(+ 1 (+ 1 1))) 0))
+%% #(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (car (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $0 (@$\lambda$@ (empty? (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (gt? $0 $1)))))))) (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $1 (@$\lambda$@ (gt? $1 (length (#(@$\lambda$@ (@$\lambda$@ (fold $1 empty (@$\lambda$@ (@$\lambda$@ (if ($2 $1) (cons $1 $0) $0)))))) $2 (@$\lambda$@ (gt? $1 $0))))))))))
+%% \end{lstlisting}
 
-\subsubsection{Text editing}
-\begin{lstlisting}
-#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0))))))
-#(@$\lambda$@ (@$\lambda$@ (cons '.' (cons $0 $1))))
-#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0))))
-#(+ 1)
-#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0))))))))
-#(@$\lambda$@ (@$\lambda$@ (cons (car $0) (#(@$\lambda$@ (@$\lambda$@ (cons '.' (cons $0 $1)))) (cons '.' empty) (car $1)))))
-#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (if (char-eq? $2 $0) $1 $0)))))
-#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) (cons LPAREN $0) (cons RPAREN empty)))
-#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $0 (length (cdr (cdr $1))))))
-#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0)))))))
-#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $0 (length (cdr (cdr $1)))))) (cdr (cdr $0))))
-#(#(+ 1) 1)
-#(@$\lambda$@ (@$\lambda$@ (cons (car $1) (cons $0 empty))))
-#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) (#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0))))))) (#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) (cons LPAREN $0) (cons RPAREN empty))) $1) $0) $0)))
-#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $1 (cons $0 $2)))))
-#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $0 STRING))
-#(#(+ 1) #(#(+ 1) 1))
-#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) STRING $0) SPACE))
-#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $1 (cons $0 $2))))) (cons $0 $1))))
-#(#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) STRING)
-#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (cons (car $0) (#(@$\lambda$@ (@$\lambda$@ (cons '.' (cons $0 $1)))) (cons '.' empty) (car $1))))) (#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0))))))) $1 $0) $1)))
-#(#(+ 1) #(#(+ 1) #(#(+ 1) 1)))
-#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $1 (#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0))))))) (#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $0 STRING)) (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $2 #(#(+ 1) #(#(+ 1) #(#(+ 1) 1))))) $0)))))
-\end{lstlisting}
+%% \subsubsection{Text editing}
+%% \begin{lstlisting}
+%% #(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0))))))
+%% #(@$\lambda$@ (@$\lambda$@ (cons '.' (cons $0 $1))))
+%% #(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0))))
+%% #(+ 1)
+%% #(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0))))))))
+%% #(@$\lambda$@ (@$\lambda$@ (cons (car $0) (#(@$\lambda$@ (@$\lambda$@ (cons '.' (cons $0 $1)))) (cons '.' empty) (car $1)))))
+%% #(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (if (char-eq? $2 $0) $1 $0)))))
+%% #(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) (cons LPAREN $0) (cons RPAREN empty)))
+%% #(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $0 (length (cdr (cdr $1))))))
+%% #(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0)))))))
+%% #(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $0 (length (cdr (cdr $1)))))) (cdr (cdr $0))))
+%% #(#(+ 1) 1)
+%% #(@$\lambda$@ (@$\lambda$@ (cons (car $1) (cons $0 empty))))
+%% #(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) (#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0))))))) (#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) (cons LPAREN $0) (cons RPAREN empty))) $1) $0) $0)))
+%% #(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $1 (cons $0 $2)))))
+%% #(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $0 STRING))
+%% #(#(+ 1) #(#(+ 1) 1))
+%% #(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) STRING $0) SPACE))
+%% #(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $1 (cons $0 $2))))) (cons $0 $1))))
+%% #(#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) STRING)
+%% #(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (cons (car $0) (#(@$\lambda$@ (@$\lambda$@ (cons '.' (cons $0 $1)))) (cons '.' empty) (car $1))))) (#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0))))))) $1 $0) $1)))
+%% #(#(+ 1) #(#(+ 1) #(#(+ 1) 1)))
+%% #(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $1 (#(@$\lambda$@ (@$\lambda$@ (cdr (fold (#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $1 (fold (cdr $1) 0 (@$\lambda$@ (@$\lambda$@ (#(+ 1) (if (char-eq? $2 $1) 0 $0)))))))) $1 $0) $1 (@$\lambda$@ (@$\lambda$@ (cdr $0))))))) (#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (fold $1 $0 (@$\lambda$@ (@$\lambda$@ (cons $1 $0)))))) $0 STRING)) (#(@$\lambda$@ (@$\lambda$@ (map (@$\lambda$@ (index $0 $2)) (range $0)))) $2 #(#(+ 1) #(#(+ 1) #(#(+ 1) 1))))) $0)))))
+%% \end{lstlisting}
 
-\subsubsection{Graphics}
-\begin{lstlisting}
-  #(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0)))))))
-#(logo_DIVA logo_UA 4)
-#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY)
-#(logo_PT (@$\lambda$@ (logo_FWRT logo_UL logo_ZA $0)))
-#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $1 (@$\lambda$@ (@$\lambda$@ (logo_FWRT (logo_MULL $2 $1) $4 $0)))))))
-#(@$\lambda$@ (logo_forLoop 7 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) 7 logo_epsA $2 $0)))))
-#(@$\lambda$@ (#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) (logo_SUBA logo_UA logo_epsA) (logo_MULL logo_epsL $0)))
-#(@$\lambda$@ (logo_forLoop logo_IFTY (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 logo_epsA (logo_FWRT logo_epsL logo_epsA $0))))))
-#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) 4 #(logo_DIVA logo_UA 4))
-#(logo_DIVA logo_UA)
-#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $1 (@$\lambda$@ (@$\lambda$@ (logo_GETSET $2 (logo_FWRT logo_ZL $4 $0))))))))
-#(#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) (logo_DIVA logo_epsA 2) logo_epsL)
-#(#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) logo_epsA logo_epsL)
-#(logo_forLoop 3 (@$\lambda$@ (@$\lambda$@ (#(#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) (logo_DIVA logo_epsA 2) logo_epsL) (logo_FWRT logo_ZL #(logo_DIVA logo_UA 4) $0)))))
-#(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $1 (@$\lambda$@ (@$\lambda$@ (logo_GETSET $2 (logo_FWRT logo_ZL $4 $0)))))))) (#(logo_DIVA logo_UA) $0) $0))
-#(@$\lambda$@ (#(logo_PT (@$\lambda$@ (logo_FWRT logo_UL logo_ZA $0))) (#(@$\lambda$@ (logo_forLoop logo_IFTY (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 logo_epsA (logo_FWRT logo_epsL logo_epsA $0)))))) logo_epsL $0)))
-#(@$\lambda$@ (#(logo_PT (@$\lambda$@ (logo_FWRT logo_UL logo_ZA $0))) (logo_FWRT logo_UL #(logo_DIVA logo_UA 4) $0)))
-#(@$\lambda$@ (#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) logo_epsA (logo_MULL logo_epsL $0)))
-#(logo_FWRT logo_UL logo_UA)
-#(@$\lambda$@ (#(@$\lambda$@ (logo_forLoop 7 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) 7 logo_epsA $2 $0))))) (logo_MULL logo_epsL $0)))
-\end{lstlisting}
+%% \subsubsection{Graphics}
+%% \begin{lstlisting}
+%%   #(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0)))))))
+%% #(logo_DIVA logo_UA 4)
+%% #(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY)
+%% #(logo_PT (@$\lambda$@ (logo_FWRT logo_UL logo_ZA $0)))
+%% #(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $1 (@$\lambda$@ (@$\lambda$@ (logo_FWRT (logo_MULL $2 $1) $4 $0)))))))
+%% #(@$\lambda$@ (logo_forLoop 7 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) 7 logo_epsA $2 $0)))))
+%% #(@$\lambda$@ (#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) (logo_SUBA logo_UA logo_epsA) (logo_MULL logo_epsL $0)))
+%% #(@$\lambda$@ (logo_forLoop logo_IFTY (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 logo_epsA (logo_FWRT logo_epsL logo_epsA $0))))))
+%% #(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) 4 #(logo_DIVA logo_UA 4))
+%% #(logo_DIVA logo_UA)
+%% #(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $1 (@$\lambda$@ (@$\lambda$@ (logo_GETSET $2 (logo_FWRT logo_ZL $4 $0))))))))
+%% #(#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) (logo_DIVA logo_epsA 2) logo_epsL)
+%% #(#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) logo_epsA logo_epsL)
+%% #(logo_forLoop 3 (@$\lambda$@ (@$\lambda$@ (#(#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) (logo_DIVA logo_epsA 2) logo_epsL) (logo_FWRT logo_ZL #(logo_DIVA logo_UA 4) $0)))))
+%% #(@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $1 (@$\lambda$@ (@$\lambda$@ (logo_GETSET $2 (logo_FWRT logo_ZL $4 $0)))))))) (#(logo_DIVA logo_UA) $0) $0))
+%% #(@$\lambda$@ (#(logo_PT (@$\lambda$@ (logo_FWRT logo_UL logo_ZA $0))) (#(@$\lambda$@ (logo_forLoop logo_IFTY (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 logo_epsA (logo_FWRT logo_epsL logo_epsA $0)))))) logo_epsL $0)))
+%% #(@$\lambda$@ (#(logo_PT (@$\lambda$@ (logo_FWRT logo_UL logo_ZA $0))) (logo_FWRT logo_UL #(logo_DIVA logo_UA 4) $0)))
+%% #(@$\lambda$@ (#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) logo_IFTY) logo_epsA (logo_MULL logo_epsL $0)))
+%% #(logo_FWRT logo_UL logo_UA)
+%% #(@$\lambda$@ (#(@$\lambda$@ (logo_forLoop 7 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (logo_forLoop $2 (@$\lambda$@ (@$\lambda$@ (logo_FWRT $2 $3 $0))))))) 7 logo_epsA $2 $0))))) (logo_MULL logo_epsL $0)))
+%% \end{lstlisting}
 
-\subsubsection{Towers}
-\begin{lstlisting}
-  #(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0))))))
-#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0))))))
-#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 4 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0))))))
-#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 8 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (left 4 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))))))))
-#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0)))))))))))
-#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 8 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (left 2 (3x1 $0))))))))
-#(@$\lambda$@ (1x3 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (1x3 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) (right 4 $0))))))
-#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (1x3 $0)))))
-#(tower_loopM 4 (@$\lambda$@ (@$\lambda$@ (right 6 (3x1 $0)))))
-#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (1x3 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (1x3 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) (right 4 $0)))))) $0)))))
-#(@$\lambda$@ (right 4 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0))))
-#(@$\lambda$@ (right 2 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))
-#(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (1x3 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (1x3 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) (right 4 $0)))))) $0))))) $0 (right 2 (#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 4 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))))) $0 $1)))))
-#(tower_loopM 5 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (right 2 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0))) $0))))
-#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (tower_embed (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0))))))))))) 3 6 3 $0)) $0)))))
-#(@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (tower_embed (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0))))))))))) 4 5 $4 $0)) $0))))))
-#(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0))))))))))) 4 5)
-#(@$\lambda$@ (@$\lambda$@ (right 6 (tower_embed $0 $1))))
-#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (right 4 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))) $0)))))
-\end{lstlisting}
-\subsubsection{Symbolic regression}
-\begin{lstlisting}
-  #(@$\lambda$@ (+. $0 REAL))
-#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL)))
-#(/. REAL)
-#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0)))
-#(@$\lambda$@ (/. (#(/. REAL) $0) $0))
-#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. $0 (#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0))) $0))))
-#(@$\lambda$@ (#(/. REAL) (#(@$\lambda$@ (+. $0 REAL)) $0)))
-#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. (#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0))) $0) $0)))
-\end{lstlisting}
+%% \subsubsection{Towers}
+%% \begin{lstlisting}
+%%   #(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0))))))
+%% #(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0))))))
+%% #(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 4 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0))))))
+%% #(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 8 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (left 4 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))))))))
+%% #(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0)))))))))))
+%% #(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 8 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (left 2 (3x1 $0))))))))
+%% #(@$\lambda$@ (1x3 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (1x3 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) (right 4 $0))))))
+%% #(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (1x3 $0)))))
+%% #(tower_loopM 4 (@$\lambda$@ (@$\lambda$@ (right 6 (3x1 $0)))))
+%% #(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (1x3 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (1x3 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) (right 4 $0)))))) $0)))))
+%% #(@$\lambda$@ (right 4 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0))))
+%% #(@$\lambda$@ (right 2 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))
+%% #(@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (1x3 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (1x3 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) (right 4 $0)))))) $0))))) $0 (right 2 (#(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left 4 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))))) $0 $1)))))
+%% #(tower_loopM 5 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (right 2 (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0))) $0))))
+%% #(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (tower_embed (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0))))))))))) 3 6 3 $0)) $0)))))
+%% #(@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (tower_embed (@$\lambda$@ (#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0))))))))))) 4 5 $4 $0)) $0))))))
+%% #(#(@$\lambda$@ (@$\lambda$@ (@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (left $3 (3x1 (right 3 (3x1 (left $4 $0))))))))))) 4 5)
+%% #(@$\lambda$@ (@$\lambda$@ (right 6 (tower_embed $0 $1))))
+%% #(@$\lambda$@ (tower_loopM $0 (@$\lambda$@ (@$\lambda$@ (#(@$\lambda$@ (right 4 (#(@$\lambda$@ (1x3 (1x3 (right 4 (1x3 (1x3 $0)))))) (#(@$\lambda$@ (1x3 (left 4 (1x3 (right 2 (3x1 $0)))))) $0)))) $0)))))
+%% \end{lstlisting}
+%% \subsubsection{Symbolic regression}
+%% \begin{lstlisting}
+%%   #(@$\lambda$@ (+. $0 REAL))
+%% #(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL)))
+%% #(/. REAL)
+%% #(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0)))
+%% #(@$\lambda$@ (/. (#(/. REAL) $0) $0))
+%% #(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. $0 (#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0))) $0))))
+%% #(@$\lambda$@ (#(/. REAL) (#(@$\lambda$@ (+. $0 REAL)) $0)))
+%% #(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. (#(@$\lambda$@ (#(@$\lambda$@ (#(@$\lambda$@ (+. $0 REAL)) (*. $0 REAL))) (*. (#(@$\lambda$@ (+. $0 REAL)) $0) $0))) $0) $0)))
+%% \end{lstlisting}
 
 \subsection{Hyperparameters and training details}
 
@@ -3856,7 +3916,7 @@ We follow the RNN/CNN by an MLP with 128 hidden units and a ReLU activation whic
 
 \noindent\textbf{Neural net training} We train our recognition models using Adam~\cite{kingma2014adam} with a learning rate of 0.001.
 
-\noindent\textbf{\system Hyperparameters}
+\noindent\textbf{Hyperparameters}
 Due to the high computational cost we
 performed only an informal coarse
 hyperparameter search.
@@ -3868,12 +3928,14 @@ problems require either longer timeouts, more CPUs, or both.
   \begin{tabular}{ccccccc}
     \toprule
     Domain&Timeout&CPUs&Batch size&$\lambda$ (\ref{appendixCompression})&$\alpha$ (\ref{mapAppendix})&Max beam size (\ref{systemPseudocode})\\\midrule
+    Symbolic regression&2m & 40&10 & 1&30&5\\
     Lists&7m&64&10&1.5&30&5\\
     Text&7m&64&10&1.5&30&5\\
     Graphics&1h&96&50&1.5&30&5\\
-    Symbolic regression&2m & 40&10 & 1&30&5\\
     Towers& 1h& 64&50 & 1.5&30&5\\
     Regexes&30m & 64&40 & 1.5&30&5\\
+    Physical laws&4h&64&See~\ref{physicsAppendix}&1 & 30&5\\
+    Recursive functions&4h&64&See~\ref{appendixMcCarthy}&1 & 30&5\\
     \bottomrule     
   \end{tabular}
 \end{center}
